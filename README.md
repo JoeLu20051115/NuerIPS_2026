@@ -78,6 +78,58 @@ python eval_utils/run_sim_eval.py --host <API_HOST> --port <API_PORT>
 
 The outputs are saved in `runs` directory.
 
+## Running Evaluation and Analysis
+
+### Step 1: Start Inference Server
+
+```bash
+# 启动推理服务（在一个终端）
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.run --standalone --nproc_per_node=1 \
+  socket_test_optimized_AR.py --port 5000 --enable-dit-cache \
+  --model-path /home/xingrui/lueq/NuerIPS_2026/checkpoints/DreamZero-DROID
+```
+
+### Step 2: Run Evaluation
+
+```bash
+# 在另一个终端运行评估（连接到推理服务）
+python eval_utils/run_sim_eval.py --host localhost --port 5000 --episodes 10 --scene 1
+```
+
+Evaluation results (video files) will be saved in `runs/YYYY-MM-DD/HH-MM-SS/` directory.
+
+### Step 3: Analyze Results
+
+#### Basic Analysis (Success Rate & Time Horizon)
+
+```bash
+# 分析评估结果，生成准确率和时间范围图表
+python eval_utils/analyze_results.py --runs-dir runs/2024-01-01/12-00-00
+```
+
+Generates:
+- `success_rate_metrics.png`: Episode success rates
+- `time_horizon_analysis.png`: Short-term vs long-term time horizons
+- `evaluation_report.txt`: Text summary
+
+#### "Short-Sightedness" Bottleneck Analysis
+
+```bash
+# 分析 DreamZero 的"短视"瓶颈（误差级联、语义断裂、单一指令瓶颈）
+python eval_utils/analyze_short_sightedness.py --runs-dir runs/2024-01-01/12-00-00
+```
+
+Generates comprehensive visualizations for three core bottlenecks:
+
+1. **Error Cascading (误差级联)**: Cumulative error growth, chunk distribution
+2. **Semantic Disconnection (语义断裂)**: Instruction complexity vs completion rate
+3. **Single Instruction Bottleneck (单一指令瓶颈)**: Ideal vs actual instruction switches
+
+Output files:
+- `error_cascading_analysis.png`
+- `semantic_disconnection_analysis.png`
+- `single_instruction_bottleneck_analysis.png`
+- `short_sightedness_analysis_report.txt`
 
 ## Quick Start
 
@@ -88,16 +140,9 @@ The outputs are saved in `runs` directory.
 
 ### Prerequisites
 
-<!-- 
-[中文] 硬件和软件要求：
-- Python 3.11（必须）
-- 至少 2 张 GPU（GB200 或 H100，用于分布式推理）
-- CUDA 12.9 或更高版本
--->
-
 - **Python**: 3.11
-- **Hardware**: Multi-GPU setup (tested on GB200, H100)
-  - Minimum: 2 GPUs for distributed inference
+- **Hardware**: GPU setup (tested on GB200, H100)
+  - Single GPU is sufficient for inference
 - **CUDA**: Compatible GPU with CUDA 12.9+
 
 ### Installation
@@ -148,7 +193,7 @@ We release a 14B pretrained DROID checkpoint on [Huggingface](https://huggingfac
 
 ```bash
 # 将 <path/to/checkpoint> 替换为你想保存权重的本地路径，例如 ./checkpoints/DreamZero-DROID
-hf download GEAR-Dreams/DreamZero-DROID --repo-type model --local-dir <path/to/checkpoint>
+hf download GEAR-Dreams/DreamZero-DROID --repo-type model --local-dir /home/xingrui/lueq/NuerIPS_2026/checkpoints/DreamZero-DROID
 ```
 
 ## Running the Inference Server
@@ -163,55 +208,24 @@ hf download GEAR-Dreams/DreamZero-DROID --repo-type model --local-dir <path/to/c
 
 ### Command Overview
 
-The inference server uses PyTorch distributed training utilities to parallelize the model across multiple GPUs:
-
 ```bash
-# CUDA_VISIBLE_DEVICES=0,1  指定使用第 0、1 号 GPU
-# --nproc_per_node=2         每个节点启动 2 个进程（对应 2 张卡）
-# --port 5000                WebSocket 服务监听端口
-# --enable-dit-cache         开启 DiT 层缓存，推荐开启
-# --model-path               指向你下载的预训练权重路径
-CUDA_VISIBLE_DEVICES=0,1 python -m torch.distributed.run --standalone --nproc_per_node=2 socket_test_optimized_AR.py --port 5000 --enable-dit-cache --model-path <path/to/checkpoint>
+# 启动推理服务
+CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.run --standalone --nproc_per_node=1 \
+  socket_test_optimized_AR.py --port 5000 --enable-dit-cache \
+  --model-path /home/xingrui/lueq/NuerIPS_2026/checkpoints/DreamZero-DROID
 ```
 
-To verify the server is working, run a test client. The first few inferences will take a few minutes to warm up. After warming up, inference takes ~0.6s on GB200 and ~3s on H100.
-
-```bash
-# 启动测试客户端，验证推理服务是否正常工作
-python test_client_AR.py --port 5000
-```
+The first few inferences will take a few minutes to warm up. After warming up, inference takes ~0.6s on GB200 and ~3s on H100.
 
 ### Command-line Arguments
 
-<!-- 
-[中文] 命令行参数说明：
-- --port           WebSocket 端口号，默认 8000
-- --model-path     预训练权重目录路径（必填）
-- --enable-dit-cache  开启 DiT 缓存加速（推荐）
-- --max-chunk-size    覆盖推理时的 chunk 大小（可选）
-- --timeout-seconds   服务超时时间，默认 50000 秒
-- --index             输出目录编号，默认 0
--->
-
-- `--port`: Port number for the WebSocket server (default: 8000)
-- `--model-path`: Path to the pretrained model checkpoint directory
-- `--enable-dit-cache`: Enable caching in DiT layers for faster inference (recommended)
+- `--port`: WebSocket server port (default: 8000)
+- `--model-path`: Path to pretrained model checkpoint (required)
+- `--enable-dit-cache`: Enable DiT layer caching for faster inference (recommended)
 - `--max-chunk-size`: Override max_chunk_size for inference (optional)
 - `--timeout-seconds`: Server timeout in seconds (default: 50000)
-- `--index`: Index for output directory naming (default: 0)
 
 
-### Output
-
-<!-- 
-[中文] 推理输出：
-- 生成的视频预测保存为 MP4，路径格式：{model_path}/real_world_eval_gen_{日期}_{index}/{checkpoint_name}/
-- 输入的观测图像保存在：{output_dir}/inputs/{消息序号}_{时间戳}/
--->
-
-The server saves:
-- **Videos**: Generated video predictions as MP4 files in `{model_path}/real_world_eval_gen_{date}_{index}/{checkpoint_name}/`
-- **Input observations**: Saved per message in `{output_dir}/inputs/{msg_index}_{timestamp}/`
 
 
 ## Training

@@ -140,6 +140,7 @@ elif not torch.equal(self.language, data["text"]):
 
 原始 DreamZero 试图直接拟合长程联合分布：
 
+
 $$P(a_{0:T}, o_{0:T} \mid o_0, L_{long})$$
 
 当 $T$ 极大时，这个分布的建模是不可行的。我们利用贝叶斯定理和马尔可夫假设，将时间轴切分为 $K$ 个语义阶段，得到层次化分解：
