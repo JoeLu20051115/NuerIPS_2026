@@ -18,6 +18,20 @@ Finally, run the evaluation script:
 python run_eval.py --episodes 10 --headless
 """
 
+import sys
+from pathlib import Path
+
+# 添加 sim-evals 到 Python 路径
+current_file = Path(__file__).resolve()
+project_root = current_file.parent.parent  # 从 eval_utils 回到 dreamzero 根目录
+sim_evals_src = project_root / "sim-evals" / "src"
+if sim_evals_src.exists():
+    sys.path.insert(0, str(sim_evals_src))
+    print(f"Added to Python path: {sim_evals_src}")
+else:
+    print(f"Warning: sim-evals/src not found at {sim_evals_src}")
+    print("Please ensure sim-evals submodule is initialized: git submodule update --init --recursive")
+
 import uuid
 
 import tyro
