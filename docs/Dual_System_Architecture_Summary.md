@@ -54,61 +54,54 @@ elif not torch.equal(self.language, data["text"]):
 ### 2.1 整体架构图
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Long-horizon Instruction L_long                  │
-│                  "Clean the table and put items away"               │
-└──────────────────────────────┬──────────────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│  ╔══════════════════════════════════════════════════════════════╗    │
-│  ║          System 2: LLM Symbolic Planner (Π_sys2)           ║    │
-│  ║                                                             ║    │
-│  ║  Input:  L_long + s_t + History H_t                        ║    │
-│  ║  Output: Atomic sub-instruction l_k                        ║    │
-│  ║  Example: l_1="Pick up the red cup"                        ║    │
-│  ║           l_2="Place it in the drawer"                     ║    │
-│  ║           l_3="Close the drawer"                           ║    │
-│  ╚══════════════════════════════╦═══════════════════════════════╝    │
-│                                 ║ l_k (text instruction)            │
-│                                 ▼                                    │
-│  ╔══════════════════════════════════════════════════════════════╗    │
-│  ║       System 1: DreamZero WAM (π_sys1) — UNCHANGED         ║    │
-│  ║                                                             ║    │
-│  ║  ┌─────────┐  ┌──────────┐  ┌──────────┐  ┌────────────┐  ║    │
-│  ║  │  Text   │  │  Image   │  │   VAE    │  │  Action/   │  ║    │
-│  ║  │ Encoder │  │ Encoder  │  │ Encoder  │  │  State     │  ║    │
-│  ║  │ (UMT5)  │  │ (CLIP)   │  │ (WAN)    │  │  Encoder   │  ║    │
-│  ║  └────┬────┘  └────┬─────┘  └────┬─────┘  └─────┬──────┘  ║    │
-│  ║       │            │             │               │          ║    │
-│  ║       ▼            ▼             ▼               ▼          ║    │
-│  ║  ┌──────────────────────────────────────────────────────┐   ║    │
-│  ║  │         CausalWanModel (40-layer DiT)                │   ║    │
-│  ║  │  ┌──────────────┐ ┌──────────────┐ ┌─────────────┐  │   ║    │
-│  ║  │  │ Causal Self- │ │    Cross-    │ │     FFN     │  │   ║    │
-│  ║  │  │  Attention   │ │  Attention   │ │             │  │   ║    │
-│  ║  │  │ (video+act+  │ │ (text+image  │ │ (nonlinear  │  │   ║    │
-│  ║  │  │  state)      │ │  condition)  │ │  transform) │  │   ║    │
-│  ║  │  └──────────────┘ └──────────────┘ └─────────────┘  │   ║    │
-│  ║  └──────────────────────────────────────────────────────┘   ║    │
-│  ║                          │                                  ║    │
-│  ║            ┌─────────────┴──────────────┐                   ║    │
-│  ║            ▼                            ▼                   ║    │
-│  ║     Action a_{t:t+H}          Video z_{t:t+H}              ║    │
-│  ╚══════════════╦═══════════════════════════════════════════════╝    │
-│                 ║ Execute action in real world                       │
-│                 ▼                                                    │
-│  ╔══════════════════════════════════════════════════════════════╗    │
-│  ║      Evaluator: VLM + Proprioception Verifier (E)         ║    │
-│  ║                                                             ║    │
-│  ║  Input:  o_{t+H} + l_k + proprioception q_{t+H}           ║    │
-│  ║  Output: s_{t+H} + Success flag b_k (cross-verified)      ║    │
-│  ║                                                             ║    │
-│  ║  b_k = 1 → Confirmation Window (0.5s) → Next l_{k+1}     ║    │
-│  ║  b_k = 0 → Re-plan with error message                     ║    │
-│  ╚══════════════════════════════════════════════════════════════╝    │
-└─────────────────────────────────────────────────────────────────────┘
+Long-horizon goal L_long
+        │
+        ▼
+┌──────────────────────────────────────────────┐
+│ System 2: LLM Planner (Π_sys2)              │
+│ Input: L_long + s_t + history H_t           │
+│ Output: current sub-instruction I_t (= l_k) │
+└───────────────────────────┬──────────────────┘
+                            │ I_t
+                            ▼
+┌──────────────────────────────────────────────┐
+│ System 1: DreamZero (π_sys1, unchanged)     │
+│ Input: I_t + current frame                  │
+│ Output: action chunk a_{t:t+H}              │
+└───────────────────────────┬──────────────────┘
+                            │ Execute
+                            ▼
+┌──────────────────────────────────────────────┐
+│ Exact Sim / Robot Execution Layer           │
+│ Environment state transitions               │
+└───────────────────────────┬──────────────────┘
+                            │ Visual Observation (State)
+                            ▼
+┌──────────────────────────────────────────────┐
+│ VLM + Proprio Evaluator (E)                 │
+│ Compare new observation with I_t            │
+└───────────────────────────┬──────────────────┘
+                            ▼
+                    ◇ 子任务是否完成? ◇
+                     ├── Yes: Instruction Switch
+                     │        → next instruction I_{t+1}
+                     │        → return to System 1 execution
+                     └── No : Dynamic Adjustment
+                              → regenerate current action chunk
+                              → re-plan/retry for I_t
+
+闭环反馈: Exact Sim -> (Visual Observation (State)) -> VLM -> LLM/System 1
 ```
+
+#### 2.1.1 闭环逻辑流（与执行流程一一对应）
+
+1. **System 2 (LLM)** 下发语义指令 $I_t$。  
+2. **System 1 (DreamZero)** 根据 $I_t$ 与当前帧生成动作序列。  
+3. **Exact Sim（执行层）** 物理执行动作，环境状态变化。  
+4. **VLM（反馈层）** 读取新观测并对照 $I_t$ 判断是否达标。  
+5. **决策分支**：  
+   - `Yes`：`Instruction Switch`，进入下一子任务 $I_{t+1}$；  
+   - `No`：`Dynamic Adjustment`，重生成当前子任务的 Action Chunk 并回到步骤 1/2。  
 
 ### 2.2 三大核心模块
 
@@ -648,10 +641,10 @@ SUBTASK_CHUNK_BUDGET = {
 
 | 编号 | 对应原论文 | 建议展示 | 核心结论 | 对应代码指标 | 可行度 |
 |------|-----------|---------|---------|-------------|--------|
-| 1 | Table 1 (Zero-shot Evaluation) | **Task Success Rate 表**（任务列 + Long-Horizon 复合任务列） | 单任务持平，长程复合任务显著拉开差距 | `success_rate`, `total_episodes` | **高** |
-| 2 | Figure 5 (Future Prediction) 变体 | **Trajectory Drift Visualization**（2D 路径 + chunk 标注） | 原生在第 3 个 chunk 后漂移，System 2 在切换点纠偏 | `error_accumulation`, `chunk_count`, `instruction_switches` | **中**（需补 2D 轨迹日志） |
-| 3 | Table 3 (Effect of Language Instructions) | **Instruction Granularity 表**（Single Long vs Decoupled） | 指令分解将复杂语义转化为可执行低复杂度子目标 | `instruction_complexity`, `subtask_count`, `completion_rate` | **高** |
-| 4 | Figure 8 (Robustness Tasks) | **Recovery after Perturbation 柱状图** | 干扰后原生失败，System 2 通过动态重规划恢复 | `successful`, `failed`, `dynamic_adjustment` | **中**（需显式 perturbation/recovery 标记） |
+| 1 | Figure 8 / Figure 9 (Seen & Unseen Task Evaluation) | **Task Success Rate 表**（任务列 + Long-Horizon 复合任务列） | 单任务持平，长程复合任务显著拉开差距 | `success_rate`, `total_episodes` | **高** |
+| 2 | Figure 5 (Decoupled Noise Schedules) | **Trajectory Drift Visualization**（2D 路径 + chunk 标注） | 原生在第 3 个 chunk 后漂移，System 2 在切换点纠偏 | `error_accumulation`, `chunk_count`, `instruction_switches` | **中**（需补 2D 轨迹日志） |
+| 3 | Table 3 (DreamZero-Flash Evaluation) | **Instruction Granularity 表**（Single Long vs Decoupled） | 指令分解将复杂语义转化为可执行低复杂度子目标 | `instruction_complexity`, `subtask_count`, `completion_rate` | **高** |
+| 4 | Figure 16 (Failure Case Analysis) | **Recovery after Perturbation 柱状图** | 干扰后原生失败，System 2 通过动态重规划恢复 | `successful`, `failed`, `dynamic_adjustment` | **中**（需显式 perturbation/recovery 标记） |
 
 ### 8.3 深度新增图（针对三大痛点）
 
@@ -661,6 +654,26 @@ SUBTASK_CHUNK_BUDGET = {
 | 6 | **Logical Consistency Heatmap**（语义逻辑一致性矩阵） | 语义断裂 | 统计不同任务深度下 `logical_errors` 频次，原生 vs System 2 对比热力图 | `logical_errors`, `subtask_count`, `completion_rate` | **中-低**（当前 `logical_errors` 基本未实算） |
 | 7 | **Instruction Efficiency & Switches**（指令效能效率图） | 单一指令瓶颈 | 堆叠柱/双轴：`instruction_duration` + `ideal_switches` vs `instruction_switches` | `instruction_duration`, `ideal_switches`, `instruction_switches` | **高** |
 | 8 | **Computation-Performance Trade-off**（时间-收益平衡图） | 回应“推理慢”质疑 | X: 总执行时长（含 LLM/VLM 开销）；Y: 成功率；强调长程收益 | `success_rate`, `total_execution_time` | **中**（需统一时延日志） |
+
+### 8.3.1 Sawtooth Error Plot 标注规范（闭环触发事件）
+
+```
+Error
+^
+|  non-closed-loop baseline (dashed):  - - - - - - - - - - - - - - -  /
+|                                                                  /
+|                           /¯\            /¯\            /¯\
+| closed-loop error:       /   \__________/   \__________/   \______
+|                             *              *              *
+|                            Reset          Reset          Reset
+|                   VLM Verified & Re-planned (at each turning point)
++--------------------------------------------------------------------------> chunk / time
+```
+
+绘图要求：
+- 每个误差骤降折点（`Reset Point`）上方标注：`VLM Verified & Re-planned`。  
+- 同图保留一条持续上升的虚线作为非闭环对照（无纠偏）。  
+- `Reset Point` 应与日志中的 `instruction_switches` 或 `dynamic_adjustment=True` 时间戳对齐，明确说明误差回落由闭环纠偏触发。  
 
 ### 8.4 指标采集规范（最小补充）
 
