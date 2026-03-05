@@ -640,17 +640,41 @@ SUBTASK_CHUNK_BUDGET = {
 | Oracle Planning | ✓ (人工标注) | DreamZero | ✓ | ✓ | ✓ | ✓ | 规划上界 |
 | Oracle Eval | ✓ | DreamZero | ✓ (Ground Truth) | ✓ | ✓ | ✓ | 评估上界 |
 
-### 8.2 评估指标
+### 8.2 评估范式：复刻与超越（对齐原论文 Figure/Table）
 
-- **任务成功率 (Task Success Rate)：** 长程任务的整体完成率
-- **子任务成功率 (Sub-task Success Rate)：** 各原子指令的完成率
-- **动作平滑度 (Action Smoothness)：** 子任务切换时的加速度突变量（验证软切换效果）
-- **VLM 误判率 (VLM False Positive Rate)：** VLM 单独判断 vs 交叉验证后的误判率
-- **重规划次数 (Re-planning Count)：** 平均每个任务的失败恢复次数
-- **总执行时间 (Total Execution Time)：** 包含 LLM/VLM 调用开销
-- **错误归因分布 (Error Attribution)：** System 2 / System 1 / Evaluator 各自的失败占比
+在保留原论文主干指标的基础上，评估分为两层：  
+1) **复刻层**：对齐原论文经典表格/图；  
+2) **超越层**：专门量化 System 2 对长程任务的增益。
 
-### 8.3 推荐实验场景
+| 编号 | 对应原论文 | 建议展示 | 核心结论 | 对应代码指标 | 可行度 |
+|------|-----------|---------|---------|-------------|--------|
+| 1 | Table 1 (Zero-shot Evaluation) | **Task Success Rate 表**（任务列 + Long-Horizon 复合任务列） | 单任务持平，长程复合任务显著拉开差距 | `success_rate`, `total_episodes` | **高** |
+| 2 | Figure 5 (Future Prediction) 变体 | **Trajectory Drift Visualization**（2D 路径 + chunk 标注） | 原生在第 3 个 chunk 后漂移，System 2 在切换点纠偏 | `error_accumulation`, `chunk_count`, `instruction_switches` | **中**（需补 2D 轨迹日志） |
+| 3 | Table 3 (Effect of Language Instructions) | **Instruction Granularity 表**（Single Long vs Decoupled） | 指令分解将复杂语义转化为可执行低复杂度子目标 | `instruction_complexity`, `subtask_count`, `completion_rate` | **高** |
+| 4 | Figure 8 (Robustness Tasks) | **Recovery after Perturbation 柱状图** | 干扰后原生失败，System 2 通过动态重规划恢复 | `successful`, `failed`, `dynamic_adjustment` | **中**（需显式 perturbation/recovery 标记） |
+
+### 8.3 深度新增图（针对三大痛点）
+
+| 编号 | 图名 | 解决痛点 | 绘图逻辑 | 对应代码指标 | 可行度 |
+|------|------|---------|---------|-------------|--------|
+| 5 | **Sawtooth Error Plot**（误差重置锯齿图） | 误差级联 | X: chunk/time；Y: `error`；在 `instruction_switches`/`dynamic_adjustment` 处应出现误差回落 | `error_accumulation`, `instruction_switches`, `dynamic_adjustment` | **高** |
+| 6 | **Logical Consistency Heatmap**（语义逻辑一致性矩阵） | 语义断裂 | 统计不同任务深度下 `logical_errors` 频次，原生 vs System 2 对比热力图 | `logical_errors`, `subtask_count`, `completion_rate` | **中-低**（当前 `logical_errors` 基本未实算） |
+| 7 | **Instruction Efficiency & Switches**（指令效能效率图） | 单一指令瓶颈 | 堆叠柱/双轴：`instruction_duration` + `ideal_switches` vs `instruction_switches` | `instruction_duration`, `ideal_switches`, `instruction_switches` | **高** |
+| 8 | **Computation-Performance Trade-off**（时间-收益平衡图） | 回应“推理慢”质疑 | X: 总执行时长（含 LLM/VLM 开销）；Y: 成功率；强调长程收益 | `success_rate`, `total_execution_time` | **中**（需统一时延日志） |
+
+### 8.4 指标采集规范（最小补充）
+
+为保证上述图表可稳定复现，建议在 `evaluation_log.json` 增加以下字段（不改 DreamZero 模型本体）：
+
+- `chunk_id`, `chunk_start_ts`, `chunk_end_ts`, `chunk_error`
+- `instruction_id`, `instruction_text`, `instruction_switch`（布尔）
+- `dynamic_adjustment`（布尔）, `replan_reason`
+- `ee_xy` 或 `object_xy`（用于 2D 轨迹）
+- `perturbation_type`, `recovery_mode`, `recovery_success`
+- `logical_error_type`（如 precondition_violation / ordering_error）
+- `llm_latency_ms`, `vlm_latency_ms`, `total_execution_time_ms`
+
+### 8.5 推荐实验场景
 
 基于 DROID 数据集的动作分布，推荐以下长程任务：
 
