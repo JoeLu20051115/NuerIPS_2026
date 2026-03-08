@@ -713,6 +713,15 @@ class WebsocketPolicyServer:
 
 def init_mesh() -> DeviceMesh:
     # env vars set by torchrun
+    # 单卡模式：自动设置分布式环境变量
+    if "RANK" not in os.environ or "WORLD_SIZE" not in os.environ or int(os.environ.get("WORLD_SIZE", "1")) == 1:
+        print("Single GPU mode: auto-setting distributed env vars for single process")
+        os.environ.setdefault("RANK", "0")
+        os.environ.setdefault("WORLD_SIZE", "1")
+        os.environ.setdefault("MASTER_ADDR", "127.0.0.1")
+        os.environ.setdefault("MASTER_PORT", "29500")
+        os.environ.setdefault("LOCAL_RANK", "0")
+
     dist.init_process_group("nccl")
     rank = dist.get_rank()
     world_size = dist.get_world_size()
