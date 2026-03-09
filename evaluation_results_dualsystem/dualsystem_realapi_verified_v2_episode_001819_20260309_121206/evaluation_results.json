@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.06590461952166124,
+  "video_mse": 0.0012178930885836062,
+  "completion_time": 3.9498721227049827,
+  "robustness_score": 0.9340953804783387,
+  "num_sub_tasks": 5,
+  "task_description": "Pick up the bear plush toy from the table and put it in the pot",
+  "sub_instructions": [
+    "move to the table",
+    "grasp the bear plush toy",
+    "move to the pot",
+    "place the bear plush toy in the pot",
+    "release the bear plush toy"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the table  \ngrasp the bear plush toy  \nmove to the pot  \nplace the bear plush toy in the pot  \nrelease the bear plush toy  "
+  }
+}

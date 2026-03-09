@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.15605303407450316,
+  "video_mse": 0.012419794310449307,
+  "completion_time": 2.1155095871537926,
+  "robustness_score": 0.8439469659254968,
+  "num_sub_tasks": 5,
+  "task_description": "Press down on the lid of the flask",
+  "sub_instructions": [
+    "Move the gripper above the flask lid.",
+    "Grasp the lid of the flask.",
+    "Press down on the lid with the gripper.",
+    "Release the grip on the lid.",
+    "Move the gripper back to the starting position."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move the gripper above the flask lid.  \nGrasp the lid of the flask.  \nPress down on the lid with the gripper.  \nRelease the grip on the lid.  \nMove the gripper back to the starting position."
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "tier": "L1",
+  "method": "dualsystem_realapi_checkmini_v2",
+  "num_episodes": 3,
+  "success_rate": {
+    "mean": 1.0,
+    "std": 0.0,
+    "ci_95": [
+      1.0,
+      1.0
+    ]
+  },
+  "completion_time": {
+    "mean": 3.9878356469174228,
+    "std": 0.014163920584547575
+  },
+  "robustness_score": {
+    "mean": 0.8746491688214153,
+    "std": 0.020238335365308092
+  },
+  "individual_results": [
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.10495482590755459,
+      "video_mse": 0.0054045966831196175,
+      "completion_time": 3.969624390080571,
+      "robustness_score": 0.8950451740924454,
+      "num_sub_tasks": 5,
+      "task_description": "Move pen from the mug to the table",
+      "sub_instructions": [
+        "open gripper",
+        "grasp pen",
+        "move pen to table",
+        "place pen on table",
+        "close gripper"
+      ],
+      "sub_task_assignments": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "open gripper  \ngrasp pen  \nmove pen to table  \nplace pen on table  \nclose gripper  "
+      }
+    },
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.11815953957091359,
+      "video_mse": 0.0042527504446363525,
+      "completion_time": 4.004165371321141,
+      "robustness_score": 0.8818404604290864,
+      "num_sub_tasks": 5,
+      "task_description": "Coil the cord",
+      "sub_instructions": [
+        "Move to the cord's starting point.",
+        "Grasp the cord with the gripper.",
+        "Coil the cord around a designated object or area.",
+        "Place the coiled cord securely.",
+        "Open the gripper to release the cord."
+      ],
+      "sub_task_assignments": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the cord's starting point.  \nGrasp the cord with the gripper.  \nCoil the cord around a designated object or area.  \nPlace the coiled cord securely.  \nOpen the gripper to release the cord.  "
+      }
+    },
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.15293812805728577,
+      "video_mse": 0.0029129801417322925,
+      "completion_time": 3.989717179350555,
+      "robustness_score": 0.8470618719427142,
+      "num_sub_tasks": 5,
+      "task_description": "Bring the small, white object, closer to the foam pack",
+      "sub_instructions": [
+        "Move to the location of the small, white object.",
+        "Grasp the small, white object with the gripper.",
+        "Move towards the foam pack.",
+        "Place the small, white object next to the foam pack.",
+        "Open the gripper to release the object."
+      ],
+      "sub_task_assignments": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the location of the small, white object.  \nGrasp the small, white object with the gripper.  \nMove towards the foam pack.  \nPlace the small, white object next to the foam pack.  \nOpen the gripper to release the object."
+      }
+    }
+  ]
+}

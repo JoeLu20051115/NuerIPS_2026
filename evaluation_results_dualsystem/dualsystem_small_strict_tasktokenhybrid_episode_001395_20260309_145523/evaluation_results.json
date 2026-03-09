@@ -1,0 +1,49 @@
+{
+  "success_rate": 0.5,
+  "action_l2_error": 0.1515930786597911,
+  "video_mse": 0.018806263635214582,
+  "completion_time": 3.0911315280944107,
+  "robustness_score": 0.8484069213402089,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the sachet from the shelf",
+  "sub_instructions": [
+    "move to shelf",
+    "open gripper",
+    "grasp sachet",
+    "move to designated location",
+    "close gripper"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to shelf  \nopen gripper  \ngrasp sachet  \nmove to designated location  \nclose gripper  "
+  }
+}

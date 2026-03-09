@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.11225279662292631,
+  "video_mse": 0.0023105408650679602,
+  "completion_time": 2.119516722485423,
+  "robustness_score": 0.8877472033770737,
+  "num_sub_tasks": 5,
+  "task_description": "Move the pencil to the left",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the pencil.",
+    "Move the pencil to the left.",
+    "Place the pencil down.",
+    "Close the gripper."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the pencil.  \nMove the pencil to the left.  \nPlace the pencil down.  \nClose the gripper."
+  }
+}

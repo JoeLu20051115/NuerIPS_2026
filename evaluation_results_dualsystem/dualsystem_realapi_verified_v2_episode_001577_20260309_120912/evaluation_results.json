@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.10938897627618435,
+  "video_mse": 0.004450570500449105,
+  "completion_time": 3.9851335844025018,
+  "robustness_score": 0.8906110237238156,
+  "num_sub_tasks": 5,
+  "task_description": "Change the position of the marker to face across the table",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the marker.",
+    "Lift the marker to a suitable height.",
+    "Rotate the marker to face across the table.",
+    "Place the marker down on the table."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the marker.  \nLift the marker to a suitable height.  \nRotate the marker to face across the table.  \nPlace the marker down on the table."
+  }
+}

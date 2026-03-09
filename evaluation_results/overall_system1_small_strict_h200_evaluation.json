@@ -1,0 +1,159 @@
+{
+  "evaluation_timestamp": "2026-03-09 13:27:18",
+  "method": "system1_small_strict_h200",
+  "tier_summaries": {
+    "L1": {
+      "tier": "L1",
+      "method": "system1_small_strict_h200",
+      "num_episodes": 5,
+      "success_rate": {
+        "mean": 0.32,
+        "std": 0.116619037896906,
+        "ci_95": [
+          0.21999999999999997,
+          0.42000000000000004
+        ]
+      },
+      "video_mse": {
+        "mean": 0.011677000780810973,
+        "std": 0.004814397693908755
+      },
+      "completion_time": {
+        "mean": 2.1147680862620475,
+        "std": 0.006723115404306047
+      },
+      "robustness_score": {
+        "mean": 0.831743806351948,
+        "std": 0.01888230141900125
+      },
+      "evaluation_config": {
+        "error_threshold": 0.1,
+        "eval_steps": 10
+      },
+      "individual_results": [
+        {
+          "success_rate": 0.4,
+          "action_l2_error": 0.15297127215213632,
+          "video_mse": 0.019229609246559847,
+          "completion_time": 2.103170326910913,
+          "robustness_score": 0.8470287278478636,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.5,
+          "action_l2_error": 0.14088503027015428,
+          "video_mse": 0.009634259874101487,
+          "completion_time": 2.1126871780492364,
+          "robustness_score": 0.8591149697298457,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.2,
+          "action_l2_error": 0.19367863059583873,
+          "video_mse": 0.009957174427730421,
+          "completion_time": 2.116304782219231,
+          "robustness_score": 0.8063213694041613,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.2,
+          "action_l2_error": 0.17846950027788316,
+          "video_mse": 0.005063006143651005,
+          "completion_time": 2.1184844987466933,
+          "robustness_score": 0.8215304997221169,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.3,
+          "action_l2_error": 0.1752765349442477,
+          "video_mse": 0.014500954212012107,
+          "completion_time": 2.1231936453841627,
+          "robustness_score": 0.8247234650557523,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        }
+      ]
+    },
+    "L3": {
+      "tier": "L3",
+      "method": "system1_small_strict_h200",
+      "num_episodes": 5,
+      "success_rate": {
+        "mean": 0.54,
+        "std": 0.18547236990991406,
+        "ci_95": [
+          0.36,
+          0.6799999999999999
+        ]
+      },
+      "video_mse": {
+        "mean": 0.004730598862030941,
+        "std": 0.0037409284970684317
+      },
+      "completion_time": {
+        "mean": 2.127538007609546,
+        "std": 0.0028347704091043558
+      },
+      "robustness_score": {
+        "mean": 0.8836917200644651,
+        "std": 0.027947151361801384
+      },
+      "evaluation_config": {
+        "error_threshold": 0.1,
+        "eval_steps": 10
+      },
+      "individual_results": [
+        {
+          "success_rate": 0.6,
+          "action_l2_error": 0.14179353137534684,
+          "video_mse": 0.011476354749106878,
+          "completion_time": 2.122044712211937,
+          "robustness_score": 0.8582064686246531,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.2,
+          "action_l2_error": 0.157849980514776,
+          "video_mse": 0.005923851345895499,
+          "completion_time": 2.1278842935338615,
+          "robustness_score": 0.842150019485224,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.7,
+          "action_l2_error": 0.0934796279978459,
+          "video_mse": 0.002937198418429868,
+          "completion_time": 2.128949961066246,
+          "robustness_score": 0.9065203720021541,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.7,
+          "action_l2_error": 0.09020206089756007,
+          "video_mse": 0.0023444980996162176,
+          "completion_time": 2.1287293426692484,
+          "robustness_score": 0.9097979391024399,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        },
+        {
+          "success_rate": 0.5,
+          "action_l2_error": 0.09821619889214578,
+          "video_mse": 0.0009710916971062439,
+          "completion_time": 2.130081728566438,
+          "robustness_score": 0.9017838011078543,
+          "num_eval_steps": 10,
+          "error_threshold": 0.1
+        }
+      ]
+    }
+  },
+  "overall_success_rate": 0.43000000000000005
+}

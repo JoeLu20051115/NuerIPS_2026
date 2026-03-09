@@ -1,0 +1,48 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.11312362818467137,
+  "video_mse": 0.002491554172954959,
+  "completion_time": 2.1221397454850375,
+  "robustness_score": 0.8868763718153286,
+  "num_sub_tasks": 5,
+  "task_description": "Move the blue and white doll to the left",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the blue and white doll.",
+    "Move the doll to the left.",
+    "Place the doll down.",
+    "Close the gripper."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the blue and white doll.  \nMove the doll to the left.  \nPlace the doll down.  \nClose the gripper."
+  }
+}

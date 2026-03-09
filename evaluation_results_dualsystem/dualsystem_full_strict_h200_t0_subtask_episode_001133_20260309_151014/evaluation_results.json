@@ -1,0 +1,49 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.08801906890738251,
+  "video_mse": 0.0028410969395459965,
+  "completion_time": 2.1202447353862226,
+  "robustness_score": 0.9119809310926175,
+  "num_sub_tasks": 5,
+  "task_description": "Put the green thing into the bowl",
+  "sub_instructions": [
+    "Move to the location of the green thing.",
+    "Grasp the green thing with the gripper.",
+    "Move to the bowl's location.",
+    "Place the green thing into the bowl.",
+    "Open the gripper to release the green thing."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the location of the green thing.  \nGrasp the green thing with the gripper.  \nMove to the bowl's location.  \nPlace the green thing into the bowl.  \nOpen the gripper to release the green thing.  "
+  }
+}

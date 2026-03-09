@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.12033136481019806,
+  "video_mse": 0.008569708059598637,
+  "completion_time": 2.1178856512531636,
+  "robustness_score": 0.879668635189802,
+  "num_sub_tasks": 5,
+  "task_description": "Take the yellow block and put it in the box",
+  "sub_instructions": [
+    "move to the yellow block",
+    "grasp the yellow block",
+    "move to the box",
+    "place the yellow block in the box",
+    "open the gripper to release the block"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the yellow block  \ngrasp the yellow block  \nmove to the box  \nplace the yellow block in the box  \nopen the gripper to release the block  "
+  }
+}

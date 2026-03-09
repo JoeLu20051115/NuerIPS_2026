@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.13349964914559864,
+  "video_mse": 0.0038375597703638686,
+  "completion_time": 4.004363540560007,
+  "robustness_score": 0.8665003508544014,
+  "num_sub_tasks": 5,
+  "task_description": "Put the jersey on the backrest of the chair",
+  "sub_instructions": [
+    "move to the jersey",
+    "grasp the jersey",
+    "move to the chair",
+    "place the jersey on the backrest of the chair",
+    "release the jersey"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the jersey  \ngrasp the jersey  \nmove to the chair  \nplace the jersey on the backrest of the chair  \nrelease the jersey  "
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.15680284216768067,
+  "video_mse": 0.008938165318042828,
+  "completion_time": 2.1230599634349345,
+  "robustness_score": 0.8431971578323193,
+  "num_sub_tasks": 5,
+  "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+  "sub_instructions": [
+    "open the plastic bag",
+    "grasp the first object inside the bag",
+    "place the object on the table",
+    "repeat grasp and place for each object in the bag",
+    "close the plastic bag after removing all objects"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "open the plastic bag  \ngrasp the first object inside the bag  \nplace the object on the table  \nrepeat grasp and place for each object in the bag  \nclose the plastic bag after removing all objects  "
+  }
+}

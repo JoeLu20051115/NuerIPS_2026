@@ -1,0 +1,18 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.09301792779014452,
+  "video_mse": 0.0028259782466425413,
+  "completion_time": 3.5786335172131656,
+  "robustness_score": 0.9069820722098555,
+  "num_sub_tasks": 1,
+  "sub_instructions": [
+    "task_2625"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0
+  ]
+}

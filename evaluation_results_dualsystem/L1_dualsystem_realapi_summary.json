@@ -1,0 +1,77 @@
+{
+  "tier": "L1",
+  "method": "dualsystem_realapi",
+  "num_episodes": 3,
+  "success_rate": {
+    "mean": 1.0,
+    "std": 0.0,
+    "ci_95": [
+      1.0,
+      1.0
+    ]
+  },
+  "completion_time": {
+    "mean": 3.9676762441173192,
+    "std": 0.01713029926511952
+  },
+  "robustness_score": {
+    "mean": 0.8623157565601938,
+    "std": 0.018944728905460978
+  },
+  "individual_results": [
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.11765353047714497,
+      "video_mse": 0.0056460460913771975,
+      "completion_time": 3.944583363085985,
+      "robustness_score": 0.882346469522855,
+      "num_sub_tasks": 1,
+      "sub_instructions": [
+        "task_2627"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.13229077019244834,
+      "video_mse": 0.006331503131366438,
+      "completion_time": 3.9728815598413347,
+      "robustness_score": 0.8677092298075517,
+      "num_sub_tasks": 1,
+      "sub_instructions": [
+        "task_2786"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "success_rate": 1.0,
+      "action_l2_error": 0.16310842964982553,
+      "video_mse": 0.0034426778546298095,
+      "completion_time": 3.985563809424639,
+      "robustness_score": 0.8368915703501745,
+      "num_sub_tasks": 1,
+      "sub_instructions": [
+        "task_2856"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

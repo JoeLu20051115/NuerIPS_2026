@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.1078991374698672,
+  "video_mse": 0.002548097860450926,
+  "completion_time": 2.1124481754377484,
+  "robustness_score": 0.8921008625301328,
+  "num_sub_tasks": 5,
+  "task_description": "Close the top drawer of the left cabinet",
+  "sub_instructions": [
+    "move to the left cabinet",
+    "grasp the top drawer",
+    "close the top drawer",
+    "release the top drawer",
+    "move to the home position"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the left cabinet  \ngrasp the top drawer  \nclose the top drawer  \nrelease the top drawer  \nmove to the home position  "
+  }
+}

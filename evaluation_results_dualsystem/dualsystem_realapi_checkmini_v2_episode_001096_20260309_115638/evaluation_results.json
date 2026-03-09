@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.15293812805728577,
+  "video_mse": 0.0029129801417322925,
+  "completion_time": 3.989717179350555,
+  "robustness_score": 0.8470618719427142,
+  "num_sub_tasks": 5,
+  "task_description": "Bring the small, white object, closer to the foam pack",
+  "sub_instructions": [
+    "Move to the location of the small, white object.",
+    "Grasp the small, white object with the gripper.",
+    "Move towards the foam pack.",
+    "Place the small, white object next to the foam pack.",
+    "Open the gripper to release the object."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the location of the small, white object.  \nGrasp the small, white object with the gripper.  \nMove towards the foam pack.  \nPlace the small, white object next to the foam pack.  \nOpen the gripper to release the object."
+  }
+}

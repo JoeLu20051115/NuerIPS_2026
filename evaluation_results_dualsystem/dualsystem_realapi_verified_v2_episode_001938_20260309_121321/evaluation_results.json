@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.23990540958077694,
+  "video_mse": 0.007896608675827869,
+  "completion_time": 3.9723571069538592,
+  "robustness_score": 0.7600945904192231,
+  "num_sub_tasks": 5,
+  "task_description": "Put the glue stick inside the mug cup",
+  "sub_instructions": [
+    "move to the glue stick",
+    "grasp the glue stick",
+    "move to the mug cup",
+    "place the glue stick inside the mug cup",
+    "release the glue stick"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the glue stick  \ngrasp the glue stick  \nmove to the mug cup  \nplace the glue stick inside the mug cup  \nrelease the glue stick"
+  }
+}

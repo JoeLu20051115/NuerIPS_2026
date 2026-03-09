@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.10599468257139262,
+  "video_mse": 0.001857155292794517,
+  "completion_time": 3.988987989537418,
+  "robustness_score": 0.8940053174286073,
+  "num_sub_tasks": 5,
+  "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+  "sub_instructions": [
+    "move to the pot on the right side of the stove",
+    "grasp the wooden spoon",
+    "place the wooden spoon inside the pot",
+    "move to the pot on the left side of the stove",
+    "open the lid of the pot"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the pot on the right side of the stove  \ngrasp the wooden spoon  \nplace the wooden spoon inside the pot  \nmove to the pot on the left side of the stove  \nopen the lid of the pot  "
+  }
+}

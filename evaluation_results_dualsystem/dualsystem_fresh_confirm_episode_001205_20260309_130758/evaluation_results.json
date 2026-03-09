@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.11883581652835196,
+  "video_mse": 0.00466699019464752,
+  "completion_time": 2.1213099122047425,
+  "robustness_score": 0.881164183471648,
+  "num_sub_tasks": 5,
+  "task_description": "Pick up the object with zebra tag and put it on the table",
+  "sub_instructions": [
+    "move to the location of the object with zebra tag",
+    "grasp the object with zebra tag",
+    "move to the table",
+    "place the object on the table",
+    "open the gripper to release the object"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the location of the object with zebra tag  \ngrasp the object with zebra tag  \nmove to the table  \nplace the object on the table  \nopen the gripper to release the object"
+  }
+}

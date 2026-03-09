@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.11417058402735195,
+  "video_mse": 0.0024841125053927295,
+  "completion_time": 2.1191558128222825,
+  "robustness_score": 0.8858294159726481,
+  "num_sub_tasks": 5,
+  "task_description": "Turn on the chandelier",
+  "sub_instructions": [
+    "Move to the light switch location.",
+    "Grasp the light switch.",
+    "Open the light switch (turn it on).",
+    "Release the light switch.",
+    "Move back to the starting position."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the light switch location.  \nGrasp the light switch.  \nOpen the light switch (turn it on).  \nRelease the light switch.  \nMove back to the starting position."
+  }
+}

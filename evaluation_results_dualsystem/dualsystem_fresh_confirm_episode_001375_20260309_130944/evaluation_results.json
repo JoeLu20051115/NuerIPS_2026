@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.20125054354683708,
+  "video_mse": 0.015623388285543199,
+  "completion_time": 2.1188509633764623,
+  "robustness_score": 0.798749456453163,
+  "num_sub_tasks": 5,
+  "task_description": "Close the bottom drawer of the cabinet at the right",
+  "sub_instructions": [
+    "move to the bottom drawer of the cabinet at the right",
+    "grasp the handle of the bottom drawer",
+    "pull the drawer open slightly",
+    "push the drawer back to close it",
+    "release the handle of the drawer"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the bottom drawer of the cabinet at the right  \ngrasp the handle of the bottom drawer  \npull the drawer open slightly  \npush the drawer back to close it  \nrelease the handle of the drawer"
+  }
+}

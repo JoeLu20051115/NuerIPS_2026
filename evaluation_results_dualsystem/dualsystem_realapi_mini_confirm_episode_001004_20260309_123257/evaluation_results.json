@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.11195182413714007,
+  "video_mse": 0.005560966924823185,
+  "completion_time": 2.107501743547618,
+  "robustness_score": 0.8880481758628599,
+  "num_sub_tasks": 5,
+  "task_description": "Move pen from the mug to the table",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the pen from the mug.",
+    "Lift the pen above the mug.",
+    "Move the pen to the table.",
+    "Place the pen on the table."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the pen from the mug.  \nLift the pen above the mug.  \nMove the pen to the table.  \nPlace the pen on the table."
+  }
+}

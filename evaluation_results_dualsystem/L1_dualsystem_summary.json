@@ -1,0 +1,163 @@
+{
+  "tier": "L1",
+  "method": "dualsystem",
+  "num_episodes": 20,
+  "success_rate": {
+    "mean": 0.8582912123587884,
+    "std": 0.061055068059991356,
+    "ci_95": [
+      0.8302723109424298,
+      0.8842460703905828
+    ]
+  },
+  "completion_time": {
+    "mean": 8.70293410213753,
+    "std": 1.604674002655472
+  },
+  "robustness_score": {
+    "mean": 0.9050862068877142,
+    "std": 0.05724689161346541
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.7793320714109907,
+      "video_mse": 0.06020361734825047,
+      "completion_time": 11.18866228076726,
+      "robustness_score": 0.8530343464580028,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8442322184661472,
+      "video_mse": 0.031054834039903265,
+      "completion_time": 7.402618683118197,
+      "robustness_score": 0.8305619131590533,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8206888980158671,
+      "video_mse": 0.026470374646408265,
+      "completion_time": 7.632445772307364,
+      "robustness_score": 0.9049703670241419,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8960405844747579,
+      "video_mse": 0.045091232711414415,
+      "completion_time": 9.039945320306366,
+      "robustness_score": 0.8575271712572676,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.7592590992328099,
+      "video_mse": 0.012753580839631292,
+      "completion_time": 8.774758781786419,
+      "robustness_score": 0.9655350427476914,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.9419506054919088,
+      "video_mse": 0.06150491736078857,
+      "completion_time": 8.831687877642176,
+      "robustness_score": 0.9005647505214687,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8648779506641302,
+      "video_mse": 0.028208114541861715,
+      "completion_time": 10.177019085840543,
+      "robustness_score": 0.9845638907267312,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8460049617930814,
+      "video_mse": 0.028883279756162172,
+      "completion_time": 6.421058428657273,
+      "robustness_score": 0.8101482165117659,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8403328527155512,
+      "video_mse": 0.05149609406338324,
+      "completion_time": 6.356954482189053,
+      "robustness_score": 0.9734272641268596,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.761821697374446,
+      "video_mse": 0.09126519789771907,
+      "completion_time": 10.86780878490504,
+      "robustness_score": 0.8859400080193736,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.9161626543269983,
+      "video_mse": 0.02634739558384676,
+      "completion_time": 9.314371728509123,
+      "robustness_score": 0.8747881337787028,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8768096429134583,
+      "video_mse": 0.09266424541819143,
+      "completion_time": 9.052566568007576,
+      "robustness_score": 0.9186225251941454,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.922745934721704,
+      "video_mse": 0.09240536407732756,
+      "completion_time": 11.157545582532011,
+      "robustness_score": 0.8694184562084643,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.9407009937868748,
+      "video_mse": 0.06081031957136758,
+      "completion_time": 7.410548602157412,
+      "robustness_score": 0.8990703819032011,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.7523783532002167,
+      "video_mse": 0.01740402192037521,
+      "completion_time": 11.648497665053608,
+      "robustness_score": 0.9528610085458453,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8422496650584634,
+      "video_mse": 0.023372844685579708,
+      "completion_time": 6.73165571374758,
+      "robustness_score": 0.978795803785767,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.9085505810763551,
+      "video_mse": 0.07565221645423162,
+      "completion_time": 8.673143237307482,
+      "robustness_score": 0.8660533722640719,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.8109074803734955,
+      "video_mse": 0.03670123231370398,
+      "completion_time": 6.889796120668214,
+      "robustness_score": 0.9847897457554307,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.925757357067468,
+      "video_mse": 0.05660379298589295,
+      "completion_time": 8.640495606606889,
+      "robustness_score": 0.9755050768851952,
+      "num_sub_tasks": 3
+    },
+    {
+      "success_rate": 0.9150206450110433,
+      "video_mse": 0.08020820022675643,
+      "completion_time": 7.847101720641004,
+      "robustness_score": 0.8155466628811064,
+      "num_sub_tasks": 3
+    }
+  ]
+}

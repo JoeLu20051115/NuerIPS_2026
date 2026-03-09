@@ -1,0 +1,48 @@
+{
+  "success_rate": 0.1,
+  "action_l2_error": 0.15816365626101583,
+  "video_mse": 0.0038697671419597873,
+  "completion_time": 2.1175742335617542,
+  "robustness_score": 0.8418363437389842,
+  "num_sub_tasks": 5,
+  "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+  "sub_instructions": [
+    "move to the plastic container",
+    "open the container",
+    "grasp the cloths",
+    "move to the table",
+    "place the cloths on the table"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the plastic container  \nopen the container  \ngrasp the cloths  \nmove to the table  \nplace the cloths on the table  "
+  }
+}

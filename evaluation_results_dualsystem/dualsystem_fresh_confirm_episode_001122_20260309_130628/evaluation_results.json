@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.0696557497983106,
+  "video_mse": 0.0014121290150308288,
+  "completion_time": 2.117696333862841,
+  "robustness_score": 0.9303442502016894,
+  "num_sub_tasks": 5,
+  "task_description": "Put the yellow circle inside the blue object",
+  "sub_instructions": [
+    "Move to the yellow circle.",
+    "Grasp the yellow circle.",
+    "Move to the blue object.",
+    "Place the yellow circle inside the blue object.",
+    "Open the gripper to release the yellow circle."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the yellow circle.  \nGrasp the yellow circle.  \nMove to the blue object.  \nPlace the yellow circle inside the blue object.  \nOpen the gripper to release the yellow circle.  "
+  }
+}

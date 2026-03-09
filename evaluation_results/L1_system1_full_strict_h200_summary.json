@@ -1,0 +1,211 @@
+{
+  "tier": "L1",
+  "method": "system1_full_strict_h200",
+  "num_episodes": 20,
+  "success_rate": {
+    "mean": 0.40499999999999997,
+    "std": 0.2312466215969435,
+    "ci_95": [
+      0.30500000000000005,
+      0.5149999999999999
+    ]
+  },
+  "video_mse": {
+    "mean": 0.006468660859570872,
+    "std": 0.005759977988736121
+  },
+  "completion_time": {
+    "mean": 2.124094867534004,
+    "std": 0.0052469983673324935
+  },
+  "robustness_score": {
+    "mean": 0.863051490303584,
+    "std": 0.03990808108551188
+  },
+  "evaluation_config": {
+    "error_threshold": 0.1,
+    "eval_steps": 10
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.15297127215213632,
+      "video_mse": 0.019229609246559847,
+      "completion_time": 2.106719901133329,
+      "robustness_score": 0.8470287278478636,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.14088503027015428,
+      "video_mse": 0.009634259874101487,
+      "completion_time": 2.1181937410496174,
+      "robustness_score": 0.8591149697298457,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.19367863059583873,
+      "video_mse": 0.009957174427730421,
+      "completion_time": 2.117049902770668,
+      "robustness_score": 0.8063213694041613,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.17846950027788316,
+      "video_mse": 0.005063006143651005,
+      "completion_time": 2.116718146298081,
+      "robustness_score": 0.8215304997221169,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.3,
+      "action_l2_error": 0.1752765349442477,
+      "video_mse": 0.014500954212012107,
+      "completion_time": 2.1272901171818375,
+      "robustness_score": 0.8247234650557523,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.08701004406255596,
+      "video_mse": 0.003483446350456757,
+      "completion_time": 2.125069169793278,
+      "robustness_score": 0.912989955937444,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.1,
+      "action_l2_error": 0.161790450796428,
+      "video_mse": 0.004890657296575543,
+      "completion_time": 2.126481950096786,
+      "robustness_score": 0.8382095492035719,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.8,
+      "action_l2_error": 0.07119693384014583,
+      "video_mse": 0.0009688844583853062,
+      "completion_time": 2.1276063134893777,
+      "robustness_score": 0.9288030661598542,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.17350478999273322,
+      "video_mse": 0.021124639702181935,
+      "completion_time": 2.128759880922735,
+      "robustness_score": 0.8264952100072668,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.10571164177467647,
+      "video_mse": 0.0015677534669045743,
+      "completion_time": 2.1254475962370636,
+      "robustness_score": 0.8942883582253235,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.09741251889689902,
+      "video_mse": 0.0028736015369042094,
+      "completion_time": 2.128180118370801,
+      "robustness_score": 0.9025874811031009,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.08051594177813179,
+      "video_mse": 0.0008464571104959967,
+      "completion_time": 2.1273899669758976,
+      "robustness_score": 0.9194840582218682,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.1097618116347305,
+      "video_mse": 0.0017393132736905875,
+      "completion_time": 2.1252635451965034,
+      "robustness_score": 0.8902381883652695,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.3,
+      "action_l2_error": 0.14097712244806487,
+      "video_mse": 0.003428560398325406,
+      "completion_time": 2.12540889037773,
+      "robustness_score": 0.8590228775519351,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.13731112713334018,
+      "video_mse": 0.005575791352259092,
+      "completion_time": 2.125078587140888,
+      "robustness_score": 0.8626888728666599,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.9,
+      "action_l2_error": 0.08049956948655154,
+      "video_mse": 0.0006411904077763355,
+      "completion_time": 2.1249387570656837,
+      "robustness_score": 0.9195004305134484,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.3,
+      "action_l2_error": 0.12818567765551753,
+      "video_mse": 0.0034485802625940686,
+      "completion_time": 2.126568098273128,
+      "robustness_score": 0.8718143223444825,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.13459705037315647,
+      "video_mse": 0.005255176656014349,
+      "completion_time": 2.1263781803660096,
+      "robustness_score": 0.8654029496268435,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.1,
+      "action_l2_error": 0.19563652243589447,
+      "video_mse": 0.005619219226553596,
+      "completion_time": 2.126461582724005,
+      "robustness_score": 0.8043634775641055,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    },
+    {
+      "success_rate": 0.1,
+      "action_l2_error": 0.19357802337923571,
+      "video_mse": 0.009524941788244838,
+      "completion_time": 2.126892905216664,
+      "robustness_score": 0.8064219766207643,
+      "num_eval_steps": 10,
+      "error_threshold": 0.1
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.09114846361082476,
+  "video_mse": 0.001784964512741313,
+  "completion_time": 2.1168038045987485,
+  "robustness_score": 0.9088515363891753,
+  "num_sub_tasks": 5,
+  "task_description": "Move the blue and white doll to the left",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the blue and white doll.",
+    "Move the doll to the left.",
+    "Place the doll down.",
+    "Close the gripper."
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the blue and white doll.  \nMove the doll to the left.  \nPlace the doll down.  \nClose the gripper."
+  }
+}

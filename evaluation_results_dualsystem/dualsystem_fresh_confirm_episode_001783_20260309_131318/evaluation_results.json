@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.09033199591552095,
+  "video_mse": 0.00490687069813728,
+  "completion_time": 2.1131418857723476,
+  "robustness_score": 0.909668004084479,
+  "num_sub_tasks": 5,
+  "task_description": "Put one orange block in the green bowl",
+  "sub_instructions": [
+    "move to orange block",
+    "grasp orange block",
+    "move to green bowl",
+    "place orange block in green bowl",
+    "open gripper to release block"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to orange block  \ngrasp orange block  \nmove to green bowl  \nplace orange block in green bowl  \nopen gripper to release block  "
+  }
+}

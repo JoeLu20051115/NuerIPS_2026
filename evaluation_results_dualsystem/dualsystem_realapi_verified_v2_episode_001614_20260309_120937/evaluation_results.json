@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.10428556604354829,
+  "video_mse": 0.0034121347495996803,
+  "completion_time": 3.987193195335567,
+  "robustness_score": 0.8957144339564517,
+  "num_sub_tasks": 5,
+  "task_description": "Put the black pen inside the white mug",
+  "sub_instructions": [
+    "move to the black pen",
+    "grasp the black pen",
+    "move to the white mug",
+    "open the gripper",
+    "place the black pen inside the white mug"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the black pen  \ngrasp the black pen  \nmove to the white mug  \nopen the gripper  \nplace the black pen inside the white mug  "
+  }
+}

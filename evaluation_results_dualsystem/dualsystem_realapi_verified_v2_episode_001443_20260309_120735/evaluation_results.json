@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.08964997814176028,
+  "video_mse": 0.0056759994697498945,
+  "completion_time": 4.020836261659861,
+  "robustness_score": 0.9103500218582398,
+  "num_sub_tasks": 5,
+  "task_description": "Turn off the light switch.",
+  "sub_instructions": [
+    "move to light switch",
+    "grasp light switch",
+    "push light switch down",
+    "release light switch",
+    "move back to starting position"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to light switch  \ngrasp light switch  \npush light switch down  \nrelease light switch  \nmove back to starting position  "
+  }
+}

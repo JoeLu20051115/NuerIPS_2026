@@ -50,10 +50,19 @@ ROBOARENA_KEY_MAP = {
 class DreamZeroEvaluator:
     """Run DreamZero evaluation on selected test episodes."""
 
-    def __init__(self, host: str = "localhost", port: int = 5000, dataset_root: str = "data/droid_lerobot"):
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 5000,
+        dataset_root: str = "data/droid_lerobot",
+        error_threshold: float = 0.5,
+        eval_steps: int = 5,
+    ):
         self.host = host
         self.port = port
         self.dataset_root = Path(dataset_root)
+        self.error_threshold = float(error_threshold)
+        self.eval_steps = max(1, int(eval_steps))
         self.results_dir = Path("evaluation_results")
         self.results_dir.mkdir(exist_ok=True)
 
@@ -139,8 +148,8 @@ class DreamZeroEvaluator:
             missing = [k for k, v in video_paths.items() if v is None]
             print(f"  Missing videos: {missing}, using dummy frames")
 
-        # Sample evaluation timesteps (evaluate at 5 evenly-spaced points)
-        eval_steps = min(5, ep_len)
+        # Sample evaluation timesteps (default: 5 evenly-spaced points)
+        eval_steps = min(self.eval_steps, ep_len)
         eval_indices = np.linspace(0, ep_len - 1, eval_steps, dtype=int)
 
         # Reset policy at start of episode
@@ -241,7 +250,7 @@ class DreamZeroEvaluator:
         mean_time = float(np.mean(inference_times)) if inference_times else 0.0
 
         # Convert to standard metrics
-        error_threshold = 0.5  # radians
+        error_threshold = self.error_threshold  # radians
         success_rate = float(np.mean([1.0 if e < error_threshold else 0.0 for e in action_errors]))
 
         return {
@@ -250,6 +259,8 @@ class DreamZeroEvaluator:
             "video_mse": float(np.var(action_errors)),
             "completion_time": mean_time,
             "robustness_score": float(max(0, 1.0 - mean_error)),
+            "num_eval_steps": int(len(action_errors)),
+            "error_threshold": float(error_threshold),
         }
 
     def run_evaluation_tier(self, tier_name: str, test_set_path: str, method: str = "dreamzero_baseline"):
@@ -302,6 +313,10 @@ class DreamZeroEvaluator:
                 "robustness_score": {
                     "mean": float(np.mean(robustness_scores)),
                     "std": float(np.std(robustness_scores))
+                },
+                "evaluation_config": {
+                    "error_threshold": float(self.error_threshold),
+                    "eval_steps": int(self.eval_steps),
                 },
                 "individual_results": results
             }
@@ -379,10 +394,20 @@ def main():
                        help="Run evaluation for specific tier only")
     parser.add_argument("--dataset-root", type=str, default="data/droid_lerobot",
                        help="DROID dataset root directory")
+    parser.add_argument("--error-threshold", type=float, default=0.5,
+                       help="L2 threshold for success metric")
+    parser.add_argument("--eval-steps", type=int, default=5,
+                       help="Number of evenly sampled timesteps per episode")
 
     args = parser.parse_args()
 
-    evaluator = DreamZeroEvaluator(args.host, args.port, args.dataset_root)
+    evaluator = DreamZeroEvaluator(
+        args.host,
+        args.port,
+        args.dataset_root,
+        error_threshold=args.error_threshold,
+        eval_steps=args.eval_steps,
+    )
 
     if args.tier:
         # Run single tier

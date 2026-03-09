@@ -1,0 +1,48 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.0832898142291238,
+  "video_mse": 0.0021863968495509398,
+  "completion_time": 2.120470112375915,
+  "robustness_score": 0.9167101857708762,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the candy bar from the sink",
+  "sub_instructions": [
+    "move to sink",
+    "open gripper",
+    "grasp candy bar",
+    "move away from sink",
+    "close gripper"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to sink  \nopen gripper  \ngrasp candy bar  \nmove away from sink  \nclose gripper  "
+  }
+}

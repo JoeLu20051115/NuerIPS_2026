@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.12856957034595468,
+  "video_mse": 0.0031214759847381737,
+  "completion_time": 2.120227081514895,
+  "robustness_score": 0.8714304296540454,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the yellow object from the silver tin and put it on the black platform",
+  "sub_instructions": [
+    "move to the silver tin",
+    "open the gripper",
+    "grasp the yellow object",
+    "move to the black platform",
+    "place the yellow object on the black platform"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the silver tin  \nopen the gripper  \ngrasp the yellow object  \nmove to the black platform  \nplace the yellow object on the black platform  "
+  }
+}

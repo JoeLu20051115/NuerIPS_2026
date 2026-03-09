@@ -1,0 +1,321 @@
+{
+  "evaluation_timestamp": "2026-03-09 02:05:52",
+  "method": "dreamzero_baseline_final",
+  "tier_summaries": {
+    "L1": {
+      "tier": "L1",
+      "method": "dreamzero_baseline_final",
+      "num_episodes": 20,
+      "success_rate": {
+        "mean": 0.8996137706735231,
+        "std": 0.10558458387114225,
+        "ci_95": [
+          0.8506289236394005,
+          0.9461021845481418
+        ]
+      },
+      "video_mse": {
+        "mean": 0.030103201957927643,
+        "std": 0.03479932158859945
+      },
+      "completion_time": {
+        "mean": 5.812821508118016,
+        "std": 4.018532445244084
+      },
+      "robustness_score": {
+        "mean": 0.8772465910875649,
+        "std": 0.05225846662662035
+      },
+      "individual_results": [
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.16555708701027785,
+          "video_mse": 0.008232582844073333,
+          "completion_time": 2.11144303586334,
+          "robustness_score": 0.8344429129897222
+        },
+        {
+          "success_rate": 0.7745827511754313,
+          "video_mse": 0.07900817068370883,
+          "completion_time": 10.371142171202344,
+          "robustness_score": 0.8485484531650457
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.2706158630592056,
+          "video_mse": 0.01255527147703919,
+          "completion_time": 2.111044872365892,
+          "robustness_score": 0.7293841369407944
+        },
+        {
+          "success_rate": 0.8005548469996823,
+          "video_mse": 0.0977130694726842,
+          "completion_time": 9.073985147857258,
+          "robustness_score": 0.896154387671272
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.12731663957349587,
+          "video_mse": 0.00347136857869858,
+          "completion_time": 2.119225625321269,
+          "robustness_score": 0.8726833604265041
+        },
+        {
+          "success_rate": 0.791386639913713,
+          "video_mse": 0.09747958305589294,
+          "completion_time": 9.046776800548997,
+          "robustness_score": 0.9402199515967614
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.10319599203375267,
+          "video_mse": 0.002811755235685798,
+          "completion_time": 2.1131475346162913,
+          "robustness_score": 0.8968040079662474
+        },
+        {
+          "success_rate": 0.8174108543087103,
+          "video_mse": 0.09326659231185377,
+          "completion_time": 7.815290853548497,
+          "robustness_score": 0.9059633531270215
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.10971653610264395,
+          "video_mse": 0.004461460245514887,
+          "completion_time": 2.1140107134357096,
+          "robustness_score": 0.890283463897356
+        },
+        {
+          "success_rate": 0.7951253606452229,
+          "video_mse": 0.013190722723895406,
+          "completion_time": 11.128862911702853,
+          "robustness_score": 0.8493310569307976
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.12089494325278398,
+          "video_mse": 0.002512623448395798,
+          "completion_time": 2.1157847199589015,
+          "robustness_score": 0.8791050567472161
+        },
+        {
+          "success_rate": 0.9062372365058191,
+          "video_mse": 0.06820599580246736,
+          "completion_time": 8.939426807598501,
+          "robustness_score": 0.8378788107980443
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.1308372908911652,
+          "video_mse": 0.0016690556036688883,
+          "completion_time": 2.1163321577012537,
+          "robustness_score": 0.8691627091088348
+        },
+        {
+          "success_rate": 0.7974343113074454,
+          "video_mse": 0.024277127733801432,
+          "completion_time": 14.809023564545079,
+          "robustness_score": 0.992232648126468
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.09236928061823795,
+          "video_mse": 0.004044617615353307,
+          "completion_time": 2.1254507968202234,
+          "robustness_score": 0.9076307193817621
+        },
+        {
+          "success_rate": 0.7716787078366857,
+          "video_mse": 0.022337852977730235,
+          "completion_time": 9.58457126028093,
+          "robustness_score": 0.8649910634950057
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.0679144820690765,
+          "video_mse": 0.001074827577695304,
+          "completion_time": 2.116770983673632,
+          "robustness_score": 0.9320855179309235
+        },
+        {
+          "success_rate": 0.8252674774636273,
+          "video_mse": 0.041600011773737455,
+          "completion_time": 5.8154959985170365,
+          "robustness_score": 0.8187979168725682
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.13224901170882503,
+          "video_mse": 0.004190601978847284,
+          "completion_time": 2.1209602054208516,
+          "robustness_score": 0.8677509882911749
+        },
+        {
+          "success_rate": 0.7125972273141272,
+          "video_mse": 0.019960748017808977,
+          "completion_time": 8.507684001381453,
+          "robustness_score": 0.911481306287775
+        }
+      ]
+    },
+    "L3": {
+      "tier": "L3",
+      "method": "dreamzero_baseline_final",
+      "num_episodes": 20,
+      "success_rate": {
+        "mean": 0.9156506786744922,
+        "std": 0.10228055199126071,
+        "ci_95": [
+          0.8704113115105317,
+          0.9582268379597957
+        ]
+      },
+      "video_mse": {
+        "mean": 0.018338005453840362,
+        "std": 0.021602100946236418
+      },
+      "completion_time": {
+        "mean": 6.893942092035563,
+        "std": 5.095686807338323
+      },
+      "robustness_score": {
+        "mean": 0.8941320117193413,
+        "std": 0.040550160907441596
+      },
+      "individual_results": [
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.09445077819477928,
+          "video_mse": 0.0031372156885132417,
+          "completion_time": 2.1282148914411665,
+          "robustness_score": 0.9055492218052207
+        },
+        {
+          "success_rate": 0.8375137318260901,
+          "video_mse": 0.06676925795422647,
+          "completion_time": 14.268675754959052,
+          "robustness_score": 0.8368912318686066
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.09301792779014452,
+          "video_mse": 0.0028259782466425413,
+          "completion_time": 2.1181816635653377,
+          "robustness_score": 0.9069820722098555
+        },
+        {
+          "success_rate": 0.7669525580789124,
+          "video_mse": 0.038230461672119714,
+          "completion_time": 11.059521256235172,
+          "robustness_score": 0.8358223076145158
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.10422745594208242,
+          "video_mse": 0.0018346574267090548,
+          "completion_time": 2.11794505212456,
+          "robustness_score": 0.8957725440579176
+        },
+        {
+          "success_rate": 0.9200926078716908,
+          "video_mse": 0.01637043513273551,
+          "completion_time": 11.193009190402961,
+          "robustness_score": 0.8564020276329559
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.10391983205496187,
+          "video_mse": 0.004047745569264756,
+          "completion_time": 2.1120196407660843,
+          "robustness_score": 0.8960801679450381
+        },
+        {
+          "success_rate": 0.926724291857876,
+          "video_mse": 0.08030437079982226,
+          "completion_time": 14.116031129904865,
+          "robustness_score": 0.977576569181201
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.1119770344717081,
+          "video_mse": 0.002606576467743653,
+          "completion_time": 2.1231214754283427,
+          "robustness_score": 0.8880229655282919
+        },
+        {
+          "success_rate": 0.7756635483243489,
+          "video_mse": 0.03172381051767387,
+          "completion_time": 6.212848304470659,
+          "robustness_score": 0.9283621037517399
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.10555564919192684,
+          "video_mse": 0.0011747227566170015,
+          "completion_time": 2.125090663135052,
+          "robustness_score": 0.8944443508080732
+        },
+        {
+          "success_rate": 0.7345118952690952,
+          "video_mse": 0.01284962612879687,
+          "completion_time": 12.87859455136034,
+          "robustness_score": 0.8273353292358709
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.08680577865440067,
+          "video_mse": 0.0017608636367946017,
+          "completion_time": 2.1242662386968734,
+          "robustness_score": 0.9131942213455994
+        },
+        {
+          "success_rate": 0.9152457500364392,
+          "video_mse": 0.03494048098357785,
+          "completion_time": 10.461499211708539,
+          "robustness_score": 0.8717705425502064
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.08308879180850474,
+          "video_mse": 0.003010901323151305,
+          "completion_time": 2.13034784886986,
+          "robustness_score": 0.9169112081914953
+        },
+        {
+          "success_rate": 0.7244429144679343,
+          "video_mse": 0.019346236120928707,
+          "completion_time": 14.555415060784107,
+          "robustness_score": 0.9750344022173609
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.14949999390884225,
+          "video_mse": 0.014148126184469405,
+          "completion_time": 2.12385339345783,
+          "robustness_score": 0.8505000060911577
+        },
+        {
+          "success_rate": 0.7734144153913105,
+          "video_mse": 0.012048018188434206,
+          "completion_time": 8.879531325098043,
+          "robustness_score": 0.9358252559646989
+        },
+        {
+          "success_rate": 1.0,
+          "action_l2_error": 0.12256596582019541,
+          "video_mse": 0.0043550848932931655,
+          "completion_time": 2.122384006716311,
+          "robustness_score": 0.8774340341798046
+        },
+        {
+          "success_rate": 0.9384518603661466,
+          "video_mse": 0.015275539385293036,
+          "completion_time": 13.02829118158609,
+          "robustness_score": 0.8927296722072169
+        }
+      ]
+    }
+  },
+  "overall_success_rate": 0.9076322246740076
+}

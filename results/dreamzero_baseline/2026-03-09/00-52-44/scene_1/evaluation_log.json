@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "timestamp": "2026-03-09T00:52:44.455272",
+    "scene": 1,
+    "instruction": "put the cube in the bowl",
+    "episodes": 10,
+    "policy": "dreamzero_baseline",
+    "method": "dreamzero_baseline",
+    "host": "localhost",
+    "port": 8000,
+    "open_loop_horizon": 8,
+    "chunk_duration_sec": 0.8,
+    "seed": 42,
+    "stop_on_failure": false,
+    "success_judge": "env_signal_or_task_progress_vlm",
+    "task_progress_threshold": 0.42,
+    "use_distance_proxy_for_success": false
+  },
+  "episodes": []
+}

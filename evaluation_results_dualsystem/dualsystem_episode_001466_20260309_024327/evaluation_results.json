@@ -1,0 +1,7 @@
+{
+  "success_rate": 0.7576802668833404,
+  "video_mse": 0.09874480305679548,
+  "completion_time": 7.119152566370176,
+  "robustness_score": 0.967847902526671,
+  "num_sub_tasks": 3
+}

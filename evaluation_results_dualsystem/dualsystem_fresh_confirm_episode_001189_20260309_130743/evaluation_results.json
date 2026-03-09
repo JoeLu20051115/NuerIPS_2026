@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.09689684521243613,
+  "video_mse": 0.002341994091089216,
+  "completion_time": 2.1199893206357956,
+  "robustness_score": 0.9031031547875639,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the orange object from the silver bowl and place it on the table",
+  "sub_instructions": [
+    "move to the silver bowl",
+    "open the gripper",
+    "grasp the orange object",
+    "move to the table",
+    "place the orange object on the table"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the silver bowl  \nopen the gripper  \ngrasp the orange object  \nmove to the table  \nplace the orange object on the table  "
+  }
+}

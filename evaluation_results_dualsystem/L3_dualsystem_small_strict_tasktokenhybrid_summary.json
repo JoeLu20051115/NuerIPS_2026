@@ -1,0 +1,284 @@
+{
+  "tier": "L3",
+  "method": "dualsystem_small_strict_tasktokenhybrid",
+  "num_episodes": 5,
+  "success_rate": {
+    "mean": 0.58,
+    "std": 0.24819347291981714,
+    "ci_95": [
+      0.38,
+      0.7804999999999973
+    ]
+  },
+  "completion_time": {
+    "mean": 3.287002244684845,
+    "std": 0.2770423478782172
+  },
+  "robustness_score": {
+    "mean": 0.8841822518854118,
+    "std": 0.03204836753517894
+  },
+  "evaluation_config": {
+    "error_threshold": 0.1,
+    "eval_steps": 10,
+    "prompt_mode": "task_token_hybrid"
+  },
+  "planner_stats": {
+    "planner_mode_counts": {
+      "real_api": 5,
+      "fallback_mock": 0,
+      "mock": 0
+    },
+    "api_called_count": 5,
+    "api_success_count": 5,
+    "instruction_compliance_pass_count": 5,
+    "avg_num_inference_calls": 10.0
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.1515930786597911,
+      "video_mse": 0.018806263635214582,
+      "completion_time": 3.0911315280944107,
+      "robustness_score": 0.8484069213402089,
+      "num_sub_tasks": 5,
+      "task_description": "Remove the sachet from the shelf",
+      "sub_instructions": [
+        "move to shelf",
+        "open gripper",
+        "grasp sachet",
+        "move to designated location",
+        "close gripper"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to shelf  \nopen gripper  \ngrasp sachet  \nmove to designated location  \nclose gripper  "
+      }
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.15293297818582957,
+      "video_mse": 0.004161971637471512,
+      "completion_time": 3.8096687079407276,
+      "robustness_score": 0.8470670218141705,
+      "num_sub_tasks": 5,
+      "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+      "sub_instructions": [
+        "move to the plastic container",
+        "open the container",
+        "grasp the cloths",
+        "move to the table",
+        "place the cloths on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the plastic container  \nopen the container  \ngrasp the cloths  \nmove to the table  \nplace the cloths on the table  "
+      }
+    },
+    {
+      "success_rate": 0.8,
+      "action_l2_error": 0.08855315436027034,
+      "video_mse": 0.0017074768719792185,
+      "completion_time": 3.334308220911771,
+      "robustness_score": 0.9114468456397297,
+      "num_sub_tasks": 5,
+      "task_description": "Remove the doll from the bowl",
+      "sub_instructions": [
+        "move to the bowl",
+        "open gripper",
+        "grasp the doll",
+        "move away from the bowl",
+        "place the doll in a designated area"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the bowl  \nopen gripper  \ngrasp the doll  \nmove away from the bowl  \nplace the doll in a designated area  "
+      }
+    },
+    {
+      "success_rate": 0.9,
+      "action_l2_error": 0.07437881194480664,
+      "video_mse": 0.0029110199241247025,
+      "completion_time": 3.09876011563465,
+      "robustness_score": 0.9256211880551933,
+      "num_sub_tasks": 5,
+      "task_description": "Turn off the light switch.",
+      "sub_instructions": [
+        "move to light switch",
+        "grasp light switch",
+        "turn light switch off",
+        "release light switch",
+        "move to home position"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to light switch  \ngrasp light switch  \nturn light switch off  \nrelease light switch  \nmove to home position  "
+      }
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.11163071742224343,
+      "video_mse": 0.002379276008985686,
+      "completion_time": 3.1011426508426667,
+      "robustness_score": 0.8883692825777566,
+      "num_sub_tasks": 5,
+      "task_description": "Press down on the lid of the flask",
+      "sub_instructions": [
+        "Move the gripper above the lid of the flask.",
+        "Grasp the lid of the flask.",
+        "Press down on the lid of the flask.",
+        "Release the lid of the flask.",
+        "Move the gripper back to the starting position."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move the gripper above the lid of the flask.  \nGrasp the lid of the flask.  \nPress down on the lid of the flask.  \nRelease the lid of the flask.  \nMove the gripper back to the starting position."
+      }
+    }
+  ]
+}

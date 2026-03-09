@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.14081119612077003,
+  "video_mse": 0.0034316970904206623,
+  "completion_time": 3.9765712367370725,
+  "robustness_score": 0.8591888038792299,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the green pear from the open drawer and place it in the basket",
+  "sub_instructions": [
+    "open the drawer",
+    "move to the green pear",
+    "grasp the green pear",
+    "move to the basket",
+    "place the green pear in the basket"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "open the drawer  \nmove to the green pear  \ngrasp the green pear  \nmove to the basket  \nplace the green pear in the basket  "
+  }
+}

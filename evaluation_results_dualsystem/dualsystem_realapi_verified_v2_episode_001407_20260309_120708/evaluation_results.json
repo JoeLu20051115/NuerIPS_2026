@@ -1,0 +1,31 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.07724660868074769,
+  "video_mse": 0.0009458348599634391,
+  "completion_time": 4.27662404589355,
+  "robustness_score": 0.9227533913192523,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the doll from the bowl",
+  "sub_instructions": [
+    "move to the bowl",
+    "open gripper",
+    "grasp the doll",
+    "move away from the bowl",
+    "place the doll in a designated location"
+  ],
+  "sub_task_assignments": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the bowl  \nopen gripper  \ngrasp the doll  \nmove away from the bowl  \nplace the doll in a designated location  "
+  }
+}

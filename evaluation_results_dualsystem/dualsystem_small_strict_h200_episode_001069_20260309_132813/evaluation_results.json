@@ -1,0 +1,48 @@
+{
+  "success_rate": 0.3,
+  "action_l2_error": 0.14254048583487872,
+  "video_mse": 0.0032575592138095453,
+  "completion_time": 2.1134802475571632,
+  "robustness_score": 0.8574595141651213,
+  "num_sub_tasks": 5,
+  "task_description": "Coil the cord",
+  "sub_instructions": [
+    "Move to the cord's starting point.",
+    "Grasp the cord with the gripper.",
+    "Move the gripper to the coiling area.",
+    "Coil the cord by rotating the gripper.",
+    "Place the coiled cord in the designated location."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the cord's starting point.  \nGrasp the cord with the gripper.  \nMove the gripper to the coiling area.  \nCoil the cord by rotating the gripper.  \nPlace the coiled cord in the designated location.  "
+  }
+}
