@@ -329,10 +329,27 @@ class DualSystemEvaluator:
                 print(f"✗ Evaluation failed: {e}")
                 import traceback
                 traceback.print_exc()
-                results = self._run_mock_evaluation()
+                # Mark as failure instead of using mock high scores
+                results = {
+                    "success_rate": 0.0,
+                    "video_mse": float('inf'),
+                    "completion_time": 0.0,
+                    "robustness_score": 0.0,
+                    "num_sub_tasks": 0,
+                    "evaluation_status": "FAILED",
+                    "error_message": str(e)
+                }
         else:
-            print(f"⚠️  Running mock evaluation for {episode_id}")
-            results = self._run_mock_evaluation()
+            print(f"⚠️  Policy client unavailable for {episode_id} - marking as SKIPPED")
+            results = {
+                "success_rate": 0.0,
+                "video_mse": float('inf'),
+                "completion_time": 0.0,
+                "robustness_score": 0.0,
+                "num_sub_tasks": 0,
+                "evaluation_status": "SKIPPED",
+                "error_message": "Policy client not initialized or video loader unavailable"
+            }
         
         # Save results
         results_file = run_dir / "evaluation_results.json"
@@ -369,8 +386,10 @@ class DualSystemEvaluator:
         
         # System 2: Generate sub-task plan
         print(f"  [System 2] Planning for: {task_description}")
+        llm_plan_start = time.perf_counter()
         sub_instructions, planner_meta = self.planner.plan(task_description, {"episode_id": episode_id})
-        print(f"  [System 2] Generated {len(sub_instructions)} sub-tasks:")
+        llm_plan_time = time.perf_counter() - llm_plan_start
+        print(f"  [System 2] Generated {len(sub_instructions)} sub-tasks (took {llm_plan_time:.3f}s):")
         for i, inst in enumerate(sub_instructions, 1):
             print(f"    {i}. {inst}")
         
@@ -473,10 +492,26 @@ class DualSystemEvaluator:
             print(f"    L2 error: {l2_error:.4f}")
         
         if not action_errors:
-            return self._run_mock_evaluation()
+            # No valid predictions - mark as failure
+            return {
+                "success_rate": 0.0,
+                "action_l2_error": float('inf'),
+                "video_mse": 0.0,
+                "policy_inference_time_per_step": 0.0,
+                "llm_planning_time": float(llm_plan_time),
+                "total_episode_time": float(llm_plan_time),
+                "completion_time": 0.0,
+                "robustness_score": 0.0,
+                "num_sub_tasks": len(sub_instructions),
+                "task_description": task_description,
+                "sub_instructions": sub_instructions,
+                "evaluation_status": "NO_VALID_PREDICTIONS",
+                "planner_meta": planner_meta,
+            }
         
         mean_error = float(np.mean(action_errors))
-        mean_time = float(np.mean(inference_times)) if inference_times else 0.0
+        mean_policy_time = float(np.mean(inference_times)) if inference_times else 0.0
+        total_episode_time = mean_policy_time * len(inference_times) + llm_plan_time
         
         error_threshold = self.error_threshold
         success_rate = float(np.mean([1.0 if e < error_threshold else 0.0 for e in action_errors]))
@@ -485,7 +520,10 @@ class DualSystemEvaluator:
             "success_rate": success_rate,
             "action_l2_error": mean_error,
             "video_mse": float(np.var(action_errors)),
-            "completion_time": mean_time,
+            "policy_inference_time_per_step": mean_policy_time,
+            "llm_planning_time": float(llm_plan_time),
+            "total_episode_time": float(total_episode_time),
+            "completion_time": mean_policy_time,
             "robustness_score": float(max(0, 1.0 - mean_error)),
             "num_sub_tasks": len(sub_instructions),
             "task_description": task_description,
@@ -497,16 +535,7 @@ class DualSystemEvaluator:
             "num_inference_calls": int(inference_call_count),
             "error_threshold": float(error_threshold),
             "planner_meta": planner_meta,
-        }
-    
-    def _run_mock_evaluation(self) -> Dict:
-        """Fallback mock evaluation."""
-        return {
-            "success_rate": float(np.random.uniform(0.75, 0.95)),
-            "video_mse": float(np.random.uniform(0.01, 0.1)),
-            "completion_time": float(np.random.uniform(6, 12)),
-            "robustness_score": float(np.random.uniform(0.8, 1.0)),
-            "num_sub_tasks": 3,
+            "evaluation_status": "SUCCESS",
         }
     
     def run_evaluation_tier(self, tier_name: str, test_set_path: str, method: str = "dualsystem"):
@@ -530,9 +559,22 @@ class DualSystemEvaluator:
         
         # Aggregate results
         if results:
-            success_rates = [r['success_rate'] for r in results]
-            completion_times = [r['completion_time'] for r in results]
-            robustness_scores = [r['robustness_score'] for r in results]
+            # Filter out failed/skipped episodes
+            valid_results = [r for r in results if r.get('evaluation_status') in ['SUCCESS', None]]
+            failed_count = len(results) - len(valid_results)
+            
+            if failed_count > 0:
+                print(f"\n⚠️  Warning: {failed_count}/{len(results)} episodes failed or were skipped")
+            
+            if not valid_results:
+                print("\n✗ All episodes failed - cannot compute statistics")
+                return None
+            
+            success_rates = [r['success_rate'] for r in valid_results]
+            policy_times = [r.get('policy_inference_time_per_step', r.get('completion_time', 0)) for r in valid_results]
+            llm_times = [r.get('llm_planning_time', 0) for r in valid_results]
+            total_times = [r.get('total_episode_time', r.get('completion_time', 0) * 10) for r in valid_results]
+            robustness_scores = [r['robustness_score'] for r in valid_results]
             
             def bootstrap_ci(data, n_boot=2000, alpha=0.05):
                 data = np.array(data)
@@ -544,15 +586,28 @@ class DualSystemEvaluator:
             summary = {
                 "tier": tier_name,
                 "method": method,
-                "num_episodes": len(results),
+                "num_episodes": len(valid_results),
+                "num_failed": failed_count,
                 "success_rate": {
                     "mean": float(np.mean(success_rates)),
                     "std": float(np.std(success_rates)),
                     "ci_95": bootstrap_ci(success_rates),
                 },
+                "policy_inference_time_per_step": {
+                    "mean": float(np.mean(policy_times)),
+                    "std": float(np.std(policy_times))
+                },
+                "llm_planning_time_per_episode": {
+                    "mean": float(np.mean(llm_times)) if llm_times else 0.0,
+                    "std": float(np.std(llm_times)) if llm_times else 0.0
+                },
+                "total_episode_time": {
+                    "mean": float(np.mean(total_times)),
+                    "std": float(np.std(total_times))
+                },
                 "completion_time": {
-                    "mean": float(np.mean(completion_times)),
-                    "std": float(np.std(completion_times))
+                    "mean": float(np.mean(policy_times)),
+                    "std": float(np.std(policy_times))
                 },
                 "robustness_score": {
                     "mean": float(np.mean(robustness_scores)),
@@ -565,14 +620,14 @@ class DualSystemEvaluator:
                 },
                 "planner_stats": {
                     "planner_mode_counts": {
-                        "real_api": int(sum(1 for r in results if r.get("planner_meta", {}).get("planner_mode") == "real_api")),
-                        "fallback_mock": int(sum(1 for r in results if r.get("planner_meta", {}).get("planner_mode") == "fallback_mock")),
-                        "mock": int(sum(1 for r in results if r.get("planner_meta", {}).get("planner_mode") == "mock")),
+                        "real_api": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "real_api")),
+                        "fallback_mock": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "fallback_mock")),
+                        "mock": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "mock")),
                     },
-                    "api_called_count": int(sum(1 for r in results if r.get("planner_meta", {}).get("api_called"))),
-                    "api_success_count": int(sum(1 for r in results if r.get("planner_meta", {}).get("api_success"))),
-                    "instruction_compliance_pass_count": int(sum(1 for r in results if r.get("instruction_validation", {}).get("compliance_pass"))),
-                    "avg_num_inference_calls": float(np.mean([r.get("num_inference_calls", 0) for r in results])) if results else 0.0,
+                    "api_called_count": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("api_called"))),
+                    "api_success_count": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("api_success"))),
+                    "instruction_compliance_pass_count": int(sum(1 for r in valid_results if r.get("instruction_validation", {}).get("compliance_pass"))),
+                    "avg_num_inference_calls": float(np.mean([r.get("num_inference_calls", 0) for r in valid_results])) if valid_results else 0.0,
                 },
                 "individual_results": results
             }
@@ -644,10 +699,10 @@ def main():
                        help="DROID dataset root directory")
     parser.add_argument("--mock-llm", action="store_true",
                        help="Use mock LLM planner (no API calls)")
-    parser.add_argument("--error-threshold", type=float, default=0.5,
-                       help="L2 threshold for success metric")
-    parser.add_argument("--eval-steps", type=int, default=5,
-                       help="Number of evenly sampled timesteps per episode")
+    parser.add_argument("--error-threshold", type=float, default=0.1,
+                       help="L2 threshold for success metric (strict protocol)")
+    parser.add_argument("--eval-steps", type=int, default=10,
+                       help="Number of evenly sampled timesteps per episode (strict protocol)")
     parser.add_argument(
         "--prompt-mode",
         type=str,

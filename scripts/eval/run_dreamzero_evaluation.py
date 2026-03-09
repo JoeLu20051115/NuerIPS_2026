@@ -113,10 +113,27 @@ class DreamZeroEvaluator:
                 print(f"Real evaluation failed: {e}")
                 import traceback; traceback.print_exc()
                 self.policy_client = None
-                results = self._run_mock_evaluation()
+                # Mark as failure instead of using mock high scores
+                results = {
+                    "success_rate": 0.0,
+                    "action_l2_error": float('inf'),
+                    "video_mse": 0.0,
+                    "completion_time": 0.0,
+                    "robustness_score": 0.0,
+                    "evaluation_status": "FAILED",
+                    "error_message": str(e)
+                }
         else:
-            print(f"Running mock evaluation for episode {episode_id}...")
-            results = self._run_mock_evaluation()
+            print(f"Policy client unavailable for {episode_id} - marking as SKIPPED")
+            results = {
+                "success_rate": 0.0,
+                "action_l2_error": float('inf'),
+                "video_mse": 0.0,
+                "completion_time": 0.0,
+                "robustness_score": 0.0,
+                "evaluation_status": "SKIPPED",
+                "error_message": "Policy client not initialized or video loader unavailable"
+            }
 
         # Save results
         results_file = run_dir / "evaluation_results.json"
@@ -244,7 +261,15 @@ class DreamZeroEvaluator:
             action_errors.append(l2_error)
 
         if not action_errors:
-            return self._run_mock_evaluation()
+            # No valid predictions - mark as failure
+            return {
+                "success_rate": 0.0,
+                "action_l2_error": float('inf'),
+                "video_mse": 0.0,
+                "completion_time": 0.0,
+                "robustness_score": 0.0,
+                "evaluation_status": "NO_VALID_PREDICTIONS",
+            }
 
         mean_error = float(np.mean(action_errors))
         mean_time = float(np.mean(inference_times)) if inference_times else 0.0
@@ -281,10 +306,21 @@ class DreamZeroEvaluator:
 
         # Aggregate results
         if results:
-            success_rates = [r['success_rate'] for r in results]
-            video_mses = [r['video_mse'] for r in results]
-            completion_times = [r['completion_time'] for r in results]
-            robustness_scores = [r['robustness_score'] for r in results]
+            # Filter out failed/skipped episodes
+            valid_results = [r for r in results if r.get('evaluation_status') in ['SUCCESS', None]]
+            failed_count = len(results) - len(valid_results)
+            
+            if failed_count > 0:
+                print(f"\\n⚠️  Warning: {failed_count}/{len(results)} episodes failed or were skipped")
+            
+            if not valid_results:
+                print("\\n✗ All episodes failed - cannot compute statistics")
+                return None
+            
+            success_rates = [r['success_rate'] for r in valid_results]
+            video_mses = [r['video_mse'] for r in valid_results]
+            completion_times = [r['completion_time'] for r in valid_results]
+            robustness_scores = [r['robustness_score'] for r in valid_results]
 
             # Bootstrap CI
             def bootstrap_ci(data, n_boot=2000, alpha=0.05):
@@ -296,7 +332,8 @@ class DreamZeroEvaluator:
             summary = {
                 "tier": tier_name,
                 "method": method,
-                "num_episodes": len(results),
+                "num_episodes": len(valid_results),
+                "num_failed": failed_count,
                 "success_rate": {
                     "mean": float(np.mean(success_rates)),
                     "std": float(np.std(success_rates)),
@@ -394,10 +431,10 @@ def main():
                        help="Run evaluation for specific tier only")
     parser.add_argument("--dataset-root", type=str, default="data/droid_lerobot",
                        help="DROID dataset root directory")
-    parser.add_argument("--error-threshold", type=float, default=0.5,
-                       help="L2 threshold for success metric")
-    parser.add_argument("--eval-steps", type=int, default=5,
-                       help="Number of evenly sampled timesteps per episode")
+    parser.add_argument("--error-threshold", type=float, default=0.1,
+                       help="L2 threshold for success metric (strict protocol)")
+    parser.add_argument("--eval-steps", type=int, default=10,
+                       help="Number of evenly sampled timesteps per episode (strict protocol)")
 
     args = parser.parse_args()
 
