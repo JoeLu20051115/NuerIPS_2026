@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.5,
+  "action_l2_error": 0.12741945893145004,
+  "video_mse": 0.006295487401372914,
+  "policy_inference_time_per_step": 2.1212643857114015,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 21.212643857114017,
+  "completion_time": 2.1212643857114015,
+  "robustness_score": 0.87258054106855,
+  "num_sub_tasks": 1,
+  "task_description": "Move the blue and white doll to the left",
+  "sub_instructions": [
+    "Move the blue and white doll to the left"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "task_token_only",
+  "planner_mode": "disabled",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "disabled",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": null
+  },
+  "evaluation_status": "SUCCESS"
+}

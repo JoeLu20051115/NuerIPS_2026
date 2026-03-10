@@ -1,0 +1,361 @@
+{
+  "tier": "L3",
+  "method": "case6_b2_heuristic_hybrid_th010",
+  "num_episodes": 6,
+  "num_failed": 0,
+  "success_rate": {
+    "mean": 0.39999999999999997,
+    "std": 0.12909944487358055,
+    "ci_95": [
+      0.2833333333333334,
+      0.5
+    ]
+  },
+  "policy_inference_time_per_step": {
+    "mean": 2.118403041611115,
+    "std": 0.006004846792622338
+  },
+  "llm_planning_time_per_episode": {
+    "mean": 0.0,
+    "std": 0.0
+  },
+  "total_episode_time": {
+    "mean": 21.184030416111153,
+    "std": 0.060048467926223474
+  },
+  "completion_time": {
+    "mean": 2.118403041611115,
+    "std": 0.006004846792622338
+  },
+  "robustness_score": {
+    "mean": 0.8683580975440465,
+    "std": 0.01599131671186353
+  },
+  "evaluation_config": {
+    "error_threshold": 0.1,
+    "eval_steps": 10,
+    "prompt_mode": "hybrid",
+    "planner_mode": "heuristic"
+  },
+  "planner_stats": {
+    "planner_mode_counts": {
+      "real_api": 0,
+      "fallback_mock": 0,
+      "mock": 0,
+      "heuristic": 6,
+      "disabled": 0
+    },
+    "api_called_count": 0,
+    "api_success_count": 0,
+    "instruction_compliance_pass_count": 2,
+    "avg_num_inference_calls": 10.0
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.1308817085798446,
+      "video_mse": 0.014920896808137902,
+      "policy_inference_time_per_step": 2.1066598070785405,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.066598070785403,
+      "completion_time": 2.1066598070785405,
+      "robustness_score": 0.8691182914201554,
+      "num_sub_tasks": 1,
+      "task_description": "Remove the sachet from the shelf",
+      "sub_instructions": [
+        "Remove the sachet from the shelf"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Remove the sachet from the shelf"
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.1300417438105573,
+      "video_mse": 0.0048484860315921845,
+      "policy_inference_time_per_step": 2.1161269123665987,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.16126912366599,
+      "completion_time": 2.1161269123665987,
+      "robustness_score": 0.8699582561894427,
+      "num_sub_tasks": 3,
+      "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+      "sub_instructions": [
+        "Pick up the cloths",
+        "from the plastic container and",
+        "put them on the table."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 3,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Pick up the cloths\nfrom the plastic container and\nput them on the table."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.15944206521592985,
+      "video_mse": 0.005316387212052222,
+      "policy_inference_time_per_step": 2.1177802281454206,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.177802281454206,
+      "completion_time": 2.1177802281454206,
+      "robustness_score": 0.8405579347840701,
+      "num_sub_tasks": 3,
+      "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+      "sub_instructions": [
+        "Remove all the objects from",
+        "the white plastic bag and",
+        "put them on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 3,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Remove all the objects from\nthe white plastic bag and\nput them on the table"
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.3,
+      "action_l2_error": 0.12165028129803097,
+      "video_mse": 0.0023525775140865565,
+      "policy_inference_time_per_step": 2.1228408792987468,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.228408792987466,
+      "completion_time": 2.1228408792987468,
+      "robustness_score": 0.878349718701969,
+      "num_sub_tasks": 2,
+      "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+      "sub_instructions": [
+        "Put the wooden spoon inside the pot on the right side of the stove",
+        "remove the lid from the pot on the left side of the stove"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 2,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Put the wooden spoon inside the pot on the right side of the stove\nremove the lid from the pot on the left side of the stove"
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.14033715691124254,
+      "video_mse": 0.003765613467353203,
+      "policy_inference_time_per_step": 2.1227574762888253,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.227574762888253,
+      "completion_time": 2.1227574762888253,
+      "robustness_score": 0.8596628430887574,
+      "num_sub_tasks": 1,
+      "task_description": "Push the button down on the toaster.",
+      "sub_instructions": [
+        "Push the button down on the toaster."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Push the button down on the toaster."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.10749845892011542,
+      "video_mse": 0.0017487529372024267,
+      "policy_inference_time_per_step": 2.1242529464885593,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 21.242529464885592,
+      "completion_time": 2.1242529464885593,
+      "robustness_score": 0.8925015410798846,
+      "num_sub_tasks": 2,
+      "task_description": "Move the blue and white doll to the left",
+      "sub_instructions": [
+        "Move the blue and",
+        "white doll to the left"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "prompt_mode": "hybrid",
+      "planner_mode": "heuristic",
+      "instruction_validation": {
+        "num_sub_tasks": 2,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "heuristic",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": "Move the blue and\nwhite doll to the left"
+      },
+      "evaluation_status": "SUCCESS"
+    }
+  ]
+}

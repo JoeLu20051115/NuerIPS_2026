@@ -226,6 +226,32 @@ $$
 | B2 | task_description + heuristic/chunked subtask，不走 LLM | 46.5% | [37.99%, 56.0%] | 2.206 s/step（原始 4.411 折半） | 0.8745 ± 0.0313 |
 | 现有 Dual-System 主结果 | LLM subtask | 50.5% | [40.5%, 60.5%] | 2.281 s/step（2.130 policy + 1.513/10 planning） | 0.8769 ± 0.0328 |
 
+### 6.5 Case-6 误差剖析（L3, $\delta=0.1$）
+
+#### 汇总对比（6 episodes）
+
+| 组别 | 含义 | Success Rate | 95% CI | Completion Time（统一口径） | Robustness Score |
+| --- | --- | --- | --- | --- | --- |
+| System1-token | task token only | 45.0% | [33.3%, 53.3%] | 2.117 s/step | 0.8577 |
+| B2 | task_description + heuristic/chunked subtask（无 LLM） | 40.0% | [28.3%, 50.0%] | 2.118 s/step | 0.8684 |
+| Dual-LLM（real API） | LLM subtask | 45.0% | [30.0%, 55.0%] | 2.317 s/step（2.116 policy + 2.007/10 planning） | 0.8646 |
+
+说明：Case-6 上 Dual 的均值收益不是“全面压制”，而是“结构化收益 + 结构化失败”并存。
+
+#### 逐案例模式（你标注的 6 个 episode）
+
+| 模式 | episode | SR（System1 / B2 / Dual） | 可解释性说明 |
+| --- | --- | --- | --- |
+| Dual 明显更好 | `episode_001470`, `episode_001669` | `0.4/0.2/0.5`, `0.5/0.3/0.6` | 多阶段、多目标或跨对象切换任务中，LLM 子任务对“中间目标链”刻画更完整。 |
+| Dual 明显更差 | `episode_001406`, `episode_001395` | `0.2/0.5/0.1`, `0.6/0.6/0.5` | 任务较直接或 B2 分段已足够时，LLM 规划引入额外动作语义（如 open/move）可能干扰策略。 |
+| 基本持平/小幅更好 | `episode_001754`, `episode_001827` | `0.5/0.4/0.5`, `0.5/0.4/0.5` | 规划增益有限，表现受策略本体误差主导。 |
+
+#### 可解释性结论
+
+- Dual-LLM 在复杂长链任务上可通过显式中间目标提升成功率，但在简单/短链任务上可能因过度规划导致收益消失甚至负迁移。  
+- 提升具有条件性而非全局一致性，这解释了“总体均值增益有限但个别任务提升显著”的现象。  
+- 相较无规划基线，Dual 主要额外代价来自一次性规划时延（本实验约 2.0 s/episode），policy step 时延基本不变。  
+
 ---
 
 ## 7. 有效性与边界
