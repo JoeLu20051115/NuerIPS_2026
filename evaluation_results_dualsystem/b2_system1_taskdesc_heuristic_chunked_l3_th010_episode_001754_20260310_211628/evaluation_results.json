@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.14033715691124254,
+  "video_mse": 0.003765613467353203,
+  "policy_inference_time_per_step": 4.408723303675652,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 44.087233036756516,
+  "completion_time": 4.408723303675652,
+  "robustness_score": 0.8596628430887574,
+  "num_sub_tasks": 1,
+  "task_description": "Push the button down on the toaster.",
+  "sub_instructions": [
+    "Push the button down on the toaster."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "heuristic",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "heuristic",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": "Push the button down on the toaster."
+  },
+  "evaluation_status": "SUCCESS"
+}

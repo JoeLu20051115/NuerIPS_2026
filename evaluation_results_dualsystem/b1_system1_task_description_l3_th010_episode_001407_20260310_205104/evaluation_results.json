@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.09028639498292268,
+  "video_mse": 0.001554446159021836,
+  "policy_inference_time_per_step": 4.420412115938961,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 44.204121159389615,
+  "completion_time": 4.420412115938961,
+  "robustness_score": 0.9097136050170773,
+  "num_sub_tasks": 1,
+  "task_description": "Remove the doll from the bowl",
+  "sub_instructions": [
+    "Remove the doll from the bowl"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "task_only",
+  "planner_mode": "disabled",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "disabled",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": null
+  },
+  "evaluation_status": "SUCCESS"
+}

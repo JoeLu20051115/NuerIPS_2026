@@ -9,6 +9,7 @@ System 2 decomposes high-level goals into sub-instructions that System 1 execute
 import argparse
 import json
 import os
+import re
 import time
 import asyncio
 from pathlib import Path
@@ -193,6 +194,7 @@ class DualSystemEvaluator:
         port: int = 8000,
         dataset_root: str = "data/droid_lerobot",
         use_mock_llm: bool = False,
+        planner_mode: str = "llm",
         error_threshold: float = 0.5,
         eval_steps: int = 5,
         prompt_mode: str = "task_token_hybrid",
@@ -201,6 +203,7 @@ class DualSystemEvaluator:
         self.host = host
         self.port = port
         self.dataset_root = Path(dataset_root)
+        self.planner_mode = planner_mode
         self.error_threshold = float(error_threshold)
         self.eval_steps = max(1, int(eval_steps))
         self.prompt_mode = prompt_mode
@@ -209,8 +212,10 @@ class DualSystemEvaluator:
         self.episode_task_map = self._load_episode_task_map()
         self.task_index_map = self._load_task_index_map()
         
-        # System 2: LLM Planner
-        self.planner = LLMPlanner(use_mock=use_mock_llm, temperature=planner_temperature)
+        # Planner backend: only instantiate LLM client when llm mode is requested.
+        self.planner = None
+        if self.planner_mode == "llm":
+            self.planner = LLMPlanner(use_mock=use_mock_llm, temperature=planner_temperature)
         
         # System 1: DreamZero policy client
         self.policy_client = None
@@ -326,6 +331,66 @@ class DualSystemEvaluator:
             return f"{task_description}; {current_instruction}"
         # Default fallback mode: preserve training-like task token while injecting sub-task guidance.
         return f"{task_token}; {current_instruction}" if task_token else f"{task_description}; {current_instruction}"
+
+    def _build_heuristic_plan(self, task_description: str) -> List[str]:
+        """Generate deterministic sub-tasks without calling an LLM."""
+        text = re.sub(r"\s+", " ", task_description.strip())
+        if not text:
+            return ["execute task"]
+
+        split_parts = [
+            part.strip(" ,.;:")
+            for part in re.split(r"(?:\bthen\b|\band then\b|\bbefore\b|\bafter\b|;|,|\.)", text, flags=re.IGNORECASE)
+            if part.strip(" ,.;:")
+        ]
+        split_parts = split_parts[:5]
+        if 2 <= len(split_parts) <= 5:
+            return split_parts
+
+        words = text.split()
+        if len(words) >= 9:
+            num_chunks = min(4, max(2, len(words) // 4))
+            boundaries = np.linspace(0, len(words), num_chunks + 1, dtype=int)
+            chunks = []
+            for start, end in zip(boundaries[:-1], boundaries[1:]):
+                chunk = " ".join(words[start:end]).strip()
+                if chunk:
+                    chunks.append(chunk)
+            if chunks:
+                return chunks[:5]
+
+        return [text]
+
+    def _plan_sub_instructions(self, task_description: str, episode_id: str) -> tuple[List[str], Dict, float]:
+        """Plan sub-instructions according to configured planner mode."""
+        if self.planner_mode == "disabled":
+            return [task_description], {
+                "planner_mode": "disabled",
+                "api_called": False,
+                "api_success": False,
+                "error": None,
+                "model": None,
+                "raw_response": None,
+            }, 0.0
+
+        if self.planner_mode == "heuristic":
+            sub_instructions = self._build_heuristic_plan(task_description)
+            return sub_instructions, {
+                "planner_mode": "heuristic",
+                "api_called": False,
+                "api_success": False,
+                "error": None,
+                "model": None,
+                "raw_response": "\n".join(sub_instructions),
+            }, 0.0
+
+        if self.planner is None:
+            raise RuntimeError("planner_mode='llm' requires an initialized planner")
+
+        llm_plan_start = time.perf_counter()
+        sub_instructions, planner_meta = self.planner.plan(task_description, {"episode_id": episode_id})
+        llm_plan_time = time.perf_counter() - llm_plan_start
+        return sub_instructions, planner_meta, llm_plan_time
     
     def run_single_episode(self, episode_info: Dict, method: str = "dualsystem") -> Dict:
         """Run dual-system evaluation on a single episode."""
@@ -398,12 +463,10 @@ class DualSystemEvaluator:
         if "task_index" in df.columns:
             task_token = f"task_{int(df['task_index'].iloc[0])}"
         
-        # System 2: Generate sub-task plan
-        print(f"  [System 2] Planning for: {task_description}")
-        llm_plan_start = time.perf_counter()
-        sub_instructions, planner_meta = self.planner.plan(task_description, {"episode_id": episode_id})
-        llm_plan_time = time.perf_counter() - llm_plan_start
-        print(f"  [System 2] Generated {len(sub_instructions)} sub-tasks (took {llm_plan_time:.3f}s):")
+        # Planner stage: LLM, heuristic, or disabled baseline.
+        print(f"  [Planner:{self.planner_mode}] Planning for: {task_description}")
+        sub_instructions, planner_meta, llm_plan_time = self._plan_sub_instructions(task_description, episode_id)
+        print(f"  [Planner:{self.planner_mode}] Generated {len(sub_instructions)} sub-tasks (took {llm_plan_time:.3f}s):")
         for i, inst in enumerate(sub_instructions, 1):
             print(f"    {i}. {inst}")
         
@@ -544,6 +607,7 @@ class DualSystemEvaluator:
             "sub_instructions": sub_instructions,
             "sub_task_assignments": sub_task_assignments,
             "prompt_mode": self.prompt_mode,
+            "planner_mode": self.planner_mode,
             "instruction_validation": instruction_validation,
             "num_eval_steps": int(len(action_errors)),
             "num_inference_calls": int(inference_call_count),
@@ -631,12 +695,15 @@ class DualSystemEvaluator:
                     "error_threshold": float(self.error_threshold),
                     "eval_steps": int(self.eval_steps),
                     "prompt_mode": self.prompt_mode,
+                    "planner_mode": self.planner_mode,
                 },
                 "planner_stats": {
                     "planner_mode_counts": {
                         "real_api": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "real_api")),
                         "fallback_mock": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "fallback_mock")),
                         "mock": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "mock")),
+                        "heuristic": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "heuristic")),
+                        "disabled": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("planner_mode") == "disabled")),
                     },
                     "api_called_count": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("api_called"))),
                     "api_success_count": int(sum(1 for r in valid_results if r.get("planner_meta", {}).get("api_success"))),
@@ -713,6 +780,13 @@ def main():
                        help="DROID dataset root directory")
     parser.add_argument("--mock-llm", action="store_true",
                        help="Use mock LLM planner (no API calls)")
+    parser.add_argument(
+        "--planner-mode",
+        type=str,
+        default="llm",
+        choices=["llm", "heuristic", "disabled"],
+        help="Planner backend: llm for real/mock LLM, heuristic for deterministic chunking, disabled for no sub-task planning",
+    )
     parser.add_argument("--error-threshold", type=float, default=0.1,
                        help="L2 threshold for success metric (strict protocol)")
     parser.add_argument("--eval-steps", type=int, default=10,
@@ -738,6 +812,7 @@ def main():
         args.port, 
         args.dataset_root,
         use_mock_llm=args.mock_llm or not os.environ.get("OPENAI_API_KEY"),
+        planner_mode=args.planner_mode,
         error_threshold=args.error_threshold,
         eval_steps=args.eval_steps,
         prompt_mode=args.prompt_mode,

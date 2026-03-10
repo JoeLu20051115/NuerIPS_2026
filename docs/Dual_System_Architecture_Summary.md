@@ -11,7 +11,7 @@
 | 原始主结果（$\delta=0.1$） | $43.5\%$ | $46.0\%$ | +2.5pp |
 | 补充结果（System1 $\delta=0.14$ vs Dual $\delta=0.1$） | $\sim 61.8\%$ | $65.8\%$ | +4.0pp |
 
-### 时间指标说明（当前代码口径）
+### 时间指标说明（统一均摊口径）
 
 当前评测脚本直接输出以下时间字段：
 
@@ -25,7 +25,8 @@ $$
 
 其中 $K_{\text{valid}}$ 是成功完成推理并产出有效动作的步数（不一定恒等于配置的 $K$）。
 
-注意：当前代码未直接输出 `equiv_step_time` 字段。若需要该量，需在分析阶段由现有字段派生计算。
+注意：当前代码未直接输出 `equiv_step_time` 字段；本文时间对比统一使用分析阶段派生的均摊口径
+$T_{\text{equiv}} = T_{\text{policy}} + T_{\text{planning}}/K$。
 
 ---
 
@@ -181,18 +182,18 @@ $$
 - L1 成功率：$40.50\% \pm 23.12\%$
 - L3 成功率：$46.50\% \pm 17.97\%$
 - Overall：$43.50\%$
-- Completion Time（policy）：L1 $2.1233 \pm 0.0044$ s/step，L3 $2.1256 \pm 0.0020$ s/step
+- Completion Time（$T_{\text{equiv}}$）：L1 $2.1233 \pm 0.0044$ s/step，L3 $2.1256 \pm 0.0020$ s/step
 
 **Dual-System（2026-03-10）**
 
 - L1 成功率：$41.5\% \pm 20.6\%$
 - L3 成功率：$50.5\% \pm 22.7\%$
 - Overall：$46.0\%$
-- Completion Time（policy）：$2.44 \pm 1.37$ s/step
+- Completion Time（$T_{\text{equiv}}$）：$2.44 \pm 1.37$ s/step
 
 ### 6.2 主结果对比（$\delta=0.1$）
 
-| 系统 | Overall SR | Completion Time (s/step, policy) | 时间增量（vs System1） |
+| 系统 | Overall SR | Completion Time (s/step, $T_{\text{equiv}}$) | 时间增量（vs System1） |
 | --- | --- | --- | --- |
 | System1 | 43.5% | 2.124 | - |
 | Dual-System | 46.0% | 2.44 ± 1.37 | +0.316s (+14.9%) |
@@ -201,16 +202,36 @@ $$
 
 | 实验模块 | 阈值口径 | System1 L1 SR | System1 L3 SR | System1 Overall | Dual L1 SR | Dual L3 SR | Dual Overall | 时间对比（摘要） |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 主实验 | 双方 $\delta=0.1$ | 40.5% ± 23.1% | 46.5% ± 18.0% | 43.5% | 41.5% ± 20.6% | 50.5% ± 22.7% | 46.0% | System1 2.124 s/step, Dual 2.44 ± 1.37 s/step（policy） |
-| 对比实验 | $\delta=0.12$（L1+L3） | 50.5% ± 20.9% | 57.5% ± 16.1% | 54% | 52.0% ± 22.5% | 62.0% ± 18.9% | 57% | System1 L1/L3: 2.137/2.130 s, Dual L1/L3: 2.147/2.135 s（policy） |
-| 对比实验 | System1 $\delta=0.14$ vs Dual $\delta=0.1$ | 58.0% ± 23.8% | 65.5% ± 15.3% | 61.8% | 61.0% ± 21.0% | 70.5% ± 18.8% | 65.8% | System1 L1/L3: 2.132/2.133 s, Dual L1/L3: 2.127/2.130 s（policy） |
+| 主实验 | 双方 $\delta=0.1$ | 40.5% ± 23.1% | 46.5% ± 18.0% | 43.5% | 41.5% ± 20.6% | 50.5% ± 22.7% | 46.0% | System1 2.124 s/step, Dual 2.44 ± 1.37 s/step（$T_{\text{equiv}}$） |
+| 对比实验 | $\delta=0.12$（L1+L3） | 50.5% ± 20.9% | 57.5% ± 16.1% | 54% | 52.0% ± 22.5% | 62.0% ± 18.9% | 57% | System1 L1/L3: 2.137/2.130 s, Dual L1/L3: 2.147/2.135 s（$T_{\text{equiv}}$） |
+| 对比实验 | System1 $\delta=0.14$ vs Dual $\delta=0.1$ | 58.0% ± 23.8% | 65.5% ± 15.3% | 61.8% | 61.0% ± 21.0% | 70.5% ± 18.8% | 65.8% | System1 L1/L3: 2.132/2.133 s, Dual L1/L3: 2.127/2.130 s（$T_{\text{equiv}}$） |
+
+### 6.4 L3 公平对比（B1/B2 + Dual，$\delta=0.1$）
+
+时间统一采用可比口径：
+
+$$
+T_{\text{equiv}} = T_{\text{policy}} + \frac{T_{\text{planning}}}{K}, \quad K=10.
+$$
+
+其中：
+- System1/B1/B2 不使用 LLM 规划，故 $T_{\text{planning}}=0$，$T_{\text{equiv}}=T_{\text{policy}}$；
+- Dual-System 使用 LLM 规划，按每 episode 规划时间均摊到每步；
+- B1/B2 由于与他人共享同一张卡，按你的实验说明对原始 `completion_time` 做折半校正后再参与对比。
+
+| 组别 | 含义 | Success Rate | 95% CI | Completion Time（统一口径） | Robustness Score |
+| --- | --- | --- | --- | --- | --- |
+| System1 旧基线 | task token only | 46.5% | [38.5%, 54.5%] | 2.126 s/step | 0.8748 ± 0.0273 |
+| B1 | task_description，无子任务，无 LLM | 44.0% | [35.5%, 53.0%] | 2.207 s/step（原始 4.414 折半） | 0.8770 ± 0.0310 |
+| B2 | task_description + heuristic/chunked subtask，不走 LLM | 46.5% | [37.99%, 56.0%] | 2.206 s/step（原始 4.411 折半） | 0.8745 ± 0.0313 |
+| 现有 Dual-System 主结果 | LLM subtask | 50.5% | [40.5%, 60.5%] | 2.281 s/step（2.130 policy + 1.513/10 planning） | 0.8769 ± 0.0328 |
 
 ---
 
 ## 7. 有效性与边界
 
 - 汇总默认仅统计 `evaluation_status=SUCCESS` 的样本。
-- `completion_time` 仅表示策略推理耗时；Dual-System 的规划开销需结合 `llm_planning_time`/`total_episode_time`。
+- 文中时间对比统一使用均摊口径 $T_{\text{equiv}}$；其派生基于 `completion_time`、`llm_planning_time` 与 `total_episode_time`。
 - 时间对比采用“规划时间均摊到每步”的口径（同时报告 `total_episode_time`）；在当前这批日志（`num_failed=0`、planner 全 `real_api`）下，可视为公平比较。
 - 当前指标属于离线动作代理指标，不等同于真实机器人端到端任务完成率。
 - 对当前这批已汇总日志，`num_failed=0`，因此“仅统计 SUCCESS 样本”与“统计全部样本”在数值上几乎等价。

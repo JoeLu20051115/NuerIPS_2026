@@ -1,0 +1,52 @@
+{
+  "success_rate": 0.2,
+  "action_l2_error": 0.15944206521592985,
+  "video_mse": 0.005316387212052222,
+  "policy_inference_time_per_step": 4.413642791286111,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 44.13642791286111,
+  "completion_time": 4.413642791286111,
+  "robustness_score": 0.8405579347840701,
+  "num_sub_tasks": 3,
+  "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+  "sub_instructions": [
+    "Remove all the objects from",
+    "the white plastic bag and",
+    "put them on the table"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "heuristic",
+  "instruction_validation": {
+    "num_sub_tasks": 3,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "heuristic",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": "Remove all the objects from\nthe white plastic bag and\nput them on the table"
+  },
+  "evaluation_status": "SUCCESS"
+}

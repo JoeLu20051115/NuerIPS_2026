@@ -1,0 +1,52 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.08772897328292086,
+  "video_mse": 0.0025314078509452295,
+  "policy_inference_time_per_step": 4.406469284836203,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 44.06469284836203,
+  "completion_time": 4.406469284836203,
+  "robustness_score": 0.9122710267170792,
+  "num_sub_tasks": 3,
+  "task_description": "Pick up the bear plush toy from the table and put it in the pot",
+  "sub_instructions": [
+    "Pick up the bear plush",
+    "toy from the table and",
+    "put it in the pot"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "heuristic",
+  "instruction_validation": {
+    "num_sub_tasks": 3,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "heuristic",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": "Pick up the bear plush\ntoy from the table and\nput it in the pot"
+  },
+  "evaluation_status": "SUCCESS"
+}
