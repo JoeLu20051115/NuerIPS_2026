@@ -324,7 +324,7 @@ class DualSystemEvaluator:
             return task_token or task_description
         if self.prompt_mode == "hybrid":
             return f"{task_description}; {current_instruction}"
-        # Default and recommended mode: preserve training-like task token while injecting sub-task guidance.
+        # Default fallback mode: preserve training-like task token while injecting sub-task guidance.
         return f"{task_token}; {current_instruction}" if task_token else f"{task_description}; {current_instruction}"
     
     def run_single_episode(self, episode_info: Dict, method: str = "dualsystem") -> Dict:
