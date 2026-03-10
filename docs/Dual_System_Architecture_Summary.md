@@ -94,15 +94,11 @@ $$
 2. 从元数据解析任务描述。
 3. 运行一次 planner 得到子任务序列 $\mathcal{L}$。
 4. 从 $[0, T-1]$ 均匀采样 $K$ 个时间点。
-5. 将每个采样时刻映射到对应子任务（默认时间均分，或状态驱动切换）：
+5. 将每个采样时刻按时间均分映射到对应子任务：
 
 $$
 m_t = \min\left(\left\lfloor \frac{t \cdot M}{T} \right\rfloor, M-1\right).
 $$
-
-状态驱动切换模式（`--switch-mode state`）下，不按固定时间段切换，而是依据进度触发：
-
-- 若连续 `switch_patience` 个采样步满足 `e_t <= switch_error_threshold`，切换到下一子任务。
 
 6. 组装 prompt、调用策略推理、计算误差。
 7. 汇总 episode 指标，再汇总层级指标。
@@ -224,16 +220,11 @@ for each episode ep in D:
 
     S <- 均匀采样 K 个时间点
     for t in S:
-        if cfg.switch_mode == "time":
-          m <- floor(t * M / T)
-        else:
-          m <- current_m  # progress-driven index
+        m <- floor(t * M / T)
         p_t <- compose_prompt(cfg.prompt_mode, g, L[m], task_token)
         obs_t <- 构建多模态观测
         a_hat_t <- policy_infer(obs_t)
         e_t <- L2(a_hat_t[0:7], a_gt_t[14:21])
-        if cfg.switch_mode == "state" and e_t <= cfg.switch_error_threshold for cfg.switch_patience steps:
-          current_m <- min(current_m + 1, |L|-1)
         记录误差与耗时
 
     汇总 episode 指标 (SR_ep, E_ep, R_ep, T_ep)
@@ -351,7 +342,7 @@ $$
 
 ### 7.4 消融实验模块（阈值 0.12，L1+L3）
 
-基于你提供的最新 L3 消融评测日志，按 7.3 相同风格整理如下：
+基于你提供的阈值 0.12 消融评测日志（L1+L3），按 7.3 相同风格整理如下：
 
 **成功率结果**
 
@@ -399,7 +390,7 @@ $$
 
 ### 8.3 消融模块结果补充
 
-1. 新增的 L3 消融结果给出 Success Rate、Video MSE 与 Completion Time 三类指标，便于后续模块级对照。
+1. 新增的阈值 0.12 消融结果（L1+L3）给出 Success Rate、Video MSE 与 Completion Time 三类指标，便于后续模块级对照。
 2. 当前日志存在两种成功率汇总口径，建议后续固定单一统计管线后再做最终表格定稿。
 
 ### 8.4 结论
@@ -413,7 +404,6 @@ $$
 
 - 结果包含 planner 审计字段（`planner_mode`, `api_called`, `api_success`, `raw_response`），可追溯。
 - 当前指标属于离线动作代理指标，不等同于真实机器人端到端任务完成率。
-- `state_switch` 等机制改进建议在相同统计口径下重跑后再确认最终推荐配置。
 
 ---
 
@@ -433,18 +423,4 @@ python scripts/eval/run_dualsystem_evaluation.py \
   --method dualsystem_full_strict_h200_t0_subtask \
   --prompt-mode subtask \
   --planner-temperature 0.0
-
-# Dual-System (状态驱动切换 - 推荐配置) 🏆
-python scripts/eval/run_dualsystem_evaluation.py \
-  --host localhost --port 8000 \
-  --test-sets-dir test_sets_final \
-  --method dualsystem_state_switch \
-  --prompt-mode subtask \
-  --planner-temperature 0.0 \
-  --switch-mode state \
-  --switch-error-threshold 0.10 \
-  --switch-patience 2
-
-# 一键跑消融对比实验（baseline vs state_switch）
-bash scripts/eval/run_dualsystem_ablation_matrix.sh
 ```
