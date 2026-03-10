@@ -34,9 +34,6 @@ except ImportError:
     HAS_VIDEO_LOADER = False
     print("Warning: video loader not available")
 
-# LLM client
-import openai
-
 DATASET_ROOT = Path("data/droid_lerobot")
 CAMERA_KEYS = [
     "observation.images.exterior_image_1_left",
@@ -61,10 +58,32 @@ class LLMPlanner:
     ):
         self.model_name = model_name
         self.temperature = float(temperature)
-        self.api_key = os.environ.get("OPENAI_API_KEY", "")
-        self.use_mock = use_mock or not self.api_key
+        self.api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+        self.mock_reason = "mock_mode_enabled_or_missing_api_key"
+
+        key_invalid_reason = self._detect_invalid_api_key(self.api_key)
+        self.use_mock = use_mock or (not self.api_key) or (key_invalid_reason is not None)
+        if key_invalid_reason is not None:
+            self.mock_reason = key_invalid_reason
         if self.use_mock:
-            print("⚠️  Using mock LLM planner (no OpenAI API key)")
+            print(f"⚠️  Using mock LLM planner ({self.mock_reason})")
+
+    @staticmethod
+    def _detect_invalid_api_key(api_key: str) -> Optional[str]:
+        """Return a reason string when API key is present but clearly invalid."""
+        if not api_key:
+            return None
+        if not api_key.isascii():
+            return "invalid_openai_api_key_non_ascii_characters"
+        placeholders = {
+            "你的_OPENAI_API_KEY",
+            "your_OPENAI_API_KEY",
+            "your_openai_api_key",
+            "YOUR_OPENAI_API_KEY",
+        }
+        if api_key in placeholders:
+            return "invalid_openai_api_key_placeholder_value"
+        return None
         
     def plan(self, task_description: str, episode_context: Dict) -> tuple[List[str], Dict]:
         """Generate sub-instructions for a given task.
@@ -81,7 +100,7 @@ class LLMPlanner:
                 "planner_mode": "mock",
                 "api_called": False,
                 "api_success": False,
-                "error": "mock_mode_enabled_or_missing_api_key",
+                "error": self.mock_reason,
                 "model": self.model_name,
                 "raw_response": None,
             }
@@ -105,14 +124,9 @@ class LLMPlanner:
                     max_tokens=256,
                 )
                 content = response.choices[0].message.content or ""
-            except Exception:
-                response = openai.ChatCompletion.create(
-                    model=self.model_name,
-                    messages=messages,
-                    temperature=self.temperature,
-                    max_tokens=256,
-                )
-                content = response["choices"][0]["message"]["content"]
+            except Exception as ex:
+                raise ex  # Re-raise to be caught by outer exception handler
+            
             # Parse sub-instructions (expecting one per line)
             sub_instructions = [line.strip("- ").strip() for line in content.split("\n") if line.strip()]
             sub_instructions = sub_instructions[:5]

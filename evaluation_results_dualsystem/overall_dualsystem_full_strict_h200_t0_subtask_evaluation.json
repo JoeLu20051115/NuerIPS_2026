@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-03-09 17:44:57",
+  "evaluation_timestamp": "2026-03-10 12:19:12",
   "method": "dualsystem_full_strict_h200_t0_subtask",
   "tier_summaries": {
     "L1": {
@@ -8,32 +8,32 @@
       "num_episodes": 20,
       "num_failed": 0,
       "success_rate": {
-        "mean": 0.40499999999999997,
-        "std": 0.20850659461993043,
+        "mean": 0.4149999999999999,
+        "std": 0.20560885194952092,
         "ci_95": [
-          0.31999999999999995,
-          0.49499999999999994
+          0.33,
+          0.4999999999999999
         ]
       },
       "policy_inference_time_per_step": {
-        "mean": 2.1186658187536525,
-        "std": 0.0033592505097308906
+        "mean": 2.4437342746881767,
+        "std": 1.3707441800419042
       },
       "llm_planning_time_per_episode": {
-        "mean": 1.646898693125695,
-        "std": 0.46821293913053075
+        "mean": 1.6355433857999742,
+        "std": 0.4124529622190854
       },
       "total_episode_time": {
-        "mean": 22.83355688066222,
-        "std": 0.4657020994714512
+        "mean": 26.07288613268174,
+        "std": 13.79537720835485
       },
       "completion_time": {
-        "mean": 2.1186658187536525,
-        "std": 0.0033592505097308906
+        "mean": 2.4437342746881767,
+        "std": 1.3707441800419042
       },
       "robustness_score": {
-        "mean": 0.8699608164697474,
-        "std": 0.03655122263641735
+        "mean": 0.8679882661005915,
+        "std": 0.037089694791978225
       },
       "evaluation_config": {
         "error_threshold": 0.1,
@@ -54,13 +54,13 @@
       "individual_results": [
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.13340084041932698,
-          "video_mse": 0.011679410953907255,
-          "policy_inference_time_per_step": 2.106348331645131,
-          "llm_planning_time": 1.3982888339087367,
-          "total_episode_time": 22.461772150360048,
-          "completion_time": 2.106348331645131,
-          "robustness_score": 0.866599159580673,
+          "action_l2_error": 0.1361241182637311,
+          "video_mse": 0.011956275868829292,
+          "policy_inference_time_per_step": 8.418663762882352,
+          "llm_planning_time": 1.9947778405621648,
+          "total_episode_time": 86.18141546938568,
+          "completion_time": 8.418663762882352,
+          "robustness_score": 0.8638758817362688,
           "num_sub_tasks": 5,
           "task_description": "Move pen from the mug to the table",
           "sub_instructions": [
@@ -107,21 +107,21 @@
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.12070667687930499,
-          "video_mse": 0.005873297601604136,
-          "policy_inference_time_per_step": 2.116032064333558,
-          "llm_planning_time": 1.462032288312912,
-          "total_episode_time": 22.622352931648493,
-          "completion_time": 2.116032064333558,
-          "robustness_score": 0.879293323120695,
+          "action_l2_error": 0.13491529830577798,
+          "video_mse": 0.00872725916789376,
+          "policy_inference_time_per_step": 2.1247906799428167,
+          "llm_planning_time": 2.4352809078991413,
+          "total_episode_time": 23.683187707327306,
+          "completion_time": 2.1247906799428167,
+          "robustness_score": 0.865084701694222,
           "num_sub_tasks": 5,
           "task_description": "Coil the cord",
           "sub_instructions": [
             "Move to the cord's starting point.",
             "Grasp the cord with the gripper.",
-            "Coil the cord around a designated object.",
-            "Place the coiled cord securely.",
-            "Open the gripper to release the cord."
+            "Coil the cord around a designated object or surface.",
+            "Release the cord by opening the gripper.",
+            "Move back to the starting position."
           ],
           "sub_task_assignments": [
             0,
@@ -154,19 +154,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move to the cord's starting point.  \nGrasp the cord with the gripper.  \nCoil the cord around a designated object.  \nPlace the coiled cord securely.  \nOpen the gripper to release the cord."
+            "raw_response": "Move to the cord's starting point.  \nGrasp the cord with the gripper.  \nCoil the cord around a designated object or surface.  \nRelease the cord by opening the gripper.  \nMove back to the starting position."
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.5,
-          "action_l2_error": 0.14587595049694235,
-          "video_mse": 0.010299456480767808,
-          "policy_inference_time_per_step": 2.1176755744963884,
-          "llm_planning_time": 1.6107232235372066,
-          "total_episode_time": 22.78747896850109,
-          "completion_time": 2.1176755744963884,
-          "robustness_score": 0.8541240495030576,
+          "success_rate": 0.4,
+          "action_l2_error": 0.16977618350979432,
+          "video_mse": 0.014165038797318053,
+          "policy_inference_time_per_step": 2.127578431647271,
+          "llm_planning_time": 2.066346020437777,
+          "total_episode_time": 23.342130336910486,
+          "completion_time": 2.127578431647271,
+          "robustness_score": 0.8302238164902057,
           "num_sub_tasks": 5,
           "task_description": "Bring the small, white object, closer to the foam pack",
           "sub_instructions": [
@@ -212,14 +212,14 @@
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.1,
-          "action_l2_error": 0.20440626736316178,
-          "video_mse": 0.008221416227630337,
-          "policy_inference_time_per_step": 2.1158501542173327,
-          "llm_planning_time": 2.1676790583878756,
-          "total_episode_time": 23.3261806005612,
-          "completion_time": 2.1158501542173327,
-          "robustness_score": 0.7955937326368382,
+          "success_rate": 0.2,
+          "action_l2_error": 0.1993834247697355,
+          "video_mse": 0.008740330465380742,
+          "policy_inference_time_per_step": 2.1307192645967006,
+          "llm_planning_time": 1.568777384236455,
+          "total_episode_time": 22.87597003020346,
+          "completion_time": 2.1307192645967006,
+          "robustness_score": 0.8006165752302645,
           "num_sub_tasks": 5,
           "task_description": "Move the blue cloth from the top left drawer to the top right drawer then put it back in the top right drawer",
           "sub_instructions": [
@@ -266,13 +266,13 @@
         },
         {
           "success_rate": 0.2,
-          "action_l2_error": 0.16383683228502405,
-          "video_mse": 0.004220375976999564,
-          "policy_inference_time_per_step": 2.1207099579274655,
-          "llm_planning_time": 1.4381740912795067,
-          "total_episode_time": 22.64527367055416,
-          "completion_time": 2.1207099579274655,
-          "robustness_score": 0.8361631677149759,
+          "action_l2_error": 0.16984660719694344,
+          "video_mse": 0.0049792106309921955,
+          "policy_inference_time_per_step": 2.12697738930583,
+          "llm_planning_time": 1.6799285598099232,
+          "total_episode_time": 22.949702452868223,
+          "completion_time": 2.12697738930583,
+          "robustness_score": 0.8301533928030566,
           "num_sub_tasks": 5,
           "task_description": "Remove the green pear from the open drawer and place it in the basket",
           "sub_instructions": [
@@ -319,21 +319,21 @@
         },
         {
           "success_rate": 0.7,
-          "action_l2_error": 0.0788547610379022,
-          "video_mse": 0.0022584513055651607,
-          "policy_inference_time_per_step": 2.1200781313702466,
-          "llm_planning_time": 1.7608948880806565,
-          "total_episode_time": 22.96167620178312,
-          "completion_time": 2.1200781313702466,
-          "robustness_score": 0.9211452389620978,
+          "action_l2_error": 0.0753911350925661,
+          "video_mse": 0.00244269761823303,
+          "policy_inference_time_per_step": 2.130104372370988,
+          "llm_planning_time": 1.513621300458908,
+          "total_episode_time": 22.81466502416879,
+          "completion_time": 2.130104372370988,
+          "robustness_score": 0.9246088649074339,
           "num_sub_tasks": 5,
           "task_description": "Put the yellow circle inside the blue object",
           "sub_instructions": [
-            "Move to the location of the yellow circle.",
-            "Grasp the yellow circle.",
-            "Move to the location of the blue object.",
-            "Open the gripper over the blue object.",
-            "Close the gripper to place the yellow circle inside the blue object."
+            "move to the yellow circle",
+            "grasp the yellow circle",
+            "move to the blue object",
+            "place the yellow circle inside the blue object",
+            "open the gripper to release the yellow circle"
           ],
           "sub_task_assignments": [
             0,
@@ -366,19 +366,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move to the location of the yellow circle.  \nGrasp the yellow circle.  \nMove to the location of the blue object.  \nOpen the gripper over the blue object.  \nClose the gripper to place the yellow circle inside the blue object.  "
+            "raw_response": "move to the yellow circle  \ngrasp the yellow circle  \nmove to the blue object  \nplace the yellow circle inside the blue object  \nopen the gripper to release the yellow circle  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.1,
-          "action_l2_error": 0.17335203195770227,
-          "video_mse": 0.006472772077874998,
-          "policy_inference_time_per_step": 2.1193896695040166,
-          "llm_planning_time": 1.2568926624953747,
-          "total_episode_time": 22.45078935753554,
-          "completion_time": 2.1193896695040166,
-          "robustness_score": 0.8266479680422978,
+          "success_rate": 0.2,
+          "action_l2_error": 0.17070965443633124,
+          "video_mse": 0.0066659665632272935,
+          "policy_inference_time_per_step": 2.12795900888741,
+          "llm_planning_time": 2.024367144331336,
+          "total_episode_time": 23.303957233205438,
+          "completion_time": 2.12795900888741,
+          "robustness_score": 0.8292903455636688,
           "num_sub_tasks": 5,
           "task_description": "Move the towel to the right",
           "sub_instructions": [
@@ -425,13 +425,13 @@
         },
         {
           "success_rate": 0.7,
-          "action_l2_error": 0.09054147714234033,
-          "video_mse": 0.003175882937981743,
-          "policy_inference_time_per_step": 2.1198787661269307,
-          "llm_planning_time": 1.4094921695068479,
-          "total_episode_time": 22.608279830776155,
-          "completion_time": 2.1198787661269307,
-          "robustness_score": 0.9094585228576597,
+          "action_l2_error": 0.10131720371373687,
+          "video_mse": 0.005006323228770179,
+          "policy_inference_time_per_step": 2.130757306981832,
+          "llm_planning_time": 1.2329319501295686,
+          "total_episode_time": 22.540505019947886,
+          "completion_time": 2.130757306981832,
+          "robustness_score": 0.8986827962862631,
           "num_sub_tasks": 5,
           "task_description": "Put the green thing into the bowl",
           "sub_instructions": [
@@ -439,7 +439,7 @@
             "grasp the green thing",
             "move to the bowl",
             "place the green thing into the bowl",
-            "open the gripper to release the green thing"
+            "release the grip on the green thing"
           ],
           "sub_task_assignments": [
             0,
@@ -472,19 +472,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the green thing  \ngrasp the green thing  \nmove to the bowl  \nplace the green thing into the bowl  \nopen the gripper to release the green thing  "
+            "raw_response": "move to the green thing  \ngrasp the green thing  \nmove to the bowl  \nplace the green thing into the bowl  \nrelease the grip on the green thing  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.3,
-          "action_l2_error": 0.1461651926960474,
-          "video_mse": 0.010318871732870556,
-          "policy_inference_time_per_step": 2.1188557035289706,
-          "llm_planning_time": 1.3088125111535192,
-          "total_episode_time": 22.497369546443224,
-          "completion_time": 2.1188557035289706,
-          "robustness_score": 0.8538348073039526,
+          "action_l2_error": 0.13952006320108562,
+          "video_mse": 0.007773604867102921,
+          "policy_inference_time_per_step": 2.128201899770647,
+          "llm_planning_time": 1.6295902039855719,
+          "total_episode_time": 22.911609201692045,
+          "completion_time": 2.128201899770647,
+          "robustness_score": 0.8604799367989144,
           "num_sub_tasks": 5,
           "task_description": "Move the pencil to the left",
           "sub_instructions": [
@@ -492,7 +492,7 @@
             "Grasp the pencil.",
             "Move the pencil to the left.",
             "Place the pencil down.",
-            "Close the gripper."
+            "Open the gripper."
           ],
           "sub_task_assignments": [
             0,
@@ -512,7 +512,7 @@
             "all_non_empty": true,
             "within_3_to_5": true,
             "reasonable_length_all": true,
-            "unique_ratio": 1.0,
+            "unique_ratio": 0.8,
             "has_prohibited_content": false,
             "compliance_pass": true
           },
@@ -525,19 +525,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Open the gripper.  \nGrasp the pencil.  \nMove the pencil to the left.  \nPlace the pencil down.  \nClose the gripper."
+            "raw_response": "Open the gripper.  \nGrasp the pencil.  \nMove the pencil to the left.  \nPlace the pencil down.  \nOpen the gripper."
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.6,
-          "action_l2_error": 0.10452792058864468,
-          "video_mse": 0.0023479520112376574,
-          "policy_inference_time_per_step": 2.120274047460407,
-          "llm_planning_time": 1.0225194245576859,
-          "total_episode_time": 22.225259899161756,
-          "completion_time": 2.120274047460407,
-          "robustness_score": 0.8954720794113553,
+          "success_rate": 0.7,
+          "action_l2_error": 0.09336669780406995,
+          "video_mse": 0.0025665490660718602,
+          "policy_inference_time_per_step": 2.1317326799035072,
+          "llm_planning_time": 1.3422213336452842,
+          "total_episode_time": 22.659548132680357,
+          "completion_time": 2.1317326799035072,
+          "robustness_score": 0.9066333021959301,
           "num_sub_tasks": 5,
           "task_description": "Open the top left door of the cabinet.",
           "sub_instructions": [
@@ -584,13 +584,13 @@
         },
         {
           "success_rate": 0.5,
-          "action_l2_error": 0.09856829478766292,
-          "video_mse": 0.0024568705169016464,
-          "policy_inference_time_per_step": 2.122418241389096,
-          "llm_planning_time": 1.4842480616644025,
-          "total_episode_time": 22.70843047555536,
-          "completion_time": 2.122418241389096,
-          "robustness_score": 0.9014317052123371,
+          "action_l2_error": 0.09852812385582506,
+          "video_mse": 0.0021633801192649676,
+          "policy_inference_time_per_step": 2.130135780852288,
+          "llm_planning_time": 1.5155675001442432,
+          "total_episode_time": 22.816925308667123,
+          "completion_time": 2.130135780852288,
+          "robustness_score": 0.9014718761441749,
           "num_sub_tasks": 5,
           "task_description": "Remove the orange object from the silver bowl and place it on the table",
           "sub_instructions": [
@@ -637,21 +637,21 @@
         },
         {
           "success_rate": 0.7,
-          "action_l2_error": 0.08301432583291937,
-          "video_mse": 0.001851105429211845,
-          "policy_inference_time_per_step": 2.121907069534063,
-          "llm_planning_time": 1.3368386393412948,
-          "total_episode_time": 22.555909334681928,
-          "completion_time": 2.121907069534063,
-          "robustness_score": 0.9169856741670807,
+          "action_l2_error": 0.08377215687118032,
+          "video_mse": 0.00196545210867279,
+          "policy_inference_time_per_step": 2.1311918408609927,
+          "llm_planning_time": 1.5524988574907184,
+          "total_episode_time": 22.864417266100645,
+          "completion_time": 2.1311918408609927,
+          "robustness_score": 0.9162278431288197,
           "num_sub_tasks": 5,
           "task_description": "Pick up the object with zebra tag and put it on the table",
           "sub_instructions": [
-            "Move to the location of the object with zebra tag.",
-            "Grasp the object with the gripper.",
-            "Lift the object off the surface.",
-            "Move to the table location.",
-            "Place the object on the table."
+            "move to the location of the object with zebra tag",
+            "grasp the object with zebra tag",
+            "move to the table",
+            "place the object on the table",
+            "open the gripper to release the object"
           ],
           "sub_task_assignments": [
             0,
@@ -684,19 +684,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move to the location of the object with zebra tag.  \nGrasp the object with the gripper.  \nLift the object off the surface.  \nMove to the table location.  \nPlace the object on the table."
+            "raw_response": "move to the location of the object with zebra tag  \ngrasp the object with zebra tag  \nmove to the table  \nplace the object on the table  \nopen the gripper to release the object"
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.11060004623752524,
-          "video_mse": 0.001360040299902631,
-          "policy_inference_time_per_step": 2.1206193779595197,
-          "llm_planning_time": 2.0513113494962454,
-          "total_episode_time": 23.25750512909144,
-          "completion_time": 2.1206193779595197,
-          "robustness_score": 0.8893999537624747,
+          "action_l2_error": 0.1142015903615691,
+          "video_mse": 0.00216163251108152,
+          "policy_inference_time_per_step": 2.1295481470413504,
+          "llm_planning_time": 1.843686114065349,
+          "total_episode_time": 23.139167584478855,
+          "completion_time": 2.1295481470413504,
+          "robustness_score": 0.8857984096384309,
           "num_sub_tasks": 5,
           "task_description": "Remove the yellow object from the silver tin and put it on the black platform",
           "sub_instructions": [
@@ -742,22 +742,22 @@
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.3,
-          "action_l2_error": 0.15231916507715476,
-          "video_mse": 0.006965118021642602,
-          "policy_inference_time_per_step": 2.119719024468213,
-          "llm_planning_time": 1.7865161206573248,
-          "total_episode_time": 22.983706365339458,
-          "completion_time": 2.119719024468213,
-          "robustness_score": 0.8476808349228453,
+          "success_rate": 0.4,
+          "action_l2_error": 0.1441350608229698,
+          "video_mse": 0.007634683122392,
+          "policy_inference_time_per_step": 2.1279012908227743,
+          "llm_planning_time": 1.639470743946731,
+          "total_episode_time": 22.918483652174473,
+          "completion_time": 2.1279012908227743,
+          "robustness_score": 0.8558649391770302,
           "num_sub_tasks": 5,
           "task_description": "Slide the curtain to the left",
           "sub_instructions": [
-            "Move the gripper to the curtain.",
+            "Move the arm to the curtain's starting position.",
             "Grasp the curtain with the gripper.",
             "Slide the curtain to the left.",
-            "Release the curtain from the gripper.",
-            "Move the gripper back to the starting position."
+            "Release the curtain.",
+            "Move the arm back to the neutral position."
           ],
           "sub_task_assignments": [
             0,
@@ -790,19 +790,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move the gripper to the curtain.  \nGrasp the curtain with the gripper.  \nSlide the curtain to the left.  \nRelease the curtain from the gripper.  \nMove the gripper back to the starting position."
+            "raw_response": "Move the arm to the curtain's starting position.  \nGrasp the curtain with the gripper.  \nSlide the curtain to the left.  \nRelease the curtain.  \nMove the arm back to the neutral position."
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.3,
-          "action_l2_error": 0.13859344405981588,
-          "video_mse": 0.00828503153329976,
-          "policy_inference_time_per_step": 2.1207667152397334,
-          "llm_planning_time": 1.576083623804152,
-          "total_episode_time": 22.783750776201487,
-          "completion_time": 2.1207667152397334,
-          "robustness_score": 0.8614065559401841,
+          "action_l2_error": 0.14225347895968862,
+          "video_mse": 0.007415152335872544,
+          "policy_inference_time_per_step": 2.1261432068422437,
+          "llm_planning_time": 2.3118792679160833,
+          "total_episode_time": 23.57331133633852,
+          "completion_time": 2.1261432068422437,
+          "robustness_score": 0.8577465210403113,
           "num_sub_tasks": 5,
           "task_description": "Put the green cube in the black bowl",
           "sub_instructions": [
@@ -849,13 +849,13 @@
         },
         {
           "success_rate": 0.8,
-          "action_l2_error": 0.06914255335874311,
-          "video_mse": 0.0009660961035791559,
-          "policy_inference_time_per_step": 2.120691914856434,
-          "llm_planning_time": 1.3810543632134795,
-          "total_episode_time": 22.587973511777818,
-          "completion_time": 2.120691914856434,
-          "robustness_score": 0.9308574466412569,
+          "action_l2_error": 0.0710086298246651,
+          "video_mse": 0.000890311677067515,
+          "policy_inference_time_per_step": 2.128432767931372,
+          "llm_planning_time": 1.1712014665827155,
+          "total_episode_time": 22.455529145896435,
+          "completion_time": 2.128432767931372,
+          "robustness_score": 0.928991370175335,
           "num_sub_tasks": 5,
           "task_description": "Remove the marker from the green bowl and put it in the table",
           "sub_instructions": [
@@ -902,13 +902,13 @@
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.12212742009855679,
-          "video_mse": 0.005739798859027854,
-          "policy_inference_time_per_step": 2.1165089497342704,
-          "llm_planning_time": 1.4399782884866,
-          "total_episode_time": 22.605067785829306,
-          "completion_time": 2.1165089497342704,
-          "robustness_score": 0.8778725799014432,
+          "action_l2_error": 0.1241394780652612,
+          "video_mse": 0.006122971131067802,
+          "policy_inference_time_per_step": 2.1307409199886025,
+          "llm_planning_time": 0.88760840985924,
+          "total_episode_time": 22.195017609745264,
+          "completion_time": 2.1307409199886025,
+          "robustness_score": 0.8758605219347388,
           "num_sub_tasks": 5,
           "task_description": "Remove the green plush toy from the right plate and place it on the left plate",
           "sub_instructions": [
@@ -955,20 +955,20 @@
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.11655207991181904,
-          "video_mse": 0.0029930235272601553,
-          "policy_inference_time_per_step": 2.116957112867385,
-          "llm_planning_time": 3.2158142486587167,
-          "total_episode_time": 24.385385377332568,
-          "completion_time": 2.116957112867385,
-          "robustness_score": 0.883447920088181,
+          "action_l2_error": 0.11511510952689111,
+          "video_mse": 0.0023723852996156416,
+          "policy_inference_time_per_step": 2.1301114321686327,
+          "llm_planning_time": 2.03580514062196,
+          "total_episode_time": 23.336919462308288,
+          "completion_time": 2.1301114321686327,
+          "robustness_score": 0.8848848904731089,
           "num_sub_tasks": 5,
           "task_description": "Move the pencil to the left",
           "sub_instructions": [
             "open gripper",
             "move pencil to the left",
             "close gripper",
-            "move pencil to the desired position",
+            "place pencil",
             "open gripper"
           ],
           "sub_task_assignments": [
@@ -1002,26 +1002,26 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "open gripper  \nmove pencil to the left  \nclose gripper  \nmove pencil to the desired position  \nopen gripper  "
+            "raw_response": "open gripper  \nmove pencil to the left  \nclose gripper  \nplace pencil  \nopen gripper  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.1,
-          "action_l2_error": 0.19341797312486492,
-          "video_mse": 0.008546705372150035,
-          "policy_inference_time_per_step": 2.118653682526201,
-          "llm_planning_time": 2.2447489416226745,
-          "total_episode_time": 23.431285766884685,
-          "completion_time": 2.118653682526201,
-          "robustness_score": 0.8065820268751351,
+          "action_l2_error": 0.19436789204092633,
+          "video_mse": 0.009256460413554289,
+          "policy_inference_time_per_step": 2.132511578593403,
+          "llm_planning_time": 1.312093822285533,
+          "total_episode_time": 22.637209608219564,
+          "completion_time": 2.132511578593403,
+          "robustness_score": 0.8056321079590737,
           "num_sub_tasks": 5,
           "task_description": "Close the bottom drawer of the cabinet at the right",
           "sub_instructions": [
             "move to the bottom drawer of the cabinet at the right",
             "grasp the handle of the bottom drawer",
             "pull the drawer open slightly",
-            "release the handle of the drawer",
+            "release the handle of the bottom drawer",
             "close the bottom drawer of the cabinet at the right"
           ],
           "sub_task_assignments": [
@@ -1055,27 +1055,27 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the bottom drawer of the cabinet at the right  \ngrasp the handle of the bottom drawer  \npull the drawer open slightly  \nrelease the handle of the drawer  \nclose the bottom drawer of the cabinet at the right  "
+            "raw_response": "move to the bottom drawer of the cabinet at the right  \ngrasp the handle of the bottom drawer  \npull the drawer open slightly  \nrelease the handle of the bottom drawer  \nclose the bottom drawer of the cabinet at the right  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.2,
-          "action_l2_error": 0.1547804172495912,
-          "video_mse": 0.003936173091368176,
-          "policy_inference_time_per_step": 2.1199818858876824,
-          "llm_planning_time": 1.5858710743486881,
-          "total_episode_time": 22.785689933225513,
-          "completion_time": 2.1199818858876824,
-          "robustness_score": 0.8452195827504088,
+          "success_rate": 0.1,
+          "action_l2_error": 0.16236277136542104,
+          "video_mse": 0.004906943630600455,
+          "policy_inference_time_per_step": 2.1304837323725225,
+          "llm_planning_time": 0.9532137475907803,
+          "total_episode_time": 22.258051071316004,
+          "completion_time": 2.1304837323725225,
+          "robustness_score": 0.837637228634579,
           "num_sub_tasks": 5,
           "task_description": "Close the bottom drawer of the cabinet to the right.",
           "sub_instructions": [
-            "Move to the bottom drawer of the cabinet to the right.",
-            "Grasp the handle of the bottom drawer.",
-            "Pull the drawer out slightly to ensure it is not stuck.",
-            "Push the drawer back in to close it.",
-            "Release the handle of the drawer."
+            "move to the bottom drawer of the cabinet to the right",
+            "grasp the handle of the bottom drawer",
+            "pull the drawer open slightly",
+            "push the drawer back to close it",
+            "release the handle of the drawer"
           ],
           "sub_task_assignments": [
             0,
@@ -1108,7 +1108,7 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move to the bottom drawer of the cabinet to the right.  \nGrasp the handle of the bottom drawer.  \nPull the drawer out slightly to ensure it is not stuck.  \nPush the drawer back in to close it.  \nRelease the handle of the drawer."
+            "raw_response": "move to the bottom drawer of the cabinet to the right  \ngrasp the handle of the bottom drawer  \npull the drawer open slightly  \npush the drawer back to close it  \nrelease the handle of the drawer"
           },
           "evaluation_status": "SUCCESS"
         }
@@ -1120,32 +1120,32 @@
       "num_episodes": 20,
       "num_failed": 0,
       "success_rate": {
-        "mean": 0.4849999999999999,
-        "std": 0.2242208732477866,
+        "mean": 0.5049999999999999,
+        "std": 0.22688102609076854,
         "ci_95": [
-          0.38500000000000006,
-          0.5849999999999999
+          0.40499999999999997,
+          0.605
         ]
       },
       "policy_inference_time_per_step": {
-        "mean": 2.1191384508414193,
-        "std": 0.004343457529732996
+        "mean": 2.129903148114681,
+        "std": 0.0015134083343894373
       },
       "llm_planning_time_per_episode": {
-        "mean": 1.618370841583237,
-        "std": 0.733882546180998
+        "mean": 1.5128895356319845,
+        "std": 0.43625666841437827
       },
       "total_episode_time": {
-        "mean": 22.80975534999743,
-        "std": 0.7147673183415142
+        "mean": 22.811921016778797,
+        "std": 0.42890223303265695
       },
       "completion_time": {
-        "mean": 2.1191384508414193,
-        "std": 0.004343457529732996
+        "mean": 2.129903148114681,
+        "std": 0.0015134083343894373
       },
       "robustness_score": {
-        "mean": 0.8756451332454842,
-        "std": 0.03294518147974549
+        "mean": 0.876903134369819,
+        "std": 0.03278852791176016
       },
       "evaluation_config": {
         "error_threshold": 0.1,
@@ -1166,21 +1166,21 @@
       "individual_results": [
         {
           "success_rate": 0.6,
-          "action_l2_error": 0.12419756514506994,
-          "video_mse": 0.013235222421408208,
-          "policy_inference_time_per_step": 2.120703159738332,
-          "llm_planning_time": 1.4123819526284933,
-          "total_episode_time": 22.619413550011814,
-          "completion_time": 2.120703159738332,
-          "robustness_score": 0.87580243485493,
+          "action_l2_error": 0.14282094358965164,
+          "video_mse": 0.012434213308911955,
+          "policy_inference_time_per_step": 2.1297300698235633,
+          "llm_planning_time": 0.8791642636060715,
+          "total_episode_time": 22.176464961841702,
+          "completion_time": 2.1297300698235633,
+          "robustness_score": 0.8571790564103483,
           "num_sub_tasks": 5,
           "task_description": "Remove the sachet from the shelf",
           "sub_instructions": [
-            "move to the shelf",
-            "open the gripper",
-            "grasp the sachet",
-            "close the gripper",
-            "move away from the shelf"
+            "move to shelf",
+            "open gripper",
+            "grasp sachet",
+            "close gripper",
+            "move to designated location"
           ],
           "sub_task_assignments": [
             0,
@@ -1213,19 +1213,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the shelf  \nopen the gripper  \ngrasp the sachet  \nclose the gripper  \nmove away from the shelf  "
+            "raw_response": "move to shelf  \nopen gripper  \ngrasp sachet  \nclose gripper  \nmove to designated location"
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.1,
-          "action_l2_error": 0.15816365626101583,
-          "video_mse": 0.0038697671419597873,
-          "policy_inference_time_per_step": 2.1219486172311006,
-          "llm_planning_time": 1.1522367103025317,
-          "total_episode_time": 22.37172288261354,
-          "completion_time": 2.1219486172311006,
-          "robustness_score": 0.8418363437389842,
+          "action_l2_error": 0.15369368081473217,
+          "video_mse": 0.003818199218805454,
+          "policy_inference_time_per_step": 2.131840844079852,
+          "llm_planning_time": 1.0286541767418385,
+          "total_episode_time": 22.34706261754036,
+          "completion_time": 2.131840844079852,
+          "robustness_score": 0.8463063191852678,
           "num_sub_tasks": 5,
           "task_description": "Pick up the cloths from the plastic container and put them on the table.",
           "sub_instructions": [
@@ -1271,14 +1271,14 @@
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.8,
-          "action_l2_error": 0.08925151375488038,
-          "video_mse": 0.0013378219904061571,
-          "policy_inference_time_per_step": 2.12151510566473,
-          "llm_planning_time": 1.1745194923132658,
-          "total_episode_time": 22.389670548960567,
-          "completion_time": 2.12151510566473,
-          "robustness_score": 0.9107484862451196,
+          "success_rate": 0.7,
+          "action_l2_error": 0.0918686840565306,
+          "video_mse": 0.001364368244808633,
+          "policy_inference_time_per_step": 2.129802353680134,
+          "llm_planning_time": 1.351953310891986,
+          "total_episode_time": 22.649976847693324,
+          "completion_time": 2.129802353680134,
+          "robustness_score": 0.9081313159434694,
           "num_sub_tasks": 5,
           "task_description": "Remove the doll from the bowl",
           "sub_instructions": [
@@ -1325,21 +1325,21 @@
         },
         {
           "success_rate": 0.9,
-          "action_l2_error": 0.07225116438979792,
-          "video_mse": 0.002955866512676729,
-          "policy_inference_time_per_step": 2.1208251548931,
-          "llm_planning_time": 1.4230537507683039,
-          "total_episode_time": 22.631305299699306,
-          "completion_time": 2.1208251548931,
-          "robustness_score": 0.927748835610202,
+          "action_l2_error": 0.06537289327860407,
+          "video_mse": 0.0010298913429273842,
+          "policy_inference_time_per_step": 2.132011290919036,
+          "llm_planning_time": 1.5651126177981496,
+          "total_episode_time": 22.885225526988506,
+          "completion_time": 2.132011290919036,
+          "robustness_score": 0.9346271067213959,
           "num_sub_tasks": 5,
           "task_description": "Turn off the light switch.",
           "sub_instructions": [
-            "move to the light switch",
-            "grasp the light switch",
-            "push the light switch down",
-            "release the light switch",
-            "move back to the starting position"
+            "Move to the light switch.",
+            "Grasp the light switch.",
+            "Push the light switch down.",
+            "Release the light switch.",
+            "Move away from the light switch."
           ],
           "sub_task_assignments": [
             0,
@@ -1372,19 +1372,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the light switch  \ngrasp the light switch  \npush the light switch down  \nrelease the light switch  \nmove back to the starting position  "
+            "raw_response": "Move to the light switch.  \nGrasp the light switch.  \nPush the light switch down.  \nRelease the light switch.  \nMove away from the light switch."
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.6,
-          "action_l2_error": 0.11468384394573672,
-          "video_mse": 0.004693522374173345,
-          "policy_inference_time_per_step": 2.1112700481899083,
-          "llm_planning_time": 2.7110990611836314,
-          "total_episode_time": 23.823799543082714,
-          "completion_time": 2.1112700481899083,
-          "robustness_score": 0.8853161560542633,
+          "action_l2_error": 0.10862335913551782,
+          "video_mse": 0.003019689364062407,
+          "policy_inference_time_per_step": 2.130571990739554,
+          "llm_planning_time": 1.4393144017085433,
+          "total_episode_time": 22.745034309104085,
+          "completion_time": 2.130571990739554,
+          "robustness_score": 0.8913766408644822,
           "num_sub_tasks": 5,
           "task_description": "Press down on the lid of the flask",
           "sub_instructions": [
@@ -1431,21 +1431,21 @@
         },
         {
           "success_rate": 0.5,
-          "action_l2_error": 0.1550117647561783,
-          "video_mse": 0.008819133469982346,
-          "policy_inference_time_per_step": 2.1224564144387843,
-          "llm_planning_time": 1.5782920559868217,
-          "total_episode_time": 22.802856200374663,
-          "completion_time": 2.1224564144387843,
-          "robustness_score": 0.8449882352438217,
+          "action_l2_error": 0.13974062633783108,
+          "video_mse": 0.00790718967525878,
+          "policy_inference_time_per_step": 2.130927624180913,
+          "llm_planning_time": 1.1663878252729774,
+          "total_episode_time": 22.475664067082107,
+          "completion_time": 2.130927624180913,
+          "robustness_score": 0.8602593736621689,
           "num_sub_tasks": 5,
           "task_description": "Remove all the objects from the white plastic bag and put them on the table",
           "sub_instructions": [
-            "open the white plastic bag",
+            "open the plastic bag",
             "grasp the first object inside the bag",
             "place the object on the table",
             "repeat grasp and place for each remaining object",
-            "close the bag after all objects are removed"
+            "close the plastic bag when empty"
           ],
           "sub_task_assignments": [
             0,
@@ -1478,19 +1478,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "open the white plastic bag  \ngrasp the first object inside the bag  \nplace the object on the table  \nrepeat grasp and place for each remaining object  \nclose the bag after all objects are removed  "
+            "raw_response": "open the plastic bag  \ngrasp the first object inside the bag  \nplace the object on the table  \nrepeat grasp and place for each remaining object  \nclose the plastic bag when empty  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.2,
-          "action_l2_error": 0.13115894874286052,
-          "video_mse": 0.0034119106181084865,
-          "policy_inference_time_per_step": 2.1220458155497908,
-          "llm_planning_time": 1.2860566778108478,
-          "total_episode_time": 22.506514833308756,
-          "completion_time": 2.1220458155497908,
-          "robustness_score": 0.8688410512571395,
+          "success_rate": 0.3,
+          "action_l2_error": 0.1310029587266626,
+          "video_mse": 0.003657624696193935,
+          "policy_inference_time_per_step": 2.1302754510194064,
+          "llm_planning_time": 1.6585825216025114,
+          "total_episode_time": 22.961337031796575,
+          "completion_time": 2.1302754510194064,
+          "robustness_score": 0.8689970412733374,
           "num_sub_tasks": 5,
           "task_description": "Close the top drawer of the left cabinet",
           "sub_instructions": [
@@ -1537,21 +1537,21 @@
         },
         {
           "success_rate": 0.6,
-          "action_l2_error": 0.11521827937518148,
-          "video_mse": 0.005441605025762959,
-          "policy_inference_time_per_step": 2.12098944010213,
-          "llm_planning_time": 1.404848433099687,
-          "total_episode_time": 22.61474283412099,
-          "completion_time": 2.12098944010213,
-          "robustness_score": 0.8847817206248185,
+          "action_l2_error": 0.12244104378047553,
+          "video_mse": 0.005012542833235571,
+          "policy_inference_time_per_step": 2.12902453802526,
+          "llm_planning_time": 1.4073042487725616,
+          "total_episode_time": 22.69754962902516,
+          "completion_time": 2.12902453802526,
+          "robustness_score": 0.8775589562195245,
           "num_sub_tasks": 5,
           "task_description": "Change the position of the marker to face across the table",
           "sub_instructions": [
             "Open the gripper to release the marker.",
             "Move the marker to the new position across the table.",
             "Grasp the marker securely.",
-            "Rotate the marker to face the desired direction.",
-            "Place the marker down on the table."
+            "Rotate the marker to face across the table.",
+            "Place the marker down in the new position."
           ],
           "sub_task_assignments": [
             0,
@@ -1584,27 +1584,27 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Open the gripper to release the marker.  \nMove the marker to the new position across the table.  \nGrasp the marker securely.  \nRotate the marker to face the desired direction.  \nPlace the marker down on the table."
+            "raw_response": "Open the gripper to release the marker.  \nMove the marker to the new position across the table.  \nGrasp the marker securely.  \nRotate the marker to face across the table.  \nPlace the marker down in the new position."
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.14030006985296076,
-          "video_mse": 0.005356284496636503,
-          "policy_inference_time_per_step": 2.112184766493738,
-          "llm_planning_time": 1.625472898595035,
-          "total_episode_time": 22.747320563532412,
-          "completion_time": 2.112184766493738,
-          "robustness_score": 0.8596999301470393,
+          "action_l2_error": 0.13249016188462825,
+          "video_mse": 0.004393334074733818,
+          "policy_inference_time_per_step": 2.1297847222536803,
+          "llm_planning_time": 1.5245387786999345,
+          "total_episode_time": 22.822386001236737,
+          "completion_time": 2.1297847222536803,
+          "robustness_score": 0.8675098381153717,
           "num_sub_tasks": 5,
           "task_description": "Put the black pen inside the white mug",
           "sub_instructions": [
             "move to the black pen",
             "grasp the black pen",
             "move to the white mug",
-            "open the gripper over the white mug",
-            "close the gripper to place the black pen inside the white mug"
+            "open the gripper",
+            "place the black pen inside the white mug"
           ],
           "sub_task_assignments": [
             0,
@@ -1637,27 +1637,27 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the black pen  \ngrasp the black pen  \nmove to the white mug  \nopen the gripper over the white mug  \nclose the gripper to place the black pen inside the white mug  "
+            "raw_response": "move to the black pen  \ngrasp the black pen  \nmove to the white mug  \nopen the gripper  \nplace the black pen inside the white mug  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.4,
-          "action_l2_error": 0.1029770000672287,
-          "video_mse": 0.0014048284098271192,
-          "policy_inference_time_per_step": 2.123228134214878,
-          "llm_planning_time": 1.2172152660787106,
-          "total_episode_time": 22.44949660822749,
-          "completion_time": 2.123228134214878,
-          "robustness_score": 0.8970229999327713,
+          "success_rate": 0.3,
+          "action_l2_error": 0.11227416154646479,
+          "video_mse": 0.0019453987923754503,
+          "policy_inference_time_per_step": 2.128617171663791,
+          "llm_planning_time": 1.353316335938871,
+          "total_episode_time": 22.63948805257678,
+          "completion_time": 2.128617171663791,
+          "robustness_score": 0.8877258384535353,
           "num_sub_tasks": 5,
           "task_description": "Put the jersey on the backrest of the chair",
           "sub_instructions": [
-            "move to the jersey",
-            "grasp the jersey",
-            "move to the chair",
-            "place the jersey on the backrest of the chair",
-            "release the jersey"
+            "Move to the location of the jersey.",
+            "Grasp the jersey with the gripper.",
+            "Move to the chair with the backrest.",
+            "Place the jersey on the backrest of the chair.",
+            "Release the jersey from the gripper."
           ],
           "sub_task_assignments": [
             0,
@@ -1690,27 +1690,27 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the jersey  \ngrasp the jersey  \nmove to the chair  \nplace the jersey on the backrest of the chair  \nrelease the jersey"
+            "raw_response": "Move to the location of the jersey.  \nGrasp the jersey with the gripper.  \nMove to the chair with the backrest.  \nPlace the jersey on the backrest of the chair.  \nRelease the jersey from the gripper."
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.5,
-          "action_l2_error": 0.1166797429461492,
-          "video_mse": 0.0029962475946101732,
-          "policy_inference_time_per_step": 2.112139087729156,
-          "llm_planning_time": 1.6167910750955343,
-          "total_episode_time": 22.738181952387094,
-          "completion_time": 2.112139087729156,
-          "robustness_score": 0.8833202570538508,
+          "success_rate": 0.6,
+          "action_l2_error": 0.11576731050515024,
+          "video_mse": 0.002474630096182381,
+          "policy_inference_time_per_step": 2.1290959117002783,
+          "llm_planning_time": 2.4872542871162295,
+          "total_episode_time": 23.778213404119015,
+          "completion_time": 2.1290959117002783,
+          "robustness_score": 0.8842326894948498,
           "num_sub_tasks": 5,
           "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
           "sub_instructions": [
-            "move to the pot on the right side of the stove",
-            "grasp the wooden spoon",
-            "place the wooden spoon inside the pot",
-            "move to the pot on the left side of the stove",
-            "open the lid of the pot"
+            "Move to the pot on the right side of the stove.",
+            "Grasp the wooden spoon.",
+            "Place the wooden spoon inside the pot on the right side of the stove.",
+            "Move to the pot on the left side of the stove.",
+            "Open the lid of the pot on the left side of the stove."
           ],
           "sub_task_assignments": [
             0,
@@ -1743,19 +1743,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the pot on the right side of the stove  \ngrasp the wooden spoon  \nplace the wooden spoon inside the pot  \nmove to the pot on the left side of the stove  \nopen the lid of the pot"
+            "raw_response": "Move to the pot on the right side of the stove.  \nGrasp the wooden spoon.  \nPlace the wooden spoon inside the pot on the right side of the stove.  \nMove to the pot on the left side of the stove.  \nOpen the lid of the pot on the left side of the stove.  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.4,
-          "action_l2_error": 0.1457046858794098,
-          "video_mse": 0.005207338846769384,
-          "policy_inference_time_per_step": 2.1137651108205318,
-          "llm_planning_time": 4.50569761544466,
-          "total_episode_time": 25.64334872364998,
-          "completion_time": 2.1137651108205318,
-          "robustness_score": 0.8542953141205902,
+          "action_l2_error": 0.1458206789171291,
+          "video_mse": 0.005757599827637462,
+          "policy_inference_time_per_step": 2.1282378415577115,
+          "llm_planning_time": 1.8148070741444826,
+          "total_episode_time": 23.097185489721596,
+          "completion_time": 2.1282378415577115,
+          "robustness_score": 0.8541793210828709,
           "num_sub_tasks": 5,
           "task_description": "Push the button down on the toaster.",
           "sub_instructions": [
@@ -1802,13 +1802,13 @@
         },
         {
           "success_rate": 0.7,
-          "action_l2_error": 0.09127736305582336,
-          "video_mse": 0.0036533328648593066,
-          "policy_inference_time_per_step": 2.1112795238383115,
-          "llm_planning_time": 1.3283205823972821,
-          "total_episode_time": 22.441115820780396,
-          "completion_time": 2.1112795238383115,
-          "robustness_score": 0.9087226369441767,
+          "action_l2_error": 0.08978924824621963,
+          "video_mse": 0.003601695643619744,
+          "policy_inference_time_per_step": 2.1299871746450663,
+          "llm_planning_time": 1.5215087719261646,
+          "total_episode_time": 22.821380518376827,
+          "completion_time": 2.1299871746450663,
+          "robustness_score": 0.9102107517537804,
           "num_sub_tasks": 5,
           "task_description": "Put one orange block in the green bowl",
           "sub_instructions": [
@@ -1855,21 +1855,21 @@
         },
         {
           "success_rate": 0.9,
-          "action_l2_error": 0.07046418107435228,
-          "video_mse": 0.00045368935550032277,
-          "policy_inference_time_per_step": 2.1177707670256494,
-          "llm_planning_time": 1.3164408532902598,
-          "total_episode_time": 22.494148523546755,
-          "completion_time": 2.1177707670256494,
-          "robustness_score": 0.9295358189256477,
+          "action_l2_error": 0.07759280267355775,
+          "video_mse": 0.001482242073700922,
+          "policy_inference_time_per_step": 2.1303120392374693,
+          "llm_planning_time": 1.363474814221263,
+          "total_episode_time": 22.666595206595957,
+          "completion_time": 2.1303120392374693,
+          "robustness_score": 0.9224071973264423,
           "num_sub_tasks": 5,
           "task_description": "Remove the candy bar from the sink",
           "sub_instructions": [
             "move to the sink",
-            "open the gripper",
+            "open gripper",
             "grasp the candy bar",
-            "close the gripper",
-            "move to the designated place"
+            "close gripper",
+            "move to a designated place and place the candy bar"
           ],
           "sub_task_assignments": [
             0,
@@ -1902,27 +1902,27 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the sink  \nopen the gripper  \ngrasp the candy bar  \nclose the gripper  \nmove to the designated place  "
+            "raw_response": "move to the sink  \nopen gripper  \ngrasp the candy bar  \nclose gripper  \nmove to a designated place and place the candy bar  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.4,
-          "action_l2_error": 0.08738170951588145,
-          "video_mse": 0.0016342383785632486,
-          "policy_inference_time_per_step": 2.1195029173977673,
-          "llm_planning_time": 1.303893863223493,
-          "total_episode_time": 22.498923037201166,
-          "completion_time": 2.1195029173977673,
-          "robustness_score": 0.9126182904841186,
+          "success_rate": 0.7,
+          "action_l2_error": 0.07495563937878774,
+          "video_mse": 0.0020996971971576476,
+          "policy_inference_time_per_step": 2.132855819631368,
+          "llm_planning_time": 1.2578988010063767,
+          "total_episode_time": 22.586456997320056,
+          "completion_time": 2.132855819631368,
+          "robustness_score": 0.9250443606212122,
           "num_sub_tasks": 5,
           "task_description": "Pick up the bear plush toy from the table and put it in the pot",
           "sub_instructions": [
             "move to the table",
+            "open gripper",
             "grasp the bear plush toy",
             "move to the pot",
-            "place the bear plush toy in the pot",
-            "release the bear plush toy"
+            "place the bear plush toy in the pot"
           ],
           "sub_task_assignments": [
             0,
@@ -1955,19 +1955,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the table  \ngrasp the bear plush toy  \nmove to the pot  \nplace the bear plush toy in the pot  \nrelease the bear plush toy  "
+            "raw_response": "move to the table  \nopen gripper  \ngrasp the bear plush toy  \nmove to the pot  \nplace the bear plush toy in the pot  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.4,
-          "action_l2_error": 0.11312362818467137,
-          "video_mse": 0.002491554172954959,
-          "policy_inference_time_per_step": 2.122107540164143,
-          "llm_planning_time": 1.3957048282027245,
-          "total_episode_time": 22.616780229844153,
-          "completion_time": 2.122107540164143,
-          "robustness_score": 0.8868763718153286,
+          "success_rate": 0.6,
+          "action_l2_error": 0.10644537257427333,
+          "video_mse": 0.002423444379799151,
+          "policy_inference_time_per_step": 2.130590688996017,
+          "llm_planning_time": 1.151248467154801,
+          "total_episode_time": 22.45715535711497,
+          "completion_time": 2.130590688996017,
+          "robustness_score": 0.8935546274257267,
           "num_sub_tasks": 5,
           "task_description": "Move the blue and white doll to the left",
           "sub_instructions": [
@@ -2013,22 +2013,22 @@
           "evaluation_status": "SUCCESS"
         },
         {
-          "success_rate": 0.3,
-          "action_l2_error": 0.1824503509503783,
-          "video_mse": 0.012516875045007116,
-          "policy_inference_time_per_step": 2.1220621936023236,
-          "llm_planning_time": 1.3864248991012573,
-          "total_episode_time": 22.607046835124493,
-          "completion_time": 2.1220621936023236,
-          "robustness_score": 0.8175496490496217,
+          "success_rate": 0.2,
+          "action_l2_error": 0.19700067488726777,
+          "video_mse": 0.010947154815591883,
+          "policy_inference_time_per_step": 2.127484799362719,
+          "llm_planning_time": 2.772846622392535,
+          "total_episode_time": 24.047694616019726,
+          "completion_time": 2.127484799362719,
+          "robustness_score": 0.8029993251127322,
           "num_sub_tasks": 5,
           "task_description": "Lay down the bottle on the table",
           "sub_instructions": [
-            "Move to the bottle's location",
-            "Grasp the bottle",
-            "Move to the table",
-            "Place the bottle on the table",
-            "Open the gripper to release the bottle"
+            "move to the bottle",
+            "grasp the bottle",
+            "move to the table",
+            "place the bottle on the table",
+            "open the gripper to release the bottle"
           ],
           "sub_task_assignments": [
             0,
@@ -2061,19 +2061,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "Move to the bottle's location  \nGrasp the bottle  \nMove to the table  \nPlace the bottle on the table  \nOpen the gripper to release the bottle  "
+            "raw_response": "move to the bottle  \ngrasp the bottle  \nmove to the table  \nplace the bottle on the table  \nopen the gripper to release the bottle  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.2,
-          "action_l2_error": 0.18894913145644665,
-          "video_mse": 0.007787814713763716,
-          "policy_inference_time_per_step": 2.1187664416618643,
-          "llm_planning_time": 1.4115152126178145,
-          "total_episode_time": 22.59917962923646,
-          "completion_time": 2.1187664416618643,
-          "robustness_score": 0.8110508685435533,
+          "action_l2_error": 0.1686400091422377,
+          "video_mse": 0.006194246026695692,
+          "policy_inference_time_per_step": 2.1270818796008824,
+          "llm_planning_time": 1.3875148436054587,
+          "total_episode_time": 22.658333639614284,
+          "completion_time": 2.1270818796008824,
+          "robustness_score": 0.8313599908577622,
           "num_sub_tasks": 5,
           "task_description": "Put the glue stick inside the mug cup",
           "sub_instructions": [
@@ -2081,7 +2081,7 @@
             "grasp the glue stick",
             "move to the location of the mug cup",
             "place the glue stick inside the mug cup",
-            "release the glue stick"
+            "release the grip on the glue stick"
           ],
           "sub_task_assignments": [
             0,
@@ -2114,19 +2114,19 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the location of the glue stick  \ngrasp the glue stick  \nmove to the location of the mug cup  \nplace the glue stick inside the mug cup  \nrelease the glue stick"
+            "raw_response": "move to the location of the glue stick  \ngrasp the glue stick  \nmove to the location of the mug cup  \nplace the glue stick inside the mug cup  \nrelease the grip on the glue stick  "
           },
           "evaluation_status": "SUCCESS"
         },
         {
           "success_rate": 0.2,
-          "action_l2_error": 0.15847617348582915,
-          "video_mse": 0.00563327797982928,
-          "policy_inference_time_per_step": 2.124370485916734,
-          "llm_planning_time": 1.5615669889375567,
-          "total_episode_time": 22.805271848104894,
-          "completion_time": 2.124370485916734,
-          "robustness_score": 0.8415238265141709,
+          "action_l2_error": 0.15791919264585247,
+          "video_mse": 0.006292135502460461,
+          "policy_inference_time_per_step": 2.1280585711821915,
+          "llm_planning_time": 1.7769476370885968,
+          "total_episode_time": 23.05753334891051,
+          "completion_time": 2.1280585711821915,
+          "robustness_score": 0.8420808073541475,
           "num_sub_tasks": 5,
           "task_description": "Turn on the chandelier",
           "sub_instructions": [
@@ -2173,21 +2173,21 @@
         },
         {
           "success_rate": 0.6,
-          "action_l2_error": 0.12937656225046062,
-          "video_mse": 0.018277979393176776,
-          "policy_inference_time_per_step": 2.1238382921554146,
-          "llm_planning_time": 1.5558846145868301,
-          "total_episode_time": 22.79426753614098,
-          "completion_time": 2.1238382921554146,
-          "robustness_score": 0.8706234377495394,
+          "action_l2_error": 0.12767787048204732,
+          "video_mse": 0.017895397838407167,
+          "policy_inference_time_per_step": 2.1317721799947322,
+          "llm_planning_time": 1.349960912950337,
+          "total_episode_time": 22.66768271289766,
+          "completion_time": 2.1317721799947322,
+          "robustness_score": 0.8723221295179526,
           "num_sub_tasks": 5,
           "task_description": "Take the yellow block and put it in the box",
           "sub_instructions": [
-            "move to the yellow block",
-            "grasp the yellow block",
-            "move to the box",
-            "place the yellow block in the box",
-            "open the gripper to release the block"
+            "move to yellow block",
+            "grasp yellow block",
+            "move to box",
+            "place yellow block in box",
+            "open gripper to release block"
           ],
           "sub_task_assignments": [
             0,
@@ -2220,12 +2220,12 @@
             "api_success": true,
             "error": null,
             "model": "gpt-4o-mini",
-            "raw_response": "move to the yellow block  \ngrasp the yellow block  \nmove to the box  \nplace the yellow block in the box  \nopen the gripper to release the block  "
+            "raw_response": "move to yellow block  \ngrasp yellow block  \nmove to box  \nplace yellow block in box  \nopen gripper to release block  "
           },
           "evaluation_status": "SUCCESS"
         }
       ]
     }
   },
-  "overall_success_rate": 0.44499999999999995
+  "overall_success_rate": 0.4599999999999999
 }

@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.9,
+  "action_l2_error": 0.0717224309769294,
+  "video_mse": 0.002733326043795006,
+  "policy_inference_time_per_step": 2.132076957449317,
+  "llm_planning_time": 1.032430661842227,
+  "total_episode_time": 22.353200236335397,
+  "completion_time": 2.132076957449317,
+  "robustness_score": 0.9282775690230706,
+  "num_sub_tasks": 5,
+  "task_description": "Turn off the light switch.",
+  "sub_instructions": [
+    "move to the light switch",
+    "grasp the light switch",
+    "turn the light switch off",
+    "release the light switch",
+    "move back to the starting position"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the light switch  \ngrasp the light switch  \nturn the light switch off  \nrelease the light switch  \nmove back to the starting position  "
+  },
+  "evaluation_status": "SUCCESS"
+}

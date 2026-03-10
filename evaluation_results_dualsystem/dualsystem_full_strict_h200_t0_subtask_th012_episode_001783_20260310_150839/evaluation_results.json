@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.8,
+  "action_l2_error": 0.08636416531373217,
+  "video_mse": 0.0030326972564864657,
+  "policy_inference_time_per_step": 4.376752227917313,
+  "llm_planning_time": 1.670499105937779,
+  "total_episode_time": 45.438021385110915,
+  "completion_time": 4.376752227917313,
+  "robustness_score": 0.9136358346862679,
+  "num_sub_tasks": 5,
+  "task_description": "Put one orange block in the green bowl",
+  "sub_instructions": [
+    "move to orange block",
+    "grasp orange block",
+    "move to green bowl",
+    "place orange block in green bowl",
+    "open gripper to release block"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to orange block  \ngrasp orange block  \nmove to green bowl  \nplace orange block in green bowl  \nopen gripper to release block  "
+  },
+  "evaluation_status": "SUCCESS"
+}

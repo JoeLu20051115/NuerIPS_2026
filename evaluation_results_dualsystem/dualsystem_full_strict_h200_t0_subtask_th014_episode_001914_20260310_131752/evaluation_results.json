@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.17669273706261354,
+  "video_mse": 0.009347765361327177,
+  "policy_inference_time_per_step": 2.1343351224437357,
+  "llm_planning_time": 1.5989309148862958,
+  "total_episode_time": 22.942282139323652,
+  "completion_time": 2.1343351224437357,
+  "robustness_score": 0.8233072629373864,
+  "num_sub_tasks": 5,
+  "task_description": "Lay down the bottle on the table",
+  "sub_instructions": [
+    "Move to the bottle's location",
+    "Grasp the bottle",
+    "Move to the table's location",
+    "Place the bottle on the table",
+    "Open the gripper to release the bottle"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the bottle's location  \nGrasp the bottle  \nMove to the table's location  \nPlace the bottle on the table  \nOpen the gripper to release the bottle  "
+  },
+  "evaluation_status": "SUCCESS"
+}

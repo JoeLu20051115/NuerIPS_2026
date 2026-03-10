@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.8,
+  "action_l2_error": 0.07661058580147113,
+  "video_mse": 0.002436351523306013,
+  "policy_inference_time_per_step": 2.1281726519577204,
+  "llm_planning_time": 1.5519538884982467,
+  "total_episode_time": 22.833680408075452,
+  "completion_time": 2.1281726519577204,
+  "robustness_score": 0.9233894141985288,
+  "num_sub_tasks": 5,
+  "task_description": "Put the yellow circle inside the blue object",
+  "sub_instructions": [
+    "move to the yellow circle",
+    "grasp the yellow circle",
+    "move to the blue object",
+    "place the yellow circle inside the blue object",
+    "open the gripper to release the yellow circle"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the yellow circle  \ngrasp the yellow circle  \nmove to the blue object  \nplace the yellow circle inside the blue object  \nopen the gripper to release the yellow circle  "
+  },
+  "evaluation_status": "SUCCESS"
+}

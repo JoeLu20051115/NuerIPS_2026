@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.1435216587572424,
+  "video_mse": 0.006461699677543296,
+  "policy_inference_time_per_step": 2.127741488162428,
+  "llm_planning_time": 1.6462340792641044,
+  "total_episode_time": 22.923648960888386,
+  "completion_time": 2.127741488162428,
+  "robustness_score": 0.8564783412427576,
+  "num_sub_tasks": 5,
+  "task_description": "Put the green cube in the black bowl",
+  "sub_instructions": [
+    "move to the green cube",
+    "grasp the green cube",
+    "move to the black bowl",
+    "place the green cube in the black bowl",
+    "open the gripper to release the green cube"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.18,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the green cube  \ngrasp the green cube  \nmove to the black bowl  \nplace the green cube in the black bowl  \nopen the gripper to release the green cube  "
+  },
+  "evaluation_status": "SUCCESS"
+}

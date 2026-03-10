@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.12329307741097022,
+  "video_mse": 0.00483673349264325,
+  "policy_inference_time_per_step": 2.127629725635052,
+  "llm_planning_time": 3.2326268665492535,
+  "total_episode_time": 24.50892412289977,
+  "completion_time": 2.127629725635052,
+  "robustness_score": 0.8767069225890298,
+  "num_sub_tasks": 5,
+  "task_description": "Change the position of the marker to face across the table",
+  "sub_instructions": [
+    "Open the gripper to release the marker.",
+    "Move the marker to the desired position across the table.",
+    "Grasp the marker securely.",
+    "Place the marker in the new position facing across the table.",
+    "Close the gripper to secure the marker in place."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper to release the marker.  \nMove the marker to the desired position across the table.  \nGrasp the marker securely.  \nPlace the marker in the new position facing across the table.  \nClose the gripper to secure the marker in place."
+  },
+  "evaluation_status": "SUCCESS"
+}

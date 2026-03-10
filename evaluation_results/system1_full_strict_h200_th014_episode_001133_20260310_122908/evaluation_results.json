@@ -1,0 +1,9 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.07202127624806279,
+  "video_mse": 0.001114071210786262,
+  "completion_time": 2.1338061040267347,
+  "robustness_score": 0.9279787237519372,
+  "num_eval_steps": 10,
+  "error_threshold": 0.14
+}

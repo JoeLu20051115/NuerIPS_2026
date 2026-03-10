@@ -1,0 +1,49 @@
+{
+  "success_rate": 0.3,
+  "action_l2_error": 0.2124061840519389,
+  "video_mse": 0.012768977553648234,
+  "policy_inference_time_per_step": 2.129263360053301,
+  "llm_planning_time": 0.010380670428276062,
+  "total_episode_time": 21.303014270961285,
+  "completion_time": 2.129263360053301,
+  "robustness_score": 0.7875938159480611,
+  "num_sub_tasks": 1,
+  "task_description": "Bring the small, white object, closer to the foam pack",
+  "sub_instructions": [
+    "Bring the small, white object, closer to the foam pack"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "fallback_mock",
+    "api_called": true,
+    "api_success": false,
+    "error": "\n\nYou tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.\n\nYou can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. \n\nAlternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`\n\nA detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742\n",
+    "model": "gpt-4o-mini",
+    "raw_response": null
+  },
+  "evaluation_status": "SUCCESS"
+}
