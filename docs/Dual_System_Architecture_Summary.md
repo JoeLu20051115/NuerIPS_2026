@@ -82,6 +82,40 @@ $$
 
 说明：脚本默认 `prompt_mode=task_token_hybrid`；严格实验命令可显式设置 `--prompt-mode subtask`。
 
+### 2.4 双系统统一建模（架构公式）
+
+为更清晰地刻画 System2 规划与 System1 执行的关系，可将整体策略写为分层混合形式：
+
+$$
+\pi(a_t \mid o_{1:t}, g) = \sum_{m=1}^{M} q_{\phi}(m \mid o_{1:t}, g)\,\pi_{\theta}(a_t \mid o_t, z_m)
+$$
+
+其中，$g$ 为全局任务，$z_m$ 为第 $m$ 个子任务，$q_{\phi}$ 是高层子任务选择分布（System2），$\pi_{\theta}$ 是低层执行策略（System1）。
+
+System2 对子任务序列的生成可写为：
+
+$$
+z_{1:M} \sim p_{\phi}(z_{1:M} \mid g, c), \quad 1 \le M \le 5
+$$
+
+其中 $c$ 表示 episode 上下文（如元数据与场景信息）。
+
+为将规划结果与执行时刻对齐，引入时间软分配：
+
+$$
+q_{\phi}(m \mid t, g) = \frac{\exp\left(-\frac{|t/T-\mu_m|}{\tau}\right)}{\sum_{j=1}^{M}\exp\left(-\frac{|t/T-\mu_j|}{\tau}\right)}
+$$
+
+该形式对应当前硬切分 $m_t=\left\lfloor tM/T \right\rfloor$ 的平滑化扩展。
+
+在语言条件层面，可用门控融合统一 task 与 sub-task 语义：
+
+$$
+e_t = \lambda_t E(g) + (1-\lambda_t)E(z_{m_t}), \quad \lambda_t = \sigma(w^{\top} h_t)
+$$
+
+其中 $E(\cdot)$ 为文本编码器，$\lambda_t$ 控制全局任务语义与当前子任务语义的融合权重。
+
 ---
 
 ## 3. 数据流与运行逻辑
@@ -197,6 +231,21 @@ $$
 | --- | --- | --- | --- |
 | System1 | 43.5% | 2.124 | - |
 | Dual-System | 46.0% | 2.44 ± 1.37 | +0.316s (+14.9%) |
+
+### 6.2.1 显著性补充（基于现有结果直接计算）
+
+为避免仅报告均值差，本节补充 $\Delta \mathrm{SR}=\mathrm{SR}_{\text{Dual}}-\mathrm{SR}_{\text{System1}}$ 的统计量（对现有 episode 级结果做 bootstrap 95% CI，并报告 Welch t-test p 值）：
+
+| 阈值口径 | 层级 | $\Delta$SR (pp) | 95% CI (pp) | p-value |
+| --- | --- | --- | --- | --- |
+| $\delta=0.1$ | L1 | +1.0 | [-12.5, +14.5] | 0.8887 |
+| $\delta=0.1$ | L3 | +4.0 | [-8.5, +16.5] | 0.5506 |
+| $\delta=0.1$ | Overall | +2.5 | [-6.75, +12.0] | 0.6095 |
+| $\delta=0.14$（双方同阈值） | L1 | +3.0 | [-11.0, +17.0] | 0.6823 |
+| $\delta=0.14$（双方同阈值） | L3 | +5.0 | [-6.0, +15.5] | 0.3753 |
+| $\delta=0.14$（双方同阈值） | Overall | +4.0 | [-5.0, +13.0] | 0.3897 |
+
+结论：当前样本下，Dual-System 的点估计增益为正，但上述区间均覆盖 0，统计上应表述为“正向趋势（preliminary evidence）”，而非“显著优于”。
 
 ### 6.3 主实验与对比实验总表
 
