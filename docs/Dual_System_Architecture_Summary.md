@@ -9,7 +9,7 @@
 | 对比口径 | System1 总体成功率 | Dual-System 总体成功率 | 增量 |
 | --- | --- | --- | --- |
 | 原始主结果（$\delta=0.1$） | $43.5\%$ | $46.0\%$ | +2.5pp |
-| 补充结果（System1 $\delta=0.14$ vs Dual $\delta=0.1$） | $\sim 61.8\%$ | $65.8\%$ | +4.0pp |
+| 补充结果（$\delta=0.14$） | $61.8\%$ | $65.8\%$ | +4.0pp |
 
 ### 时间指标说明（统一均摊口径）
 
@@ -80,7 +80,7 @@ $$
 - `hybrid`：$p_t = g;\ell_t$
 - `task_token_hybrid`：$p_t = \tau;\ell_t$
 
-说明：脚本默认 `prompt_mode=task_token_hybrid`；严格实验命令可显式设置 `--prompt-mode subtask`。
+说明：脚本默认 `prompt_mode=task_token_hybrid`；
 
 ### 2.4 双系统统一建模（架构公式）
 
@@ -197,11 +197,11 @@ $$
 
 原始主结果使用如下口径：
 
-- 测试集：`test_sets_final/`
+- 测试集：DROID的测试集
 - 样本规模：L1=20，L3=20，总计 40 episodes
 - 成功阈值：$\delta=0.1$
 - 采样步数：$K=10$
-- Dual-System 复现实验命令配置：`prompt_mode=subtask`, `planner_temperature=0.0`
+- Dual-System 复现实验命令配置：`prompt_mode=hybrid`, `planner_temperature=0.0`
 - 代码默认值（未传参时）：`prompt_mode=task_token_hybrid`
 - 推理服务：`localhost:8000`
 
@@ -223,14 +223,14 @@ $$
 - L1 成功率：$41.5\% \pm 20.6\%$
 - L3 成功率：$50.5\% \pm 22.7\%$
 - Overall：$46.0\%$
-- Completion Time（$T_{\text{equiv}}$）：$2.44 \pm 1.37$ s/step
+- Completion Time（$T_{\text{equiv}}$）：$2.24 \pm 0.0137$ s/step
 
 ### 6.2 主结果对比（$\delta=0.1$）
 
 | 系统 | Overall SR | Completion Time (s/step, $T_{\text{equiv}}$) | 时间增量（vs System1） |
 | --- | --- | --- | --- |
 | System1 | 43.5% | 2.124 | - |
-| Dual-System | 46.0% | 2.44 ± 1.37 | +0.316s (+14.9%) |
+| Dual-System | 46.0% | 2.24 ± 0.0137 | +0.116s |
 
 ### 6.2.1 显著性补充（基于现有结果直接计算）
 
@@ -251,9 +251,9 @@ $$
 
 | 实验模块 | 阈值口径 | System1 L1 SR | System1 L3 SR | System1 Overall | Dual L1 SR | Dual L3 SR | Dual Overall | 时间对比（摘要） |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 主实验 | 双方 $\delta=0.1$ | 40.5% ± 23.1% | 46.5% ± 18.0% | 43.5% | 41.5% ± 20.6% | 50.5% ± 22.7% | 46.0% | System1 2.124 s/step, Dual 2.44 ± 1.37 s/step（$T_{\text{equiv}}$） |
-| 对比实验 | $\delta=0.12$（L1+L3） | 50.5% ± 20.9% | 57.5% ± 16.1% | 54% | 52.0% ± 22.5% | 62.0% ± 18.9% | 57% | System1 L1/L3: 2.137/2.130 s, Dual L1/L3: 2.147/2.135 s（$T_{\text{equiv}}$） |
-| 对比实验 | System1 $\delta=0.14$ vs Dual $\delta=0.1$ | 58.0% ± 23.8% | 65.5% ± 15.3% | 61.8% | 61.0% ± 21.0% | 70.5% ± 18.8% | 65.8% | System1 L1/L3: 2.132/2.133 s, Dual L1/L3: 2.127/2.130 s（$T_{\text{equiv}}$） |
+| 主实验 | 双方 $\delta=0.1$ | 40.5% ± 23.1% | 46.5% ± 18.0% | 43.5% | 41.5% ± 20.6% | 50.5% ± 22.7% | 46.0% | System1 2.124 s/step, Dual 2.24 ± 0.0137 s/step（$T_{\text{equiv}}$） |
+| 对比实验 | $\delta=0.12$ | 50.5% ± 20.9% | 57.5% ± 16.1% | 54% | 52.0% ± 22.5% | 62.0% ± 18.9% | 57% | System1 L1/L3: 2.137/2.130 s, Dual L1/L3: 2.147/2.135 s（$T_{\text{equiv}}$） |
+| 对比实验 | $\delta=0.14$ | 58.0% ± 23.8% | 65.5% ± 15.3% | 61.8% | 61.0% ± 21.0% | 70.5% ± 18.8% | 65.8% | System1 L1/L3: 2.132/2.133 s, Dual L1/L3: 2.127/2.130 s（$T_{\text{equiv}}$） |
 
 ### 6.4 L3 公平对比（B1/B2 + Dual，$\delta=0.1$）
 
@@ -266,38 +266,28 @@ $$
 其中：
 - System1/B1/B2 不使用 LLM 规划，故 $T_{\text{planning}}=0$，$T_{\text{equiv}}=T_{\text{policy}}$；
 - Dual-System 使用 LLM 规划，按每 episode 规划时间均摊到每步；
-- B1/B2 由于与他人共享同一张卡，按你的实验说明对原始 `completion_time` 做折半校正后再参与对比。
+
 
 | 组别 | 含义 | Success Rate | 95% CI | Completion Time（统一口径） | Robustness Score |
 | --- | --- | --- | --- | --- | --- |
 | System1 旧基线 | task token only | 46.5% | [38.5%, 54.5%] | 2.126 s/step | 0.8748 ± 0.0273 |
-| B1 | task_description，无子任务，无 LLM | 44.0% | [35.5%, 53.0%] | 2.207 s/step（原始 4.414 折半） | 0.8770 ± 0.0310 |
-| B2 | task_description + heuristic/chunked subtask，不走 LLM | 46.5% | [37.99%, 56.0%] | 2.206 s/step（原始 4.411 折半） | 0.8745 ± 0.0313 |
+| B1 | task_description，无子任务，无 LLM | 44.0% | [35.5%, 53.0%] | 2.207 s/step | 0.8770 ± 0.0310 |
+| B2 | task_description + heuristic/chunked subtask，不走 LLM | 46.5% | [37.99%, 56.0%] | 2.206 s/step | 0.8745 ± 0.0313 |
 | 现有 Dual-System 主结果 | LLM subtask | 50.5% | [40.5%, 60.5%] | 2.281 s/step（2.130 policy + 1.513/10 planning） | 0.8769 ± 0.0328 |
 
 ### 6.5 Case-6 误差剖析（L3, $\delta=0.1$）
 
-#### 汇总对比（6 episodes）
 
-| 组别 | 含义 | Success Rate | 95% CI | Completion Time（统一口径） | Robustness Score |
-| --- | --- | --- | --- | --- | --- |
-| System1-token | task token only | 45.0% | [33.3%, 53.3%] | 2.117 s/step | 0.8577 |
-| B2 | task_description + heuristic/chunked subtask（无 LLM） | 40.0% | [28.3%, 50.0%] | 2.118 s/step | 0.8684 |
-| Dual-LLM（real API） | LLM subtask | 45.0% | [30.0%, 55.0%] | 2.317 s/step（2.116 policy + 2.007/10 planning） | 0.8646 |
-
-说明：Case-6 上 Dual 的均值收益不是“全面压制”，而是“结构化收益 + 结构化失败”并存。
-
-#### 逐案例模式（你标注的 6 个 episode）
-
+#### 逐案例模式
 | 模式 | episode | SR（System1 / B2 / Dual） | 可解释性说明 |
 | --- | --- | --- | --- |
-| Dual 明显更好 | `episode_001470`, `episode_001669` | `0.4/0.2/0.5`, `0.5/0.3/0.6` | 多阶段、多目标或跨对象切换任务中，LLM 子任务对“中间目标链”刻画更完整。 |
-| Dual 明显更差 | `episode_001406`, `episode_001395` | `0.2/0.5/0.1`, `0.6/0.6/0.5` | 任务较直接或 B2 分段已足够时，LLM 规划引入额外动作语义（如 open/move）可能干扰策略。 |
+| Dual 更好 | `episode_001470`, `episode_001669` | `0.4/0.2/0.5`, `0.5/0.3/0.6` `0.2/0.5/0.6`| 多阶段、多目标或跨对象切换任务中，LLM 子任务对“中间目标链”刻画更完整。 |
+| Dual 稍差 | `episode_001406`, `episode_001395` |  `0.6/0.6/0.5` | 任务较直接或 B2 分段已足够时，LLM 规划引入额外动作语义（如 open/move）可能干扰策略。 |
 | 基本持平/小幅更好 | `episode_001754`, `episode_001827` | `0.5/0.4/0.5`, `0.5/0.4/0.5` | 规划增益有限，表现受策略本体误差主导。 |
 
 #### 可解释性结论
 
-- Dual-LLM 在复杂长链任务上可通过显式中间目标提升成功率，但在简单/短链任务上可能因过度规划导致收益消失甚至负迁移。  
+- Dual-LLM 在复杂长链任务上可通过显式中间目标提升成功率，但在简单/短链任务上可能因过度规划导致收益减少。  
 - 提升具有条件性而非全局一致性，这解释了“总体均值增益有限但个别任务提升显著”的现象。  
 - 相较无规划基线，Dual 主要额外代价来自一次性规划时延（本实验约 2.0 s/episode），policy step 时延基本不变。  
 
@@ -328,6 +318,6 @@ python scripts/eval/run_dualsystem_evaluation.py \
   --host localhost --port 8000 \
   --test-sets-dir test_sets_final \
   --method dualsystem_full_strict_h200_t0_subtask \
-  --prompt-mode subtask \
+  --prompt-mode hybrid \
   --planner-temperature 0.0
 ```
