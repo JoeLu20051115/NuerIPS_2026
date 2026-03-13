@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.2,
+  "action_l2_error": 0.16608265467281452,
+  "video_mse": 0.0054947470938788625,
+  "policy_inference_time_per_step": 4.492240459471941,
+  "llm_planning_time": 1.3675355352461338,
+  "total_episode_time": 46.289940129965544,
+  "completion_time": 4.492240459471941,
+  "robustness_score": 0.8339173453271855,
+  "num_sub_tasks": 5,
+  "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+  "sub_instructions": [
+    "open the plastic bag",
+    "grasp the first object inside the bag",
+    "place the object on the table",
+    "repeat grasp and place for each remaining object",
+    "close the plastic bag when empty"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "open the plastic bag  \ngrasp the first object inside the bag  \nplace the object on the table  \nrepeat grasp and place for each remaining object  \nclose the plastic bag when empty  "
+  },
+  "evaluation_status": "SUCCESS"
+}

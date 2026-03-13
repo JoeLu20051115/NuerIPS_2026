@@ -1,0 +1,802 @@
+[
+  {
+    "episode_id": "episode_000005",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000005.parquet"
+  },
+  {
+    "episode_id": "episode_000017",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000017.parquet"
+  },
+  {
+    "episode_id": "episode_000019",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000019.parquet"
+  },
+  {
+    "episode_id": "episode_000025",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000025.parquet"
+  },
+  {
+    "episode_id": "episode_000063",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000063.parquet"
+  },
+  {
+    "episode_id": "episode_000070",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000070.parquet"
+  },
+  {
+    "episode_id": "episode_000072",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000072.parquet"
+  },
+  {
+    "episode_id": "episode_000090",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000090.parquet"
+  },
+  {
+    "episode_id": "episode_000095",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000095.parquet"
+  },
+  {
+    "episode_id": "episode_000107",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000107.parquet"
+  },
+  {
+    "episode_id": "episode_000115",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000115.parquet"
+  },
+  {
+    "episode_id": "episode_000124",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000124.parquet"
+  },
+  {
+    "episode_id": "episode_000127",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000127.parquet"
+  },
+  {
+    "episode_id": "episode_000128",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000128.parquet"
+  },
+  {
+    "episode_id": "episode_000141",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000141.parquet"
+  },
+  {
+    "episode_id": "episode_000150",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000150.parquet"
+  },
+  {
+    "episode_id": "episode_000167",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000167.parquet"
+  },
+  {
+    "episode_id": "episode_000174",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000174.parquet"
+  },
+  {
+    "episode_id": "episode_000193",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000193.parquet"
+  },
+  {
+    "episode_id": "episode_000207",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000207.parquet"
+  },
+  {
+    "episode_id": "episode_000214",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000214.parquet"
+  },
+  {
+    "episode_id": "episode_000223",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000223.parquet"
+  },
+  {
+    "episode_id": "episode_000234",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000234.parquet"
+  },
+  {
+    "episode_id": "episode_000244",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000244.parquet"
+  },
+  {
+    "episode_id": "episode_000246",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000246.parquet"
+  },
+  {
+    "episode_id": "episode_000264",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000264.parquet"
+  },
+  {
+    "episode_id": "episode_000283",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000283.parquet"
+  },
+  {
+    "episode_id": "episode_000285",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000285.parquet"
+  },
+  {
+    "episode_id": "episode_000297",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000297.parquet"
+  },
+  {
+    "episode_id": "episode_000302",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000302.parquet"
+  },
+  {
+    "episode_id": "episode_000323",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000323.parquet"
+  },
+  {
+    "episode_id": "episode_000331",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000331.parquet"
+  },
+  {
+    "episode_id": "episode_000336",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000336.parquet"
+  },
+  {
+    "episode_id": "episode_000338",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000338.parquet"
+  },
+  {
+    "episode_id": "episode_000348",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000348.parquet"
+  },
+  {
+    "episode_id": "episode_000350",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000350.parquet"
+  },
+  {
+    "episode_id": "episode_000352",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000352.parquet"
+  },
+  {
+    "episode_id": "episode_000370",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000370.parquet"
+  },
+  {
+    "episode_id": "episode_000377",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000377.parquet"
+  },
+  {
+    "episode_id": "episode_000410",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000410.parquet"
+  },
+  {
+    "episode_id": "episode_000414",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000414.parquet"
+  },
+  {
+    "episode_id": "episode_000429",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000429.parquet"
+  },
+  {
+    "episode_id": "episode_000434",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000434.parquet"
+  },
+  {
+    "episode_id": "episode_000443",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000443.parquet"
+  },
+  {
+    "episode_id": "episode_000449",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000449.parquet"
+  },
+  {
+    "episode_id": "episode_000450",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000450.parquet"
+  },
+  {
+    "episode_id": "episode_000483",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000483.parquet"
+  },
+  {
+    "episode_id": "episode_000502",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000502.parquet"
+  },
+  {
+    "episode_id": "episode_000506",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000506.parquet"
+  },
+  {
+    "episode_id": "episode_000509",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000509.parquet"
+  },
+  {
+    "episode_id": "episode_000510",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000510.parquet"
+  },
+  {
+    "episode_id": "episode_000526",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000526.parquet"
+  },
+  {
+    "episode_id": "episode_000545",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000545.parquet"
+  },
+  {
+    "episode_id": "episode_000550",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000550.parquet"
+  },
+  {
+    "episode_id": "episode_000565",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000565.parquet"
+  },
+  {
+    "episode_id": "episode_000576",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000576.parquet"
+  },
+  {
+    "episode_id": "episode_000607",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000607.parquet"
+  },
+  {
+    "episode_id": "episode_000611",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000611.parquet"
+  },
+  {
+    "episode_id": "episode_000618",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000618.parquet"
+  },
+  {
+    "episode_id": "episode_000627",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000627.parquet"
+  },
+  {
+    "episode_id": "episode_000629",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000629.parquet"
+  },
+  {
+    "episode_id": "episode_000636",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000636.parquet"
+  },
+  {
+    "episode_id": "episode_000640",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000640.parquet"
+  },
+  {
+    "episode_id": "episode_000642",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000642.parquet"
+  },
+  {
+    "episode_id": "episode_000648",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000648.parquet"
+  },
+  {
+    "episode_id": "episode_000659",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000659.parquet"
+  },
+  {
+    "episode_id": "episode_000664",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000664.parquet"
+  },
+  {
+    "episode_id": "episode_000669",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000669.parquet"
+  },
+  {
+    "episode_id": "episode_000680",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000680.parquet"
+  },
+  {
+    "episode_id": "episode_000682",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000682.parquet"
+  },
+  {
+    "episode_id": "episode_000683",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000683.parquet"
+  },
+  {
+    "episode_id": "episode_000701",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000701.parquet"
+  },
+  {
+    "episode_id": "episode_000708",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000708.parquet"
+  },
+  {
+    "episode_id": "episode_000711",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000711.parquet"
+  },
+  {
+    "episode_id": "episode_000712",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000712.parquet"
+  },
+  {
+    "episode_id": "episode_000723",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000723.parquet"
+  },
+  {
+    "episode_id": "episode_000731",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000731.parquet"
+  },
+  {
+    "episode_id": "episode_000739",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000739.parquet"
+  },
+  {
+    "episode_id": "episode_000754",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000754.parquet"
+  },
+  {
+    "episode_id": "episode_000771",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000771.parquet"
+  },
+  {
+    "episode_id": "episode_000785",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000785.parquet"
+  },
+  {
+    "episode_id": "episode_000794",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000794.parquet"
+  },
+  {
+    "episode_id": "episode_000809",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000809.parquet"
+  },
+  {
+    "episode_id": "episode_000822",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000822.parquet"
+  },
+  {
+    "episode_id": "episode_000846",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000846.parquet"
+  },
+  {
+    "episode_id": "episode_000847",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000847.parquet"
+  },
+  {
+    "episode_id": "episode_000854",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000854.parquet"
+  },
+  {
+    "episode_id": "episode_000856",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000856.parquet"
+  },
+  {
+    "episode_id": "episode_000872",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000872.parquet"
+  },
+  {
+    "episode_id": "episode_000878",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000878.parquet"
+  },
+  {
+    "episode_id": "episode_000895",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000895.parquet"
+  },
+  {
+    "episode_id": "episode_000913",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000913.parquet"
+  },
+  {
+    "episode_id": "episode_000921",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000921.parquet"
+  },
+  {
+    "episode_id": "episode_000987",
+    "path": "data/droid_lerobot/data/chunk-000/episode_000987.parquet"
+  },
+  {
+    "episode_id": "episode_001006",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001006.parquet"
+  },
+  {
+    "episode_id": "episode_001016",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001016.parquet"
+  },
+  {
+    "episode_id": "episode_001019",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001019.parquet"
+  },
+  {
+    "episode_id": "episode_001022",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001022.parquet"
+  },
+  {
+    "episode_id": "episode_001025",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001025.parquet"
+  },
+  {
+    "episode_id": "episode_001035",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001035.parquet"
+  },
+  {
+    "episode_id": "episode_001047",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001047.parquet"
+  },
+  {
+    "episode_id": "episode_001056",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001056.parquet"
+  },
+  {
+    "episode_id": "episode_001057",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001057.parquet"
+  },
+  {
+    "episode_id": "episode_001061",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001061.parquet"
+  },
+  {
+    "episode_id": "episode_001064",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001064.parquet"
+  },
+  {
+    "episode_id": "episode_001067",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001067.parquet"
+  },
+  {
+    "episode_id": "episode_001075",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001075.parquet"
+  },
+  {
+    "episode_id": "episode_001085",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001085.parquet"
+  },
+  {
+    "episode_id": "episode_001089",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001089.parquet"
+  },
+  {
+    "episode_id": "episode_001093",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001093.parquet"
+  },
+  {
+    "episode_id": "episode_001105",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001105.parquet"
+  },
+  {
+    "episode_id": "episode_001115",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001115.parquet"
+  },
+  {
+    "episode_id": "episode_001132",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001132.parquet"
+  },
+  {
+    "episode_id": "episode_001147",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001147.parquet"
+  },
+  {
+    "episode_id": "episode_001161",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001161.parquet"
+  },
+  {
+    "episode_id": "episode_001162",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001162.parquet"
+  },
+  {
+    "episode_id": "episode_001165",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001165.parquet"
+  },
+  {
+    "episode_id": "episode_001175",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001175.parquet"
+  },
+  {
+    "episode_id": "episode_001182",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001182.parquet"
+  },
+  {
+    "episode_id": "episode_001191",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001191.parquet"
+  },
+  {
+    "episode_id": "episode_001195",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001195.parquet"
+  },
+  {
+    "episode_id": "episode_001217",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001217.parquet"
+  },
+  {
+    "episode_id": "episode_001219",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001219.parquet"
+  },
+  {
+    "episode_id": "episode_001240",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001240.parquet"
+  },
+  {
+    "episode_id": "episode_001256",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001256.parquet"
+  },
+  {
+    "episode_id": "episode_001265",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001265.parquet"
+  },
+  {
+    "episode_id": "episode_001281",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001281.parquet"
+  },
+  {
+    "episode_id": "episode_001286",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001286.parquet"
+  },
+  {
+    "episode_id": "episode_001295",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001295.parquet"
+  },
+  {
+    "episode_id": "episode_001303",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001303.parquet"
+  },
+  {
+    "episode_id": "episode_001307",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001307.parquet"
+  },
+  {
+    "episode_id": "episode_001318",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001318.parquet"
+  },
+  {
+    "episode_id": "episode_001320",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001320.parquet"
+  },
+  {
+    "episode_id": "episode_001332",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001332.parquet"
+  },
+  {
+    "episode_id": "episode_001361",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001361.parquet"
+  },
+  {
+    "episode_id": "episode_001372",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001372.parquet"
+  },
+  {
+    "episode_id": "episode_001383",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001383.parquet"
+  },
+  {
+    "episode_id": "episode_001402",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001402.parquet"
+  },
+  {
+    "episode_id": "episode_001409",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001409.parquet"
+  },
+  {
+    "episode_id": "episode_001417",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001417.parquet"
+  },
+  {
+    "episode_id": "episode_001422",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001422.parquet"
+  },
+  {
+    "episode_id": "episode_001433",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001433.parquet"
+  },
+  {
+    "episode_id": "episode_001436",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001436.parquet"
+  },
+  {
+    "episode_id": "episode_001442",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001442.parquet"
+  },
+  {
+    "episode_id": "episode_001500",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001500.parquet"
+  },
+  {
+    "episode_id": "episode_001515",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001515.parquet"
+  },
+  {
+    "episode_id": "episode_001522",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001522.parquet"
+  },
+  {
+    "episode_id": "episode_001542",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001542.parquet"
+  },
+  {
+    "episode_id": "episode_001548",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001548.parquet"
+  },
+  {
+    "episode_id": "episode_001554",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001554.parquet"
+  },
+  {
+    "episode_id": "episode_001562",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001562.parquet"
+  },
+  {
+    "episode_id": "episode_001563",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001563.parquet"
+  },
+  {
+    "episode_id": "episode_001583",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001583.parquet"
+  },
+  {
+    "episode_id": "episode_001602",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001602.parquet"
+  },
+  {
+    "episode_id": "episode_001611",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001611.parquet"
+  },
+  {
+    "episode_id": "episode_001632",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001632.parquet"
+  },
+  {
+    "episode_id": "episode_001637",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001637.parquet"
+  },
+  {
+    "episode_id": "episode_001642",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001642.parquet"
+  },
+  {
+    "episode_id": "episode_001646",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001646.parquet"
+  },
+  {
+    "episode_id": "episode_001657",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001657.parquet"
+  },
+  {
+    "episode_id": "episode_001715",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001715.parquet"
+  },
+  {
+    "episode_id": "episode_001716",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001716.parquet"
+  },
+  {
+    "episode_id": "episode_001735",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001735.parquet"
+  },
+  {
+    "episode_id": "episode_001742",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001742.parquet"
+  },
+  {
+    "episode_id": "episode_001769",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001769.parquet"
+  },
+  {
+    "episode_id": "episode_001775",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001775.parquet"
+  },
+  {
+    "episode_id": "episode_001777",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001777.parquet"
+  },
+  {
+    "episode_id": "episode_001794",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001794.parquet"
+  },
+  {
+    "episode_id": "episode_001841",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001841.parquet"
+  },
+  {
+    "episode_id": "episode_001845",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001845.parquet"
+  },
+  {
+    "episode_id": "episode_001850",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001850.parquet"
+  },
+  {
+    "episode_id": "episode_001875",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001875.parquet"
+  },
+  {
+    "episode_id": "episode_001876",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001876.parquet"
+  },
+  {
+    "episode_id": "episode_001916",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001916.parquet"
+  },
+  {
+    "episode_id": "episode_001923",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001923.parquet"
+  },
+  {
+    "episode_id": "episode_001940",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001940.parquet"
+  },
+  {
+    "episode_id": "episode_001941",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001941.parquet"
+  },
+  {
+    "episode_id": "episode_001942",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001942.parquet"
+  },
+  {
+    "episode_id": "episode_001967",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001967.parquet"
+  },
+  {
+    "episode_id": "episode_001994",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001994.parquet"
+  },
+  {
+    "episode_id": "episode_001998",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001998.parquet"
+  },
+  {
+    "episode_id": "episode_002004",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002004.parquet"
+  },
+  {
+    "episode_id": "episode_002007",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002007.parquet"
+  },
+  {
+    "episode_id": "episode_002009",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002009.parquet"
+  },
+  {
+    "episode_id": "episode_002010",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002010.parquet"
+  },
+  {
+    "episode_id": "episode_002015",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002015.parquet"
+  },
+  {
+    "episode_id": "episode_002026",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002026.parquet"
+  },
+  {
+    "episode_id": "episode_002065",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002065.parquet"
+  },
+  {
+    "episode_id": "episode_002069",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002069.parquet"
+  },
+  {
+    "episode_id": "episode_002078",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002078.parquet"
+  },
+  {
+    "episode_id": "episode_002079",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002079.parquet"
+  },
+  {
+    "episode_id": "episode_002080",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002080.parquet"
+  },
+  {
+    "episode_id": "episode_002096",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002096.parquet"
+  },
+  {
+    "episode_id": "episode_002097",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002097.parquet"
+  },
+  {
+    "episode_id": "episode_002104",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002104.parquet"
+  },
+  {
+    "episode_id": "episode_002133",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002133.parquet"
+  },
+  {
+    "episode_id": "episode_002168",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002168.parquet"
+  },
+  {
+    "episode_id": "episode_002173",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002173.parquet"
+  },
+  {
+    "episode_id": "episode_002186",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002186.parquet"
+  },
+  {
+    "episode_id": "episode_002190",
+    "path": "data/droid_lerobot/data/chunk-002/episode_002190.parquet"
+  }
+]
