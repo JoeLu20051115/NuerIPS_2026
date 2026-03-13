@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.8,
+  "action_l2_error": 0.12188094375002947,
+  "video_mse": 0.01599967254688155,
+  "policy_inference_time_per_step": 4.488797423802316,
+  "llm_planning_time": 1.6094177048653364,
+  "total_episode_time": 46.4973919428885,
+  "completion_time": 4.488797423802316,
+  "robustness_score": 0.8781190562499706,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the sachet from the shelf",
+  "sub_instructions": [
+    "move to the shelf",
+    "open the gripper",
+    "grasp the sachet",
+    "move away from the shelf",
+    "close the gripper"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the shelf  \nopen the gripper  \ngrasp the sachet  \nmove away from the shelf  \nclose the gripper  "
+  },
+  "evaluation_status": "SUCCESS"
+}

@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.8,
+  "action_l2_error": 0.0854185899792774,
+  "video_mse": 0.0020175454155563896,
+  "policy_inference_time_per_step": 4.489781886711716,
+  "llm_planning_time": 1.7616270771250129,
+  "total_episode_time": 46.65944594424218,
+  "completion_time": 4.489781886711716,
+  "robustness_score": 0.9145814100207226,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the doll from the bowl",
+  "sub_instructions": [
+    "move to the bowl",
+    "open the gripper",
+    "grasp the doll",
+    "move away from the bowl",
+    "place the doll in a designated location"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the bowl  \nopen the gripper  \ngrasp the doll  \nmove away from the bowl  \nplace the doll in a designated location  "
+  },
+  "evaluation_status": "SUCCESS"
+}
