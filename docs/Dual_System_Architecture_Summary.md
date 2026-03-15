@@ -191,6 +191,60 @@ $$
 
 成功率均值额外报告 bootstrap 95% CI（$B=2000$）。
 
+### 4.4 伪代码
+      for episode in test_episodes:
+          df = load_parquet(episode)
+          timestamps = df["timestamp"]
+          ep_len = len(df)
+          video_paths = load_episode_videos(episode)
+          task_description = get_episode_task_description_with_fallback(episode, df)
+
+          if planner_mode == "llm":
+              sub_instructions, planner_meta, llm_plan_time = LLM_plan(task_description)
+          elif planner_mode == "heuristic":
+              sub_instructions, planner_meta, llm_plan_time = heuristic_plan(task_description), {"planner_mode": "heuristic"}, 0.0
+          else:
+              sub_instructions, planner_meta, llm_plan_time = [task_description], {"planner_mode": "disabled"}, 0.0
+
+          eval_indices = evenly_sample_indices(ep_len, eval_steps)
+          action_errors, inference_times, sub_task_assignments = [], [], []
+
+          for step_idx in eval_indices:
+              sub_task_idx = min(int(step_idx * len(sub_instructions) / ep_len), len(sub_instructions) - 1)
+              current_instruction = sub_instructions[sub_task_idx]
+              sub_task_assignments.append(sub_task_idx)
+
+              try:
+                  policy_client.reset({"session_id": make_session_id(episode, step_idx)})
+              except:
+                  policy_client = reconnect_policy_client()
+                  policy_client.reset({"session_id": make_session_id(episode, step_idx)})
+
+              obs = {
+                  "images": load_frames_at_timestamp(video_paths, timestamps[step_idx]),
+                  "observation/joint_position": get_joint_state(df, step_idx),
+                  "observation/gripper_position": get_gripper_state(df, step_idx),
+                  "prompt": current_instruction,   # subtask mode
+                  "session_id": make_session_id(episode, step_idx),
+              }
+
+              t0 = now()
+              pred_action = policy_client.infer(obs)
+              inference_times.append(now() - t0)
+
+              gt_action = get_ground_truth_action(df, step_idx)
+              action_errors.append(compute_joint_l2(pred_action, gt_action))
+
+          save_episode_result(
+              success_rate=mean(err < threshold for err in action_errors),
+              action_errors=action_errors,
+              llm_plan_time=llm_plan_time,
+              inference_times=inference_times,
+              sub_instructions=sub_instructions,
+              sub_task_assignments=sub_task_assignments,
+              planner_meta=planner_meta,
+          )
+
 ---
 
 ## 5. 严格实验协议
@@ -318,6 +372,6 @@ python scripts/eval/run_dualsystem_evaluation.py \
   --host localhost --port 8000 \
   --test-sets-dir test_sets_final \
   --method dualsystem_full_strict_h200_t0_subtask \
-  --prompt-mode hybrid \
+  --prompt-mode subtask \
   --planner-temperature 0.0
 ```
