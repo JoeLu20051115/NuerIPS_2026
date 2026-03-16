@@ -1,0 +1,92 @@
+{
+  "model_name": "dreamzero_libero_ft1000_task_token_only",
+  "model_path": "checkpoints/dreamzero_libero_subset_1000_tb/checkpoint-1000",
+  "num_episodes": 5,
+  "mean_action_l2_error": 0.031421906431798576,
+  "std_action_l2_error": 0.00137342637817722,
+  "mean_completion_time": 6.778556383736431,
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "task_token": "task_1",
+      "action_l2_error": 0.03169224739419195,
+      "per_step_errors": [
+        0.034260842909733566,
+        0.023710809354901965,
+        0.0341011692824833,
+        0.029809412596788317,
+        0.03657900282705262
+      ],
+      "completion_time": 6.852072129026055
+    },
+    {
+      "episode_id": "episode_000001",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "task_token": "task_1",
+      "action_l2_error": 0.028875264157387302,
+      "per_step_errors": [
+        0.02725028337970659,
+        0.020813229224672006,
+        0.045153262803847224,
+        0.020331144205534002,
+        0.030828401173176707
+      ],
+      "completion_time": 6.762209510244429
+    },
+    {
+      "episode_id": "episode_000002",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "task_token": "task_1",
+      "action_l2_error": 0.031968265800774005,
+      "per_step_errors": [
+        0.03321905966834757,
+        0.03429307179108073,
+        0.029207164818302205,
+        0.03799484488041421,
+        0.02512718784572529
+      ],
+      "completion_time": 6.765791699290276
+    },
+    {
+      "episode_id": "episode_000003",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "task_token": "task_1",
+      "action_l2_error": 0.0315526530342123,
+      "per_step_errors": [
+        0.024907732510863523,
+        0.036257598659302157,
+        0.02646226049765105,
+        0.02753491583170906,
+        0.04260075767153572
+      ],
+      "completion_time": 6.757796276174486
+    },
+    {
+      "episode_id": "episode_000004",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "task_token": "task_1",
+      "action_l2_error": 0.0330211017724273,
+      "per_step_errors": [
+        0.031169327912200243,
+        0.035863204340156586,
+        0.04549836421605226,
+        0.021012564571900063,
+        0.03156204782182736
+      ],
+      "completion_time": 6.754912303946912
+    }
+  ],
+  "comparison_to_system1_nl": {
+    "system1_nl_mean_action_l2_error": 0.03132453927771778,
+    "delta_vs_system1_nl": 9.736715408079771e-05,
+    "system1_nl_mean_completion_time": 6.768947872333229,
+    "delta_time_vs_system1_nl": 0.009608511403202513
+  },
+  "comparison_to_dual_subtask_realapi": {
+    "dual_subtask_mean_action_l2_error": 0.03153344050107957,
+    "delta_vs_dual_subtask": -0.00011153406928099407,
+    "dual_subtask_mean_completion_time": 6.784176107198,
+    "delta_time_vs_dual_subtask": -0.005619723461569137
+  }
+}

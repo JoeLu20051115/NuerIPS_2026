@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.1,
+  "action_l2_error": 0.19436789204092633,
+  "video_mse": 0.009256460413554289,
+  "policy_inference_time_per_step": 4.329744546953589,
+  "llm_planning_time": 1.4553218223154545,
+  "total_episode_time": 44.75276729185134,
+  "completion_time": 4.329744546953589,
+  "robustness_score": 0.8056321079590737,
+  "num_sub_tasks": 5,
+  "task_description": "Close the bottom drawer of the cabinet at the right",
+  "sub_instructions": [
+    "move to the bottom drawer of the cabinet at the right",
+    "grasp the handle of the bottom drawer",
+    "pull the drawer open slightly",
+    "release the handle of the bottom drawer",
+    "close the bottom drawer of the cabinet at the right"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the bottom drawer of the cabinet at the right  \ngrasp the handle of the bottom drawer  \npull the drawer open slightly  \nrelease the handle of the bottom drawer  \nclose the bottom drawer of the cabinet at the right  "
+  },
+  "evaluation_status": "SUCCESS"
+}

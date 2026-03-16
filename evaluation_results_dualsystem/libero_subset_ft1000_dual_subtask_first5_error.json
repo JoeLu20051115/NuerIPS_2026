@@ -1,0 +1,191 @@
+{
+  "model_name": "dreamzero_libero_ft1000_dual_subtask",
+  "model_path": "checkpoints/dreamzero_libero_subset_1000_tb/checkpoint-1000",
+  "num_episodes": 5,
+  "mean_action_l2_error": 0.032229103581093724,
+  "std_action_l2_error": 0.0032789885291619925,
+  "mean_completion_time": 6.782058522216976,
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "missing_openai_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "sub_instructions": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "sampled_prompts": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "action_l2_error": 0.028804098694244905,
+      "per_step_errors": [
+        0.032513694379380044,
+        0.027912307018053813,
+        0.02737437425737802,
+        0.025659357208375512,
+        0.030560760608037134
+      ],
+      "completion_time": 6.84189454074949
+    },
+    {
+      "episode_id": "episode_000001",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "missing_openai_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "sub_instructions": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "sampled_prompts": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "action_l2_error": 0.03238888570950106,
+      "per_step_errors": [
+        0.027152739973214803,
+        0.027400460847456506,
+        0.047234096971979,
+        0.02673601244512371,
+        0.033421118309731254
+      ],
+      "completion_time": 6.764537928812206
+    },
+    {
+      "episode_id": "episode_000002",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "missing_openai_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "sub_instructions": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "sampled_prompts": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "action_l2_error": 0.030382384640374398,
+      "per_step_errors": [
+        0.03434274336667958,
+        0.028652321719741247,
+        0.031132030090648057,
+        0.03377716365153113,
+        0.024007664373271984
+      ],
+      "completion_time": 6.773728468082846
+    },
+    {
+      "episode_id": "episode_000003",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "missing_openai_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "sub_instructions": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "sampled_prompts": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "action_l2_error": 0.031212519654707626,
+      "per_step_errors": [
+        0.02596938895651871,
+        0.03494853768555736,
+        0.027967058684607485,
+        0.025694648889405626,
+        0.04148296405744896
+      ],
+      "completion_time": 6.759201662614942
+    },
+    {
+      "episode_id": "episode_000004",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "missing_openai_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "sub_instructions": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "sampled_prompts": [
+        "move to object",
+        "grasp object",
+        "move to target",
+        "place object",
+        "open gripper"
+      ],
+      "action_l2_error": 0.03835762920664061,
+      "per_step_errors": [
+        0.029254275189053727,
+        0.04047849711769922,
+        0.056609954864492176,
+        0.02761904830011458,
+        0.03782637056184336
+      ],
+      "completion_time": 6.770930010825396
+    }
+  ],
+  "comparison_to_system1": {
+    "system1_mean_action_l2_error": 0.03132453927771778,
+    "delta_vs_system1": 0.000904564303375946,
+    "system1_mean_completion_time": 6.768947872333229,
+    "delta_time_vs_system1": 0.013110649883746994
+  }
+}

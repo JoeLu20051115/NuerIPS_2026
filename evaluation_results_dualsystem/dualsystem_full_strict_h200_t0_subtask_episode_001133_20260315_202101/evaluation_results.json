@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.09266264285409878,
+  "video_mse": 0.003287483685376459,
+  "policy_inference_time_per_step": 4.3269758395850655,
+  "llm_planning_time": 1.5932046445086598,
+  "total_episode_time": 44.86296304035932,
+  "completion_time": 4.3269758395850655,
+  "robustness_score": 0.9073373571459012,
+  "num_sub_tasks": 5,
+  "task_description": "Put the green thing into the bowl",
+  "sub_instructions": [
+    "move to the green thing",
+    "grasp the green thing",
+    "move to the bowl",
+    "place the green thing into the bowl",
+    "open the gripper to release the green thing"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the green thing  \ngrasp the green thing  \nmove to the bowl  \nplace the green thing into the bowl  \nopen the gripper to release the green thing  "
+  },
+  "evaluation_status": "SUCCESS"
+}

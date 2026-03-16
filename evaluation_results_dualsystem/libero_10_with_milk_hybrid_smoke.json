@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-03-15 20:53:25",
+  "suite": "libero_10_with_milk",
+  "num_tasks": 1,
+  "task_ids": [
+    0
+  ],
+  "init_state_id": 0,
+  "max_steps": 80,
+  "open_loop_horizon": 8,
+  "action_limit": 1.0,
+  "prompt_mode": "hybrid",
+  "planner_model": null,
+  "host": "localhost",
+  "port": 8000,
+  "success_rate": 0.0,
+  "num_success": 0,
+  "mean_reward_sum": 0.0,
+  "mean_steps_executed": 80.0,
+  "mean_joint_action_l2": 1.7055740634160466,
+  "mean_llm_plan_time_sec": 1.9488749764859676,
+  "results": [
+    {
+      "task_id": 0,
+      "task_name": "FLOOR_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy",
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 80,
+      "mean_joint_action_l2": 1.7055740634160466,
+      "wall_clock_time_sec": 45.6534540085122,
+      "prompt_mode": "hybrid",
+      "requested_prompt_mode": "hybrid",
+      "llm_plan_time_sec": 1.9488749764859676,
+      "sub_instructions": [
+        "move to the location of the book",
+        "grasp the book",
+        "move to the caddy",
+        "open the back compartment of the caddy",
+        "place the book in the back compartment of the caddy"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the location of the book  \ngrasp the book  \nmove to the caddy  \nopen the back compartment of the caddy  \nplace the book in the back compartment of the caddy  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6169398613055541
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6671950989720834
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7474189086542853
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7464617949857888
+        }
+      ]
+    }
+  ]
+}

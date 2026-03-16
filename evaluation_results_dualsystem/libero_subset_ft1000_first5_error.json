@@ -1,0 +1,75 @@
+{
+  "model_name": "dreamzero_libero_ft1000",
+  "model_path": "checkpoints/dreamzero_libero_subset_1000_tb/checkpoint-1000",
+  "num_episodes": 5,
+  "mean_action_l2_error": 0.03132453927771778,
+  "std_action_l2_error": 0.004633800510070235,
+  "mean_completion_time": 6.768947872333229,
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "action_l2_error": 0.029572760839838286,
+      "per_step_errors": [
+        0.026899670613830504,
+        0.0202093668432638,
+        0.032909416878874824,
+        0.031629314523826106,
+        0.0362160353393962
+      ],
+      "completion_time": 6.841983631998301
+    },
+    {
+      "episode_id": "episode_000001",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "action_l2_error": 0.028990140530077303,
+      "per_step_errors": [
+        0.024002830052003585,
+        0.02425299382953299,
+        0.042277025585631574,
+        0.020062695929779537,
+        0.03435515725343884
+      ],
+      "completion_time": 6.744531168974936
+    },
+    {
+      "episode_id": "episode_000002",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "action_l2_error": 0.032186662174995814,
+      "per_step_errors": [
+        0.03966134504972752,
+        0.02625803393259159,
+        0.027428415805061532,
+        0.03457243898172281,
+        0.03301307710587566
+      ],
+      "completion_time": 6.74960004761815
+    },
+    {
+      "episode_id": "episode_000003",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "action_l2_error": 0.026121074080472116,
+      "per_step_errors": [
+        0.028967624744951702,
+        0.02925320786557353,
+        0.0302799621812408,
+        0.01292546191187737,
+        0.02917911369871718
+      ],
+      "completion_time": 6.750885588862002
+    },
+    {
+      "episode_id": "episode_000004",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "action_l2_error": 0.03975205876320537,
+      "per_step_errors": [
+        0.035349165094369105,
+        0.036063133782804374,
+        0.05578325867809574,
+        0.0397433965761853,
+        0.031821339684572285
+      ],
+      "completion_time": 6.757738924212754
+    }
+  ]
+}

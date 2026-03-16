@@ -42,6 +42,11 @@ class EmbodimentTag(Enum):
     The RoboCasa dataset with single arm.
     """
 
+    LIBERO_SINGLE_ARM = "libero_single_arm"
+    """
+    The LIBERO dataset with a single-arm embodiment.
+    """
+
     ONE_X_EVE_GRIPPER = "onex_eve_gripper"
     """
     The OneX Eve Robot with gripper.

@@ -1,0 +1,695 @@
+{
+  "suite": "libero_10",
+  "candidate_task_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "episodes_per_task": 10,
+  "verify_env": true,
+  "num_kept_tasks": 10,
+  "num_skipped_tasks": 0,
+  "num_episodes": 100,
+  "kept_tasks": [
+    {
+      "task_id": 0,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 1,
+      "language_instruction": "put both the cream cheese box and the butter in the basket",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 2,
+      "language_instruction": "turn on the stove and put the moka pot on it",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 3,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 4,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 5,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 6,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 7,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 8,
+      "language_instruction": "put both moka pots on the stove",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "task_id": 9,
+      "language_instruction": "put the yellow and white mug in the microwave and close it",
+      "available_init_states": 50,
+      "selected_init_states": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    }
+  ],
+  "skipped_tasks": [],
+  "episodes": [
+    {
+      "task_id": 0,
+      "init_state_id": 0,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 1,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 2,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 3,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 4,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 5,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 6,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 7,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 8,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 0,
+      "init_state_id": 9,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 0,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 1,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 2,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 3,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 4,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 5,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 6,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 7,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 8,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 1,
+      "init_state_id": 9,
+      "language_instruction": "put both the cream cheese box and the butter in the basket"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 0,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 1,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 2,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 3,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 4,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 5,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 6,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 7,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 8,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 2,
+      "init_state_id": 9,
+      "language_instruction": "turn on the stove and put the moka pot on it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 0,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 1,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 2,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 3,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 4,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 5,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 6,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 7,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 8,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 3,
+      "init_state_id": 9,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 0,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 1,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 2,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 3,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 4,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 5,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 6,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 7,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 8,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 4,
+      "init_state_id": 9,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 0,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 1,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 2,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 3,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 4,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 5,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 6,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 7,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 8,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 5,
+      "init_state_id": 9,
+      "language_instruction": "pick up the book and place it in the back compartment of the caddy"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 0,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 1,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 2,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 3,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 4,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 5,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 6,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 7,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 8,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 6,
+      "init_state_id": 9,
+      "language_instruction": "put the white mug on the plate and put the chocolate pudding to the right of the plate"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 0,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 1,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 2,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 3,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 4,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 5,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 6,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 7,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 8,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 7,
+      "init_state_id": 9,
+      "language_instruction": "put both the alphabet soup and the cream cheese box in the basket"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 0,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 1,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 2,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 3,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 4,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 5,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 6,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 7,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 8,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 8,
+      "init_state_id": 9,
+      "language_instruction": "put both moka pots on the stove"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 0,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 1,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 2,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 3,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 4,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 5,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 6,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 7,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 8,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    },
+    {
+      "task_id": 9,
+      "init_state_id": 9,
+      "language_instruction": "put the yellow and white mug in the microwave and close it"
+    }
+  ]
+}

@@ -1537,3 +1537,18 @@ class ShardedLeRobotMixtureDataset(LeRobotMixtureDataset, IterableDataset):
             dataset = self.datasets[dataset_idx]
             total_length += int(dataset.num_steps_per_shard * self.shard_sampling_rate)
         return total_length
+
+
+class ShardedLeRobotSubLangSingleActionChunkDatasetSingleArm(
+    ShardedLeRobotSubLangSingleActionChunkDatasetDROID
+):
+    """
+    Generic single-arm sharded LeRobot dataset alias.
+
+    The underlying implementation was originally introduced for DROID, but the
+    chunking and language-conditioned sampling logic is reusable for any
+    single-arm dataset stored in the same LeRobot layout. Exposing this alias
+    keeps new configs from hard-coding a DROID-specific class name.
+    """
+
+    pass

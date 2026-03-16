@@ -19,6 +19,7 @@ embodiment_tag_to_projector_index:
   robocasa_bimanual_panda_parallel_gripper: 15
   robocasa_bimanual_panda_inspire_hand: 16
   oxe_droid: 17
+  libero_single_arm: 17
   oxe_fractal: 18
   oxe_language_table: 19
   oxe_bridge: 20

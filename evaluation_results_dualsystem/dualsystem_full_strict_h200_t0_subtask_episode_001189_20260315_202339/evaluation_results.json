@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.5,
+  "action_l2_error": 0.09852812385582506,
+  "video_mse": 0.0021633801192649676,
+  "policy_inference_time_per_step": 4.334986476227641,
+  "llm_planning_time": 2.4651854652911425,
+  "total_episode_time": 45.81505022756755,
+  "completion_time": 4.334986476227641,
+  "robustness_score": 0.9014718761441749,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the orange object from the silver bowl and place it on the table",
+  "sub_instructions": [
+    "move to the silver bowl",
+    "open the gripper",
+    "grasp the orange object",
+    "move to the table",
+    "place the orange object on the table"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the silver bowl  \nopen the gripper  \ngrasp the orange object  \nmove to the table  \nplace the orange object on the table  "
+  },
+  "evaluation_status": "SUCCESS"
+}

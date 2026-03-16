@@ -1,0 +1,383 @@
+{
+  "timestamp": "2026-03-15 16:57:20",
+  "suite": "libero_10",
+  "num_tasks": 5,
+  "init_state_id": 0,
+  "max_steps": 200,
+  "open_loop_horizon": 8,
+  "action_limit": 1.0,
+  "host": "localhost",
+  "port": 8000,
+  "success_rate": 0.0,
+  "num_success": 0,
+  "mean_reward_sum": 0.0,
+  "mean_steps_executed": 200.0,
+  "mean_joint_action_l2": 1.763095028289139,
+  "results": [
+    {
+      "task_id": 0,
+      "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.767933277175856,
+      "wall_clock_time_sec": 120.10131696797907,
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6091536443086172
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6637229983393866
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.751154824890157
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7771804530605193
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7678621929557405
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7884640299566803
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7817567549224975
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.807080712984131
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8112426762925353
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8382343549099749
+        }
+      ]
+    },
+    {
+      "task_id": 1,
+      "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "language_instruction": "put both the cream cheese box and the butter in the basket",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.75505474602677,
+      "wall_clock_time_sec": 120.02937443554401,
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6125461172413524
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6604919240594236
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7460750261298215
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.749318867403298
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7600017099475396
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7757042811047308
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7702716549298199
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7843602771194944
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.794648375626579
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8008847923621936
+        }
+      ]
+    },
+    {
+      "task_id": 2,
+      "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "language_instruction": "turn on the stove and put the moka pot on it",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7734740354602503,
+      "wall_clock_time_sec": 119.75452267099172,
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6037722942269301
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6683108871069119
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7525703734719469
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.766850273721703
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7785529969409908
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7887482949673026
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7988090401983798
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.80941252329628
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8205341808952384
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8453725799668423
+        }
+      ]
+    },
+    {
+      "task_id": 3,
+      "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7787172720945648,
+      "wall_clock_time_sec": 119.76887228433043,
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6240617006552798
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.668277527464213
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7564962165585927
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7589653807877101
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7746232971871048
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8055737800402678
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7950897674107495
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.814658727153897
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8389381954894557
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.847902086185376
+        }
+      ]
+    },
+    {
+      "task_id": 4,
+      "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7402958106882531,
+      "wall_clock_time_sec": 119.67571462038904,
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6140615428962948
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.649130450785798
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7411080677887072
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7482607285484315
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7541840996937303
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7671195849531127
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7603603318006282
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7706300500583143
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7702193564949065
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7755977959658238
+        }
+      ]
+    }
+  ]
+}
