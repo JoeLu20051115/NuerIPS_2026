@@ -1,0 +1,141 @@
+{
+  "results": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07189178218444188,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) moved to the target area, indicating that the task goal is satisfied despite some minor pose offsets.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000784_03_18_12_50_14_n3.mp4"
+    },
+    {
+      "episode_id": "12052353",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.06675664708018303,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the objects still on the table, indicating that the task goal of clearing the table is not achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000785_03_18_12_50_41_n3.mp4"
+    },
+    {
+      "episode_id": "12052355",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.10180866469939549,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 1,
+      "step_alignment_l2_lt_0_1": 0.3333333333333333,
+      "task_progress": 0.4,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) in the target area, but the arrangement is not fully convincing as the objects are not stacked as in the reference goal state.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000786_03_18_12_51_06_n3.mp4"
+    },
+    {
+      "episode_id": "12052365",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07686980813741684,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some objects on the table, but they are not cleared as intended. The key objects are not in the target region, indicating that the task goal is not achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000787_03_18_12_51_29_n3.mp4"
+    },
+    {
+      "episode_id": "12052403",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.06215474630395571,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.2,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows significant disarray and does not clearly satisfy the task goal of clearing the table.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000788_03_18_12_51_51_n3.mp4"
+    },
+    {
+      "episode_id": "12052496",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07650175069769223,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some objects on the table, but they are not clearly cleared as intended. The task goal is not fully achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000789_03_18_12_52_12_n3.mp4"
+    },
+    {
+      "episode_id": "12052515",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07399642405410607,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task goal of clearing the table is not fully achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000790_03_18_12_52_35_n3.mp4"
+    },
+    {
+      "episode_id": "12052516",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.08360429108142853,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some objects on the table, indicating partial completion, but the task goal of clearing the table is not fully achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000791_03_18_12_52_57_n3.mp4"
+    },
+    {
+      "episode_id": "12052521",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07269387195507686,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.4,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) on the table, indicating that the task of clearing the table is partially achieved. However, the arrangement is not fully convincing as the objects are not in their intended final positions.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000792_03_18_12_53_19_n3.mp4"
+    },
+    {
+      "episode_id": "12052534",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.06846938033898671,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some items still on the table, indicating that the task of clearing the table is not fully achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000793_03_18_12_53_38_n3.mp4"
+    }
+  ],
+  "summary": {
+    "num_episodes": 10,
+    "mean_l2": 0.07547473665326834,
+    "mean_task_progress": 0.4,
+    "success_rate": 0.3,
+    "rate_of_l2_lt_0_1": 0.7666666666666667
+  }
+}
