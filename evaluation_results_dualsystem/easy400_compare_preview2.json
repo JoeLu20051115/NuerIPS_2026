@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "episode_id": "episode_001394",
+      "task_description": "Press a button the keyboard",
+      "mode": "task_token_only",
+      "sub_instructions": [
+        "Press a button the keyboard"
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "plan_time": 0.0,
+      "mean_l2": 0.12803720924583262,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "num_step_pass_l2_lt_0_1": 2,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the model's hand positioned over the keyboard, indicating an intent to press a button. While the exact button press is not visible, the proximity and orientation suggest that the task goal is likely satisfied.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000006_03_17_23_59_33_n3.mp4"
+    },
+    {
+      "episode_id": "episode_001394",
+      "task_description": "Press a button the keyboard",
+      "mode": "dual_llm",
+      "sub_instructions": [
+        "Move the gripper above the button.",
+        "Close the gripper to grasp the button.",
+        "Press the button down with the gripper.",
+        "Open the gripper to release the button.",
+        "Move the gripper back to the starting position."
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move the gripper above the button.  \nClose the gripper to grasp the button.  \nPress the button down with the gripper.  \nOpen the gripper to release the button.  \nMove the gripper back to the starting position."
+      },
+      "plan_time": 1.611259357072413,
+      "mean_l2": 0.12590846930532326,
+      "step_alignment_l2_lt_0_1": 0.3333333333333333,
+      "num_step_pass_l2_lt_0_1": 1,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show the button being pressed or any clear indication that the task goal has been achieved.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000007_03_17_23_59_55_n4.mp4"
+    },
+    {
+      "episode_id": "episode_001390",
+      "task_description": "Close the open drawer",
+      "mode": "task_token_only",
+      "sub_instructions": [
+        "Close the open drawer"
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "plan_time": 0.0,
+      "mean_l2": 0.2033615165193923,
+      "step_alignment_l2_lt_0_1": 0.3333333333333333,
+      "num_step_pass_l2_lt_0_1": 1,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the drawer being manipulated towards a closed position, indicating that the task intent is satisfied despite not being fully closed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000008_03_18_00_00_16_n3.mp4"
+    },
+    {
+      "episode_id": "episode_001390",
+      "task_description": "Close the open drawer",
+      "mode": "dual_llm",
+      "sub_instructions": [
+        "move to the open drawer",
+        "grasp the drawer handle",
+        "pull the drawer slightly to engage the closing mechanism",
+        "push the drawer to close it",
+        "release the drawer handle"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the open drawer  \ngrasp the drawer handle  \npull the drawer slightly to engage the closing mechanism  \npush the drawer to close it  \nrelease the drawer handle"
+      },
+      "plan_time": 2.7476596226915717,
+      "mean_l2": 0.17347872865519487,
+      "step_alignment_l2_lt_0_1": 0.3333333333333333,
+      "num_step_pass_l2_lt_0_1": 1,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show the drawer being closed, indicating that the task goal is not achieved.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000009_03_18_00_00_39_n4.mp4"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 2,
+      "success_rate": 1.0,
+      "mean_l2": 0.16569936288261244,
+      "mean_task_progress": 0.7,
+      "mean_step_alignment_l2_lt_0_1": 0.5
+    },
+    "dual_llm": {
+      "num_episodes": 2,
+      "success_rate": 0.0,
+      "mean_l2": 0.14969359898025908,
+      "mean_task_progress": 0.3,
+      "mean_step_alignment_l2_lt_0_1": 0.3333333333333333
+    }
+  }
+}
