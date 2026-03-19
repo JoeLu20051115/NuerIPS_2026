@@ -1,0 +1,163 @@
+{
+  "results": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Clear table in the restaurant"
+      ],
+      "mean_l2": 0.1873823125390526,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 0.061224489795918366,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the robot interacting with the cup, indicating progress towards clearing the table. Although not all items are removed, the task intent is clearly satisfied.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12052348_task_token_only_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "model": "gpt-4o-mini"
+      },
+      "sub_instructions": [
+        "Remove dishes from the table",
+        "Wipe the table surface",
+        "Stack dishes in the kitchen",
+        "Reset table with clean utensils"
+      ],
+      "mean_l2": 0.1981701913327739,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 0.061224489795918366,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows that the table is mostly clear, with only minor items remaining, indicating that the task goal is almost fully achieved.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12052348_dual_llm_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12093079",
+      "task": "Clear the countertop waste",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Clear the countertop waste"
+      ],
+      "mean_l2": 0.11235224594343074,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 5,
+      "step_alignment_l2_lt_0_1": 0.10204081632653061,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the robot's gripper positioned above the waste items, indicating an intent to clear the countertop. Although not all items are removed, the task intent is clear and aligns with the goal.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12093079_task_token_only_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12093079",
+      "task": "Clear the countertop waste",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "model": "gpt-4o-mini"
+      },
+      "sub_instructions": [
+        "Gather waste items from the countertop",
+        "Place waste items in trash bag",
+        "Seal the trash bag tightly",
+        "Dispose of the trash bag properly"
+      ],
+      "mean_l2": 0.11127852517351204,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 5,
+      "step_alignment_l2_lt_0_1": 0.10204081632653061,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the robot in a position to clear the countertop waste, with the waste items still present but the intent to remove them is clear.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12093079_dual_llm_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12050785",
+      "task": "Heat the food in the microwave",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Heat the food in the microwave"
+      ],
+      "mean_l2": 0.175710092184647,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 0.061224489795918366,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the food not being placed in the microwave, indicating that the task goal is not achieved.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12050785_task_token_only_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12050785",
+      "task": "Heat the food in the microwave",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "model": "gpt-4o-mini"
+      },
+      "sub_instructions": [
+        "Open the microwave door.",
+        "Place the food inside.",
+        "Close the microwave door.",
+        "Set the timer and start."
+      ],
+      "mean_l2": 0.1266911990978584,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 9,
+      "step_alignment_l2_lt_0_1": 0.1836734693877551,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the robotic arm positioned to interact with the food, indicating an intent to place it in the microwave, which aligns with the task goal.",
+      "generated_video": "evaluation_results_dualsystem/dreamdojo_agibot_compare_preview_videos/12050785_dual_llm_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 3,
+      "mean_l2": 0.15848155022237678,
+      "mean_task_progress": 0.5666666666666667,
+      "success_rate": 0.6666666666666666,
+      "rate_of_l2_lt_0_1": 0.07482993197278912
+    },
+    "dual_llm": {
+      "num_episodes": 3,
+      "mean_l2": 0.1453799718680481,
+      "mean_task_progress": 0.6999999999999998,
+      "success_rate": 1.0,
+      "rate_of_l2_lt_0_1": 0.11564625850340136
+    }
+  },
+  "notes": {
+    "mean_l2_definition": "video-space RGB frame L2 over generated-vs-ground-truth rollout frames",
+    "task_progress_definition": "final-frame visual judge against task text and demo final frame",
+    "success_definition": "task_progress > threshold OR visual rule_success"
+  }
+}

@@ -347,7 +347,45 @@ $$
 
 ---
 
-## 7. 有效性与边界
+# 7. Dreamjodo的适配性以及大体量数据集的结果
+
+## DRO 数据集（150）
+
+- **DRO_L1_150**: p = 0.0487
+- **DRO_L3_150**: p = 0.0553
+
+| Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
+|------------|------------------|---------|--------------------|--------------|------------------|
+| DRO_L1_150 | description_only | 0.1284  | 0.4913             | 29.3%        | 44.3%            |
+| DRO_L1_150 | dual_llm         | 0.1258  | 0.5060             | 32.0%        | 45.1%            |
+| DRO_L3_150 | description_only | 0.1262  | 0.4580             | 23.3%        | 45.9%            |
+| DRO_L3_150 | dual_llm         | 0.1236  | 0.4793             | 27.3%        | 47.6%            |
+
+## Agi 数据集（150）
+
+- **Agi_L1_150**: p = 6.19e-08
+- **Agi_L3_150**: p = 7.79e-16
+
+| Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
+|------------|------------------|---------|--------------------|--------------|------------------|
+| Agi_L1_150 | description_only | 0.0862  | 0.5160             | 38.7%        | 68.7%            |
+| Agi_L1_150 | dual_llm         | 0.0773  | 0.5053             | 36.7%        | 74.2%            |
+| Agi_L3_150 | description_only | 0.0739  | 0.4460             | 30.0%        | 79.8%            |
+| Agi_L3_150 | dual_llm         | 0.0602  | 0.5187             | 41.3%        | 92.9%            |
+
+## Dreamjodo 上面的Agi 数据集（130）
+
+Agi_L1_130: p = 5.73e-07
+Agi_L3_130: p = 4.37e-18
+
+| Dataset    | Mode            | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
+|------------|-----------------|---------|--------------------|--------------|------------------|
+| Agi_L1_130 | task_token_only | 0.1301  | 0.5992             | 56.9%        | 31.3%            |
+| Agi_L1_130 | dual_llm        | 0.1278  | 0.6085             | 61.5%        | 32.1%            |
+| Agi_L3_130 | task_token_only | 0.1485  | 0.2892             | 19.2%        | 40.4%            |
+| Agi_L3_130 | dual_llm        | 0.1380  | 0.3254             | 24.6%        | 43.6%            |
+
+## 8. 有效性与边界
 
 - 汇总默认仅统计 `evaluation_status=SUCCESS` 的样本。
 - 文中时间对比统一使用均摊口径 $T_{\text{equiv}}$；其派生基于 `completion_time`、`llm_planning_time` 与 `total_episode_time`。
@@ -358,7 +396,7 @@ $$
 
 ---
 
-## 8. 复现实验命令
+## 9. 复现实验命令
 
 ```bash
 # System1 baseline
