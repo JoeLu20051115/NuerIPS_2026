@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "episode_id": "basic_pick_place/0",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.26238462924957273,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_smoke1/task_token_only/basic_pick_place__0/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/0",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper"
+      },
+      "mean_l2": 0.26238462924957273,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_smoke1/dual_llm/basic_pick_place__0/iter_000050000/0000_pred.mp4"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 1,
+      "mean_l2": 0.26238462924957273,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    },
+    "dual_llm": {
+      "num_episodes": 1,
+      "mean_l2": 0.26238462924957273,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    }
+  }
+}

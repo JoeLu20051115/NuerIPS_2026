@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "episode_id": "episode_001394",
+      "task_description": "Press a button the keyboard",
+      "mode": "task_token_only",
+      "prompt": "Press a button the keyboard",
+      "sub_instructions": [
+        "Press a button the keyboard"
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.2636417433619499,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show any indication of the task being completed, as it is distorted and does not resemble the goal state.",
+      "generated_video": "/mnt/data3/data_xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/dreamdojo_droid400_smoke1/task_token_only/episode_001394/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "episode_001394",
+      "task_description": "Press a button the keyboard",
+      "mode": "dual_llm",
+      "prompt": "Press a button the keyboard. Plan: Move gripper above the button. ; Close gripper to grasp the button. ; Press down on the button with the gripper. ; Open gripper to release the button.",
+      "sub_instructions": [
+        "Move gripper above the button.",
+        "Close gripper to grasp the button.",
+        "Press down on the button with the gripper.",
+        "Open gripper to release the button."
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move gripper above the button.  \nClose gripper to grasp the button.  \nPress down on the button with the gripper.  \nOpen gripper to release the button.  \nMove gripper back to the starting position."
+      },
+      "mean_l2": 0.26364592015743255,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not clearly show any interaction with the keyboard, and the task goal is not achieved.",
+      "generated_video": "/mnt/data3/data_xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/dreamdojo_droid400_smoke1/dual_llm/episode_001394/iter_000050000/0000_pred.mp4"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 1,
+      "mean_l2": 0.2636417433619499,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    },
+    "dual_llm": {
+      "num_episodes": 1,
+      "mean_l2": 0.26364592015743255,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    }
+  }
+}

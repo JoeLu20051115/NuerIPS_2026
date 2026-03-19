@@ -1,0 +1,70 @@
+{
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task_description": "locked waist: roll_ball",
+      "mode": "task_token_only",
+      "prompt": "locked waist: roll_ball",
+      "sub_instructions": [
+        "locked waist: roll_ball"
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.364245231449604,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is unclear and does not show the task goal being achieved.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/official_egodex_compare_lamon_preview/task_token_only/episode_000000/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "episode_000000",
+      "task_description": "locked waist: roll_ball",
+      "mode": "dual_llm",
+      "prompt": "locked waist: roll_ball. Plan: move to ball ; grasp ball ; roll ball ; place ball",
+      "sub_instructions": [
+        "move to ball",
+        "grasp ball",
+        "roll ball",
+        "place ball"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to ball  \ngrasp ball  \nroll ball  \nplace ball  \nopen gripper  "
+      },
+      "mean_l2": 0.3626918479800224,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not provide any visual evidence of the task being completed, as it is unclear and does not show the ball or the intended final state.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/official_egodex_compare_lamon_preview/dual_llm/episode_000000/iter_000050000/0000_pred.mp4"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 1,
+      "mean_l2": 0.364245231449604,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    },
+    "dual_llm": {
+      "num_episodes": 1,
+      "mean_l2": 0.3626918479800224,
+      "mean_task_progress": 0.0,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.0
+    }
+  }
+}
