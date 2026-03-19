@@ -82,39 +82,88 @@ $$
 
 说明：脚本默认 `prompt_mode=task_token_hybrid`；
 
-### 2.4 双系统统一建模（架构公式）
+## 2.4 双系统统一建模（DreamZero-Compatible Formulation）
 
-为更清晰地刻画 System2 规划与 System1 执行的关系，可将整体策略写为分层混合形式：
-
-$$
-\pi(a_t \mid o_{1:t}, g) = \sum_{m=1}^{M} q_{\phi}(m \mid o_{1:t}, g)\,\pi_{\theta}(a_t \mid o_t, z_m)
-$$
-
-其中，$g$ 为全局任务，$z_m$ 为第 $m$ 个子任务，$q_{\phi}$ 是高层子任务选择分布（System2），$\pi_{\theta}$ 是低层执行策略（System1）。
-
-System2 对子任务序列的生成可写为：
+我们将双系统策略表示为“高层语言规划 + 低层条件执行”的统一形式。给定时刻 $t$ 的观测：
 
 $$
-z_{1:M} \sim p_{\phi}(z_{1:M} \mid g, c), \quad 1 \le M \le 5
+x_t = (I_t, s_t, g),
 $$
 
-其中 $c$ 表示 episode 上下文（如元数据与场景信息）。
-
-为将规划结果与执行时刻对齐，引入时间软分配：
+其中 $I_t$ 表示多视角图像观测，$s_t$ 表示机器人本体状态（如关节、夹爪状态），$g$ 表示全局任务描述。System2 首先根据任务与上下文生成一个子任务序列：
 
 $$
-q_{\phi}(m \mid t, g) = \frac{\exp\left(-\frac{|t/T-\mu_m|}{\tau}\right)}{\sum_{j=1}^{M}\exp\left(-\frac{|t/T-\mu_j|}{\tau}\right)}
+z_{1:M} \sim p_\phi(z_{1:M} \mid g, c), \quad 1 \le M \le M_{\max},
 $$
 
-该形式对应当前硬切分 $m_t=\left\lfloor tM/T \right\rfloor$ 的平滑化扩展。
-
-在语言条件层面，可用门控融合统一 task 与 sub-task 语义：
+其中 $c$ 为 episode 上下文，$M$ 为规划长度。与固定长度规划不同，我们令 $M$ 随任务复杂度自适应变化：
 
 $$
-e_t = \lambda_t E(g) + (1-\lambda_t)E(z_{m_t}), \quad \lambda_t = \sigma(w^{\top} h_t)
+M = \mathrm{clip}(\lfloor \alpha \, \ell(g,c) + \beta \rceil, 1, M_{\max}),
 $$
 
-其中 $E(\cdot)$ 为文本编码器，$\lambda_t$ 控制全局任务语义与当前子任务语义的融合权重。
+其中 $\ell(g,c)$ 是任务复杂度或时长估计函数。短程任务对应较小的 $M$，长程任务对应较大的 $M$。在本文实验中，$M_{\max} = 5$。
+
+为了兼容 task_token_only、subtask 与 hybrid 三种语言驱动方式，我们定义执行时刻的条件提示为：
+
+$$
+u_t^{(m)} = \Psi(g, z_m; \lambda),
+$$
+
+其中 $\Psi$ 是提示组合函数，$\lambda$ 控制提示模式：
+
+$$
+\Psi(g, z_m; \lambda) =
+\begin{cases}
+g, & \lambda = \text{task-only} \\
+z_m, & \lambda = \text{subtask} \\
+[g; z_m], & \lambda = \text{hybrid}
+\end{cases}
+$$
+
+其中 $[g; z_m]$ 表示将全局任务与当前子任务拼接为联合语言条件。这样，DreamZero 的低层策略建模为：
+
+$$
+\pi_\theta(a_t \mid I_t, s_t, u_t^{(m)}),
+$$
+
+即在当前视觉观测、本体状态和语言条件下输出动作。
+
+高层 System2 不直接输出动作，而是为每个时刻分配一个子任务权重。统一写为：
+
+$$
+\pi(a_t \mid I_t, s_t, g) = \sum_{m=1}^{M} q_\phi(m \mid t, g, c) \, \pi_\theta(a_t \mid I_t, s_t, \Psi(g, z_m; \lambda)).
+$$
+
+其中，$q_\phi(m \mid t, g, c)$ 为高层子任务分配分布。为兼容当前实现中的硬切分与未来可微扩展，我们采用时间软分配形式：
+
+$$
+q_\phi(m \mid t, g, c) =
+\frac{\exp\left(-\frac{|t/T - \mu_m|}{\tau(g,c)}\right)}
+{\sum_{j=1}^{M} \exp\left(-\frac{|t/T - \mu_j|}{\tau(g,c)}\right)}.
+$$
+
+其中 $T$ 为 episode 长度，$\mu_m$ 为第 $m$ 个子任务对应的归一化时间中心，$\tau(g,c)$ 为与任务复杂度相关的温度参数。
+
+- 对短程任务，$\tau$ 较小，分配更尖锐，更接近单阶段执行；
+- 对长程任务，$\tau$ 较大，切换更平滑，更适合多阶段规划。
+
+当前实现中的硬切分：
+
+$$
+m_t = \left\lfloor \frac{tM}{T} \right\rfloor
+$$
+
+可视为上述软分配在 $\tau \to 0$ 时的特例。
+
+---
+
+最终，这一统一公式表明：
+
+- System2 通过生成与调度子任务序列来调制语言条件；
+- System1（DreamZero）在视觉—状态—语言联合输入下完成具体动作执行；
+- subtask 与 hybrid 分别对应局部执行优先与全局-局部联合约束；
+- 规划长度 $M$ 与分配温度 $\tau$ 共同实现对短程与长程任务的自适应建模。
 
 ---
 
@@ -286,21 +335,6 @@ $$
 | System1 | 43.5% | 2.124 | - |
 | Dual-System | 46.0% | 2.24 ± 0.0137 | +0.116s |
 
-### 6.2.1 显著性补充（基于现有结果直接计算）
-
-为避免仅报告均值差，本节补充 $\Delta \mathrm{SR}=\mathrm{SR}_{\text{Dual}}-\mathrm{SR}_{\text{System1}}$ 的统计量（对现有 episode 级结果做 bootstrap 95% CI，并报告 Welch t-test p 值）：
-
-| 阈值口径 | 层级 | $\Delta$SR (pp) | 95% CI (pp) | p-value |
-| --- | --- | --- | --- | --- |
-| $\delta=0.1$ | L1 | +1.0 | [-12.5, +14.5] | 0.8887 |
-| $\delta=0.1$ | L3 | +4.0 | [-8.5, +16.5] | 0.5506 |
-| $\delta=0.1$ | Overall | +2.5 | [-6.75, +12.0] | 0.6095 |
-| $\delta=0.14$（双方同阈值） | L1 | +3.0 | [-11.0, +17.0] | 0.6823 |
-| $\delta=0.14$（双方同阈值） | L3 | +5.0 | [-6.0, +15.5] | 0.3753 |
-| $\delta=0.14$（双方同阈值） | Overall | +4.0 | [-5.0, +13.0] | 0.3897 |
-
-结论：当前样本下，Dual-System 的点估计增益为正，但上述区间均覆盖 0，统计上应表述为“正向趋势（preliminary evidence）”，而非“显著优于”。
-
 ### 6.3 主实验与对比实验总表
 
 | 实验模块 | 阈值口径 | System1 L1 SR | System1 L3 SR | System1 Overall | Dual L1 SR | Dual L3 SR | Dual Overall | 时间对比（摘要） |
@@ -348,11 +382,19 @@ $$
 ---
 
 # 7. Dreamjodo的适配性以及大体量数据集的结果
+在 DreamZero 里
+Mean L2 指的是：模型预测动作 和 数据集真实动作 之间的平均 L2 距离。模型这一步动作和示范动作差多远
 
-## DRO 数据集（150）
+在 DreamDojo 里
+Mean L2 指的是：预测视频帧和 GT 视频帧之间的视觉 L2 误差代理，是视觉终态/轨迹对齐误差
 
-- **DRO_L1_150**: p = 0.0487
-- **DRO_L3_150**: p = 0.0553
+Mean Task Progress 指的是：judge 根据最终视觉状态给出的任务完成度，再对所有 episode 取平均
+
+success rate的含义：动作是是否完成，是否合规
+
+## 7.1 Dreamzero
+## Dreamzero的DROID 数据集（150）
+
 
 | Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
 |------------|------------------|---------|--------------------|--------------|------------------|
@@ -361,10 +403,7 @@ $$
 | DRO_L3_150 | description_only | 0.1262  | 0.4580             | 23.3%        | 45.9%            |
 | DRO_L3_150 | dual_llm         | 0.1236  | 0.4793             | 27.3%        | 47.6%            |
 
-## Agi 数据集（150）
-
-- **Agi_L1_150**: p = 6.19e-08
-- **Agi_L3_150**: p = 7.79e-16
+## Dreamzero的AgiBot 数据集（150）
 
 | Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
 |------------|------------------|---------|--------------------|--------------|------------------|
@@ -373,17 +412,42 @@ $$
 | Agi_L3_150 | description_only | 0.0739  | 0.4460             | 30.0%        | 79.8%            |
 | Agi_L3_150 | dual_llm         | 0.0602  | 0.5187             | 41.3%        | 92.9%            |
 
-## Dreamjodo 上面的Agi 数据集（130）
+## dreamzero的显著性检验
+| Dataset    | t value | p value  | Mean L2 diff (baseline - dual) | 95% CI            |
+|------------|---------|----------|---------------------------------|-------------------|
+| DRO_L1_150 | 2.1213  | 0.0356   | 0.00255                         | [0.00017, 0.00492] |
+| DRO_L3_150 | 2.0120  | 0.0460   | 0.00259                         | [0.00005, 0.00514] |
+| Agi_L1_150 | 6.1530  | 6.69e-09 | 0.00884                         | [0.00600, 0.01168] |
+| Agi_L3_150 | 9.9497  | 3.36e-18 | 0.01368                         | [0.01096, 0.01640] |
 
-Agi_L1_130: p = 5.73e-07
-Agi_L3_130: p = 4.37e-18
+## 7.2 Dreamjodo
+## Dreamjodo 上面的AgiBot 数据集（130）
 
 | Dataset    | Mode            | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
 |------------|-----------------|---------|--------------------|--------------|------------------|
-| Agi_L1_130 | task_token_only | 0.1301  | 0.5992             | 56.9%        | 31.3%            |
+| Agi_L1_130 | description_only | 0.1301  | 0.5992             | 56.9%        | 31.3%            |
 | Agi_L1_130 | dual_llm        | 0.1278  | 0.6085             | 61.5%        | 32.1%            |
-| Agi_L3_130 | task_token_only | 0.1485  | 0.2892             | 19.2%        | 40.4%            |
+| Agi_L3_130 | description_only | 0.1485  | 0.2892             | 19.2%        | 40.4%            |
 | Agi_L3_130 | dual_llm        | 0.1380  | 0.3254             | 24.6%        | 43.6%            |
+
+
+## DreamDojo 上面的EgoDex数据集（130）
+
+
+| Dataset    | Mode            | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
+|------------|-----------------|---------|--------------------|--------------|------------------|
+| Ego_L1_130 | description_only | 0.1077  | 0.4171             | 54.1%        |   42.3%         |
+| Ego_L1_130 | dual_llm        | 0.1003  | 0.4388             | 55.5%        |   45.8%          |
+| Ego_L3_130 | description_only | 0.1214  | 0.3060             | 21.7%        |   37.9%         |
+| Ego_L3_130 | dual_llm        | 0.1180  | 0.3798             | 25.4%        |  41.2%
+
+## DreamDoJo的显著性检验
+| Dataset    | Mean L2 diff (description_only - dual) | t value | p value (paired t-test) | 95% CI             |
+|------------|----------------------------------------|---------|--------------------------|--------------------|
+| Agi_L1_130 | 0.00223                                | 3.4672  | 7.15e-04                 | [0.00097, 0.00355] |
+| Agi_L3_130 | 0.01055                                | 4.5296  | 1.33e-05                 | [0.00594, 0.01516] | 
+| Ego_L1_130 | 0.00741                                | 3.1387  | 3.14e-03                 | [0.00272, 0.01211] |
+| Ego_L3_130 | 0.00342                                | 3.8634  | 7.34e-05                 | [0.00171, 0.00520] | 
 
 ## 8. 有效性与边界
 
