@@ -1,3 +1,4 @@
+import os
 import random
 from typing import Any, Dict, List, Optional
 
@@ -304,6 +305,19 @@ class DreamTransform(InvertibleModalityTransform):
         )
         if images.shape[0] > 1:
             v, t, c, h, w = images.shape
+
+            # WorldModel EWMBench provides a single top-down frame, but the DreamZero
+            # DROID path normally composites three camera views into one canvas. When
+            # the same single frame is duplicated into all three keys, that composite
+            # step creates an artificial collage that harms both scene and trajectory
+            # metrics. This env-gated path lets evaluation force a true single-view
+            # input without changing the default training/inference behavior.
+            if (
+                self.embodiment_tag == EmbodimentTag.OXE_DROID
+                and os.environ.get("DREAMZERO_FORCE_SINGLE_VIEW", "").lower() in {"1", "true", "yes"}
+            ):
+                preferred_view = 2 if v >= 3 else 0
+                return images[preferred_view : preferred_view + 1]
             
             # For DROID embodiment: 2x2 grid where the wrist view spans the full top row,
             # and the two exterior views occupy the bottom row.
@@ -506,10 +520,10 @@ class DreamTransform(InvertibleModalityTransform):
         transformed_data["state"] = state
         transformed_data["state_mask"] = state_mask
 
-        if self.training:
+        if self.training or "action" in data:
             # 3) Prepare actions
             is_detection_instance = self.embodiment_tag == EmbodimentTag.GR1_UNIFIED_SEGMENTATION
-            if is_detection_instance:
+            if self.training and is_detection_instance:
                 transformed_data["segmentation_target"] = data["action"][0, -3:-1]
                 transformed_data["segmentation_target_mask"] = data["action"][0, -1:]
                 transformed_data["has_real_action"] = np.zeros((), dtype=bool)
@@ -582,7 +596,7 @@ class DreamTransform(InvertibleModalityTransform):
             transformed_data["action"] = reshaped_lapa_actions
             transformed_data["action_mask"] = np.ones(actions_shape, dtype=bool)
 
-        if self.training:
+        if self.training or "action" in transformed_data:
             action_and_mask_keys = ["action", "action_mask", "lapa_action", "lapa_action_mask"]
             assert all(
                 transformed_data[key].shape == transformed_data["action"].shape
@@ -617,4 +631,3 @@ class DreamTransform(InvertibleModalityTransform):
 
     def __call__(self, data: dict) -> dict:
         return self.apply(data)
-

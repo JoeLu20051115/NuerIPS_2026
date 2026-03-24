@@ -55,6 +55,24 @@ def flash_attention(
     assert dtype in half_dtypes
     assert q.device.type == 'cuda' and q.size(-1) <= 256
 
+    def _sdpa_fallback(q_tensor, k_tensor, v_tensor):
+        if q_lens is not None or k_lens is not None:
+            warnings.warn(
+                'Padding mask is disabled when using scaled_dot_product_attention. It can have a significant impact on performance.'
+            )
+        q_tensor = q_tensor.transpose(1, 2).to(dtype)
+        k_tensor = k_tensor.transpose(1, 2).to(dtype)
+        v_tensor = v_tensor.transpose(1, 2).to(dtype)
+        out = torch.nn.functional.scaled_dot_product_attention(
+            q_tensor,
+            k_tensor,
+            v_tensor,
+            attn_mask=None,
+            is_causal=causal,
+            dropout_p=dropout_p,
+        )
+        return out.transpose(1, 2).contiguous()
+
     # params
     b, lq, lk, out_dtype = q.size(0), q.size(1), k.size(1), q.dtype
 
@@ -132,8 +150,7 @@ def flash_attention(
             softmax_scale=softmax_scale,
             causal=causal,
             deterministic=deterministic)[0].unflatten(0, (b, lq))
-    else:
-        assert FLASH_ATTN_2_AVAILABLE
+    elif FLASH_ATTN_2_AVAILABLE:
         x = flash_attn.flash_attn_varlen_func(
             q=q,
             k=k,
@@ -149,6 +166,15 @@ def flash_attention(
             causal=causal,
             window_size=window_size,
             deterministic=deterministic).unflatten(0, (b, lq))
+    else:
+        warnings.warn(
+            'Flash attention is unavailable in this environment; falling back to scaled_dot_product_attention.'
+        )
+        x = _sdpa_fallback(
+            q.unflatten(0, (b, lq)),
+            k.unflatten(0, (b, lk)),
+            v.unflatten(0, (b, lk)),
+        )
 
     # output
     return x.type(out_dtype)

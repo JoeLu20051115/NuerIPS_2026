@@ -1,0 +1,18 @@
+{
+  "psnr": {
+    "367": {
+      "649524000": {
+        "0": 11.47894295173786
+      }
+    }
+  },
+  "scene_consistency": [
+    0.8299647867679596,
+    [
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_smoke_gtcond_joint/ACWM_dataset/367/649524000/0/video",
+        "video_results": 0.8299647867679596
+      }
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_smoke_singleview_fix3/ACWM_dataset/367/649524000/0/video"
+        ]
+    }
+]

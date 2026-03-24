@@ -1271,6 +1271,314 @@ class WANPolicyHead(ActionHead):
                   f"Scheduler {scheduler_time:.2f} seconds")
 
         return BatchFeature(data={"action_pred": latents_action, "video_pred": output.transpose(1, 2)})
+
+    def reset_generation_state(self) -> None:
+        """Reset cached autoregressive generation state between episodes."""
+        self.kv_cache1 = None
+        self.kv_cache_neg = None
+        self.crossattn_cache = None
+        self.crossattn_cache_neg = None
+        self.clip_feas = None
+        self.ys = None
+        self.current_start_frame = 0
+        self.language = None
+
+    def lazy_joint_video_action_causal_gt_cond(
+        self,
+        backbone_output: BatchFeature,
+        action_input: BatchFeature,
+        latent_video: torch.Tensor | None = None,
+    ) -> BatchFeature:
+        """Generate video causally while conditioning on externally provided action tokens."""
+        start_time = time.perf_counter()
+
+        start_text_encoder_event = torch.cuda.Event(enable_timing=True)
+        end_text_encoder_event = torch.cuda.Event(enable_timing=True)
+        start_image_encoder_event = torch.cuda.Event(enable_timing=True)
+        end_image_encoder_event = torch.cuda.Event(enable_timing=True)
+        start_vae_event = torch.cuda.Event(enable_timing=True)
+        end_vae_event = torch.cuda.Event(enable_timing=True)
+        start_kv_event = torch.cuda.Event(enable_timing=True)
+        end_kv_event = torch.cuda.Event(enable_timing=True)
+        start_diffusion_events = [torch.cuda.Event(enable_timing=True) for _ in range(self.num_inference_steps)]
+        end_diffusion_events = [torch.cuda.Event(enable_timing=True) for _ in range(self.num_inference_steps)]
+
+        self.set_frozen_modules_to_eval_mode()
+        data = action_input
+
+        videos = data["images"]
+        embodiment_id = action_input.embodiment_id
+        state_features = action_input.state.to(dtype=torch.bfloat16)
+        conditioned_actions = action_input.action
+        if conditioned_actions.numel() == 0:
+            raise ValueError("GT-conditioned video generation requires non-empty action inputs.")
+
+        videos = rearrange(videos, "b t h w c -> b c t h w")
+
+        if videos.dtype == torch.uint8:
+            videos = videos.float() / 255.0
+            videos = videos.to(dtype=self.dtype)
+            b, c, t, h, w = videos.shape
+            videos = videos.permute(0, 2, 1, 3, 4)
+            videos = videos.reshape(b * t, c, h, w)
+            videos = self.normalize_video(videos)
+            videos = videos.reshape(b, t, c, h, w).permute(0, 2, 1, 3, 4)
+            assert videos.min() >= -1.0 and videos.max() <= 1.0, "videos must be in [-1,1] range"
+            videos = videos.to(dtype=self.dtype)
+
+        videos = videos.to(dtype=torch.bfloat16)
+        conditioned_actions = conditioned_actions.to(dtype=torch.bfloat16)
+        if conditioned_actions.numel() > 0:
+            assert conditioned_actions.min() >= -1.0 and conditioned_actions.max() <= 1.0, (
+                "conditioned actions must be normalized to [-1,1]"
+            )
+
+        if self.language is None:
+            self.language = data["text"]
+            self.current_start_frame = 0
+        elif not torch.equal(self.language, data["text"]):
+            self.current_start_frame = 0
+            self.language = data["text"]
+        elif videos.shape[2] == 1:
+            self.current_start_frame = 0
+        elif self.current_start_frame >= self.model.local_attn_size:
+            self.current_start_frame = 0
+
+        start_text_encoder_event.record()
+        text_inputs = self._prepare_text_inputs(data)
+        prompt_embs = [self.encode_prompt(text, attention_mask) for text, attention_mask in text_inputs]
+        end_text_encoder_event.record()
+
+        start_image_encoder_event.record()
+        _, _, num_frames, height, width = videos.shape
+        if videos.shape[2] in (4, 9):
+            image = videos[:, :, -1:].transpose(1, 2)
+        else:
+            image = videos[:, :, :1].transpose(1, 2)
+
+        if self.current_start_frame == 0:
+            clip_feas, ys, image = self.encode_image(image, self.num_frames, height, width)
+            self.clip_feas = clip_feas.to(dtype=image.dtype)
+            self.ys = ys.to(dtype=image.dtype)
+
+        assert self.clip_feas is not None and self.ys is not None, "clip_feas and ys must be set"
+        end_image_encoder_event.record()
+
+        start_vae_event.record()
+        if latent_video is not None and self.current_start_frame != 0:
+            image = latent_video
+        elif self.current_start_frame != 0:
+            if (videos.shape[2] - 1) // 4 == self.num_frame_per_block:
+                pass
+            elif videos.shape[2] // 4 != self.num_frame_per_block:
+                repeat_factor = self.num_frame_per_block // (videos.shape[2] // 4)
+                videos = torch.repeat_interleave(videos, repeat_factor, dim=2)
+                first_frame = videos[:, :, 0:1]
+                videos = torch.cat([first_frame, videos], dim=2)
+            else:
+                first_frame = videos[:, :, 0:1]
+                videos = torch.cat([first_frame, videos], dim=2)
+
+            image = self.vae.encode(
+                videos,
+                tiled=self.tiled,
+                tile_size=(self.tile_size_height, self.tile_size_width),
+                tile_stride=(self.tile_stride_height, self.tile_stride_width),
+            )
+        end_vae_event.record()
+
+        noise_obs = self.generate_noise(
+            (image.shape[0], 16, self.num_frame_per_block, height // 8, width // 8),
+            seed=self.seed,
+            device="cuda",
+            dtype=torch.bfloat16,
+        )
+        batch_size, num_channels, num_frames, height, width = noise_obs.shape
+        frame_seqlen = int(height * width / 4)
+        seq_len = frame_seqlen * num_frames
+
+        image = image.transpose(1, 2)
+        noise_obs = noise_obs.transpose(1, 2)
+
+        if self.current_start_frame == 0:
+            self.kv_cache1, self.kv_cache_neg = self._create_kv_caches(
+                batch_size=batch_size,
+                dtype=noise_obs.dtype,
+                device=noise_obs.device,
+                frame_seqlen=frame_seqlen,
+            )
+            self.crossattn_cache, self.crossattn_cache_neg = self._create_crossattn_caches(
+                batch_size=batch_size,
+                dtype=noise_obs.dtype,
+                device=noise_obs.device,
+            )
+
+        assert self.kv_cache1 is not None
+        assert self.kv_cache_neg is not None
+        assert self.crossattn_cache is not None
+        assert self.crossattn_cache_neg is not None
+        kv_caches = self._get_caches([self.kv_cache1, self.kv_cache_neg])
+        crossattn_caches = self._get_caches([self.crossattn_cache, self.crossattn_cache_neg])
+
+        start_kv_event.record()
+        if self.current_start_frame == 0:
+            timestep = torch.ones([batch_size, 1], device=noise_obs.device, dtype=torch.int64) * 0
+            self._run_diffusion_steps(
+                noisy_input=image.transpose(1, 2),
+                timestep=timestep * 0,
+                action=None,
+                timestep_action=None,
+                state=None,
+                embodiment_id=None,
+                context=prompt_embs,
+                seq_len=frame_seqlen,
+                y=self.ys[:, :, 0:1],
+                clip_feature=self.clip_feas,
+                kv_caches=kv_caches,
+                crossattn_caches=crossattn_caches,
+                kv_cache_metadata=dict(start_frame=0, update_kv_cache=True),
+            )
+            self.current_start_frame += 1
+
+        timestep = torch.ones([batch_size, self.num_frame_per_block], device=noise_obs.device, dtype=torch.int64) * 0
+        if self.current_start_frame != 1:
+            current_ref_latents = image[:, -self.num_frame_per_block:]
+            if self.current_start_frame <= self.ys.shape[2]:
+                y = self.ys[:, :, self.current_start_frame - self.num_frame_per_block : self.current_start_frame]
+            else:
+                y = self.ys[:, :, -self.num_frame_per_block:]
+            self._run_diffusion_steps(
+                noisy_input=current_ref_latents.transpose(1, 2),
+                timestep=timestep * 0,
+                action=None,
+                timestep_action=None,
+                state=None,
+                embodiment_id=None,
+                context=prompt_embs,
+                seq_len=seq_len,
+                y=y,
+                clip_feature=self.clip_feas,
+                kv_caches=kv_caches,
+                crossattn_caches=crossattn_caches,
+                kv_cache_metadata=dict(
+                    start_frame=self.current_start_frame - self.num_frame_per_block,
+                    update_kv_cache=True,
+                ),
+            )
+        end_kv_event.record()
+
+        noisy_input = noise_obs
+        action_condition = conditioned_actions
+        sample_scheduler = FlowUniPCMultistepScheduler(
+            num_train_timesteps=self.scheduler.num_train_timesteps,
+            shift=1,
+            use_dynamic_shifting=False,
+        )
+        sample_scheduler.set_timesteps(self.num_inference_steps, device=noise_obs.device, shift=self.sigma_shift)
+
+        if self.config.decouple_inference_noise:
+            video_final_noise = self.config.video_inference_final_noise
+            sigma_max = sample_scheduler.sigmas[0].item()
+            sample_scheduler.sigmas = (
+                sample_scheduler.sigmas * (sigma_max - video_final_noise) / sigma_max + video_final_noise
+            )
+            sample_scheduler.timesteps = (sample_scheduler.sigmas[:-1] * 1000).to(torch.int64)
+
+        prev_predictions = []
+        self.skip_countdown = 0
+        dit_compute_steps = 0
+        timestep_action = torch.zeros(
+            [batch_size, self.action_horizon],
+            device=noise_obs.device,
+            dtype=torch.int64,
+        )
+
+        for index, current_timestep in enumerate(sample_scheduler.timesteps):
+            start_diffusion_events[index].record()
+            video_timestep = sample_scheduler.timesteps[index]
+            timestep = torch.ones(
+                [batch_size, self.num_frame_per_block],
+                device=noise_obs.device,
+                dtype=torch.int64,
+            ) * video_timestep
+
+            should_run_model = self.should_run_model(index, current_timestep, prev_predictions)
+            if should_run_model:
+                dit_compute_steps += 1
+                if self.current_start_frame + self.num_frame_per_block <= self.ys.shape[2]:
+                    y = self.ys[:, :, self.current_start_frame : self.current_start_frame + self.num_frame_per_block]
+                else:
+                    y = self.ys[:, :, -self.num_frame_per_block:]
+                predictions = self._run_diffusion_steps(
+                    noisy_input=noisy_input.transpose(1, 2),
+                    timestep=timestep,
+                    action=action_condition,
+                    timestep_action=timestep_action,
+                    state=state_features,
+                    embodiment_id=embodiment_id,
+                    context=prompt_embs,
+                    seq_len=seq_len,
+                    y=y,
+                    clip_feature=self.clip_feas,
+                    kv_caches=kv_caches,
+                    crossattn_caches=crossattn_caches,
+                    kv_cache_metadata=dict(
+                        start_frame=self.current_start_frame,
+                        update_kv_cache=False,
+                    ),
+                )
+                flow_pred_cond, _ = predictions[0]
+                flow_pred_uncond, _ = predictions[1]
+                flow_pred = flow_pred_uncond + self.cfg_scale * (flow_pred_cond - flow_pred_uncond)
+                prev_predictions.append((current_timestep, flow_pred, action_condition))
+                if len(prev_predictions) > 2:
+                    prev_predictions.pop(0)
+            else:
+                assert len(prev_predictions) > 0, "prev_predictions must be set when skipping"
+                _, flow_pred, _ = prev_predictions[-1]
+
+            end_diffusion_events[index].record()
+            noisy_input = sample_scheduler.step(
+                model_output=flow_pred.transpose(1, 2),
+                timestep=video_timestep,
+                sample=noisy_input,
+                step_index=index,
+                return_dict=False,
+            )[0]
+
+        output = noisy_input
+        if self.current_start_frame == 1:
+            output = torch.cat([image, output], dim=1)
+        self.current_start_frame += self.num_frame_per_block
+
+        torch.cuda.synchronize()
+
+        total_time = time.perf_counter() - start_time
+        text_encoder_time = start_text_encoder_event.elapsed_time(end_text_encoder_event) / 1000
+        image_encoder_time = start_image_encoder_event.elapsed_time(end_image_encoder_event) / 1000
+        vae_time = start_vae_event.elapsed_time(end_vae_event) / 1000
+        kv_creation_time = start_kv_event.elapsed_time(end_kv_event) / 1000
+        diffusion_times = [s.elapsed_time(e) for s, e in zip(start_diffusion_events, end_diffusion_events)]
+        diffusion_time = sum(diffusion_times) / 1000
+        scheduler_time = total_time - kv_creation_time - diffusion_time - text_encoder_time - image_encoder_time - vae_time
+
+        if self.ip_rank == 0:
+            print(
+                f"GT-cond time taken: Total {total_time:.2f} seconds, "
+                f"Text Encoder {text_encoder_time:.2f} seconds, "
+                f"Image Encoder {image_encoder_time:.2f} seconds, "
+                f"VAE {vae_time:.2f} seconds, "
+                f"KV Cache Creation {kv_creation_time:.2f} seconds, "
+                f"Diffusion {diffusion_time:.2f} seconds, "
+                f"DIT Compute Steps {dit_compute_steps} steps, "
+                f"Scheduler {scheduler_time:.2f} seconds"
+            )
+
+        return BatchFeature(data={"action_pred": action_condition, "video_pred": output.transpose(1, 2)})
+
+    def gt_video_action_pred(self, backbone_output: BatchFeature, action_input: BatchFeature) -> BatchFeature:
+        self.reset_generation_state()
+        return self.lazy_joint_video_action_causal_gt_cond(backbone_output, action_input)
     
     def cache_predict_order1(self, current_timestep, timestep_1, f1, timestep_2, f2):
         h_curr = current_timestep - timestep_1
@@ -1293,9 +1601,10 @@ class WANPolicyHead(ActionHead):
         import os
         ENABLE_TENSORRT = os.getenv("ENABLE_TENSORRT", "False").lower() == "true"
         LOAD_TRT_ENGINE = os.getenv("LOAD_TRT_ENGINE", None)
+        DISABLE_TORCH_COMPILE = os.getenv("DISABLE_TORCH_COMPILE", "False").lower() == "true"
 
         # Torch compile the modules.
-        if not ENABLE_TENSORRT:
+        if not ENABLE_TENSORRT and not DISABLE_TORCH_COMPILE:
             print("Torch compiling the Wan, TextEncoder, ImageEncoder, and VAE modules.")
 
             self.model._forward_blocks = torch.compile(
@@ -1313,7 +1622,9 @@ class WANPolicyHead(ActionHead):
             self.vae.model.encode = torch.compile(
                 mode="reduce-overhead", fullgraph=True, dynamic=False,
             )(self.vae.model.encode)
-        
+        elif DISABLE_TORCH_COMPILE:
+            print("Skipping torch.compile for Wan/TextEncoder/ImageEncoder/VAE because DISABLE_TORCH_COMPILE=true.")
+
         self.trt_engine = None
         if LOAD_TRT_ENGINE is not None:
             print(f"Loading TRT engine from {LOAD_TRT_ENGINE}")

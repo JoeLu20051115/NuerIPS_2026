@@ -76,6 +76,25 @@ def flash_attention(
     assert dtype in half_dtypes
     assert q.device.type == 'cuda' and q.size(-1) <= 256
 
+    def _sdpa_fallback(q_tensor, k_tensor, v_tensor):
+        if q_lens is not None or k_lens is not None:
+            warnings.warn(
+                'Padding mask is disabled when using scaled_dot_product_attention. It can have a significant impact on performance.'
+            )
+        q_tensor = q_tensor.transpose(1, 2).to(dtype)
+        k_tensor = k_tensor.transpose(1, 2).to(dtype)
+        v_tensor = v_tensor.transpose(1, 2).to(dtype)
+        out = torch.nn.functional.scaled_dot_product_attention(
+            q_tensor,
+            k_tensor,
+            v_tensor,
+            attn_mask=None,
+            is_causal=causal,
+            dropout_p=dropout_p,
+            scale=softmax_scale,
+        )
+        return out.transpose(1, 2).contiguous()
+
     # params
     b, lq, lk, out_dtype = q.size(0), q.size(1), k.size(1), q.dtype
 
@@ -141,7 +160,14 @@ def flash_attention(
             window_size=window_size,
             deterministic=deterministic).unflatten(0, (b, lq))
     else:
-        raise ValueError(f"Invalid version: {version}")
+        warnings.warn(
+            'Flash attention is unavailable in this environment; falling back to scaled_dot_product_attention.'
+        )
+        x = _sdpa_fallback(
+            q.unflatten(0, (b, lq)),
+            k.unflatten(0, (b, lk)),
+            v.unflatten(0, (b, lk)),
+        )
 
     # output
     return x.type(out_dtype)
@@ -178,6 +204,10 @@ class AttentionModule(torch.nn.Module):
         if backend == "TE" and not TRANSFORMER_ENGINE_AVAILABLE:
             print("Warning: Transformer Engine is not available. Falling back to FA2 backend.")
             backend = "FA2"
+
+        if backend in {"FA2", "FA3"} and not (FLASH_ATTN_2_AVAILABLE or FLASH_ATTN_3_AVAILABLE):
+            print("Warning: Flash attention is not available. Falling back to torch backend.")
+            backend = "torch"
 
         assert backend in ["torch", "FA2", "FA3", "TE", "torch_onnx"]
         self.backend = backend

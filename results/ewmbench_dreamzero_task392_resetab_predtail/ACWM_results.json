@@ -1,0 +1,85 @@
+{
+  "psnr": {
+    "392": {
+      "651464006": {
+        "0": 13.08295654414769
+      },
+      "651464014": {
+        "0": 14.706946980617
+      },
+      "664600006": {
+        "0": 13.356674162768465
+      },
+      "664600014": {
+        "0": 13.92027592101136
+      },
+      "681186006": {
+        "0": 12.860292119857403
+      }
+    }
+  },
+  "scene_consistency": [
+    0.7187516589137103,
+    [
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_task392_resetab_predtail/ACWM_dataset/392/651464006/0/video",
+        "video_results": 0.6845296949550912
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_task392_resetab_predtail/ACWM_dataset/392/651464014/0/video",
+        "video_results": 0.7029076376739813
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_task392_resetab_predtail/ACWM_dataset/392/664600006/0/video",
+        "video_results": 0.7667334978618929
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_task392_resetab_predtail/ACWM_dataset/392/664600014/0/video",
+        "video_results": 0.708885371946452
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_task392_resetab_predtail/ACWM_dataset/392/681186006/0/video",
+        "video_results": 0.7336897708475589
+      }
+    ]
+  ],
+  "trajectory_consistency": {
+    "392": {
+      "651464006": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464014": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600006": {
+        "0": {
+          "hsd": "0.067",
+          "dyn": "0.027",
+          "ndtw": "0.042"
+        }
+      },
+      "664600014": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "681186006": {
+        "0": {
+          "hsd": "0.086",
+          "dyn": "0.027",
+          "ndtw": "0.050"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.06327497214078903,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows some objects on the table, but they are not in the intended final positions as per the reference goal state. The task is partially completed, but the final arrangement does not convincingly satisfy the goal.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/checkpoints/real_world_eval_gen_20260320_0/DreamZero-DROID/000000_03_20_19_26_24_n3.mp4"
+    }
+  ],
+  "summary": {
+    "num_episodes": 1,
+    "mean_l2": 0.06327497214078903,
+    "mean_task_progress": 0.4,
+    "success_rate": 0.0,
+    "rate_of_l2_lt_0_1": 1.0
+  }
+}

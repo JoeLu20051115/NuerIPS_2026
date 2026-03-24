@@ -1,0 +1,719 @@
+{
+  "psnr": {
+    "367": {
+      "649524000": {
+        "0": 11.852059027248036
+      },
+      "649524001": {
+        "0": 11.288165704281749
+      },
+      "649524002": {
+        "0": 11.297628433597303
+      },
+      "649524003": {
+        "0": 11.631876100406908
+      },
+      "649559000": {
+        "0": 11.142801852225256
+      },
+      "649559001": {
+        "0": 11.521835316659718
+      },
+      "649559002": {
+        "0": 11.380133242637905
+      },
+      "649559003": {
+        "0": 11.465820487970616
+      },
+      "650191000": {
+        "0": 10.931415718076442
+      },
+      "650191001": {
+        "0": 10.95819294686932
+      },
+      "650191002": {
+        "0": 11.183101621297363
+      },
+      "650191003": {
+        "0": 10.672748073502259
+      }
+    },
+    "392": {
+      "651464000": {
+        "0": 11.320694338144692
+      },
+      "651464001": {
+        "0": 11.839622898594639
+      },
+      "651464002": {
+        "0": 12.128678965550096
+      },
+      "651464003": {
+        "0": 12.304384398655316
+      },
+      "651464004": {
+        "0": 13.020532734482128
+      },
+      "651464005": {
+        "0": 12.736576425122566
+      },
+      "651464006": {
+        "0": 11.90431992914816
+      },
+      "651464007": {
+        "0": 12.600602662998158
+      },
+      "651464008": {
+        "0": 12.528682678017878
+      },
+      "651464009": {
+        "0": 12.325935560634473
+      },
+      "651464010": {
+        "0": 11.903916025208067
+      },
+      "651464011": {
+        "0": 13.132747332854573
+      },
+      "651464012": {
+        "0": 13.197188526781915
+      },
+      "651464013": {
+        "0": 12.427406198288455
+      },
+      "651464014": {
+        "0": 11.986020648033517
+      },
+      "664600000": {
+        "0": 10.577770489167143
+      },
+      "664600001": {
+        "0": 11.205327426228118
+      },
+      "664600002": {
+        "0": 11.106667515456047
+      },
+      "664600003": {
+        "0": 11.991661360659169
+      },
+      "664600004": {
+        "0": 12.393159383717526
+      },
+      "664600005": {
+        "0": 11.982862815028543
+      },
+      "664600006": {
+        "0": 11.386562297479621
+      },
+      "664600007": {
+        "0": 11.857050397094643
+      },
+      "664600008": {
+        "0": 11.39666362031387
+      },
+      "664600009": {
+        "0": 12.234938924205087
+      },
+      "664600010": {
+        "0": 12.578357452548788
+      },
+      "664600011": {
+        "0": 12.5337589474742
+      },
+      "664600012": {
+        "0": 12.301766426914496
+      },
+      "664600013": {
+        "0": 12.391509273319384
+      },
+      "664600014": {
+        "0": 11.947101812608992
+      },
+      "681186000": {
+        "0": 9.78831147401517
+      },
+      "681186001": {
+        "0": 10.206782029467846
+      },
+      "681186002": {
+        "0": 10.482484547037444
+      },
+      "681186003": {
+        "0": 10.608882159775696
+      },
+      "681186004": {
+        "0": 11.227207826794778
+      },
+      "681186005": {
+        "0": 11.764980694410303
+      },
+      "681186006": {
+        "0": 10.754541510000422
+      },
+      "681186007": {
+        "0": 11.286502926519661
+      }
+    }
+  },
+  "scene_consistency": [
+    0.8218189684133954,
+    [
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649524000/0/video",
+        "video_results": 0.8312334004909762
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649524001/0/video",
+        "video_results": 0.9305214391600701
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649524002/0/video",
+        "video_results": 0.9565655301014583
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649524003/0/video",
+        "video_results": 0.7912134093542894
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649559000/0/video",
+        "video_results": 0.8587744412598787
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649559001/0/video",
+        "video_results": 0.8079621976819532
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649559002/0/video",
+        "video_results": 0.9217311534388312
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/649559003/0/video",
+        "video_results": 0.803316691446872
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/650191000/0/video",
+        "video_results": 0.8251846599228242
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/650191001/0/video",
+        "video_results": 0.873322791066663
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/650191002/0/video",
+        "video_results": 0.8821962716117981
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/367/650191003/0/video",
+        "video_results": 0.8285649064928293
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464000/0/video",
+        "video_results": 0.8169796592310855
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464001/0/video",
+        "video_results": 0.7762546302641139
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464002/0/video",
+        "video_results": 0.8229580683012804
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464003/0/video",
+        "video_results": 0.8561223195149348
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464004/0/video",
+        "video_results": 0.9098688376446565
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464005/0/video",
+        "video_results": 0.8462610235985588
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464006/0/video",
+        "video_results": 0.7107745163344048
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464007/0/video",
+        "video_results": 0.7575542384927924
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464008/0/video",
+        "video_results": 0.7702519220836235
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464009/0/video",
+        "video_results": 0.8200038948229381
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464010/0/video",
+        "video_results": 0.8129796397686004
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464011/0/video",
+        "video_results": 0.8632936775684357
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464012/0/video",
+        "video_results": 0.873168770596385
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464013/0/video",
+        "video_results": 0.8413335094528813
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/651464014/0/video",
+        "video_results": 0.7525926049874754
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600000/0/video",
+        "video_results": 0.8140561174528271
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600001/0/video",
+        "video_results": 0.9812883496284485
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600002/0/video",
+        "video_results": 0.9784009741700214
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600003/0/video",
+        "video_results": 0.836517945334718
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600004/0/video",
+        "video_results": 0.9258617222309112
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600005/0/video",
+        "video_results": 0.7640218576698592
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600006/0/video",
+        "video_results": 0.7596551559625133
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600007/0/video",
+        "video_results": 0.7897640972545272
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600008/0/video",
+        "video_results": 0.7479446331659952
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600009/0/video",
+        "video_results": 0.8342503619690737
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600010/0/video",
+        "video_results": 0.9050132204657015
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600011/0/video",
+        "video_results": 0.8720087953235792
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600012/0/video",
+        "video_results": 0.8350007931391398
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600013/0/video",
+        "video_results": 0.9333019355932871
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/664600014/0/video",
+        "video_results": 0.771161934001404
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186000/0/video",
+        "video_results": 0.7727250009775162
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186001/0/video",
+        "video_results": 0.7739004440167371
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186002/0/video",
+        "video_results": 0.872310834005475
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186003/0/video",
+        "video_results": 0.7693662448298364
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186004/0/video",
+        "video_results": 0.8373121950361464
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186005/0/video",
+        "video_results": 0.8499026539779845
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186006/0/video",
+        "video_results": 0.7201581095655759
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/dreamzero_worldmodel_first50_gtcond_joint_fix1/ACWM_dataset/392/681186007/0/video",
+        "video_results": 0.8914370644423697
+      }
+    ]
+  ],
+  "trajectory_consistency": {
+    "367": {
+      "649524000": {
+        "0": {
+          "hsd": "0.104",
+          "dyn": "0.006",
+          "ndtw": "0.064"
+        }
+      },
+      "649524001": {
+        "0": {
+          "hsd": "0.112",
+          "dyn": "0.001",
+          "ndtw": "0.068"
+        }
+      },
+      "649524002": {
+        "0": {
+          "hsd": "0.075",
+          "dyn": "0.001",
+          "ndtw": "0.043"
+        }
+      },
+      "649524003": {
+        "0": {
+          "hsd": "0.093",
+          "dyn": "0.001",
+          "ndtw": "0.064"
+        }
+      },
+      "649559000": {
+        "0": {
+          "hsd": "0.108",
+          "dyn": "0.001",
+          "ndtw": "0.063"
+        }
+      },
+      "649559001": {
+        "0": {
+          "hsd": "0.120",
+          "dyn": "0.000",
+          "ndtw": "0.079"
+        }
+      },
+      "649559002": {
+        "0": {
+          "hsd": "0.077",
+          "dyn": "0.000",
+          "ndtw": "0.037"
+        }
+      },
+      "649559003": {
+        "0": {
+          "hsd": "0.087",
+          "dyn": "0.001",
+          "ndtw": "0.062"
+        }
+      },
+      "650191000": {
+        "0": {
+          "hsd": "0.111",
+          "dyn": "0.000",
+          "ndtw": "0.060"
+        }
+      },
+      "650191001": {
+        "0": {
+          "hsd": "0.107",
+          "dyn": "0.000",
+          "ndtw": "0.064"
+        }
+      },
+      "650191002": {
+        "0": {
+          "hsd": "0.134",
+          "dyn": "0.000",
+          "ndtw": "0.050"
+        }
+      },
+      "650191003": {
+        "0": {
+          "hsd": "0.097",
+          "dyn": "0.000",
+          "ndtw": "0.056"
+        }
+      }
+    },
+    "392": {
+      "651464000": {
+        "0": {
+          "hsd": "0.140",
+          "dyn": "0.001",
+          "ndtw": "0.071"
+        }
+      },
+      "651464001": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464002": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464003": {
+        "0": {
+          "hsd": "0.113",
+          "dyn": "0.000",
+          "ndtw": "0.055"
+        }
+      },
+      "651464004": {
+        "0": {
+          "hsd": "0.121",
+          "dyn": "0.065",
+          "ndtw": "0.067"
+        }
+      },
+      "651464005": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464006": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464007": {
+        "0": {
+          "hsd": "0.067",
+          "dyn": "0.001",
+          "ndtw": "0.032"
+        }
+      },
+      "651464008": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464009": {
+        "0": {
+          "hsd": "0.129",
+          "dyn": "0.001",
+          "ndtw": "0.062"
+        }
+      },
+      "651464010": {
+        "0": {
+          "hsd": "0.088",
+          "dyn": "0.005",
+          "ndtw": "0.049"
+        }
+      },
+      "651464011": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464012": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464013": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464014": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600000": {
+        "0": {
+          "hsd": "0.077",
+          "dyn": "0.002",
+          "ndtw": "0.043"
+        }
+      },
+      "664600001": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600002": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600003": {
+        "0": {
+          "hsd": "0.085",
+          "dyn": "0.001",
+          "ndtw": "0.048"
+        }
+      },
+      "664600004": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600005": {
+        "0": {
+          "hsd": "0.071",
+          "dyn": "0.001",
+          "ndtw": "0.041"
+        }
+      },
+      "664600006": {
+        "0": {
+          "hsd": "0.094",
+          "dyn": "0.002",
+          "ndtw": "0.058"
+        }
+      },
+      "664600007": {
+        "0": {
+          "hsd": "0.055",
+          "dyn": "0.001",
+          "ndtw": "0.027"
+        }
+      },
+      "664600008": {
+        "0": {
+          "hsd": "0.079",
+          "dyn": "0.003",
+          "ndtw": "0.062"
+        }
+      },
+      "664600009": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600010": {
+        "0": {
+          "hsd": "0.094",
+          "dyn": "0.004",
+          "ndtw": "0.050"
+        }
+      },
+      "664600011": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600012": {
+        "0": {
+          "hsd": "0.134",
+          "dyn": "0.001",
+          "ndtw": "0.103"
+        }
+      },
+      "664600013": {
+        "0": {
+          "hsd": "0.127",
+          "dyn": "0.000",
+          "ndtw": "0.066"
+        }
+      },
+      "664600014": {
+        "0": {
+          "hsd": "0.069",
+          "dyn": "0.004",
+          "ndtw": "0.038"
+        }
+      },
+      "681186000": {
+        "0": {
+          "hsd": "0.097",
+          "dyn": "0.001",
+          "ndtw": "0.170"
+        }
+      },
+      "681186001": {
+        "0": {
+          "hsd": "0.125",
+          "dyn": "0.001",
+          "ndtw": "0.061"
+        }
+      },
+      "681186002": {
+        "0": {
+          "hsd": "0.117",
+          "dyn": "0.000",
+          "ndtw": "0.061"
+        }
+      },
+      "681186003": {
+        "0": {
+          "hsd": "0.087",
+          "dyn": "0.000",
+          "ndtw": "0.047"
+        }
+      },
+      "681186004": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "681186005": {
+        "0": {
+          "hsd": "0.091",
+          "dyn": "0.000",
+          "ndtw": "0.052"
+        }
+      },
+      "681186006": {
+        "0": {
+          "hsd": "0.100",
+          "dyn": "0.001",
+          "ndtw": "0.087"
+        }
+      },
+      "681186007": {
+        "0": {
+          "hsd": "0.059",
+          "dyn": "0.004",
+          "ndtw": "0.046"
+        }
+      }
+    }
+  }
+}

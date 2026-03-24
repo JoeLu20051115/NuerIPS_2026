@@ -382,35 +382,47 @@ $$
 ---
 
 # 7. Dreamjodo的适配性以及大体量数据集的结果
-在 DreamZero 里
-Mean L2 指的是：模型预测动作 和 数据集真实动作 之间的平均 L2 距离。模型这一步动作和示范动作差多远
 
-在 DreamDojo 里
-Mean L2 指的是：预测视频帧和 GT 视频帧之间的视觉 L2 误差代理，是视觉终态/轨迹对齐误差
+### 指标定义
 
-Mean Task Progress 指的是：judge 根据最终视觉状态给出的任务完成度，再对所有 episode 取平均
+**Mean L2**（两个框架一致）：对每个 episode 在 $K$ 个采样步上计算关节动作 L2 误差，再跨 episode 取均值：
+
+$$
+\text{Mean L2} = \frac{1}{N}\sum_{j=1}^{N} \frac{1}{K_j}\sum_{t} \left\|\hat{\mathbf{a}}_t^{(7)} - \mathbf{a}_t^{(7)}\right\|_2
+$$
+
+其中 $\hat{\mathbf{a}}_t^{(7)}$ 为策略预测的7维关节动作，$\mathbf{a}_t^{(7)}$ 为数据集中对应时刻的 GT 动作。
+
+**Mean Task Progress**（仅 DreamDojo）：由 VLM judge（GPT-4o-mini）对比初始帧、GT终态帧与模型预测终态帧，对每个 episode 输出完成度 $p_j \in [0,1]$，再取均值：
+
+$$
+\text{Mean Task Progress} = \frac{1}{N}\sum_{j=1}^{N} p_j
+$$
+
+判定标准：$p \ge 0.9$ 为基本完成，$0.4$–$0.6$ 为部分完成，$< 0.3$ 为未完成。**Success Rate** 定义为 $p_j > 0.75$ 或 rule\_success 为真的 episode 比例。
 
 success rate的含义：动作是是否完成，是否合规
 
-## 7.1 Dreamzero
-## Dreamzero的DROID 数据集（150）
+## 7.1 全数据集汇总大表
 
-
-| Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
-|------------|------------------|---------|--------------------|--------------|------------------|
-| DRO_L1_150 | description_only | 0.1284  | 0.4913             | 29.3%        | 44.3%            |
-| DRO_L1_150 | dual_llm         | 0.1258  | 0.5060             | 32.0%        | 45.1%            |
-| DRO_L3_150 | description_only | 0.1262  | 0.4580             | 23.3%        | 45.9%            |
-| DRO_L3_150 | dual_llm         | 0.1236  | 0.4793             | 27.3%        | 47.6%            |
-
-## Dreamzero的AgiBot 数据集（150）
-
-| Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
-|------------|------------------|---------|--------------------|--------------|------------------|
-| Agi_L1_150 | description_only | 0.0862  | 0.5160             | 38.7%        | 68.7%            |
-| Agi_L1_150 | dual_llm         | 0.0773  | 0.5053             | 36.7%        | 74.2%            |
-| Agi_L3_150 | description_only | 0.0739  | 0.4460             | 30.0%        | 79.8%            |
-| Agi_L3_150 | dual_llm         | 0.0602  | 0.5187             | 41.3%        | 92.9%            |
+| Framework  | Dataset    | Mode             | Mean L2 | Mean Task Progress | Success Rate | Rate of L2 < 0.1 |
+|------------|------------|------------------|---------|--------------------|--------------|------------------|
+| DreamZero  | DRO_L1_150 | description_only | 0.1284  | 0.4913             | 29.3%        | 44.3%            |
+| DreamZero  | DRO_L1_150 | dual_llm         | 0.1258  | 0.5060             | 32.0%        | 45.1%            |
+| DreamZero  | DRO_L3_150 | description_only | 0.1262  | 0.4580             | 23.3%        | 45.9%            |
+| DreamZero  | DRO_L3_150 | dual_llm         | 0.1236  | 0.4793             | 27.3%        | 47.6%            |
+| DreamZero  | Agi_L1_150 | description_only | 0.0862  | 0.5160             | 38.7%        | 68.7%            |
+| DreamZero  | Agi_L1_150 | dual_llm         | 0.0773  | 0.5053             | 36.7%        | 74.2%            |
+| DreamZero  | Agi_L3_150 | description_only | 0.0739  | 0.4460             | 30.0%        | 79.8%            |
+| DreamZero  | Agi_L3_150 | dual_llm         | 0.0602  | 0.5187             | 41.3%        | 92.9%            |
+| DreamDojo  | Agi_L1_130 | description_only | 0.1301  | 0.5992             | 56.9%        | 31.3%            |
+| DreamDojo  | Agi_L1_130 | dual_llm         | 0.1278  | 0.6085             | 61.5%        | 32.1%            |
+| DreamDojo  | Agi_L3_130 | description_only | 0.1485  | 0.2892             | 19.2%        | 40.4%            |
+| DreamDojo  | Agi_L3_130 | dual_llm         | 0.1380  | 0.3254             | 24.6%        | 43.6%            |
+| DreamDojo  | Ego_L1_130 | description_only | 0.1077  | 0.4171             | 54.1%        | 42.3%            |
+| DreamDojo  | Ego_L1_130 | dual_llm         | 0.1003  | 0.4388             | 55.5%        | 45.8%            |
+| DreamDojo  | Ego_L3_130 | description_only | 0.1214  | 0.3060             | 21.7%        | 37.9%            |
+| DreamDojo  | Ego_L3_130 | dual_llm         | 0.1180  | 0.3798             | 25.4%        | 41.2%            |
 
 ## dreamzero的显著性检验
 | Dataset    | t value | p value  | Mean L2 diff (baseline - dual) | 95% CI            |

@@ -751,8 +751,8 @@ def main(args: Args) -> None:
     # Set environment variable for DIT cache.
     os.environ["ENABLE_DIT_CACHE"] = "true" if args.enable_dit_cache else "false"
 
-    # Use TE cuDNN backend for attention.
-    os.environ["ATTENTION_BACKEND"] = "TE"
+    # Default to TE attention unless the caller explicitly overrides it.
+    os.environ.setdefault("ATTENTION_BACKEND", "TE")
 
     # Increase the recompile limit to 100 for inference due
     # to autoregressive nature of the model (several possible shapes).
