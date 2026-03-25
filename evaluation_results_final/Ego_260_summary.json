@@ -1,0 +1,55 @@
+{
+  "name": "Ego_260",
+  "model": "DreamZero",
+  "dataset": "EgoDex",
+  "note": "Per-episode logs lost; only aggregate statistics preserved",
+  "num_episodes": 260,
+  "summary": {
+    "L1_130": {
+      "task_token_only": {
+        "num_episodes": 130,
+        "mean_l2": 0.1077,
+        "mean_task_progress": 0.4171,
+        "success_rate": 0.541,
+        "mean_step_alignment_l2_lt_0_1": null
+      },
+      "dual_llm": {
+        "num_episodes": 130,
+        "mean_l2": 0.1003,
+        "mean_task_progress": 0.4388,
+        "success_rate": 0.555,
+        "mean_step_alignment_l2_lt_0_1": null
+      }
+    },
+    "L3_130": {
+      "task_token_only": {
+        "num_episodes": 130,
+        "mean_l2": 0.1214,
+        "mean_task_progress": 0.306,
+        "success_rate": 0.217,
+        "mean_step_alignment_l2_lt_0_1": null
+      },
+      "dual_llm": {
+        "num_episodes": 130,
+        "mean_l2": 0.118,
+        "mean_task_progress": 0.3798,
+        "success_rate": 0.254,
+        "mean_step_alignment_l2_lt_0_1": null
+      }
+    },
+    "overall_260": {
+      "task_token_only": {
+        "num_episodes": 260,
+        "mean_l2": 0.1145,
+        "mean_task_progress": 0.3616,
+        "success_rate": 0.379
+      },
+      "dual_llm": {
+        "num_episodes": 260,
+        "mean_l2": 0.1091,
+        "mean_task_progress": 0.4093,
+        "success_rate": 0.4045
+      }
+    }
+  }
+}

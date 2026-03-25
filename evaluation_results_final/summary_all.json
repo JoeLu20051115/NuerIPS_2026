@@ -1,0 +1,64 @@
+{
+  "DreamZero_DROID_300": {
+    "task_token_only": {
+      "num_episodes": 300,
+      "mean_l2": 0.12729906025428392,
+      "mean_task_progress": 0.47466666666666657,
+      "success_rate": 0.2633333333333333,
+      "mean_step_alignment_l2_lt_0_1": 0.451
+    },
+    "dual_llm": {
+      "num_episodes": 300,
+      "mean_l2": 0.12472818317164233,
+      "mean_task_progress": 0.4926666666666667,
+      "success_rate": 0.2966666666666667,
+      "mean_step_alignment_l2_lt_0_1": 0.46366666666666667
+    }
+  },
+  "DreamZero_AgiBot_300": {
+    "task_token_only": {
+      "num_episodes": 300,
+      "mean_l2": 0.08002437606660856,
+      "mean_task_progress": 0.48100000000000004,
+      "success_rate": 0.3433333333333333,
+      "mean_step_alignment_l2_lt_0_1": 0.7422222222222222
+    },
+    "dual_llm": {
+      "num_episodes": 300,
+      "mean_l2": 0.06876303982403544,
+      "mean_task_progress": 0.512,
+      "success_rate": 0.39,
+      "mean_step_alignment_l2_lt_0_1": 0.8355555555555555
+    }
+  },
+  "DreamZero_EgoDex_260": {
+    "task_token_only": {
+      "num_episodes": 260,
+      "mean_l2": 0.1145,
+      "mean_task_progress": 0.3616,
+      "success_rate": 0.379
+    },
+    "dual_llm": {
+      "num_episodes": 260,
+      "mean_l2": 0.1091,
+      "mean_task_progress": 0.4093,
+      "success_rate": 0.4045
+    }
+  },
+  "DreamDojo_AgiBot_286": {
+    "task_token_only": {
+      "num_episodes": 286,
+      "mean_l2": 0.1390351015120169,
+      "mean_task_progress": 0.4506993006993007,
+      "success_rate": 0.3916083916083916,
+      "mean_step_alignment_l2_lt_0_1": 0.3525759954331383
+    },
+    "dual_llm": {
+      "num_episodes": 286,
+      "mean_l2": 0.13280122450287585,
+      "mean_task_progress": 0.45594405594405596,
+      "success_rate": 0.40559440559440557,
+      "mean_step_alignment_l2_lt_0_1": 0.37219922934208655
+    }
+  }
+}

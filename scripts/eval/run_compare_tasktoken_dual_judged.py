@@ -102,6 +102,119 @@ class FinalFrameJudge:
         return {"task_progress": progress, "rule_success": rule_success, "reason": str(payload.get("reason", ""))}
 
 
+class LLMPlannerWithTiming:
+    """LLM planner that predicts both sub-instructions and their start fractions.
+
+    Asks the model to output lines in ``FRACTION|INSTRUCTION`` format where
+    FRACTION is a normalised episode position in [0, 1).  The first fraction
+    is forced to 0.0 and fractions are strictly increasing.
+    """
+
+    _SYSTEM = (
+        "You are a robot task planning assistant. "
+        "Output ONLY the requested format—no extra text."
+    )
+
+    def __init__(self, model: str = "gpt-4o-mini", temperature: float = 0.0) -> None:
+        self.client = OpenAI()
+        self.model = model
+        self.temperature = temperature
+
+    def _prompt(self, task: str) -> str:
+        return (
+            f"Task: {task}\n\n"
+            "Robot: Franka arm, indoor manipulation scene.\n\n"
+            "Break this task into 3-5 atomic sub-instructions. "
+            "For each sub-instruction predict at what fraction of the total "
+            "episode it should BEGIN (0.0 = start, 1.0 = end).\n\n"
+            "Rules:\n"
+            "- First fraction must be 0.0.\n"
+            "- Fractions must be strictly increasing.\n"
+            "- Reflect natural task timing (approach is usually faster than "
+            "manipulation; do NOT space evenly).\n"
+            "- All sub-instructions must be used (they span the full episode).\n\n"
+            "Output format — one line per sub-instruction:\n"
+            "FRACTION|INSTRUCTION\n\n"
+            "Example:\n"
+            "0.0|reach toward the bottle\n"
+            "0.2|grasp the bottle\n"
+            "0.55|lift and carry to shelf\n"
+            "0.85|place bottle upright on shelf\n"
+        )
+
+    def plan_with_timing(self, task: str, episode_id: str = "") -> tuple:
+        """Return (sub_instructions, start_fractions, meta, plan_time)."""
+        t0 = time.perf_counter()
+        try:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                temperature=self.temperature,
+                max_tokens=300,
+                messages=[
+                    {"role": "system", "content": self._SYSTEM},
+                    {"role": "user", "content": self._prompt(task)},
+                ],
+            )
+            raw = resp.choices[0].message.content or ""
+            instrs, fracs = self._parse(raw, task)
+            meta = {
+                "planner_mode": "timed_api",
+                "api_called": True,
+                "api_success": True,
+                "model": self.model,
+                "raw_response": raw,
+                "error": None,
+            }
+        except Exception as exc:
+            instrs, fracs = [task], [0.0]
+            meta = {
+                "planner_mode": "timed_fallback",
+                "api_called": True,
+                "api_success": False,
+                "model": self.model,
+                "raw_response": None,
+                "error": str(exc),
+            }
+        return instrs, fracs, meta, time.perf_counter() - t0
+
+    @staticmethod
+    def _parse(content: str, fallback_task: str) -> tuple:
+        instrs: List[str] = []
+        fracs: List[float] = []
+        for line in content.strip().splitlines():
+            line = line.strip()
+            if "|" not in line:
+                continue
+            frac_str, _, instr = line.partition("|")
+            instr = instr.strip()
+            if not instr:
+                continue
+            try:
+                frac = float(np.clip(float(frac_str.strip()), 0.0, 1.0))
+            except ValueError:
+                continue
+            fracs.append(frac)
+            instrs.append(instr)
+        if not instrs:
+            return [fallback_task], [0.0]
+        fracs[0] = 0.0
+        for i in range(1, len(fracs)):
+            fracs[i] = max(fracs[i], fracs[i - 1] + 1e-3)
+        fracs = [min(f, 1.0 - 1e-6) for f in fracs]
+        return instrs, fracs
+
+
+def _sub_idx_by_timing(fracs: List[float], progress: float) -> int:
+    """Return sub-instruction index for *progress* ∈ [0, 1] using predicted fractions."""
+    idx = 0
+    for i, start in enumerate(fracs):
+        if start <= progress:
+            idx = i
+        else:
+            break
+    return idx
+
+
 class CompareRunner:
     def __init__(
         self,
@@ -123,6 +236,7 @@ class CompareRunner:
         self.success_threshold = success_threshold
         self.policy = WebsocketClientPolicy(host=host, port=port)
         self.planner = LLMPlanner(use_mock=False, temperature=0.0)
+        self.timed_planner = LLMPlannerWithTiming(temperature=0.0)
         self.dual_helper = DualSystemEvaluator(
             host=host,
             port=port,
@@ -190,12 +304,19 @@ class CompareRunner:
             return task_token or task_description
         return current_instruction
 
-    def _plan(self, mode: str, task_description: str, episode_id: str) -> tuple[List[str], Dict, float]:
+    def _plan(self, mode: str, task_description: str, episode_id: str) -> tuple:
+        """Return (sub_instructions, planner_meta, plan_time, start_fractions_or_None)."""
         if mode == "task_token_only":
-            return [task_description], {"planner_mode": "disabled"}, 0.0
+            return [task_description], {"planner_mode": "disabled"}, 0.0, None
+        if mode == "dual_llm_timed":
+            instrs, fracs, meta, plan_time = self.timed_planner.plan_with_timing(
+                task_description, episode_id
+            )
+            return instrs, meta, plan_time, fracs
+        # dual_llm: uniform placement
         start = time.perf_counter()
         sub_instructions, planner_meta = self.planner.plan(task_description, {"episode_id": episode_id})
-        return sub_instructions, planner_meta, time.perf_counter() - start
+        return sub_instructions, planner_meta, time.perf_counter() - start, None
 
     def run_episode(self, episode_info: Dict, mode: str) -> Dict:
         episode_id = episode_info["episode_id"]
@@ -211,7 +332,9 @@ class CompareRunner:
         if ref_video is None:
             raise RuntimeError(f"Missing all camera videos for {episode_id}")
 
-        sub_instructions, planner_meta, plan_time = self._plan(mode, task_description, episode_id)
+        sub_instructions, planner_meta, plan_time, start_fractions = self._plan(
+            mode, task_description, episode_id
+        )
         eval_indices = np.linspace(0, ep_len - 1, min(self.eval_steps, ep_len), dtype=int)
         action_errors: List[float] = []
         session_id = f"cmp_{mode}_{episode_id}_{uuid.uuid4().hex[:8]}"
@@ -220,7 +343,13 @@ class CompareRunner:
 
         initial_frame = None
         for step_idx in eval_indices:
-            sub_idx = min(int(step_idx * len(sub_instructions) / ep_len), len(sub_instructions) - 1)
+            if start_fractions is not None:
+                # LLM-predicted timing
+                progress = step_idx / max(ep_len - 1, 1)
+                sub_idx = _sub_idx_by_timing(start_fractions, progress)
+            else:
+                # Uniform placement
+                sub_idx = min(int(step_idx * len(sub_instructions) / ep_len), len(sub_instructions) - 1)
             current_instruction = sub_instructions[sub_idx]
             obs = {}
             for cam_key, video_path in videos.items():
@@ -260,6 +389,7 @@ class CompareRunner:
             "task_description": task_description,
             "mode": mode,
             "sub_instructions": sub_instructions,
+            "start_fractions": start_fractions,
             "planner_meta": planner_meta,
             "plan_time": plan_time,
             "mean_l2": float(np.mean(action_errors)) if action_errors else None,
@@ -315,27 +445,30 @@ def main() -> None:
     )
 
     all_results: List[Dict] = []
-    running: Dict[str, List[Dict]] = {"task_token_only": [], "dual_llm": []}
+    running: Dict[str, List[Dict]] = {"task_token_only": [], "dual_llm": [], "dual_llm_timed": []}
     for idx, episode in enumerate(episodes, 1):
         print(f"\n[{idx}/{len(episodes)}] {episode['episode_id']} | task={episode['task_description']}")
-        for mode in ["task_token_only", "dual_llm"]:
-            mode_label = "dual_llm" if mode == "dual_llm" else "task_token_only"
+        for mode in ["task_token_only", "dual_llm", "dual_llm_timed"]:
             result = runner.run_episode(episode, mode)
-            running[mode_label].append(result)
+            running[mode].append(result)
             all_results.append(result)
-            success_rate = sum(1 for r in running[mode_label] if r["task_success"]) / len(running[mode_label])
-            mean_l2 = np.mean([r["mean_l2"] for r in running[mode_label] if r["mean_l2"] is not None])
-            mean_progress = np.mean([r["task_progress"] for r in running[mode_label]])
+            success_rate = sum(1 for r in running[mode] if r["task_success"]) / len(running[mode])
+            mean_l2 = np.mean([r["mean_l2"] for r in running[mode] if r["mean_l2"] is not None])
+            mean_progress = np.mean([r["task_progress"] for r in running[mode]])
+            timing_str = ""
+            if mode == "dual_llm_timed" and result.get("start_fractions"):
+                timing_str = f" | fracs={[f'{f:.2f}' for f in result['start_fractions']]}"
             print(
-                f"  [{mode_label}] mean_l2={result['mean_l2']:.4f} | "
+                f"  [{mode}] mean_l2={result['mean_l2'] or 0:.4f} | "
                 f"task_progress={result['task_progress']:.3f} | "
                 f"rule_success={'PASS' if result['rule_success'] else 'FAIL'} | "
                 f"success={'PASS' if result['task_success'] else 'FAIL'} | "
                 f"running_success_rate={success_rate:.3f} | "
                 f"running_mean_l2={mean_l2:.4f} | "
                 f"running_mean_progress={mean_progress:.3f}"
+                + timing_str
             )
-            if mode_label == "dual_llm":
+            if mode in ("dual_llm", "dual_llm_timed"):
                 print(f"    sub_instructions={result['sub_instructions']}")
         args.log_json.parent.mkdir(parents=True, exist_ok=True)
         args.log_json.write_text(json.dumps(all_results, indent=2, ensure_ascii=False) + "\n")
