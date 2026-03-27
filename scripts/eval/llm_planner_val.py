@@ -6,7 +6,8 @@ Each plan step has:
   - instruction: natural-language short phrase
   - action: fixed action primitive
   - args: list of argument strings
-  - time: [start_fraction, end_fraction]  both in [0, 1]
+  - weight: relative time duration (positive integer); converted to time [start, end] by
+            cumulative-sum normalisation over the step sequence
 
 Flow:
   1. LLM one-shot generates structured JSON plan
@@ -23,6 +24,7 @@ import re
 import subprocess
 import tempfile
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -151,136 +153,443 @@ Break the task into 3-6 atomic steps. For each step output:
   "instruction"  : short natural-language phrase (≤10 words)
   "action"       : one of the primitives above (exact name)
   "args"         : list of snake_case argument strings matching the primitive
-  "time"         : [start_fraction, end_fraction] in [0.0, 1.0], non-overlapping
+  "weight"       : positive integer for relative duration (move≈1, grasp/place/press≈2-3)
+  "pre"          : list of state facts that must hold BEFORE this step
+                   (use strings like "gripper_open", "holding(marker)", "drawer_open(drawer)")
+  "eff"          : list of state facts that become true AFTER this step
+                   (prefix with "~" for facts that become false, e.g. "~gripper_open")
 
 Rules:
-- time[0] of step 0 must be 0.0; time[1] of last step must be 1.0
-- steps must cover [0,1] contiguously (end of step i == start of step i+1)
-- grasp must come before any place/release on that object
-- open must come before close on the same container
-- reflect natural timing (approach phases are shorter than manipulation phases)
+- weights must be positive integers (1–5 range recommended)
+- grasp requires "gripper_open"; its effects include "holding(obj)" and "~gripper_open"
+- place requires "holding(obj)"; its effects include "~holding(obj)" and "gripper_open"
+- open requires "~drawer_open(c)"; close requires "drawer_open(c)"
+- effects of step i must satisfy preconditions of step i+1 where relevant
 
 Output a JSON array only:
 [
-  {{"instruction": "...", "action": "move", "args": ["button"], "time": [0.0, 0.2]}},
+  {{"instruction": "move to the button", "action": "move",  "args": ["button"], "weight": 1,
+    "pre": [], "eff": []}},
+  {{"instruction": "press the button",   "action": "press", "args": ["button"], "weight": 3,
+    "pre": [], "eff": ["pressed(button)"]}},
   ...
 ]
 """
 
-_CORRECTION_PROMPT_TEMPLATE = """\
-You generated this robot plan for the task: "{task}"
-
-Current plan:
-{plan_json}
-
-The validator found these logical errors and suggests the following fixes:
-{actionable_hints}
-
-Domain rules reminder:
-- grasp(obj)         requires gripper OPEN  → after grasp gripper is CLOSED
-- place(obj, target) requires HOLDING obj   → after place gripper is OPEN (released automatically)
-- release(obj)       requires HOLDING obj   → after release gripper is OPEN
-- open(container)    requires container CLOSED
-- close(container)   requires container OPEN
-
-Please apply ONLY the suggested fixes above (keep all other steps unchanged).
-Output the corrected full plan as a JSON array in the same format.
-Output JSON only.
-"""
-
-
 # ---------------------------------------------------------------------------
-# VAL error → actionable hint translator
+# Repair operator system
 # ---------------------------------------------------------------------------
 
-# Maps (failed_action_pat, unsatisfied_predicate_keyword) → human-readable fix instruction
-# pred_keyword is a plain substring match against the predicate string (no backrefs)
-_ERROR_HINT_MAP = [
-    # release after place: holding is false because place already released
-    (r"release\s+(\S+)",   "holding",
-     lambda m, pred: f"Remove the 'release({m.group(1)})' step — "
-                     f"'place' already opens the gripper, so 'release' afterward is redundant and invalid."),
-    # grasp when gripper already closed
-    (r"grasp\s+(\S+)",     "gripper",
-     lambda m, pred: f"Cannot 'grasp({m.group(1)})' — gripper is already closed (holding another object). "
-                     f"Add a 'release' or 'place' step before this grasp to open the gripper first."),
-    # place without holding the object
-    (r"place\s+(\S+)\s+(\S+)", "holding",
-     lambda m, pred: f"Cannot 'place({m.group(1)}, {m.group(2)})' — not holding '{m.group(1)}'. "
-                     f"Add a 'grasp({m.group(1)})' step before this place."),
-    # open on an already-open container
-    (r"open\s+(\S+)",      "drawer",
-     lambda m, pred: f"Cannot 'open({m.group(1)})' — container is already open. "
-                     f"Remove this 'open' step (the container starts open for this task)."),
-    # close on an already-closed container (drawer-open not satisfied)
-    (r"close\s+(\S+)",     "drawer",
-     lambda m, pred: f"Cannot 'close({m.group(1)})' — container is not open. "
-                     f"Add an 'open({m.group(1)})' step before this close."),
-]
+# Operator types
+REPAIR_DELETE      = "delete"        # Remove a step — deterministic, no LLM
+REPAIR_INSERT      = "insert"        # Insert one new step — LLM generates the single step
+REPAIR_REORDER     = "reorder"       # Move a step to a different index — LLM selects target index
+REPAIR_MODIFY_ARGS = "modify_args"   # Fix args of one step — LLM fixes one field only
 
 
-def _translate_val_errors(val_errors: str, steps: List[Dict]) -> str:
+@dataclass
+class RepairOp:
+    op:         str             # one of REPAIR_* constants
+    target_idx: int             # index of the problematic step in current plan
+    insert_pos: int  = -1       # for INSERT: position to insert before (-1 = before target_idx)
+    context:    str  = ""       # human-readable description of why this repair is needed
+    new_args:   List[str] = field(default_factory=list)   # for MODIFY_ARGS: candidate args
+
+
+# --- VAL error parsing ---
+
+def _extract_failed_actions(val_errors: str) -> List[Tuple[str, str]]:
     """
-    Convert raw VAL verbose output into actionable fix instructions for the LLM.
-    Falls back to a cleaned version of the original error if no pattern matches.
+    Parse VAL -v output → list of (action_str, predicate_str) for each failure.
+
+    VAL format:
+      Plan failed because of unsatisfied precondition
+        in:
+      (action arg1 arg2 ...)
+      ...
+      Set (predicate) to true
     """
-    hints: List[str] = []
-
-    # Extract the failing action and the unsatisfied predicate from VAL output
-    # VAL -v format:
-    #   "Plan failed because of unsatisfied precondition in:\n(action args)"
-    #   "(action args) has an unsatisfied precondition at time N"
-    #   "(Set (predicate args) to true)"
-
     lines = val_errors.splitlines()
-    failed_actions: List[Tuple[str, str]] = []  # (action_str, predicate_str)
-
+    results: List[Tuple[str, str]] = []
     i = 0
     while i < len(lines):
-        line = lines[i].strip()
-        # Capture "Plan failed because of unsatisfied precondition in:"
-        if "plan failed because of unsatisfied precondition" in line.lower():
-            # Next non-empty line is the action
+        if "plan failed because of unsatisfied precondition" in lines[i].lower():
+            # Skip whitespace / "in:" label lines to find the actual action line
             j = i + 1
-            while j < len(lines) and not lines[j].strip():
+            while j < len(lines) and (
+                not lines[j].strip() or lines[j].strip().rstrip(":").lower() == "in"
+            ):
                 j += 1
             if j < len(lines):
                 action_line = lines[j].strip().lstrip("(").rstrip(")")
-                # Look for "Set (predicate...) to true" a few lines ahead
                 pred_str = ""
-                for k in range(j + 1, min(j + 6, len(lines))):
-                    set_m = re.search(r"Set\s+\(([^)]+)\)\s+to\s+true", lines[k], re.I)
-                    if set_m:
-                        pred_str = set_m.group(1).strip()
+                for k in range(j + 1, min(j + 8, len(lines))):
+                    m = re.search(r"Set\s+\(([^)]+)\)\s+to\s+true", lines[k], re.I)
+                    if m:
+                        pred_str = m.group(1).strip()
                         break
-                failed_actions.append((action_line, pred_str))
+                results.append((action_line, pred_str))
         i += 1
+    return results
 
-    for action_str, pred_str in failed_actions:
-        matched = False
-        for act_pat, pred_kw, hint_fn in _ERROR_HINT_MAP:
-            act_m = re.search(act_pat, action_str, re.I)
-            if act_m and pred_kw.lower() in pred_str.lower():
-                hints.append(f"• {hint_fn(act_m, pred_str)}")
-                matched = True
-                break
-        if not matched:
-            # Generic fallback: strip confusing "Set X to true" advice, just name the failing step
-            clean_pred = pred_str.replace("_", " ") if pred_str else "unknown condition"
-            hints.append(
-                f"• Step '({action_str})' failed because '{clean_pred}' was not satisfied. "
-                f"Check the step order and preconditions listed in the domain rules above."
+
+def _find_step_idx(steps: List[Dict], action_str: str) -> int:
+    """Find the first step whose action+args match the VAL failure action string."""
+    parts = action_str.strip().split()
+    if not parts:
+        return -1
+    act = parts[0].lower()
+    args = [p.lower() for p in parts[1:]]
+    for i, s in enumerate(steps):
+        if s.get("action", "") == act:
+            step_args = [_sanitize(a) for a in s.get("args", [])]
+            if not args or step_args[:len(args)] == args:
+                return i
+    # fallback: match action name only
+    for i, s in enumerate(steps):
+        if s.get("action", "") == act:
+            return i
+    return len(steps) - 1
+
+
+def _simulate_graph_state(steps: List[Dict]) -> Dict[int, set]:
+    """
+    Forward-simulate the task graph using each node's 'eff' field.
+    Returns a dict: step_index → set of true predicates BEFORE that step executes.
+    This lets repair operators reason about graph state at any node.
+    """
+    # Seed: initial world state
+    state: set = {"gripper-open"}
+    snapshots: Dict[int, set] = {0: set(state)}
+
+    for i, step in enumerate(steps):
+        for eff in step.get("eff", []):
+            e = eff.strip().lower()
+            if e.startswith("~"):
+                state.discard(e[1:].strip())
+            else:
+                state.add(e)
+        snapshots[i + 1] = set(state)
+
+    return snapshots
+
+
+def _classify_repair_ops(val_errors: str, steps: List[Dict]) -> List[RepairOp]:
+    """
+    Graph-aware repair operator classification.
+
+    For each VAL failure, we:
+      1. Identify the failing graph node (step index)
+      2. Simulate the graph state up to that node using pre/eff fields
+      3. Identify which precondition of that node is unsatisfied
+      4. Choose the minimal repair that restores graph consistency:
+
+    Graph state violation      → RepairOp
+    ──────────────────────────────────────────────────────────────────
+    Node has 'holding X' in pre but state has no holding X
+      and node is release(X)   → DELETE  (no predecessor gives holding X → node unreachable)
+    Node has 'holding X' in pre but state has no holding X
+      and node is place(X)     → INSERT  grasp(X) before this node
+    Node has 'gripper-open' in pre but state has gripper closed
+      and node is grasp(X)     → INSERT  release(held) before this node
+    Node has 'drawer-open X' in pre but state has no drawer-open X
+      and node is close(X)     → INSERT  open(X) before this node
+    Node has '~drawer-open X' in pre but state already has drawer-open X
+      and node is open(X)      → DELETE  (duplicate open)
+    fallback                   → INSERT  with graph-state context
+    """
+    failed = _extract_failed_actions(val_errors)
+    if not failed:
+        return []
+
+    # Simulate graph state to get state-before-each-node
+    state_at = _simulate_graph_state(steps)
+    ops: List[RepairOp] = []
+
+    for action_str, pred_str in failed:
+        parts   = action_str.strip().split()
+        act     = parts[0].lower() if parts else ""
+        args    = parts[1:] if len(parts) > 1 else []
+        obj     = args[0] if args else "?"
+        pred_lo = pred_str.lower()
+
+        idx = _find_step_idx(steps, action_str)
+        state_before = state_at.get(idx, set())
+
+        # ── Case 1: release(X) but graph state has no 'holding X' ──────────
+        # Node is logically unreachable — no predecessor produces 'holding X'
+        if act == "release" and "holding" in pred_lo:
+            ops.append(RepairOp(
+                op=REPAIR_DELETE, target_idx=idx,
+                context=(
+                    f"Graph node release({obj}): precondition 'holding {obj}' "
+                    f"is not in graph state at node {idx} "
+                    f"(state={sorted(state_before)}). "
+                    f"No predecessor produces this effect — node is unreachable. DELETE."
+                )
+            ))
+
+        # ── Case 2: open(X) but graph state already has 'drawer-open X' ────
+        elif act == "open" and "drawer" in pred_lo:
+            ops.append(RepairOp(
+                op=REPAIR_DELETE, target_idx=idx,
+                context=(
+                    f"Graph node open({obj}): graph state at node {idx} already "
+                    f"satisfies 'drawer-open {obj}'. Duplicate node — DELETE."
+                )
+            ))
+
+        # ── Case 3: place(X) but graph state has no 'holding X' ─────────────
+        # Missing predecessor node: insert grasp(X) to satisfy the dependency edge
+        elif act == "place" and "holding" in pred_lo:
+            ops.append(RepairOp(
+                op=REPAIR_INSERT, target_idx=idx, insert_pos=idx,
+                context=(
+                    f"Graph node place({obj}): requires 'holding {obj}' but "
+                    f"graph state at node {idx} has no such predicate "
+                    f"(state={sorted(state_before)}). "
+                    f"INSERT grasp({obj}) node before this node to close the dependency gap."
+                )
+            ))
+
+        # ── Case 4: close(X) but graph state has no 'drawer-open X' ─────────
+        elif act == "close" and "drawer" in pred_lo:
+            ops.append(RepairOp(
+                op=REPAIR_INSERT, target_idx=idx, insert_pos=idx,
+                context=(
+                    f"Graph node close({obj}): requires 'drawer-open {obj}' but "
+                    f"graph state at node {idx} has no such predicate. "
+                    f"INSERT open({obj}) node before this node."
+                )
+            ))
+
+        # ── Case 5: grasp(X) but graph state has gripper closed ──────────────
+        # Identify the currently held object from graph state, insert release
+        elif act == "grasp" and "gripper" in pred_lo:
+            held = _infer_currently_held(steps, idx) or "object"
+            ops.append(RepairOp(
+                op=REPAIR_INSERT, target_idx=idx, insert_pos=idx,
+                context=(
+                    f"Graph node grasp({obj}): requires 'gripper-open' but "
+                    f"graph state at node {idx} has gripper holding '{held}' "
+                    f"(state={sorted(state_before)}). "
+                    f"INSERT release({held}) node before this node to restore gripper-open."
+                )
+            ))
+
+        else:
+            # Generic fallback with full graph state context
+            ops.append(RepairOp(
+                op=REPAIR_INSERT, target_idx=idx, insert_pos=idx,
+                context=(
+                    f"Graph node ({action_str}): precondition '{pred_str}' not in "
+                    f"graph state at node {idx} (state={sorted(state_before)}). "
+                    f"Insert or reorder predecessor nodes to satisfy this dependency."
+                )
+            ))
+
+    return ops
+
+
+# --- Targeted repair prompts (LLM operates in restricted scope) ---
+
+_INSERT_PROMPT = """\
+Robot task: "{task}"
+
+The plan has a logical error at step {insert_pos} (0-indexed):
+{context}
+
+Existing step at that position:
+{target_step}
+
+Generate ONLY the single missing step to insert BEFORE the step above.
+Output a single JSON object (not an array):
+{{"instruction": "...", "action": "<primitive>", "args": [...], "weight": <int>, "pre": [...], "eff": [...]}}
+
+Available actions: move, grasp, place, release, open, close, press, pull, push
+Output JSON only."""
+
+_MODIFY_ARGS_PROMPT = """\
+Robot task: "{task}"
+
+Step {idx} has wrong arguments:
+{step_json}
+
+{context}
+
+Fix ONLY the "args" field of this step. Keep instruction, action, weight, pre, eff unchanged.
+Output the corrected single JSON object only."""
+
+
+def _infer_currently_held(steps: List[Dict], before_idx: int) -> Optional[str]:
+    """Scan backward through steps[0:before_idx] to find the currently held object."""
+    held = None
+    for i in range(before_idx):
+        act  = steps[i].get("action", "").lower()
+        args = steps[i].get("args", [])
+        obj  = args[0] if args else None
+        if act == "grasp" and obj:
+            held = obj
+        elif act in ("place", "release"):
+            held = None
+    return held
+
+
+def _deterministic_insert(op: RepairOp, steps: List[Dict]) -> Optional[Dict]:
+    """
+    Generate an insert step deterministically for known error patterns — no LLM call.
+
+    Known patterns:
+      place(X) without holding X  → insert grasp(X) before place
+      close(X) without open       → insert open(X) before close
+      grasp(X) while gripper closed → insert release(held) before grasp
+    Returns None for unknown patterns (falls through to LLM).
+    """
+    idx = op.target_idx
+    if idx < 0 or idx >= len(steps):
+        return None
+    failing = steps[idx]
+    act  = failing.get("action", "").lower()
+    args = failing.get("args", [])
+    obj  = args[0] if args else "object"
+
+    if act == "place":
+        # Must grasp obj before placing it
+        return {
+            "instruction": f"grasp the {obj.replace('_', ' ')}",
+            "action": "grasp",
+            "args": [obj],
+            "weight": 1,
+            "pre": ["gripper-open"],
+            "eff": [f"holding {obj}", "~gripper-open"],
+        }
+
+    if act == "close":
+        # Must open container before closing
+        return {
+            "instruction": f"open the {obj.replace('_', ' ')}",
+            "action": "open",
+            "args": [obj],
+            "weight": 1,
+            "pre": [f"~drawer-open {obj}"],
+            "eff": [f"drawer-open {obj}"],
+        }
+
+    if act == "grasp":
+        # Gripper is closed — release whatever is currently held
+        held = _infer_currently_held(steps, idx) or "object"
+        return {
+            "instruction": f"release the {held.replace('_', ' ')}",
+            "action": "release",
+            "args": [held],
+            "weight": 1,
+            "pre": [f"holding {held}"],
+            "eff": [f"~holding {held}", "gripper-open"],
+        }
+
+    return None  # unknown pattern — fall through to LLM
+
+
+def _apply_repair_ops(
+    steps: List[Dict], ops: List[RepairOp], task: str, llm_fn
+) -> List[Dict]:
+    """
+    Apply repair operators to the step list.
+    - DELETE:       pure deletion, no LLM call.
+    - INSERT:       deterministic for known patterns; LLM fallback for unknown.
+    - MODIFY_ARGS:  LLM fixes only the args field of one step.
+    - REORDER:      moves step to a new position, no LLM call.
+    """
+    result = list(steps)  # work on a copy
+
+    # Process ops in reverse index order so earlier inserts don't shift later indices
+    for op in sorted(ops, key=lambda o: o.target_idx, reverse=True):
+        idx = op.target_idx
+        if idx < 0 or idx >= len(result):
+            continue
+
+        if op.op == REPAIR_DELETE:
+            result.pop(idx)
+
+        elif op.op == REPAIR_INSERT:
+            pos = op.insert_pos if op.insert_pos >= 0 else idx
+            pos = max(0, min(pos, len(result)))
+
+            # Try deterministic repair first (no LLM)
+            new_step = _deterministic_insert(op, result)
+            if new_step is None:
+                # Fallback: ask LLM for the missing step
+                target_step = json.dumps(result[idx], ensure_ascii=False) if idx < len(result) else "{}"
+                prompt = _INSERT_PROMPT.format(
+                    task=task,
+                    insert_pos=pos,
+                    context=op.context,
+                    target_step=target_step,
+                )
+                raw = llm_fn(prompt)
+                new_step = _parse_single_step_json(raw)
+            if new_step:
+                result.insert(pos, new_step)
+
+        elif op.op == REPAIR_MODIFY_ARGS:
+            prompt = _MODIFY_ARGS_PROMPT.format(
+                task=task,
+                idx=idx,
+                step_json=json.dumps(result[idx], ensure_ascii=False),
+                context=op.context,
             )
+            raw = llm_fn(prompt)
+            fixed = _parse_single_step_json(raw)
+            if fixed and fixed.get("action") == result[idx].get("action"):
+                result[idx]["args"] = fixed.get("args", result[idx]["args"])
 
-    if not hints:
-        # Last resort: strip Set-advice lines and return cleaned errors
-        cleaned = "\n".join(
-            l for l in lines
-            if l.strip() and "Set (" not in l and "Failed plans" not in l
-        )
-        return cleaned or val_errors
+        elif op.op == REPAIR_REORDER:
+            # Move step at target_idx to insert_pos
+            if op.insert_pos >= 0:
+                step = result.pop(idx)
+                new_pos = max(0, min(op.insert_pos, len(result)))
+                result.insert(new_pos, step)
 
-    return "\n".join(hints)
+    return result
+
+
+def _parse_single_step_json(raw: str) -> Optional[Dict]:
+    """Parse a single step JSON object from LLM output."""
+    raw = re.sub(r"```[a-z]*\n?", "", raw).strip().strip("`")
+    # Try to extract a {...} object
+    m = re.search(r"\{[^{}]+\}", raw, re.DOTALL)
+    if not m:
+        return None
+    try:
+        obj = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(obj, dict) or "action" not in obj:
+        return None
+    action = str(obj.get("action", "move")).lower().strip()
+    if action not in VALID_ACTIONS:
+        action = "move"
+    args = obj.get("args", [])
+    if isinstance(args, str):
+        args = [args]
+    args = [str(a) for a in args]
+    lo, hi = ACTION_ARGS.get(action, (1, 2))
+    while len(args) < lo:
+        args.append("target")
+    if hi > 0:
+        args = args[:hi]
+    try:
+        weight = max(1, int(float(obj.get("weight", 1))))
+    except (TypeError, ValueError):
+        weight = 1
+    return {
+        "instruction": str(obj.get("instruction", action)),
+        "action":      action,
+        "args":        args,
+        "weight":      weight,
+        "pre":         list(obj.get("pre", [])),
+        "eff":         list(obj.get("eff", [])),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -496,29 +805,43 @@ def _parse_plan_json(raw: str, task: str) -> List[Dict]:
         if hi > 0:
             args = args[:hi]
 
-        time_seg = s.get("time", None)
-        if not isinstance(time_seg, list) or len(time_seg) < 2:
-            time_seg = [i / max(len(steps), 1), (i + 1) / max(len(steps), 1)]
-        time_seg = [float(max(0.0, min(1.0, t))) for t in time_seg[:2]]
+        # Parse weight (positive int); fall back to 1 if missing/invalid
+        raw_weight = s.get("weight", None)
+        # Also accept old "time" field from legacy outputs for backwards compat
+        if raw_weight is None and isinstance(s.get("time"), list):
+            dur = s["time"][1] - s["time"][0] if len(s["time"]) >= 2 else 0.2
+            raw_weight = max(1, round(dur * 10))
+        try:
+            weight = max(1, int(float(raw_weight)))
+        except (TypeError, ValueError):
+            weight = 1
+
+        pre = s.get("pre", [])
+        eff = s.get("eff", [])
+        if not isinstance(pre, list): pre = []
+        if not isinstance(eff, list): eff = []
 
         cleaned.append({
             "instruction": str(s.get("instruction", action)),
-            "action": action,
-            "args": args,
-            "time": time_seg,
+            "action":      action,
+            "args":        args,
+            "weight":      weight,
+            "pre":         [str(p) for p in pre],
+            "eff":         [str(e) for e in eff],
         })
 
     if not cleaned:
         return _fallback_plan(task)
 
-    # Fix time: force start[0]=0.0, end[-1]=1.0, strictly non-overlapping
-    cleaned[0]["time"][0] = 0.0
-    cleaned[-1]["time"][1] = 1.0
-    for i in range(1, len(cleaned)):
-        cleaned[i]["time"][0] = cleaned[i - 1]["time"][1]
-        if cleaned[i]["time"][1] <= cleaned[i]["time"][0]:
-            cleaned[i]["time"][1] = min(1.0, cleaned[i]["time"][0] + 0.1)
-    cleaned[-1]["time"][1] = 1.0
+    # Convert weights → time intervals via cumulative-sum normalisation
+    total = sum(c["weight"] for c in cleaned)
+    cursor = 0.0
+    for c in cleaned:
+        start = cursor
+        end   = cursor + c["weight"] / total
+        c["time"] = [round(start, 4), round(end, 4)]
+        cursor = end
+    cleaned[-1]["time"][1] = 1.0  # guarantee exact 1.0
 
     return cleaned
 
@@ -528,8 +851,24 @@ def _fallback_plan(task: str) -> List[Dict]:
         "instruction": task,
         "action": "move",
         "args": ["target"],
+        "weight": 1,
+        "pre": [], "eff": [],
         "time": [0.0, 1.0],
     }]
+
+
+def _recompute_time(steps: List[Dict]) -> List[Dict]:
+    """Re-run weight → time normalisation after structural edits."""
+    if not steps:
+        return steps
+    total = sum(max(1, s.get("weight", 1)) for s in steps)
+    cursor = 0.0
+    for s in steps:
+        w = max(1, s.get("weight", 1))
+        s["time"] = [round(cursor, 4), round(cursor + w / total, 4)]
+        cursor += w / total
+    steps[-1]["time"][1] = 1.0
+    return steps
 
 
 # ---------------------------------------------------------------------------
@@ -563,16 +902,23 @@ class LLMPlannerWithVAL:
         self.client = OpenAI()
 
     def _llm(self, user_prompt: str, max_tokens: int = 600) -> str:
-        resp = self.client.chat.completions.create(
-            model=self.model,
-            temperature=self.temperature,
-            max_tokens=max_tokens,
-            messages=[
-                {"role": "system", "content": _SYSTEM},
-                {"role": "user", "content": user_prompt},
-            ],
-        )
-        return resp.choices[0].message.content or ""
+        # Sanitize prompt: remove non-UTF8 and control chars that break JSON body
+        user_prompt = user_prompt.encode("utf-8", errors="replace").decode("utf-8")
+        user_prompt = "".join(c for c in user_prompt if c >= " " or c in "\n\t")
+        try:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                temperature=self.temperature,
+                max_tokens=max_tokens,
+                messages=[
+                    {"role": "system", "content": _SYSTEM},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+            return resp.choices[0].message.content or ""
+        except Exception as e:
+            print(f"[LLM error] {type(e).__name__}: {str(e)[:120]}", flush=True)
+            return ""
 
     def plan_structured(self, task: str) -> Dict:
         """
@@ -600,30 +946,43 @@ class LLMPlannerWithVAL:
         val_ok, val_errors = run_val(steps, task, self.validate_path)
         corrected = False
 
+        repair_ops_log: List[Dict] = []
+
         if "skipped" in val_errors.lower():
             val_result = "val_skipped"
         elif val_ok:
             val_result = "ok"
         else:
-            # Step 3: Light correction
+            # Step 3: Graph-structured repair via finite operator set
             for _ in range(self.max_correction_rounds):
-                plan_json = json.dumps(steps, indent=2)
-                actionable_hints = _translate_val_errors(val_errors, steps)
-                correction_prompt = _CORRECTION_PROMPT_TEMPLATE.format(
-                    task=task,
-                    plan_json=plan_json,
-                    actionable_hints=actionable_hints,
-                )
-                corrected_raw = self._llm(correction_prompt)
-                corrected_steps = _parse_plan_json(corrected_raw, task)
-                val_ok2, val_errors2 = run_val(corrected_steps, task, self.validate_path)
-                steps = corrected_steps
-                corrected = True
-                if val_ok2:
-                    val_result = "corrected_valid"
+                ops = _classify_repair_ops(val_errors, steps)
+                # Log the repair operators chosen
+                repair_ops_log.append({
+                    "ops": [{"op": o.op, "target_idx": o.target_idx,
+                             "insert_pos": o.insert_pos, "context": o.context}
+                            for o in ops]
+                })
+                if not ops:
+                    val_result = "corrected"
+                    corrected = True
                     break
-                val_errors = val_errors2
-                val_result = "corrected"
+                repaired_steps = _apply_repair_ops(steps, ops, task, self._llm)
+                # Re-normalise weights → time after structural repair
+                repaired_steps = _recompute_time(repaired_steps)
+                val_ok2, val_errors2 = run_val(repaired_steps, task, self.validate_path)
+                # Safety: only commit repair if it doesn't make things worse
+                if val_ok2 or (not val_ok):
+                    steps = repaired_steps
+                    corrected = True
+                    if val_ok2:
+                        val_result = "corrected_valid"
+                        break
+                    val_errors = val_errors2
+                    val_result = "corrected"
+                else:
+                    # Repair made a valid plan invalid — rollback and stop
+                    val_result = "ok"
+                    break
 
         plan_time = time.perf_counter() - t0
         return {
@@ -633,6 +992,7 @@ class LLMPlannerWithVAL:
             "val_result": val_result,
             "val_errors": val_errors if not val_ok else None,
             "corrected": corrected,
+            "repair_ops": repair_ops_log,
             "raw_response": raw,
             "plan_time": plan_time,
         }
