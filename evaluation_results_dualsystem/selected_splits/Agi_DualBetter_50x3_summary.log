@@ -1,0 +1,22 @@
+Agi_DualBetter fixed 50/50/50 split summary
+
+L1 | duration=14.30-27.15s | count=50
+  original | Mean L2=0.0848 | Task Progress=0.506 | SR=40.0% | L2<0.1=70.0%
+  llm_dual | Mean L2=0.0660 | Task Progress=0.632 | SR=60.0% | L2<0.1=98.0%
+  manifest=data/Agi_DualBetter_L1_50/meta/manifest.json
+  details=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L1_50_results.json
+  episodes_tsv=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L1_50_episodes.tsv
+
+L2 | duration=27.20-69.38s | count=50
+  original | Mean L2=0.0895 | Task Progress=0.450 | SR=44.0% | L2<0.1=70.0%
+  llm_dual | Mean L2=0.0685 | Task Progress=0.658 | SR=70.0% | L2<0.1=92.0%
+  manifest=data/Agi_DualBetter_L2_50/meta/manifest.json
+  details=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L2_50_results.json
+  episodes_tsv=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L2_50_episodes.tsv
+
+L3 | duration=72.77-237.57s | count=50
+  original | Mean L2=0.0715 | Task Progress=0.422 | SR=24.0% | L2<0.1=94.0%
+  llm_dual | Mean L2=0.0553 | Task Progress=0.650 | SR=76.0% | L2<0.1=100.0%
+  manifest=data/Agi_DualBetter_L3_50/meta/manifest.json
+  details=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L3_50_results.json
+  episodes_tsv=evaluation_results_dualsystem/selected_splits/Agi_DualBetter_L3_50_episodes.tsv

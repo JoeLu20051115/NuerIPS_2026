@@ -1,0 +1,3323 @@
+{
+  "name": "Agi_DualBetter_L3_50",
+  "duration_range_sec": [
+    72.766670461,
+    237.566679056
+  ],
+  "summary": {
+    "original": {
+      "mean_l2": 0.07150830899675685,
+      "mean_task_progress": 0.4219999999999999,
+      "success_rate": 0.24,
+      "rate_of_l2_lt_0_1": 0.94
+    },
+    "llm_dual": {
+      "mean_l2": 0.055263051465153694,
+      "mean_task_progress": 0.6499999999999996,
+      "success_rate": 0.76,
+      "rate_of_l2_lt_0_1": 1.0
+    }
+  },
+  "episodes": [
+    {
+      "index": 1,
+      "episode_id": "12052516",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 72.766670461,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08360429108142853,
+      "mean_l2_llm_dual": 0.04941703503330549,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.03418725604812304,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052516",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08360429108142853,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects on the table, but they are not cleared as intended. The task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001133_03_18_17_08_57_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052516",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the table",
+          "grasp the first item on the table",
+          "place the item in the designated bin",
+          "repeat for the next item on the table",
+          "move away from the table when finished"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the table  \ngrasp the first item on the table  \nplace the item in the designated bin  \nrepeat for the next item on the table  \nmove away from the table when finished  "
+        },
+        "plan_time": 2.1345066903159022,
+        "mean_l2": 0.04941703503330549,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows that the table is mostly clear, with the key objects removed from the table surface. Although there is a slight difference in the arrangement compared to the real final observation, the task intent is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001134_03_18_17_09_25_n4.mp4"
+      }
+    },
+    {
+      "index": 2,
+      "episode_id": "12052365",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 72.983337139,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.8,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07686980813741684,
+      "mean_l2_llm_dual": 0.04908416420221329,
+      "progress_delta": 0.4,
+      "l2_improvement": 0.027785643935203552,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052365",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07686980813741684,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001069_03_18_16_35_19_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052365",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 0.960393637418747,
+        "mean_l2": 0.04908416420221329,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the items on the table are mostly cleared, with the cup and the small dish positioned correctly, indicating successful task completion despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001070_03_18_16_35_51_n4.mp4"
+      }
+    },
+    {
+      "index": 3,
+      "episode_id": "12052646",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 74.40000388,
+      "progress_original": 0.6,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.0759755124648412,
+      "mean_l2_llm_dual": 0.054672107100486755,
+      "progress_delta": 0.30000000000000004,
+      "l2_improvement": 0.021303405364354447,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052646",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0759755124648412,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the dish) on the table, indicating that the task of clearing the table is partially achieved. However, the arrangement is not fully convincing as the objects are not completely removed from the table.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001277_03_18_18_21_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052646",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.3568888753652573,
+        "mean_l2": 0.054672107100486755,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows both items on the table, similar to the real final observation, indicating that the task of clearing the table is almost fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001278_03_18_18_22_17_n4.mp4"
+      }
+    },
+    {
+      "index": 4,
+      "episode_id": "12052745",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 77.066670686,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07474428415298462,
+      "mean_l2_llm_dual": 0.07147486880421638,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.0032694153487682343,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052745",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07474428415298462,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows that the items are still on the table and not cleared, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001421_03_18_19_27_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052745",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.1943554375320673,
+        "mean_l2": 0.07147486880421638,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the objects still on the table, indicating that the task of clearing the table is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001422_03_18_19_28_16_n4.mp4"
+      }
+    },
+    {
+      "index": 5,
+      "episode_id": "12052534",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 78.05000407,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06846938033898671,
+      "mean_l2_llm_dual": 0.05804769570628802,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.010421684632698693,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052534",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06846938033898671,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items still on the table, indicating that the task of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001165_03_18_17_25_57_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052534",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.1076391423121095,
+        "mean_l2": 0.05804769570628802,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows that the table is mostly clear, with only one item remaining. The task intent is satisfied despite the presence of a single object.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001166_03_18_17_26_29_n4.mp4"
+      }
+    },
+    {
+      "index": 6,
+      "episode_id": "12055595",
+      "task": "Pack in the supermarket",
+      "duration_sec": 78.400004088,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07726134980718295,
+      "mean_l2_llm_dual": 0.08240040019154549,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": -0.005139050384362534,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12055595",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07726134980718295,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the item not placed in the bag, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001029_03_18_16_14_00_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055595",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nclose the packing container  "
+        },
+        "plan_time": 1.7549852142110467,
+        "mean_l2": 0.08240040019154549,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item inside the bag, indicating that the task of packing in the supermarket is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001030_03_18_16_14_26_n4.mp4"
+      }
+    },
+    {
+      "index": 7,
+      "episode_id": "12053069",
+      "task": "Stamp the seal ",
+      "duration_sec": 84.183337723,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.052184307326873146,
+      "mean_l2_llm_dual": 0.040094525863726936,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.01208978146314621,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12053069",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.052184307326873146,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the seal being stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001467_03_18_19_49_11_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053069",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the seal's position",
+          "Press the stamp onto the seal",
+          "Release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the seal's position  \nPress the stamp onto the seal  \nRelease the stamp"
+        },
+        "plan_time": 1.1346546057611704,
+        "mean_l2": 0.040094525863726936,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal positioned near the target area but does not convincingly demonstrate that the seal has been stamped onto the document.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001468_03_18_19_49_36_n4.mp4"
+      }
+    },
+    {
+      "index": 8,
+      "episode_id": "12052777",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 89.583338005,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06594053407510121,
+      "mean_l2_llm_dual": 0.04992801447709402,
+      "progress_delta": 0.20000000000000007,
+      "l2_improvement": 0.016012519598007195,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052777",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06594053407510121,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows both the cup and the plate in close proximity, indicating that the task of clearing the table is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001453_03_18_19_42_33_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052777",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.212440644390881,
+        "mean_l2": 0.04992801447709402,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows both items cleared from the table, with the cup and plate stacked together, indicating successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001454_03_18_19_42_59_n4.mp4"
+      }
+    },
+    {
+      "index": 9,
+      "episode_id": "12053104",
+      "task": "Stamp the seal ",
+      "duration_sec": 90.250004706,
+      "progress_original": 0.0,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05892526110013326,
+      "mean_l2_llm_dual": 0.04976173614462217,
+      "progress_delta": 0.7,
+      "l2_improvement": 0.009163524955511093,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053104",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05892526110013326,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.0,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the seal being stamped on the clipboard, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001563_03_18_20_33_47_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053104",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.1653426680713892,
+        "mean_l2": 0.04976173614462217,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the clipboard, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001564_03_18_20_34_11_n4.mp4"
+      }
+    },
+    {
+      "index": 10,
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 93.800004892,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07189178218444188,
+      "mean_l2_llm_dual": 0.06191159412264824,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.00998018806179364,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052348",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07189178218444188,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the dish) moved to the target area, indicating that the task goal is satisfied despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001021_03_18_16_09_18_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052348",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 2.06001590564847,
+        "mean_l2": 0.06191159412264824,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) moved closer to the target area, indicating that the task is almost fully achieved despite some minor positional discrepancies.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001022_03_18_16_09_50_n4.mp4"
+      }
+    },
+    {
+      "index": 11,
+      "episode_id": "12055891",
+      "task": "Pack in the supermarket",
+      "duration_sec": 94.950004952,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.1274212176601092,
+      "mean_l2_llm_dual": 0.07388275116682053,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.05353846649328867,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12055891",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.1274212176601092,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 0,
+        "step_alignment_l2_lt_0_1": 0.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the object is not clearly placed in the bag, and the overall arrangement does not convincingly satisfy the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001125_03_18_17_04_30_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055891",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "repeat for the next item"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nrepeat for the next item"
+        },
+        "plan_time": 1.3210777593776584,
+        "mean_l2": 0.07388275116682053,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item inside the bag, indicating that the task of packing in the supermarket is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001126_03_18_17_05_03_n4.mp4"
+      }
+    },
+    {
+      "index": 12,
+      "episode_id": "12057176",
+      "task": "Pack in the supermarket",
+      "duration_sec": 96.066671676,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10335889707008998,
+      "mean_l2_llm_dual": 0.071451544140776,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.03190735292931399,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12057176",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10335889707008998,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the bag with the item inside, but the visibility and clarity of the item are compromised, making it unclear if the task goal is fully satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001493_03_18_20_01_24_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12057176",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing container",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing container  \nclose the packing container"
+        },
+        "plan_time": 1.1774449106305838,
+        "mean_l2": 0.071451544140776,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item inside the bag, indicating that the task of packing has been mostly achieved, despite some visual distortion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001494_03_18_20_01_51_n4.mp4"
+      }
+    },
+    {
+      "index": 13,
+      "episode_id": "12052515",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 97.000005058,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07399642405410607,
+      "mean_l2_llm_dual": 0.04052447838087877,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.0334719456732273,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052515",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07399642405410607,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001117_03_18_17_00_07_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052515",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dishes",
+          "place dirty dishes in bin",
+          "move to table",
+          "grasp utensils and napkins"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dishes  \nplace dirty dishes in bin  \nmove to table  \ngrasp utensils and napkins  "
+        },
+        "plan_time": 1.8390366900712252,
+        "mean_l2": 0.04052447838087877,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the measuring spoon) are still on the table, but they are in a position that suggests they are cleared from the main area. The task intent is satisfied despite not being perfectly aligned with the reference goal state.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001118_03_18_17_00_30_n4.mp4"
+      }
+    },
+    {
+      "index": 14,
+      "episode_id": "12055618",
+      "task": "Pack in the supermarket",
+      "duration_sec": 97.000005058,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.8,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08114263166983922,
+      "mean_l2_llm_dual": 0.056844111531972885,
+      "progress_delta": 0.10000000000000009,
+      "l2_improvement": 0.024298520137866333,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12055618",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08114263166983922,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item in the bag, indicating that the task of packing in the supermarket is almost fully achieved, despite some visual distortion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001045_03_18_16_22_19_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055618",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "repeat for the next item"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nrepeat for the next item"
+        },
+        "plan_time": 1.213174145668745,
+        "mean_l2": 0.056844111531972885,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item placed in the bag, which satisfies the task goal. There are minor pose offsets, but the intent of packing is clearly achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001046_03_18_16_22_53_n4.mp4"
+      }
+    },
+    {
+      "index": 15,
+      "episode_id": "12052949",
+      "task": "Stamp the seal ",
+      "duration_sec": 99.166671838,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.051573013265927635,
+      "mean_l2_llm_dual": 0.04948763673504194,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.0020853765308856964,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052949",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.051573013265927635,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the seal being stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001259_03_18_18_13_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052949",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.3292747139930725,
+        "mean_l2": 0.04948763673504194,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp near the target area but does not convincingly demonstrate that the stamp has been applied to the document.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001260_03_18_18_14_16_n4.mp4"
+      }
+    },
+    {
+      "index": 16,
+      "episode_id": "12055925",
+      "task": "Pack in the supermarket",
+      "duration_sec": 99.750005202,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.9,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.0882287509739399,
+      "mean_l2_llm_dual": 0.07270524402459462,
+      "progress_delta": 0.5,
+      "l2_improvement": 0.015523506949345275,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12055925",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0882287509739399,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the object not fully placed in the target container, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001157_03_18_17_21_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055925",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nclose the packing container  "
+        },
+        "plan_time": 2.0530824959278107,
+        "mean_l2": 0.07270524402459462,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item placed in the basket, which aligns with the task goal. Although there are some differences in the pose and perspective, the intent of packing is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001158_03_18_17_22_18_n4.mp4"
+      }
+    },
+    {
+      "index": 17,
+      "episode_id": "12050928",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 101.983338652,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.08810855572422345,
+      "mean_l2_llm_dual": 0.060949513067801796,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.027159042656421654,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12050928",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08810855572422345,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the food not placed inside the microwave, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001457_03_18_19_44_32_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050928",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food inside the microwave.",
+          "Close the microwave door.",
+          "Start the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the microwave.  \nOpen the microwave door.  \nPlace the food inside the microwave.  \nClose the microwave door.  \nStart the microwave.  "
+        },
+        "plan_time": 1.193525392562151,
+        "mean_l2": 0.060949513067801796,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave door being opened, but the food is not inside the microwave, indicating that the task goal of heating the food is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001458_03_18_19_45_01_n4.mp4"
+      }
+    },
+    {
+      "index": 18,
+      "episode_id": "12053142",
+      "task": "Stamp the seal ",
+      "duration_sec": 105.350005494,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05939219519495964,
+      "mean_l2_llm_dual": 0.05293174833059311,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.006460446864366531,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053142",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05939219519495964,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the stamp positioned above the target area but does not clearly indicate that the seal has been stamped onto the document.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001627_03_18_21_03_18_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053142",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.4196202214807272,
+        "mean_l2": 0.05293174833059311,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001628_03_18_21_03_46_n4.mp4"
+      }
+    },
+    {
+      "index": 19,
+      "episode_id": "12052940",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 106.000005528,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08521442612012227,
+      "mean_l2_llm_dual": 0.05864209681749344,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.02657232930262883,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052940",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08521442612012227,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the bowls) cleared from the table, indicating that the task goal is satisfied despite some minor discrepancies in positioning.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001597_03_18_20_49_15_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052940",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.4775084722787142,
+        "mean_l2": 0.05864209681749344,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key object (the bowl) in the target area, indicating that the task is almost fully achieved despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001598_03_18_20_49_39_n4.mp4"
+      }
+    },
+    {
+      "index": 20,
+      "episode_id": "12055850",
+      "task": "Pack in the supermarket",
+      "duration_sec": 106.966672245,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.11585106079777081,
+      "mean_l2_llm_dual": 0.07575913518667221,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.0400919256110986,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12055850",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11585106079777081,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the object near the target area but does not convincingly demonstrate that the task goal of packing has been achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001093_03_18_16_48_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055850",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nclose the packing container  "
+        },
+        "plan_time": 5.488419654779136,
+        "mean_l2": 0.07575913518667221,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the bag and the object, but the object is not placed inside the bag, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001094_03_18_16_49_24_n4.mp4"
+      }
+    },
+    {
+      "index": 21,
+      "episode_id": "12050837",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 107.916672294,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06602146849036217,
+      "mean_l2_llm_dual": 0.05614192100862662,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.00987954748173555,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12050837",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06602146849036217,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the food being placed inside the microwave, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001201_03_18_17_45_57_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050837",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Grasp the food container.",
+          "Place the food container inside the microwave.",
+          "Close the microwave door."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the microwave.  \nOpen the microwave door.  \nGrasp the food container.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \n"
+        },
+        "plan_time": 1.7391209080815315,
+        "mean_l2": 0.05614192100862662,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave and robotic arms, but it does not convincingly indicate that the food has been placed inside the microwave or that the heating process has started.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001202_03_18_17_46_35_n4.mp4"
+      }
+    },
+    {
+      "index": 22,
+      "episode_id": "12052907",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 109.450005708,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.0631587840616703,
+      "mean_l2_llm_dual": 0.03762231643001238,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.02553646763165792,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052907",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0631587840616703,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects on the table, but they are not fully cleared as intended. The key objects are not in the target region, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001533_03_18_20_19_54_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052907",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp remaining utensils"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp remaining utensils  "
+        },
+        "plan_time": 1.08225052151829,
+        "mean_l2": 0.03762231643001238,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the table mostly cleared, with the key objects removed from the table, satisfying the task goal despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001534_03_18_20_20_20_n4.mp4"
+      }
+    },
+    {
+      "index": 23,
+      "episode_id": "12052685",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 112.633339207,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.8,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05240483954548836,
+      "mean_l2_llm_dual": 0.042642208437124886,
+      "progress_delta": 0.4,
+      "l2_improvement": 0.009762631108363472,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052685",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05240483954548836,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) in the target area, indicating partial completion of the task. However, the arrangement is not fully convincing as a clear success.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001341_03_18_18_50_49_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052685",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.080570600926876,
+        "mean_l2": 0.042642208437124886,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the items cleared from the table, although the arrangement is slightly different from the reference goal state. The task intent is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001342_03_18_18_51_15_n4.mp4"
+      }
+    },
+    {
+      "index": 24,
+      "episode_id": "12053001",
+      "task": "Stamp the seal ",
+      "duration_sec": 117.533339463,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.042603567242622375,
+      "mean_l2_llm_dual": 0.054580715795358024,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": -0.011977148552735649,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053001",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.042603567242622375,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal not properly stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001323_03_18_18_42_42_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053001",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.563417344354093,
+        "mean_l2": 0.054580715795358024,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the document, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001324_03_18_18_43_07_n4.mp4"
+      }
+    },
+    {
+      "index": 25,
+      "episode_id": "12052639",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 118.066672824,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08949753393729527,
+      "mean_l2_llm_dual": 0.0651502584417661,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.024347275495529175,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052639",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08949753393729527,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task goal of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001261_03_18_18_14_39_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052639",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the table",
+          "grasp the dirty dishes",
+          "place the dirty dishes in the designated bin",
+          "move to the table again",
+          "grasp any remaining utensils and place them in the bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the table  \ngrasp the dirty dishes  \nplace the dirty dishes in the designated bin  \nmove to the table again  \ngrasp any remaining utensils and place them in the bin  "
+        },
+        "plan_time": 1.5701634343713522,
+        "mean_l2": 0.0651502584417661,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the key objects (the cup and the dish) are still on the table, but they are in a position that suggests they could be cleared. The task intent is partially satisfied, as the objects are not fully removed but are in a state that indicates progress towards the goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001262_03_18_18_15_05_n4.mp4"
+      }
+    },
+    {
+      "index": 26,
+      "episode_id": "12050878",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 118.783339528,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07660274455944698,
+      "mean_l2_llm_dual": 0.043071948612729706,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.03353079594671727,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12050878",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07660274455944698,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the food being placed inside the microwave, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001313_03_18_18_38_08_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050878",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location.",
+          "Grasp the food container.",
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food container inside the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location.  \nGrasp the food container.  \nMove to the microwave.  \nOpen the microwave door.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \nStart the microwave."
+        },
+        "plan_time": 1.5555521063506603,
+        "mean_l2": 0.043071948612729706,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave but does not convincingly indicate that the food has been placed inside or that the task of heating the food has been completed.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001314_03_18_18_38_38_n4.mp4"
+      }
+    },
+    {
+      "index": 27,
+      "episode_id": "12052738",
+      "task": "Stamp the seal ",
+      "duration_sec": 122.483339721,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06681311254700024,
+      "mean_l2_llm_dual": 0.050365480283896126,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.01644763226310412,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052738",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06681311254700024,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned over the target area, indicating that the task intent is satisfied despite some visual distortion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001051_03_18_16_25_38_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052738",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the seal's surface",
+          "Press the stamp onto the seal",
+          "Release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the seal's surface  \nPress the stamp onto the seal  \nRelease the stamp"
+        },
+        "plan_time": 1.316723677329719,
+        "mean_l2": 0.050365480283896126,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001052_03_18_16_26_06_n4.mp4"
+      }
+    },
+    {
+      "index": 28,
+      "episode_id": "12052913",
+      "task": "Stamp the seal ",
+      "duration_sec": 123.200006425,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06371322274208069,
+      "mean_l2_llm_dual": 0.053428295999765396,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.010284926742315292,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052913",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06371322274208069,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp near the target area but does not clearly indicate that the stamp has been applied to the document. The task goal is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001211_03_18_17_51_32_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052913",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.7407482890412211,
+        "mean_l2": 0.053428295999765396,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001212_03_18_17_52_02_n4.mp4"
+      }
+    },
+    {
+      "index": 29,
+      "episode_id": "12052945",
+      "task": "Stamp the seal ",
+      "duration_sec": 124.750006506,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06080614278713862,
+      "mean_l2_llm_dual": 0.05416256934404373,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.006643573443094887,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052945",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06080614278713862,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the paper, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001243_03_18_18_06_39_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052945",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp with the gripper.",
+          "Move to the seal's designated stamping area.",
+          "Press the stamp onto the seal.",
+          "Release the stamp from the gripper."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp with the gripper.  \nMove to the seal's designated stamping area.  \nPress the stamp onto the seal.  \nRelease the stamp from the gripper.  "
+        },
+        "plan_time": 5.224311306141317,
+        "mean_l2": 0.05416256934404373,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001244_03_18_18_07_08_n4.mp4"
+      }
+    },
+    {
+      "index": 30,
+      "episode_id": "12053100",
+      "task": "Stamp the seal ",
+      "duration_sec": 125.566673215,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06560986489057541,
+      "mean_l2_llm_dual": 0.05090975513060888,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.01470010975996653,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053100",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06560986489057541,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned above the target area but does not clearly indicate that the stamp has made contact or completed the stamping action.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001547_03_18_20_26_26_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053100",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal.",
+          "Grasp the stamp.",
+          "Move to the seal's location.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal.  \nGrasp the stamp.  \nMove to the seal's location.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.123686765320599,
+        "mean_l2": 0.05090975513060888,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the clipboard, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001548_03_18_20_26_50_n4.mp4"
+      }
+    },
+    {
+      "index": 31,
+      "episode_id": "12050965",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 127.083339961,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.9,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07995872447888057,
+      "mean_l2_llm_dual": 0.05530114844441414,
+      "progress_delta": 0.5,
+      "l2_improvement": 0.02465757603446643,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12050965",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07995872447888057,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the food being placed inside the microwave, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001585_03_18_20_43_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050965",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location",
+          "Grasp the food container",
+          "Move to the microwave",
+          "Open the microwave door",
+          "Place the food container inside the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location  \nGrasp the food container  \nMove to the microwave  \nOpen the microwave door  \nPlace the food container inside the microwave  "
+        },
+        "plan_time": 1.256120152771473,
+        "mean_l2": 0.05530114844441414,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the microwave door being opened, indicating that the food is likely being placed inside, which aligns with the task goal of heating the food. The task is almost fully achieved despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001586_03_18_20_44_21_n4.mp4"
+      }
+    },
+    {
+      "index": 32,
+      "episode_id": "12052690",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 128.433340031,
+      "progress_original": 0.8,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08415498957037926,
+      "mean_l2_llm_dual": 0.052727273354927696,
+      "progress_delta": 0.09999999999999998,
+      "l2_improvement": 0.03142771621545156,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052690",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08415498957037926,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows both items on the table, indicating that the task of clearing the table is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001357_03_18_18_58_12_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052690",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.178543678484857,
+        "mean_l2": 0.052727273354927696,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows both items stacked together, which satisfies the task goal of clearing the table, despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001358_03_18_18_58_38_n4.mp4"
+      }
+    },
+    {
+      "index": 33,
+      "episode_id": "12050818",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 128.716673379,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.056564544017116226,
+      "mean_l2_llm_dual": 0.06394380082686742,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": -0.00737925680975119,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12050818",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.056564544017116226,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the food being placed inside the microwave, and the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001153_03_18_17_19_32_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050818",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the food container",
+          "grasp the food container",
+          "move to the microwave",
+          "place the food container inside the microwave",
+          "close the microwave door"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the food container  \ngrasp the food container  \nmove to the microwave  \nplace the food container inside the microwave  \nclose the microwave door  "
+        },
+        "plan_time": 2.131787802092731,
+        "mean_l2": 0.06394380082686742,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the robotic hands near the microwave but does not convincingly indicate that the food has been placed inside or that the microwave is operational. The task goal of heating the food is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001154_03_18_17_20_06_n4.mp4"
+      }
+    },
+    {
+      "index": 34,
+      "episode_id": "12050785",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 133.616673635,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07524516060948372,
+      "mean_l2_llm_dual": 0.07579054559270541,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": -0.0005453849832216945,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12050785",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07524516060948372,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave door open, but it is unclear if the food has been placed inside. The task goal of heating the food is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001025_03_18_16_11_44_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050785",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Grasp the food container.",
+          "Place the food container inside the microwave.",
+          "Close the microwave door."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the microwave.  \nOpen the microwave door.  \nGrasp the food container.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \n"
+        },
+        "plan_time": 1.4133851695805788,
+        "mean_l2": 0.07579054559270541,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the robotic arms positioned near the microwave, indicating an attempt to interact with it. Although the food is not visibly inside the microwave, the intent to heat it is clear, aligning with the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001026_03_18_16_12_24_n4.mp4"
+      }
+    },
+    {
+      "index": 35,
+      "episode_id": "12053062",
+      "task": "Stamp the seal ",
+      "duration_sec": 134.783340362,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05006323258082072,
+      "mean_l2_llm_dual": 0.044469272096951805,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.005593960483868912,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053062",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05006323258082072,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned above the target area but does not clearly indicate that the stamp has made contact with the paper. The task goal is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001451_03_18_19_41_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053062",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.721805584616959,
+        "mean_l2": 0.044469272096951805,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal being stamped on the paper, which satisfies the task goal despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001452_03_18_19_42_13_n4.mp4"
+      }
+    },
+    {
+      "index": 36,
+      "episode_id": "12050958",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 138.583340561,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07097604870796204,
+      "mean_l2_llm_dual": 0.054837328692277275,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.01613872001568476,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12050958",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07097604870796204,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the food being placed inside the microwave, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001553_03_18_20_29_14_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050958",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location.",
+          "Grasp the food container.",
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food container inside the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location.  \nGrasp the food container.  \nMove to the microwave.  \nOpen the microwave door.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \nStart the microwave."
+        },
+        "plan_time": 1.4254991384223104,
+        "mean_l2": 0.054837328692277275,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave door open, but the food is not inside the microwave, indicating that the task goal of heating the food is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001554_03_18_20_29_43_n4.mp4"
+      }
+    },
+    {
+      "index": 37,
+      "episode_id": "12050973",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 139.916673963,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06954353054364522,
+      "mean_l2_llm_dual": 0.05409089848399162,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.015452632059653595,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12050973",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06954353054364522,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the food not placed inside the microwave, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001633_03_18_21_06_12_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050973",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location",
+          "Grasp the food container",
+          "Move to the microwave",
+          "Open the microwave door",
+          "Place the food container inside the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location  \nGrasp the food container  \nMove to the microwave  \nOpen the microwave door  \nPlace the food container inside the microwave  "
+        },
+        "plan_time": 1.4121796796098351,
+        "mean_l2": 0.05409089848399162,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave door open, but it does not indicate that the food has been placed inside or heated, which is necessary to satisfy the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001634_03_18_21_06_42_n4.mp4"
+      }
+    },
+    {
+      "index": 38,
+      "episode_id": "12052607",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 140.333340652,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08437796806295712,
+      "mean_l2_llm_dual": 0.0499960221350193,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.03438194592793782,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052607",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08437796806295712,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows that the key objects are in the target region, but the arrangement is not fully convincing as a clear completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001229_03_18_17_59_59_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052607",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the table",
+          "grasp the dirty dishes",
+          "place the dirty dishes in the designated bin",
+          "move to the table",
+          "grasp any remaining utensils and place them in the bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the table  \ngrasp the dirty dishes  \nplace the dirty dishes in the designated bin  \nmove to the table  \ngrasp any remaining utensils and place them in the bin  "
+        },
+        "plan_time": 1.348788003437221,
+        "mean_l2": 0.0499960221350193,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows that the table is mostly clear, with only one item remaining, which aligns with the task goal of clearing the table.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001230_03_18_18_00_27_n4.mp4"
+      }
+    },
+    {
+      "index": 39,
+      "episode_id": "12050922",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 146.216674292,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.08635844414432843,
+      "mean_l2_llm_dual": 0.05683934005598227,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.02951910408834616,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12050922",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08635844414432843,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave door being closed, but it is unclear if the food has been placed inside the microwave, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001425_03_18_19_29_44_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050922",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location.",
+          "Grasp the food container.",
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food container inside the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location.  \nGrasp the food container.  \nMove to the microwave.  \nOpen the microwave door.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \nStart the microwave."
+        },
+        "plan_time": 1.378621763549745,
+        "mean_l2": 0.05683934005598227,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the robotic arms positioned near the microwave but does not convincingly indicate that the food has been placed inside or that the microwave is operational.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001426_03_18_19_30_19_n4.mp4"
+      }
+    },
+    {
+      "index": 40,
+      "episode_id": "12050872",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 146.783340988,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07870897899071376,
+      "mean_l2_llm_dual": 0.05379242325822512,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.02491655573248864,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12050872",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07870897899071376,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the food not placed inside the microwave, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001281_03_18_18_23_44_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050872",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the food location.",
+          "Grasp the food container.",
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food container inside the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the food location.  \nGrasp the food container.  \nMove to the microwave.  \nOpen the microwave door.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \nStart the microwave."
+        },
+        "plan_time": 1.5640601590275764,
+        "mean_l2": 0.05379242325822512,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the robotic arms positioned to interact with the microwave, indicating an intent to complete the task of heating food. Although the exact placement of the food is not visible, the overall action aligns with the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001282_03_18_18_24_14_n4.mp4"
+      }
+    },
+    {
+      "index": 41,
+      "episode_id": "12052735",
+      "task": "Stamp the seal ",
+      "duration_sec": 148.133341059,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.05524591480692228,
+      "mean_l2_llm_dual": 0.039306306590636574,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.015939608216285706,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052735",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05524591480692228,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned above the target area but does not clearly indicate that the stamp has been applied to the document. The task goal is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001035_03_18_16_16_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052735",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.3330903369933367,
+        "mean_l2": 0.039306306590636574,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal and the target area, but the seal is not visibly stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001036_03_18_16_17_21_n4.mp4"
+      }
+    },
+    {
+      "index": 42,
+      "episode_id": "12050949",
+      "task": "Heat the food in the microwave",
+      "duration_sec": 158.416674928,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08540974805752437,
+      "mean_l2_llm_dual": 0.07154173652331035,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.01386801153421402,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12050949",
+        "task": "Heat the food in the microwave",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Heat the food in the microwave"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08540974805752437,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the microwave but does not clearly indicate that the food has been placed inside or heated, which is essential for task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001537_03_18_20_21_45_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12050949",
+        "task": "Heat the food in the microwave",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the microwave.",
+          "Open the microwave door.",
+          "Place the food inside the microwave.",
+          "Close the microwave door.",
+          "Start the microwave."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the microwave.  \nOpen the microwave door.  \nPlace the food inside the microwave.  \nClose the microwave door.  \nStart the microwave.  "
+        },
+        "plan_time": 1.1649619564414024,
+        "mean_l2": 0.07154173652331035,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the robotic arms positioned to interact with the microwave, indicating an attempt to heat the food. Although the exact placement may not be perfect, the intent to complete the task is clear, satisfying the goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001538_03_18_20_22_16_n4.mp4"
+      }
+    },
+    {
+      "index": 43,
+      "episode_id": "12052858",
+      "task": "Stamp the seal ",
+      "duration_sec": 167.450008733,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.04881183182199796,
+      "mean_l2_llm_dual": 0.04724269236127535,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.00156913946072261,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052858",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.04881183182199796,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp in the vicinity of the target area but does not convincingly demonstrate that the seal has been stamped onto the document.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001147_03_18_17_16_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052858",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the seal's position",
+          "Press the stamp onto the seal",
+          "Release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the seal's position  \nPress the stamp onto the seal  \nRelease the stamp"
+        },
+        "plan_time": 1.5505114858970046,
+        "mean_l2": 0.04724269236127535,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the document, indicating that the task goal is satisfied despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001148_03_18_17_17_20_n4.mp4"
+      }
+    },
+    {
+      "index": 44,
+      "episode_id": "12052941",
+      "task": "Stamp the seal ",
+      "duration_sec": 170.033342201,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.051402623454729714,
+      "mean_l2_llm_dual": 0.050642079363266625,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.000760544091463089,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052941",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.051402623454729714,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the stamp in the vicinity of the target area but does not convincingly demonstrate that the seal has been stamped onto the paper.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001227_03_18_17_59_11_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052941",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.3242525607347488,
+        "mean_l2": 0.050642079363266625,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the paper, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001228_03_18_17_59_36_n4.mp4"
+      }
+    },
+    {
+      "index": 45,
+      "episode_id": "12052824",
+      "task": "Stamp the seal ",
+      "duration_sec": 172.100008975,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05283124869068464,
+      "mean_l2_llm_dual": 0.04672270640730858,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.00610854228337606,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12052824",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05283124869068464,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the seal stamp near the target area but does not convincingly demonstrate that the seal has been stamped onto the document.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001099_03_18_16_51_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052824",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the stamping area",
+          "Place the stamp on the seal",
+          "Open the gripper to release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the stamping area  \nPlace the stamp on the seal  \nOpen the gripper to release the stamp  "
+        },
+        "plan_time": 1.7922052340582013,
+        "mean_l2": 0.04672270640730858,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001100_03_18_16_52_08_n4.mp4"
+      }
+    },
+    {
+      "index": 46,
+      "episode_id": "12053089",
+      "task": "Stamp the seal ",
+      "duration_sec": 197.000010274,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07546170676747958,
+      "mean_l2_llm_dual": 0.049774572253227234,
+      "progress_delta": 0.39999999999999997,
+      "l2_improvement": 0.02568713451425235,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053089",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07546170676747958,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the seal being stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001515_03_18_20_11_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053089",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the stamping area",
+          "Place the stamp on the seal",
+          "Open the gripper to release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the stamping area  \nPlace the stamp on the seal  \nOpen the gripper to release the stamp  "
+        },
+        "plan_time": 1.5731350919231772,
+        "mean_l2": 0.049774572253227234,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the paper, indicating that the task goal is satisfied, despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001516_03_18_20_12_12_n4.mp4"
+      }
+    },
+    {
+      "index": 47,
+      "episode_id": "12053129",
+      "task": "Stamp the seal ",
+      "duration_sec": 204.166677314,
+      "progress_original": 0.0,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08050508797168732,
+      "mean_l2_llm_dual": 0.07469074055552483,
+      "progress_delta": 0.7,
+      "l2_improvement": 0.005814347416162491,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053129",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08050508797168732,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.0,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show the seal being stamped on the document, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001611_03_18_20_56_00_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053129",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp with the gripper.",
+          "Move to the seal's designated stamping area.",
+          "Press the stamp onto the seal.",
+          "Release the stamp from the gripper."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp with the gripper.  \nMove to the seal's designated stamping area.  \nPress the stamp onto the seal.  \nRelease the stamp from the gripper.  "
+        },
+        "plan_time": 1.268876587972045,
+        "mean_l2": 0.07469074055552483,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001612_03_18_20_56_28_n4.mp4"
+      }
+    },
+    {
+      "index": 48,
+      "episode_id": "12053052",
+      "task": "Stamp the seal ",
+      "duration_sec": 213.500011134,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.8,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.04713386918107668,
+      "mean_l2_llm_dual": 0.041041666020949684,
+      "progress_delta": 0.10000000000000009,
+      "l2_improvement": 0.006092203160126999,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12053052",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.04713386918107668,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal being stamped on the document, which aligns with the task goal. Although the perspective is slightly different, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001419_03_18_19_27_02_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053052",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the stamping area",
+          "Place the stamp on the seal",
+          "Open the gripper to release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the stamping area  \nPlace the stamp on the seal  \nOpen the gripper to release the stamp  "
+        },
+        "plan_time": 1.250801496207714,
+        "mean_l2": 0.041041666020949684,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the document, indicating that the task goal is satisfied despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001420_03_18_19_27_29_n4.mp4"
+      }
+    },
+    {
+      "index": 49,
+      "episode_id": "12052962",
+      "task": "Stamp the seal ",
+      "duration_sec": 233.633345518,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.047854880491892494,
+      "mean_l2_llm_dual": 0.05579128861427307,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": -0.007936408122380577,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052962",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.047854880491892494,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the paper, indicating that the task goal is satisfied, despite the camera angle obscuring some details.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001275_03_18_18_21_03_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052962",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location.",
+          "Grasp the stamp.",
+          "Move to the seal's position.",
+          "Press the stamp onto the seal.",
+          "Release the stamp."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location.  \nGrasp the stamp.  \nMove to the seal's position.  \nPress the stamp onto the seal.  \nRelease the stamp.  "
+        },
+        "plan_time": 1.4051856892183423,
+        "mean_l2": 0.05579128861427307,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the paper, indicating that the task goal is satisfied, despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001276_03_18_18_21_29_n4.mp4"
+      }
+    },
+    {
+      "index": 50,
+      "episode_id": "12053049",
+      "task": "Stamp the seal ",
+      "duration_sec": 237.566679056,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06742195288340251,
+      "mean_l2_llm_dual": 0.03656486111382643,
+      "progress_delta": 0.39999999999999997,
+      "l2_improvement": 0.03085709176957608,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12053049",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06742195288340251,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the seal being stamped on the paper, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001403_03_18_19_19_40_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053049",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the stamping area",
+          "Place the stamp on the seal",
+          "Open the gripper to release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the stamping area  \nPlace the stamp on the seal  \nOpen the gripper to release the stamp"
+        },
+        "plan_time": 1.3335800403729081,
+        "mean_l2": 0.03656486111382643,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamp positioned over the target area, indicating that the task intent is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001404_03_18_19_20_03_n4.mp4"
+      }
+    }
+  ]
+}

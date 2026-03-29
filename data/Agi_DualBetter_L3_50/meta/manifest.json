@@ -1,0 +1,3332 @@
+{
+  "name": "Agi_DualBetter_L3_50",
+  "selection_rule": "From agibot_easy400_compare_judged.json, keep only episodes where dual_llm > task_token_only by lexicographic score (task_success, task_progress, -mean_l2); sort by duration_sec; split into 3 duration buckets; within each bucket select the top 50 by stronger dual_llm advantage.",
+  "source_manifest": "data/agibot_easy400_for_droid/meta/agibot_8task_balanced400_manifest.json",
+  "source_results": "evaluation_results_dualsystem/agibot_easy400_compare_judged.json",
+  "duration_range_sec": [
+    72.766670461,
+    237.566679056
+  ],
+  "count": 50,
+  "task_counts": {
+    "Clear table in the restaurant": 14,
+    "Pack in the supermarket": 6,
+    "Stamp the seal ": 19,
+    "Heat the food in the microwave": 11
+  },
+  "episodes": [
+    {
+      "episode_id": "12052516",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335497,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 613,
+        "hand_right": 613,
+        "hand_left": 613
+      },
+      "duration_sec": 72.766670461,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052516/meta_info.json",
+      "num_steps": 613,
+      "active_frame_start": 31,
+      "active_frame_end": 612,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        613,
+        14
+      ],
+      "action_joint_shape": [
+        613,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052365",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335482,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 527,
+        "hand_right": 527,
+        "hand_left": 527
+      },
+      "duration_sec": 72.983337139,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335482/A2D0015AB00061/12052365/meta_info.json",
+      "num_steps": 527,
+      "active_frame_start": 32,
+      "active_frame_end": 526,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        527,
+        14
+      ],
+      "action_joint_shape": [
+        527,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052646",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335514,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 507,
+        "hand_right": 507,
+        "hand_left": 507
+      },
+      "duration_sec": 74.40000388,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052646/meta_info.json",
+      "num_steps": 507,
+      "active_frame_start": 34,
+      "active_frame_end": 506,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        507,
+        14
+      ],
+      "action_joint_shape": [
+        507,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052745",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335522,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 524,
+        "hand_right": 524,
+        "hand_left": 524
+      },
+      "duration_sec": 77.066670686,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335522/A2D0015AB00061/12052745/meta_info.json",
+      "num_steps": 524,
+      "active_frame_start": 33,
+      "active_frame_end": 523,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        524,
+        14
+      ],
+      "action_joint_shape": [
+        524,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052534",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335502,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 583,
+        "hand_right": 583,
+        "hand_left": 583
+      },
+      "duration_sec": 78.05000407,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335502/A2D0015AB00061/12052534/meta_info.json",
+      "num_steps": 583,
+      "active_frame_start": 10,
+      "active_frame_end": 582,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        583,
+        14
+      ],
+      "action_joint_shape": [
+        583,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055595",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3335981,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 537,
+        "hand_right": 537,
+        "hand_left": 537
+      },
+      "duration_sec": 78.400004088,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335981/A2D0015AB00061/12055595/meta_info.json",
+      "num_steps": 537,
+      "active_frame_start": 8,
+      "active_frame_end": 387,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        537,
+        14
+      ],
+      "action_joint_shape": [
+        537,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053069",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335545,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 868,
+        "hand_right": 868,
+        "hand_left": 868
+      },
+      "duration_sec": 84.183337723,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053069/meta_info.json",
+      "num_steps": 868,
+      "active_frame_start": 38,
+      "active_frame_end": 867,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        868,
+        14
+      ],
+      "action_joint_shape": [
+        868,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052777",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335526,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 466,
+        "hand_right": 466,
+        "hand_left": 466
+      },
+      "duration_sec": 89.583338005,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335526/A2D0015AB00061/12052777/meta_info.json",
+      "num_steps": 466,
+      "active_frame_start": 10,
+      "active_frame_end": 465,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        466,
+        14
+      ],
+      "action_joint_shape": [
+        466,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053104",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335553,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 694,
+        "hand_right": 694,
+        "hand_left": 694
+      },
+      "duration_sec": 90.250004706,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053104/meta_info.json",
+      "num_steps": 694,
+      "active_frame_start": 39,
+      "active_frame_end": 693,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        694,
+        14
+      ],
+      "action_joint_shape": [
+        694,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052348",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335480,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 613,
+        "hand_right": 613,
+        "hand_left": 613
+      },
+      "duration_sec": 93.800004892,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335480/A2D0015AB00061/12052348/meta_info.json",
+      "num_steps": 613,
+      "active_frame_start": 10,
+      "active_frame_end": 612,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        613,
+        14
+      ],
+      "action_joint_shape": [
+        613,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055891",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336034,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 528,
+        "hand_right": 528,
+        "hand_left": 528
+      },
+      "duration_sec": 94.950004952,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055891/meta_info.json",
+      "num_steps": 528,
+      "active_frame_start": 18,
+      "active_frame_end": 376,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        528,
+        14
+      ],
+      "action_joint_shape": [
+        528,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12057176",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336276,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 539,
+        "hand_right": 539,
+        "hand_left": 539
+      },
+      "duration_sec": 96.066671676,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336276/A2D0015AB00061/12057176/meta_info.json",
+      "num_steps": 539,
+      "active_frame_start": 18,
+      "active_frame_end": 363,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        539,
+        14
+      ],
+      "action_joint_shape": [
+        539,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052515",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335497,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 629,
+        "hand_right": 629,
+        "hand_left": 629
+      },
+      "duration_sec": 97.000005058,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335497/A2D0015AB00061/12052515/meta_info.json",
+      "num_steps": 629,
+      "active_frame_start": 31,
+      "active_frame_end": 628,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        629,
+        14
+      ],
+      "action_joint_shape": [
+        629,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055618",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3335983,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 500,
+        "hand_right": 500,
+        "hand_left": 500
+      },
+      "duration_sec": 97.000005058,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3335983/A2D0015AB00061/12055618/meta_info.json",
+      "num_steps": 500,
+      "active_frame_start": 18,
+      "active_frame_end": 362,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        500,
+        14
+      ],
+      "action_joint_shape": [
+        500,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052949",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335534,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 712,
+        "hand_right": 712,
+        "hand_left": 712
+      },
+      "duration_sec": 99.166671838,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052949/meta_info.json",
+      "num_steps": 712,
+      "active_frame_start": 38,
+      "active_frame_end": 711,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        712,
+        14
+      ],
+      "action_joint_shape": [
+        712,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055925",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336042,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 575,
+        "hand_right": 575,
+        "hand_left": 575
+      },
+      "duration_sec": 99.750005202,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336042/A2D0015AB00061/12055925/meta_info.json",
+      "num_steps": 575,
+      "active_frame_start": 28,
+      "active_frame_end": 400,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        575,
+        14
+      ],
+      "action_joint_shape": [
+        575,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050928",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311120,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 2986,
+        "hand_right": 2986,
+        "hand_left": 2986
+      },
+      "duration_sec": 101.983338652,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311120/A2D0015AB00061/12050928/meta_info.json",
+      "num_steps": 2986,
+      "active_frame_start": 2,
+      "active_frame_end": 2684,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        2986,
+        14
+      ],
+      "action_joint_shape": [
+        2986,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053142",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335555,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 715,
+        "hand_right": 715,
+        "hand_left": 715
+      },
+      "duration_sec": 105.350005494,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053142/meta_info.json",
+      "num_steps": 715,
+      "active_frame_start": 36,
+      "active_frame_end": 714,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        715,
+        14
+      ],
+      "action_joint_shape": [
+        715,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052940",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335542,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 481,
+        "hand_right": 481,
+        "hand_left": 481
+      },
+      "duration_sec": 106.000005528,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335542/A2D0015AB00061/12052940/meta_info.json",
+      "num_steps": 481,
+      "active_frame_start": 29,
+      "active_frame_end": 480,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        481,
+        14
+      ],
+      "action_joint_shape": [
+        481,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055850",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336025,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 528,
+        "hand_right": 528,
+        "hand_left": 528
+      },
+      "duration_sec": 106.966672245,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336025/A2D0015AB00061/12055850/meta_info.json",
+      "num_steps": 528,
+      "active_frame_start": 33,
+      "active_frame_end": 372,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        528,
+        14
+      ],
+      "action_joint_shape": [
+        528,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050837",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311080,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3057,
+        "hand_right": 3057,
+        "hand_left": 3057
+      },
+      "duration_sec": 107.916672294,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050837/meta_info.json",
+      "num_steps": 3057,
+      "active_frame_start": 1,
+      "active_frame_end": 2724,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3057,
+        14
+      ],
+      "action_joint_shape": [
+        3057,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052907",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335540,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 480,
+        "hand_right": 480,
+        "hand_left": 480
+      },
+      "duration_sec": 109.450005708,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335540/A2D0015AB00061/12052907/meta_info.json",
+      "num_steps": 480,
+      "active_frame_start": 31,
+      "active_frame_end": 479,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        480,
+        14
+      ],
+      "action_joint_shape": [
+        480,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052685",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335519,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 496,
+        "hand_right": 496,
+        "hand_left": 496
+      },
+      "duration_sec": 112.633339207,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335519/A2D0015AB00061/12052685/meta_info.json",
+      "num_steps": 496,
+      "active_frame_start": 32,
+      "active_frame_end": 495,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        496,
+        14
+      ],
+      "action_joint_shape": [
+        496,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053001",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335539,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 720,
+        "hand_right": 720,
+        "hand_left": 720
+      },
+      "duration_sec": 117.533339463,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335539/A2D0015AB00061/12053001/meta_info.json",
+      "num_steps": 720,
+      "active_frame_start": 37,
+      "active_frame_end": 719,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        720,
+        14
+      ],
+      "action_joint_shape": [
+        720,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052639",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335512,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 513,
+        "hand_right": 513,
+        "hand_left": 513
+      },
+      "duration_sec": 118.066672824,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335512/A2D0015AB00061/12052639/meta_info.json",
+      "num_steps": 513,
+      "active_frame_start": 32,
+      "active_frame_end": 512,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        513,
+        14
+      ],
+      "action_joint_shape": [
+        513,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050878",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311098,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3179,
+        "hand_right": 3179,
+        "hand_left": 3179
+      },
+      "duration_sec": 118.783339528,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311098/A2D0015AB00061/12050878/meta_info.json",
+      "num_steps": 3179,
+      "active_frame_start": 2,
+      "active_frame_end": 2936,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3179,
+        14
+      ],
+      "action_joint_shape": [
+        3179,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052738",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335511,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 822,
+        "hand_right": 822,
+        "hand_left": 822
+      },
+      "duration_sec": 122.483339721,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052738/meta_info.json",
+      "num_steps": 822,
+      "active_frame_start": 41,
+      "active_frame_end": 821,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        822,
+        14
+      ],
+      "action_joint_shape": [
+        822,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052913",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335535,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 758,
+        "hand_right": 758,
+        "hand_left": 758
+      },
+      "duration_sec": 123.200006425,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335535/A2D0015AB00061/12052913/meta_info.json",
+      "num_steps": 758,
+      "active_frame_start": 34,
+      "active_frame_end": 757,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        758,
+        14
+      ],
+      "action_joint_shape": [
+        758,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052945",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335534,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 723,
+        "hand_right": 723,
+        "hand_left": 723
+      },
+      "duration_sec": 124.750006506,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052945/meta_info.json",
+      "num_steps": 723,
+      "active_frame_start": 38,
+      "active_frame_end": 722,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        723,
+        14
+      ],
+      "action_joint_shape": [
+        723,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053100",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335553,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 904,
+        "hand_right": 904,
+        "hand_left": 904
+      },
+      "duration_sec": 125.566673215,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053100/meta_info.json",
+      "num_steps": 904,
+      "active_frame_start": 39,
+      "active_frame_end": 903,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        904,
+        14
+      ],
+      "action_joint_shape": [
+        904,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050965",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311140,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3549,
+        "hand_right": 3549,
+        "hand_left": 3549
+      },
+      "duration_sec": 127.083339961,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311140/A2D0015AB00061/12050965/meta_info.json",
+      "num_steps": 3549,
+      "active_frame_start": 1,
+      "active_frame_end": 3188,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3549,
+        14
+      ],
+      "action_joint_shape": [
+        3549,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052690",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335517,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 504,
+        "hand_right": 504,
+        "hand_left": 504
+      },
+      "duration_sec": 128.433340031,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052690/meta_info.json",
+      "num_steps": 504,
+      "active_frame_start": 31,
+      "active_frame_end": 503,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        504,
+        14
+      ],
+      "action_joint_shape": [
+        504,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050818",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311080,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3496,
+        "hand_right": 3496,
+        "hand_left": 3496
+      },
+      "duration_sec": 128.716673379,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311080/A2D0015AB00061/12050818/meta_info.json",
+      "num_steps": 3496,
+      "active_frame_start": 2,
+      "active_frame_end": 3164,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3496,
+        14
+      ],
+      "action_joint_shape": [
+        3496,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050785",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311058,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3905,
+        "hand_right": 3905,
+        "hand_left": 3905
+      },
+      "duration_sec": 133.616673635,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311058/A2D0015AB00061/12050785/meta_info.json",
+      "num_steps": 3905,
+      "active_frame_start": 4,
+      "active_frame_end": 3364,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3905,
+        14
+      ],
+      "action_joint_shape": [
+        3905,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053062",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335545,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 728,
+        "hand_right": 728,
+        "hand_left": 728
+      },
+      "duration_sec": 134.783340362,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053062/meta_info.json",
+      "num_steps": 728,
+      "active_frame_start": 38,
+      "active_frame_end": 727,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        728,
+        14
+      ],
+      "action_joint_shape": [
+        728,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050958",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311135,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 4011,
+        "hand_right": 4011,
+        "hand_left": 4011
+      },
+      "duration_sec": 138.583340561,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050958/meta_info.json",
+      "num_steps": 4011,
+      "active_frame_start": 3,
+      "active_frame_end": 3649,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        4011,
+        14
+      ],
+      "action_joint_shape": [
+        4011,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050973",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311142,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 4017,
+        "hand_right": 4017,
+        "hand_left": 4017
+      },
+      "duration_sec": 139.916673963,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311142/A2D0015AB00061/12050973/meta_info.json",
+      "num_steps": 4017,
+      "active_frame_start": 3,
+      "active_frame_end": 3624,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        4017,
+        14
+      ],
+      "action_joint_shape": [
+        4017,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052607",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335507,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 588,
+        "hand_right": 588,
+        "hand_left": 588
+      },
+      "duration_sec": 140.333340652,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335507/A2D0015AB00061/12052607/meta_info.json",
+      "num_steps": 588,
+      "active_frame_start": 32,
+      "active_frame_end": 587,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        588,
+        14
+      ],
+      "action_joint_shape": [
+        588,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050922",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311117,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 4130,
+        "hand_right": 4130,
+        "hand_left": 4130
+      },
+      "duration_sec": 146.216674292,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311117/A2D0015AB00061/12050922/meta_info.json",
+      "num_steps": 4130,
+      "active_frame_start": 1,
+      "active_frame_end": 3738,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        4130,
+        14
+      ],
+      "action_joint_shape": [
+        4130,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050872",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311097,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 3932,
+        "hand_right": 3932,
+        "hand_left": 3932
+      },
+      "duration_sec": 146.783340988,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311097/A2D0015AB00061/12050872/meta_info.json",
+      "num_steps": 3932,
+      "active_frame_start": 4,
+      "active_frame_end": 3691,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        3932,
+        14
+      ],
+      "action_joint_shape": [
+        3932,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052735",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335511,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 728,
+        "hand_right": 728,
+        "hand_left": 728
+      },
+      "duration_sec": 148.133341059,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052735/meta_info.json",
+      "num_steps": 728,
+      "active_frame_start": 41,
+      "active_frame_end": 727,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        728,
+        14
+      ],
+      "action_joint_shape": [
+        728,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12050949",
+      "task_group": "heat_the_food_in_the_microwave",
+      "task_id": 2600003,
+      "job_id": 3311135,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Heat the food in the microwave",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 4574,
+        "hand_right": 4574,
+        "hand_left": 4574
+      },
+      "duration_sec": 158.416674928,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/heat_the_food_in_the_microwave/2600003/3311135/A2D0015AB00061/12050949/meta_info.json",
+      "num_steps": 4574,
+      "active_frame_start": 3,
+      "active_frame_end": 4152,
+      "action_plan": [
+        "Open the door of the microwave oven with the right arm.",
+        "Pick up the plate with bread on the table with the right arm.",
+        "Put the plate containing bread into the microwave oven with the right arm.",
+        "Push the plate that was not placed properly into the microwave oven the right arm.",
+        "Close the door of the microwave oven with the left arm.",
+        "Press the start button on the right side of the microwave oven with the right arm."
+      ],
+      "state_joint_shape": [
+        4574,
+        14
+      ],
+      "action_joint_shape": [
+        4574,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052858",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335530,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 752,
+        "hand_right": 752,
+        "hand_left": 752
+      },
+      "duration_sec": 167.450008733,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335530/A2D0015AB00061/12052858/meta_info.json",
+      "num_steps": 752,
+      "active_frame_start": 37,
+      "active_frame_end": 751,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        752,
+        14
+      ],
+      "action_joint_shape": [
+        752,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052941",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335534,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 771,
+        "hand_right": 771,
+        "hand_left": 771
+      },
+      "duration_sec": 170.033342201,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335534/A2D0015AB00061/12052941/meta_info.json",
+      "num_steps": 771,
+      "active_frame_start": 39,
+      "active_frame_end": 770,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        771,
+        14
+      ],
+      "action_joint_shape": [
+        771,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052824",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335531,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 704,
+        "hand_right": 704,
+        "hand_left": 704
+      },
+      "duration_sec": 172.100008975,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052824/meta_info.json",
+      "num_steps": 704,
+      "active_frame_start": 10,
+      "active_frame_end": 703,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        704,
+        14
+      ],
+      "action_joint_shape": [
+        704,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053089",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335553,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 706,
+        "hand_right": 706,
+        "hand_left": 706
+      },
+      "duration_sec": 197.000010274,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053089/meta_info.json",
+      "num_steps": 706,
+      "active_frame_start": 39,
+      "active_frame_end": 705,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        706,
+        14
+      ],
+      "action_joint_shape": [
+        706,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053129",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335555,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 897,
+        "hand_right": 897,
+        "hand_left": 897
+      },
+      "duration_sec": 204.166677314,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335555/A2D0015AB00061/12053129/meta_info.json",
+      "num_steps": 897,
+      "active_frame_start": 36,
+      "active_frame_end": 896,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        897,
+        14
+      ],
+      "action_joint_shape": [
+        897,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053052",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335545,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 749,
+        "hand_right": 749,
+        "hand_left": 749
+      },
+      "duration_sec": 213.500011134,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053052/meta_info.json",
+      "num_steps": 749,
+      "active_frame_start": 34,
+      "active_frame_end": 748,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        749,
+        14
+      ],
+      "action_joint_shape": [
+        749,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052962",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335538,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 732,
+        "hand_right": 732,
+        "hand_left": 732
+      },
+      "duration_sec": 233.633345518,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335538/A2D0015AB00061/12052962/meta_info.json",
+      "num_steps": 732,
+      "active_frame_start": 11,
+      "active_frame_end": 731,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        732,
+        14
+      ],
+      "action_joint_shape": [
+        732,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053049",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335545,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 687,
+        "hand_right": 687,
+        "hand_left": 687
+      },
+      "duration_sec": 237.566679056,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335545/A2D0015AB00061/12053049/meta_info.json",
+      "num_steps": 687,
+      "active_frame_start": 38,
+      "active_frame_end": 686,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        687,
+        14
+      ],
+      "action_joint_shape": [
+        687,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    }
+  ]
+}
