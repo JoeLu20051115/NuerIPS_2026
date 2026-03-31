@@ -1,0 +1,51 @@
+#	Episode	Task	Dur(s)	Prog t->d	Succ t->d	L2 t->d
+1	12067217	Pack moving objects from conveyor	27.75	0.40->0.40	N->N	0.3334->0.3257
+2	12079204	Open drawer and store items	27.87	0.00->0.40	N->N	0.1547->0.1498
+3	12079236	Open drawer and store items	28.02	0.00->0.40	N->N	0.3176->0.2775
+4	12093756	Clear the countertop waste	28.25	0.70->0.70	Y->Y	0.1201->0.1200
+5	12079234	Open drawer and store items	28.32	0.00->0.40	N->N	0.1569->0.1552
+6	12052496	Clear table in the restaurant	28.42	0.40->0.70	N->Y	0.0847->0.0844
+7	12079293	Open drawer and store items	28.52	0.40->0.70	N->Y	0.1566->0.1540
+8	12079385	Open drawer and store items	28.55	0.00->0.30	N->N	0.3055->0.2689
+9	12096200	Clear the countertop waste	28.62	0.70->0.70	Y->Y	0.0777->0.0770
+10	12079290	Open drawer and store items	28.72	0.00->0.30	N->N	0.3097->0.3039
+11	12093696	Clear the countertop waste	28.87	0.70->0.70	Y->Y	0.1391->0.1368
+12	12096198	Clear the countertop waste	28.92	0.70->0.70	Y->Y	0.0771->0.0763
+13	12079423	Open drawer and store items	28.97	0.40->0.40	N->N	0.1855->0.1558
+14	12079284	Open drawer and store items	29.12	0.30->0.40	N->N	0.1595->0.1552
+15	12093316	Clear the countertop waste	29.27	0.70->0.70	Y->Y	0.0923->0.0912
+16	12079216	Open drawer and store items	29.42	0.00->0.00	N->N	0.1983->0.1923
+17	12079304	Open drawer and store items	29.80	0.00->0.40	N->N	0.2257->0.2159
+18	12079298	Open drawer and store items	29.93	0.40->0.40	N->N	0.3042->0.2864
+19	12079267	Open drawer and store items	30.12	0.30->0.40	N->N	0.1879->0.1320
+20	12079363	Open drawer and store items	30.50	0.00->0.00	N->N	0.2973->0.2479
+21	12096290	Clear the countertop waste	30.57	0.30->0.70	N->Y	0.0819->0.0797
+22	12096228	Clear the countertop waste	30.62	0.70->0.70	Y->Y	0.0894->0.0823
+23	12079436	Open drawer and store items	30.92	0.00->0.00	N->N	0.1633->0.1576
+24	12079239	Open drawer and store items	31.00	0.00->0.00	N->N	0.3122->0.2972
+25	12093372	Clear the countertop waste	31.43	0.90->0.90	Y->Y	0.1357->0.1348
+26	12093111	Clear the countertop waste	33.28	0.90->0.90	Y->Y	0.1042->0.1037
+27	12067327	Pack moving objects from conveyor	40.65	0.00->0.40	N->N	0.3055->0.2883
+28	12067208	Pack moving objects from conveyor	41.48	0.00->0.00	N->N	0.3074->0.2979
+29	12056947	Pack in the supermarket	42.03	0.40->0.40	N->N	0.1554->0.1472
+30	12056924	Pack in the supermarket	43.50	0.30->0.30	N->N	0.1403->0.1319
+31	12067229	Pack moving objects from conveyor	43.55	0.00->0.40	N->N	0.3006->0.3244
+32	12052860	Stamp the seal 	44.07	0.30->0.40	N->N	0.0562->0.0564
+33	12052706	Clear table in the restaurant	44.10	0.40->0.40	N->N	0.2089->0.1862
+34	12067191	Pack moving objects from conveyor	44.25	0.00->0.40	N->N	0.3086->0.2924
+35	12055899	Pack in the supermarket	44.48	0.70->0.90	Y->Y	0.0952->0.0880
+36	12057330	Pack in the supermarket	45.08	0.70->0.90	Y->Y	0.1159->0.1153
+37	12057318	Pack in the supermarket	45.27	0.70->0.70	Y->Y	0.1179->0.1170
+38	12067211	Pack moving objects from conveyor	46.02	0.00->0.30	N->N	0.3101->0.2924
+39	12052785	Clear table in the restaurant	46.17	0.70->0.70	Y->Y	0.1170->0.1162
+40	12067158	Pack moving objects from conveyor	47.88	0.40->0.40	N->N	0.3311->0.3264
+41	12052750	Stamp the seal 	49.20	0.00->0.30	N->N	0.0763->0.0762
+42	12067199	Pack moving objects from conveyor	50.05	0.40->0.40	N->N	0.3284->0.3196
+43	12052650	Clear table in the restaurant	53.93	0.70->0.70	Y->Y	0.1340->0.1333
+44	12055834	Pack in the supermarket	55.07	0.90->0.90	Y->Y	0.0908->0.0900
+45	12057311	Pack in the supermarket	55.07	0.90->0.90	Y->Y	0.1658->0.1593
+46	12067260	Pack moving objects from conveyor	55.28	0.30->0.30	N->N	0.2957->0.2903
+47	12057013	Pack in the supermarket	60.88	0.40->0.70	N->Y	0.1097->0.1088
+48	12055722	Pack in the supermarket	64.33	0.40->0.70	N->Y	0.0988->0.0981
+49	12053109	Stamp the seal 	65.48	0.90->0.90	Y->Y	0.0850->0.0844
+50	12056123	Pack in the supermarket	67.53	0.70->0.70	Y->Y	0.1088->0.1070

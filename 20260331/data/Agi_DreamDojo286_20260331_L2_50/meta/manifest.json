@@ -1,0 +1,3325 @@
+{
+  "name": "Agi_DreamDojo286_20260331_L2_50",
+  "selection_rule": "Duration terciles over all completed paired episodes; keep dual_llm > task_token_only; rank by (dual_success desc, task_success asc, progress_delta desc, l2_delta desc); then take the chosen contiguous window for the 20260331 submission.",
+  "selected_offset": 0,
+  "source_manifest": "data/agibot_easy400_for_droid/meta/agibot_8task_balanced400_manifest.json",
+  "source_results": "evaluation_results_dualsystem/dreamdojo_agibot_compare_hybrid4_full400.json",
+  "bucket_all_episode_count": 95,
+  "bucket_dual_winner_count": 75,
+  "duration_range_sec": [
+    27.750001447,
+    67.533336855
+  ],
+  "count": 50,
+  "task_counts": {
+    "Pack moving objects from conveyor": 9,
+    "Open drawer and store items": 15,
+    "Clear the countertop waste": 9,
+    "Clear table in the restaurant": 4,
+    "Pack in the supermarket": 10,
+    "Stamp the seal ": 3
+  },
+  "episodes": [
+    {
+      "episode_id": "12067217",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336289,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 788,
+        "hand_right": 788,
+        "hand_left": 788
+      },
+      "duration_sec": 27.750001447,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067217/meta_info.json",
+      "num_steps": 788,
+      "active_frame_start": 11,
+      "active_frame_end": 785,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        788,
+        14
+      ],
+      "action_joint_shape": [
+        788,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079204",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358678,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 746,
+        "hand_right": 746,
+        "hand_left": 746
+      },
+      "duration_sec": 27.86666812,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358678/A2D0015AB00061/12079204/meta_info.json",
+      "num_steps": 746,
+      "active_frame_start": 21,
+      "active_frame_end": 736,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        746,
+        14
+      ],
+      "action_joint_shape": [
+        746,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079236",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358715,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 755,
+        "hand_right": 755,
+        "hand_left": 755
+      },
+      "duration_sec": 28.016668127,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358715/A2D0015AB00061/12079236/meta_info.json",
+      "num_steps": 755,
+      "active_frame_start": 11,
+      "active_frame_end": 734,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        755,
+        14
+      ],
+      "action_joint_shape": [
+        755,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12093756",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3372187,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 762,
+        "hand_right": 762,
+        "hand_left": 762
+      },
+      "duration_sec": 28.250001473,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372187/A2D0015AB00061/12093756/meta_info.json",
+      "num_steps": 762,
+      "active_frame_start": 9,
+      "active_frame_end": 669,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        762,
+        14
+      ],
+      "action_joint_shape": [
+        762,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079234",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358714,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 761,
+        "hand_right": 761,
+        "hand_left": 761
+      },
+      "duration_sec": 28.316668143,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358714/A2D0015AB00061/12079234/meta_info.json",
+      "num_steps": 761,
+      "active_frame_start": 18,
+      "active_frame_end": 744,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        761,
+        14
+      ],
+      "action_joint_shape": [
+        761,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052496",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335495,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 598,
+        "hand_right": 598,
+        "hand_left": 598
+      },
+      "duration_sec": 28.416668148,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335495/A2D0015AB00061/12052496/meta_info.json",
+      "num_steps": 598,
+      "active_frame_start": 35,
+      "active_frame_end": 597,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        598,
+        14
+      ],
+      "action_joint_shape": [
+        598,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079293",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358774,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 759,
+        "hand_right": 759,
+        "hand_left": 759
+      },
+      "duration_sec": 28.516668153,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358774/A2D0015AB00061/12079293/meta_info.json",
+      "num_steps": 759,
+      "active_frame_start": 26,
+      "active_frame_end": 728,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        759,
+        14
+      ],
+      "action_joint_shape": [
+        759,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079385",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358812,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 736,
+        "hand_right": 736,
+        "hand_left": 736
+      },
+      "duration_sec": 28.550001488,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358812/A2D0015AB00061/12079385/meta_info.json",
+      "num_steps": 736,
+      "active_frame_start": 6,
+      "active_frame_end": 688,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        736,
+        14
+      ],
+      "action_joint_shape": [
+        736,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12096200",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3373019,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 758,
+        "hand_right": 758,
+        "hand_left": 758
+      },
+      "duration_sec": 28.616668159,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373019/A2D0015AB00061/12096200/meta_info.json",
+      "num_steps": 758,
+      "active_frame_start": 6,
+      "active_frame_end": 656,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        758,
+        14
+      ],
+      "action_joint_shape": [
+        758,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079290",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358768,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 732,
+        "hand_right": 732,
+        "hand_left": 732
+      },
+      "duration_sec": 28.716668164,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358768/A2D0015AB00061/12079290/meta_info.json",
+      "num_steps": 732,
+      "active_frame_start": 6,
+      "active_frame_end": 721,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        732,
+        14
+      ],
+      "action_joint_shape": [
+        732,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12093696",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3372133,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 792,
+        "hand_right": 792,
+        "hand_left": 792
+      },
+      "duration_sec": 28.866668172,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3372133/A2D0015AB00061/12093696/meta_info.json",
+      "num_steps": 792,
+      "active_frame_start": 23,
+      "active_frame_end": 714,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        792,
+        14
+      ],
+      "action_joint_shape": [
+        792,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12096198",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3373017,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 767,
+        "hand_right": 767,
+        "hand_left": 767
+      },
+      "duration_sec": 28.916668174,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373017/A2D0015AB00061/12096198/meta_info.json",
+      "num_steps": 767,
+      "active_frame_start": 6,
+      "active_frame_end": 670,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        767,
+        14
+      ],
+      "action_joint_shape": [
+        767,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079423",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358822,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 761,
+        "hand_right": 761,
+        "hand_left": 761
+      },
+      "duration_sec": 28.966668177,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358822/A2D0015AB00061/12079423/meta_info.json",
+      "num_steps": 761,
+      "active_frame_start": 23,
+      "active_frame_end": 712,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        761,
+        14
+      ],
+      "action_joint_shape": [
+        761,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079284",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358760,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 770,
+        "hand_right": 770,
+        "hand_left": 770
+      },
+      "duration_sec": 29.116668185,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358760/A2D0015AB00061/12079284/meta_info.json",
+      "num_steps": 770,
+      "active_frame_start": 25,
+      "active_frame_end": 733,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        770,
+        14
+      ],
+      "action_joint_shape": [
+        770,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12093316",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3371749,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 797,
+        "hand_right": 797,
+        "hand_left": 797
+      },
+      "duration_sec": 29.266668193,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371749/A2D0015AB00061/12093316/meta_info.json",
+      "num_steps": 797,
+      "active_frame_start": 27,
+      "active_frame_end": 730,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        797,
+        14
+      ],
+      "action_joint_shape": [
+        797,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079216",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358691,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 774,
+        "hand_right": 774,
+        "hand_left": 774
+      },
+      "duration_sec": 29.4166682,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358691/A2D0015AB00061/12079216/meta_info.json",
+      "num_steps": 774,
+      "active_frame_start": 29,
+      "active_frame_end": 757,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        774,
+        14
+      ],
+      "action_joint_shape": [
+        774,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079304",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358793,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 781,
+        "hand_right": 781,
+        "hand_left": 781
+      },
+      "duration_sec": 29.800001554,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358793/A2D0015AB00061/12079304/meta_info.json",
+      "num_steps": 781,
+      "active_frame_start": 28,
+      "active_frame_end": 755,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        781,
+        14
+      ],
+      "action_joint_shape": [
+        781,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079298",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358778,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 773,
+        "hand_right": 773,
+        "hand_left": 773
+      },
+      "duration_sec": 29.933334894,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358778/A2D0015AB00061/12079298/meta_info.json",
+      "num_steps": 773,
+      "active_frame_start": 5,
+      "active_frame_end": 754,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        773,
+        14
+      ],
+      "action_joint_shape": [
+        773,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079267",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358743,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 773,
+        "hand_right": 773,
+        "hand_left": 773
+      },
+      "duration_sec": 30.116668237,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358743/A2D0015AB00061/12079267/meta_info.json",
+      "num_steps": 773,
+      "active_frame_start": 6,
+      "active_frame_end": 756,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        773,
+        14
+      ],
+      "action_joint_shape": [
+        773,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079363",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358808,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 790,
+        "hand_right": 790,
+        "hand_left": 790
+      },
+      "duration_sec": 30.50000159,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358808/A2D0015AB00061/12079363/meta_info.json",
+      "num_steps": 790,
+      "active_frame_start": 6,
+      "active_frame_end": 763,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        790,
+        14
+      ],
+      "action_joint_shape": [
+        790,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12096290",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3373111,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 842,
+        "hand_right": 842,
+        "hand_left": 842
+      },
+      "duration_sec": 30.56666826,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373111/A2D0015AB00061/12096290/meta_info.json",
+      "num_steps": 842,
+      "active_frame_start": 6,
+      "active_frame_end": 734,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        842,
+        14
+      ],
+      "action_joint_shape": [
+        842,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12096228",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3373045,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 836,
+        "hand_right": 836,
+        "hand_left": 836
+      },
+      "duration_sec": 30.616668263,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3373045/A2D0015AB00061/12096228/meta_info.json",
+      "num_steps": 836,
+      "active_frame_start": 26,
+      "active_frame_end": 760,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        836,
+        14
+      ],
+      "action_joint_shape": [
+        836,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079436",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358823,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 812,
+        "hand_right": 812,
+        "hand_left": 812
+      },
+      "duration_sec": 30.916668279,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358823/A2D0015AB00061/12079436/meta_info.json",
+      "num_steps": 812,
+      "active_frame_start": 29,
+      "active_frame_end": 799,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        812,
+        14
+      ],
+      "action_joint_shape": [
+        812,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12079239",
+      "task_group": "open_drawer_and_store_items",
+      "task_id": 2810187,
+      "job_id": 3358717,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Open drawer and store items",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 801,
+        "hand_right": 801,
+        "hand_left": 801
+      },
+      "duration_sec": 31.000001616,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/open_drawer_and_store_items/2810187/3358717/A2D0015AB00061/12079239/meta_info.json",
+      "num_steps": 801,
+      "active_frame_start": 5,
+      "active_frame_end": 786,
+      "action_plan": [
+        "Pull the top drawer of the drawer cabinet with the right arm.",
+        "Pick up the Rubik's Cube on the drawer cabinet with the right arm.",
+        "Place the Rubik's Cube into the drawer with the right arm.",
+        "Push the top drawer of the drawer cabinet with the right arm."
+      ],
+      "state_joint_shape": [
+        801,
+        14
+      ],
+      "action_joint_shape": [
+        801,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12093372",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3371803,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 854,
+        "hand_right": 854,
+        "hand_left": 854
+      },
+      "duration_sec": 31.433334972,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371803/A2D0015AB00061/12093372/meta_info.json",
+      "num_steps": 854,
+      "active_frame_start": 6,
+      "active_frame_end": 754,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        854,
+        14
+      ],
+      "action_joint_shape": [
+        854,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12093111",
+      "task_group": "clear_the_countertop_waste",
+      "task_id": 2810232,
+      "job_id": 3371542,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear the countertop waste",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 925,
+        "hand_right": 925,
+        "hand_left": 925
+      },
+      "duration_sec": 33.283335069,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/clear_the_countertop_waste/2810232/3371542/A2D0015AB00061/12093111/meta_info.json",
+      "num_steps": 925,
+      "active_frame_start": 21,
+      "active_frame_end": 849,
+      "action_plan": [
+        "Pick up the yellow functional beverage can on the table with the left arm.",
+        "Threw the yellow functional beverage can into the trash can with the left arm.",
+        "Pick up the green carbonated beverage can on the table with the right arm.",
+        "Threw the green carbonated beverage can into the trash can with the right arm."
+      ],
+      "state_joint_shape": [
+        925,
+        14
+      ],
+      "action_joint_shape": [
+        925,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067327",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336338,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1137,
+        "hand_right": 1137,
+        "hand_left": 1137
+      },
+      "duration_sec": 40.65000212,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336338/A2D0015AB00061/12067327/meta_info.json",
+      "num_steps": 1137,
+      "active_frame_start": 4,
+      "active_frame_end": 1134,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1137,
+        14
+      ],
+      "action_joint_shape": [
+        1137,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067208",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336289,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1201,
+        "hand_right": 1201,
+        "hand_left": 1201
+      },
+      "duration_sec": 41.483335496,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067208/meta_info.json",
+      "num_steps": 1201,
+      "active_frame_start": 2,
+      "active_frame_end": 1198,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1201,
+        14
+      ],
+      "action_joint_shape": [
+        1201,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12056947",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336230,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 531,
+        "hand_right": 531,
+        "hand_left": 531
+      },
+      "duration_sec": 42.033335525,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336230/A2D0015AB00061/12056947/meta_info.json",
+      "num_steps": 531,
+      "active_frame_start": 8,
+      "active_frame_end": 351,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        531,
+        14
+      ],
+      "action_joint_shape": [
+        531,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12056924",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336229,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 528,
+        "hand_right": 528,
+        "hand_left": 528
+      },
+      "duration_sec": 43.500002268,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336229/A2D0015AB00061/12056924/meta_info.json",
+      "num_steps": 528,
+      "active_frame_start": 30,
+      "active_frame_end": 392,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        528,
+        14
+      ],
+      "action_joint_shape": [
+        528,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067229",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336295,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1263,
+        "hand_right": 1263,
+        "hand_left": 1263
+      },
+      "duration_sec": 43.550002271,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336295/A2D0015AB00061/12067229/meta_info.json",
+      "num_steps": 1263,
+      "active_frame_start": 19,
+      "active_frame_end": 1260,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1263,
+        14
+      ],
+      "action_joint_shape": [
+        1263,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052860",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335531,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 714,
+        "hand_right": 714,
+        "hand_left": 714
+      },
+      "duration_sec": 44.066668964,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335531/A2D0015AB00061/12052860/meta_info.json",
+      "num_steps": 714,
+      "active_frame_start": 10,
+      "active_frame_end": 713,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        714,
+        14
+      ],
+      "action_joint_shape": [
+        714,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052706",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335517,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 586,
+        "hand_right": 586,
+        "hand_left": 586
+      },
+      "duration_sec": 44.100002299,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335517/A2D0015AB00061/12052706/meta_info.json",
+      "num_steps": 586,
+      "active_frame_start": 32,
+      "active_frame_end": 585,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        586,
+        14
+      ],
+      "action_joint_shape": [
+        586,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067191",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336283,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1208,
+        "hand_right": 1208,
+        "hand_left": 1208
+      },
+      "duration_sec": 44.250002307,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067191/meta_info.json",
+      "num_steps": 1208,
+      "active_frame_start": 9,
+      "active_frame_end": 1205,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1208,
+        14
+      ],
+      "action_joint_shape": [
+        1208,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055899",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336034,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 551,
+        "hand_right": 551,
+        "hand_left": 551
+      },
+      "duration_sec": 44.483335653,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336034/A2D0015AB00061/12055899/meta_info.json",
+      "num_steps": 551,
+      "active_frame_start": 19,
+      "active_frame_end": 389,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        551,
+        14
+      ],
+      "action_joint_shape": [
+        551,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12057330",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336307,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 516,
+        "hand_right": 516,
+        "hand_left": 516
+      },
+      "duration_sec": 45.083335684,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336307/A2D0015AB00061/12057330/meta_info.json",
+      "num_steps": 516,
+      "active_frame_start": 29,
+      "active_frame_end": 336,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        516,
+        14
+      ],
+      "action_joint_shape": [
+        516,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12057318",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336301,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 543,
+        "hand_right": 543,
+        "hand_left": 543
+      },
+      "duration_sec": 45.266669027,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336301/A2D0015AB00061/12057318/meta_info.json",
+      "num_steps": 543,
+      "active_frame_start": 12,
+      "active_frame_end": 415,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        543,
+        14
+      ],
+      "action_joint_shape": [
+        543,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067211",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336289,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1243,
+        "hand_right": 1243,
+        "hand_left": 1243
+      },
+      "duration_sec": 46.016669066,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336289/A2D0015AB00061/12067211/meta_info.json",
+      "num_steps": 1243,
+      "active_frame_start": 18,
+      "active_frame_end": 1240,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1243,
+        14
+      ],
+      "action_joint_shape": [
+        1243,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052785",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335529,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 604,
+        "hand_right": 604,
+        "hand_left": 604
+      },
+      "duration_sec": 46.166669074,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335529/A2D0015AB00061/12052785/meta_info.json",
+      "num_steps": 604,
+      "active_frame_start": 35,
+      "active_frame_end": 603,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        604,
+        14
+      ],
+      "action_joint_shape": [
+        604,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067158",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336276,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1392,
+        "hand_right": 1392,
+        "hand_left": 1392
+      },
+      "duration_sec": 47.88333583,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336276/A2D0015AB00061/12067158/meta_info.json",
+      "num_steps": 1392,
+      "active_frame_start": 4,
+      "active_frame_end": 1389,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1392,
+        14
+      ],
+      "action_joint_shape": [
+        1392,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052750",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335511,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 734,
+        "hand_right": 734,
+        "hand_left": 734
+      },
+      "duration_sec": 49.200002565,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335511/A2D0015AB00061/12052750/meta_info.json",
+      "num_steps": 734,
+      "active_frame_start": 41,
+      "active_frame_end": 733,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        734,
+        14
+      ],
+      "action_joint_shape": [
+        734,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067199",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336283,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1429,
+        "hand_right": 1429,
+        "hand_left": 1429
+      },
+      "duration_sec": 50.05000261,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336283/A2D0015AB00061/12067199/meta_info.json",
+      "num_steps": 1429,
+      "active_frame_start": 1,
+      "active_frame_end": 1426,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1429,
+        14
+      ],
+      "action_joint_shape": [
+        1429,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12052650",
+      "task_group": "clear_table_in_the_restaurant",
+      "task_id": 2810125,
+      "job_id": 3335514,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Clear table in the restaurant",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 693,
+        "hand_right": 693,
+        "hand_left": 693
+      },
+      "duration_sec": 53.933336146,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/clear_table_in_the_restaurant/2810125/3335514/A2D0015AB00061/12052650/meta_info.json",
+      "num_steps": 693,
+      "active_frame_start": 28,
+      "active_frame_end": 692,
+      "action_plan": [
+        "Pick up the bowl on the table near the right arm with the right arm.",
+        "Place the bowl on the plate on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        693,
+        14
+      ],
+      "action_joint_shape": [
+        693,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055834",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336021,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 540,
+        "hand_right": 540,
+        "hand_left": 540
+      },
+      "duration_sec": 55.066669538,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336021/A2D0015AB00061/12055834/meta_info.json",
+      "num_steps": 540,
+      "active_frame_start": 32,
+      "active_frame_end": 385,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        540,
+        14
+      ],
+      "action_joint_shape": [
+        540,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12057311",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336303,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 601,
+        "hand_right": 601,
+        "hand_left": 601
+      },
+      "duration_sec": 55.066669538,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336303/A2D0015AB00061/12057311/meta_info.json",
+      "num_steps": 601,
+      "active_frame_start": 20,
+      "active_frame_end": 436,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        601,
+        14
+      ],
+      "action_joint_shape": [
+        601,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12067260",
+      "task_group": "pack_moving_objects_from_conveyor",
+      "task_id": 2810079,
+      "job_id": 3336315,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack moving objects from conveyor",
+      "relative_episode_dir": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260",
+      "camera_paths": {
+        "head": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/head_color.mp4",
+        "hand_right": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/hand_right_color.mp4",
+        "hand_left": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 1499,
+        "hand_right": 1499,
+        "hand_left": 1499
+      },
+      "duration_sec": 55.283336216,
+      "camera_list": [
+        "head",
+        "hand_left",
+        "hand_right"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_left": 30,
+        "hand_right": 30
+      },
+      "h5_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/aligned_joints.h5",
+      "data_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/data_info.json",
+      "meta_info_path": "data/agibot_additional4_for_droid/extracted/pack_moving_objects_from_conveyor/2810079/3336315/A2D0015AB00061/12067260/meta_info.json",
+      "num_steps": 1499,
+      "active_frame_start": 1,
+      "active_frame_end": 1496,
+      "action_plan": [
+        "Pick up the hand cream from the conveyor belt with the right arm",
+        "Place the hand cream held in the right arm into the box on the table"
+      ],
+      "state_joint_shape": [
+        1499,
+        14
+      ],
+      "action_joint_shape": [
+        1499,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12057013",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336245,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 502,
+        "hand_right": 502,
+        "hand_left": 502
+      },
+      "duration_sec": 60.883336508,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336245/A2D0015AB00061/12057013/meta_info.json",
+      "num_steps": 502,
+      "active_frame_start": 18,
+      "active_frame_end": 368,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        502,
+        14
+      ],
+      "action_joint_shape": [
+        502,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12055722",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336000,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 556,
+        "hand_right": 556,
+        "hand_left": 556
+      },
+      "duration_sec": 64.333336688,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336000/A2D0015AB00061/12055722/meta_info.json",
+      "num_steps": 556,
+      "active_frame_start": 17,
+      "active_frame_end": 404,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        556,
+        14
+      ],
+      "action_joint_shape": [
+        556,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12053109",
+      "task_group": "stamp_the_seal",
+      "task_id": 2810131,
+      "job_id": 3335553,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Stamp the seal ",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 702,
+        "hand_right": 702,
+        "hand_left": 702
+      },
+      "duration_sec": 65.483336748,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/stamp_the_seal/2810131/3335553/A2D0015AB00061/12053109/meta_info.json",
+      "num_steps": 702,
+      "active_frame_start": 38,
+      "active_frame_end": 701,
+      "action_plan": [
+        "Pick up the stamp from the ink pad on the table with the right arm.",
+        "Stamp the document on the table with the stamp in the right arm.",
+        "Place the stamp into the ink pad on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        702,
+        14
+      ],
+      "action_joint_shape": [
+        702,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    },
+    {
+      "episode_id": "12056123",
+      "task_group": "pack_in_the_supermarket",
+      "task_id": 2810128,
+      "job_id": 3336077,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Pack in the supermarket",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 522,
+        "hand_right": 522,
+        "hand_left": 522
+      },
+      "duration_sec": 67.533336855,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/pack_in_the_supermarket/2810128/3336077/A2D0015AB00061/12056123/meta_info.json",
+      "num_steps": 522,
+      "active_frame_start": 8,
+      "active_frame_end": 366,
+      "action_plan": [
+        "Pick up the grape juice on the table with the right arm.",
+        "Put the grape juice into the felt bag on the table with the right arm."
+      ],
+      "state_joint_shape": [
+        522,
+        14
+      ],
+      "action_joint_shape": [
+        522,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    }
+  ]
+}
