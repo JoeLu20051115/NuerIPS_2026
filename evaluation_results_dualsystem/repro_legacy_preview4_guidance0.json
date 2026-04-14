@@ -1,0 +1,229 @@
+{
+  "results": [
+    {
+      "episode_id": "12093079",
+      "task": "Clear the countertop waste",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Clear the countertop waste"
+      ],
+      "mean_l2": 0.22003304735966484,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.04081632653061224,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not satisfy the task goal of clearing the countertop waste, as items remain on the table.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12093079_task_token_only_1175808/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12093079",
+      "task": "Clear the countertop waste",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+      },
+      "sub_instructions": [
+        "move to countertop",
+        "grasp waste item",
+        "lift waste item",
+        "move to waste bin",
+        "place waste item in bin"
+      ],
+      "mean_l2": 0.22003304735966484,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.04081632653061224,
+      "task_progress": 0.3,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not satisfy the task goal of clearing the countertop waste, as items remain on the table.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12093079_dual_llm_1272749/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12079165",
+      "task": "Open drawer and store items",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Open drawer and store items"
+      ],
+      "mean_l2": 0.11197774851580664,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 10,
+      "step_alignment_l2_lt_0_1": 0.20408163265306123,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the item still on the table and not stored in the drawer, failing to achieve the task goal.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12079165_task_token_only_1367714/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12079165",
+      "task": "Open drawer and store items",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Open the drawer.  \nGrasp the items.  \nMove to the drawer.  \nPlace the items inside the drawer.  \nClose the drawer."
+      },
+      "sub_instructions": [
+        "Open the drawer.",
+        "Grasp the items.",
+        "Move to the drawer.",
+        "Place the items inside the drawer.",
+        "Close the drawer."
+      ],
+      "mean_l2": 0.11197774851580664,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 10,
+      "step_alignment_l2_lt_0_1": 0.20408163265306123,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the item still on the table and not stored in the drawer, failing to meet the task goal.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12079165_dual_llm_1466657/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Clear table in the restaurant"
+      ],
+      "mean_l2": 0.3152208325586149,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.04081632653061224,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows that the items are still on the table, indicating that the task goal of clearing the table is not achieved.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12052348_task_token_only_1563353/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+      },
+      "sub_instructions": [
+        "move to table",
+        "grasp dirty dish",
+        "place dirty dish in bin",
+        "move to table",
+        "grasp silverware"
+      ],
+      "mean_l2": 0.3152208325586149,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.04081632653061224,
+      "task_progress": 0.4,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows that the items are still on the table, indicating that the task goal of clearing the table is not achieved.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12052348_dual_llm_1663255/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12050785",
+      "task": "Heat the food in the microwave",
+      "mode": "task_token_only",
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "sub_instructions": [
+        "Heat the food in the microwave"
+      ],
+      "mean_l2": 0.021930147333032623,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 49,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the microwave with the timer at 0, but the food is not inside the microwave, indicating the task goal of heating the food is not achieved.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12050785_task_token_only_1760890/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    },
+    {
+      "episode_id": "12050785",
+      "task": "Heat the food in the microwave",
+      "mode": "dual_llm",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the microwave.  \nOpen the microwave door.  \nGrasp the food container.  \nPlace the food container inside the microwave.  \nClose the microwave door.  \n"
+      },
+      "sub_instructions": [
+        "Move to the microwave.",
+        "Open the microwave door.",
+        "Grasp the food container.",
+        "Place the food container inside the microwave.",
+        "Close the microwave door."
+      ],
+      "mean_l2": 0.021930147333032623,
+      "num_steps": 49,
+      "num_step_pass_l2_lt_0_1": 49,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame shows the microwave with the timer at 0, but the food is not inside the microwave, indicating that the task goal of heating the food is not achieved.",
+      "generated_video": "evaluation_results_dualsystem/repro_legacy_preview4_guidance0_work/12050785_dual_llm_1869081/iter_000050000/0000_pred.mp4",
+      "l2_definition": "video_frame_rgb_l2"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 4,
+      "mean_l2": 0.16729044394177975,
+      "mean_task_progress": 0.175,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.32142857142857145
+    },
+    "dual_llm": {
+      "num_episodes": 4,
+      "mean_l2": 0.16729044394177975,
+      "mean_task_progress": 0.175,
+      "success_rate": 0.0,
+      "rate_of_l2_lt_0_1": 0.32142857142857145
+    }
+  },
+  "notes": {
+    "mean_l2_definition": "video-space RGB frame L2 over generated-vs-ground-truth rollout frames",
+    "task_progress_definition": "final-frame visual judge against task text and demo final frame",
+    "success_definition": "task_progress > threshold OR visual rule_success"
+  }
+}

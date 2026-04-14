@@ -1,0 +1,10 @@
+dataset	split	paired_n	mean_duration_sec	original_mean_plan_sec	dual_mean_plan_sec	val_mean_plan_sec	delta_val_vs_original_sec	delta_val_vs_dual_sec	ratio_val_vs_dual	delta_val_vs_original_pct_of_duration	delta_val_vs_dual_pct_of_duration	original_median_plan_sec	dual_median_plan_sec	val_median_plan_sec	note
+DreamZero-DROID	ALL	150	10.70	0.000	1.407	4.378	4.378	2.971	3.11	40.9%	27.8%	0.000	1.324	4.481	Exact paired rows from droid_3way_selected150.json.
+DreamZero-DROID	L1	50	6.60	0.000	1.457	4.311	4.311	2.854	2.96	65.3%	43.3%	0.000	1.332	4.595	Exact paired rows from droid_3way_selected150.json.
+DreamZero-DROID	L2	50	9.99	0.000	1.394	4.426	4.426	3.032	3.17	44.3%	30.4%	0.000	1.392	4.473	Exact paired rows from droid_3way_selected150.json.
+DreamZero-DROID	L3	50	15.52	0.000	1.370	4.398	4.398	3.028	3.21	28.3%	19.5%	0.000	1.301	4.382	Exact paired rows from droid_3way_selected150.json.
+DreamZero-AgiBot	ALL	147	64.34	0.000	1.475	6.622	6.622	5.148	4.49	10.3%	8.0%	0.000	1.324	6.407	Original/dual from selected_splits; llm_val recovered from agibot_3way_compare.json on overlapping episode ids.
+DreamZero-AgiBot	L1	48	21.42	0.000	1.348	6.789	6.789	5.441	5.03	31.7%	25.4%	0.000	1.269	6.732	Original/dual from selected_splits; llm_val recovered from agibot_3way_compare.json on overlapping episode ids.
+DreamZero-AgiBot	L2	49	44.22	0.000	1.483	6.577	6.577	5.094	4.43	14.9%	11.5%	0.000	1.329	6.332	Original/dual from selected_splits; llm_val recovered from agibot_3way_compare.json on overlapping episode ids.
+DreamZero-AgiBot	L3	50	125.25	0.000	1.588	6.507	6.507	4.919	4.10	5.2%	3.9%	0.000	1.368	6.266	Original/dual from selected_splits; llm_val recovered from agibot_3way_compare.json on overlapping episode ids.
+DreamDojo-AgiBot-pilot	pilot	9		0.000	1.389	5.696	5.696	4.306	4.10			0.000	1.426	5.725	Small paired overlap from agibot_dreamdojo_3way_compare.json; included only as a directional check.

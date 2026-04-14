@@ -1,0 +1,78 @@
+{
+  "codebase_version": "v2.1",
+  "robot_type": "agibot",
+  "total_episodes": 1,
+  "total_frames": 49,
+  "total_tasks": 1,
+  "total_videos": 3,
+  "total_chunks": 1,
+  "chunks_size": 1000,
+  "fps": 30,
+  "splits": {
+    "full": "0:49"
+  },
+  "data_path": "data/chunk-{episode_chunk:03d}/episode_{episode_index:06d}.parquet",
+  "video_path": "videos/chunk-{episode_chunk:03d}/{video_key}/episode_{episode_index:06d}.mp4",
+  "features": {
+    "observation.images.top_head": {
+      "dtype": "video",
+      "shape": [
+        720,
+        1280,
+        3
+      ],
+      "names": [
+        "height",
+        "width",
+        "channel"
+      ],
+      "video_info": {
+        "video.fps": 30.0,
+        "video.codec": "h264",
+        "video.pix_fmt": "yuv420p",
+        "video.is_depth_map": false,
+        "has_audio": false
+      }
+    },
+    "observation.images.hand_left": {
+      "dtype": "video",
+      "shape": [
+        480,
+        848,
+        3
+      ],
+      "names": [
+        "height",
+        "width",
+        "channel"
+      ],
+      "video_info": {
+        "video.fps": 30.0,
+        "video.codec": "h264",
+        "video.pix_fmt": "yuv420p",
+        "video.is_depth_map": false,
+        "has_audio": false
+      }
+    },
+    "observation.images.hand_right": {
+      "dtype": "video",
+      "shape": [
+        480,
+        848,
+        3
+      ],
+      "names": [
+        "height",
+        "width",
+        "channel"
+      ],
+      "video_info": {
+        "video.fps": 30.0,
+        "video.codec": "h264",
+        "video.pix_fmt": "yuv420p",
+        "video.is_depth_map": false,
+        "has_audio": false
+      }
+    }
+  }
+}

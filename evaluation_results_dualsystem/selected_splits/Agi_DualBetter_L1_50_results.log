@@ -1,6 +1,0 @@
-Agi_DualBetter_L1_50
-duration_range_sec: 14.30-27.15
-count: 50
-manifest: data/Agi_DualBetter_L1_50/meta/manifest.json
-original | Mean L2=0.0848 | Task Progress=0.506 | SR=40.0% | L2<0.1=70.0%
-llm_dual | Mean L2=0.0660 | Task Progress=0.632 | SR=60.0% | L2<0.1=98.0%

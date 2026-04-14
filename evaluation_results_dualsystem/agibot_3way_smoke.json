@@ -1,0 +1,26 @@
+{
+  "results": [],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 0,
+      "mean_l2": null,
+      "mean_task_progress": null,
+      "success_rate": null,
+      "rate_of_l2_lt_0_1": null
+    },
+    "dual_llm": {
+      "num_episodes": 0,
+      "mean_l2": null,
+      "mean_task_progress": null,
+      "success_rate": null,
+      "rate_of_l2_lt_0_1": null
+    },
+    "llm_val": {
+      "num_episodes": 0,
+      "mean_l2": null,
+      "mean_task_progress": null,
+      "success_rate": null,
+      "rate_of_l2_lt_0_1": null
+    }
+  }
+}

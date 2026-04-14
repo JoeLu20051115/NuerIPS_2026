@@ -1,0 +1,51 @@
+#	Episode	Task	Dur(s)	Prog t->d	Succ t->d	L2 t->d
+1	12055931	Pack in the supermarket	68.47	0.70->0.90	Y->Y	0.0905->0.0892
+2	12052365	Clear table in the restaurant	72.98	0.70->0.70	Y->Y	0.2272->0.2260
+3	12052878	Stamp the seal 	73.10	0.00->0.30	N->N	0.0683->0.0684
+4	12052646	Clear table in the restaurant	74.40	0.70->0.70	Y->Y	0.2726->0.2630
+5	12052745	Clear table in the restaurant	77.07	0.40->0.70	N->Y	0.1832->0.1872
+6	12055595	Pack in the supermarket	78.40	0.40->0.40	N->N	0.0966->0.0961
+7	12052912	Clear table in the restaurant	79.37	0.40->0.70	N->Y	0.3186->0.3120
+8	12053069	Stamp the seal 	84.18	0.00->0.00	N->N	0.0725->0.0715
+9	12052777	Clear table in the restaurant	89.58	0.70->0.70	Y->Y	0.1251->0.1244
+10	12057176	Pack in the supermarket	96.07	0.90->0.90	Y->Y	0.0849->0.0837
+11	12052515	Clear table in the restaurant	97.00	0.40->0.70	N->Y	0.1338->0.1332
+12	12052674	Clear table in the restaurant	100.55	0.40->0.40	N->N	0.2728->0.2664
+13	12050928	Heat the food in the microwave	101.98	0.40->0.70	N->Y	0.0895->0.0892
+14	12052781	Clear table in the restaurant	108.05	0.70->0.70	Y->Y	0.2752->0.2696
+15	12052907	Clear table in the restaurant	109.45	0.40->0.40	N->N	0.1281->0.1266
+16	12052539	Clear table in the restaurant	114.88	0.40->0.40	N->N	0.1177->0.1169
+17	12050878	Heat the food in the microwave	118.78	0.00->0.00	N->N	0.1155->0.1091
+18	12052738	Stamp the seal 	122.48	0.00->0.00	N->N	0.0894->0.0874
+19	12050874	Heat the food in the microwave	122.82	0.70->0.70	Y->Y	0.0698->0.0697
+20	12052913	Stamp the seal 	123.20	0.00->0.00	N->N	0.0789->0.0787
+21	12053100	Stamp the seal 	125.57	0.00->0.00	N->N	0.0804->0.0797
+22	12050965	Heat the food in the microwave	127.08	0.00->0.00	N->N	0.1105->0.1070
+23	12050801	Heat the food in the microwave	128.75	0.00->0.30	N->N	0.2463->0.1121
+24	12050938	Heat the food in the microwave	132.22	0.00->0.00	N->N	0.1109->0.1049
+25	12050785	Heat the food in the microwave	133.62	0.30->0.40	N->N	0.1603->0.1267
+26	12050856	Heat the food in the microwave	137.55	0.00->0.00	N->N	0.1165->0.1107
+27	12050822	Heat the food in the microwave	141.08	0.30->0.30	N->N	0.1197->0.1143
+28	12050829	Heat the food in the microwave	141.85	0.00->0.00	N->N	0.1167->0.1095
+29	12050846	Heat the food in the microwave	145.38	0.70->0.70	Y->Y	0.1227->0.1164
+30	12050922	Heat the food in the microwave	146.22	0.70->0.70	Y->Y	0.1371->0.1297
+31	12052908	Stamp the seal 	147.75	0.00->0.00	N->N	0.0791->0.0789
+32	12050915	Heat the food in the microwave	148.65	0.70->0.70	Y->Y	0.0837->0.0808
+33	12050810	Heat the food in the microwave	149.25	0.00->0.00	N->N	0.1158->0.1111
+34	12050788	Heat the food in the microwave	151.12	0.00->0.00	N->N	0.1106->0.0983
+35	12050947	Heat the food in the microwave	151.72	0.70->0.70	Y->Y	0.1235->0.1022
+36	12053098	Stamp the seal 	151.90	0.00->0.00	N->N	0.0679->0.0649
+37	12050949	Heat the food in the microwave	158.42	0.30->0.30	N->N	0.2860->0.1143
+38	12050863	Heat the food in the microwave	162.85	0.70->0.70	Y->Y	0.1141->0.1121
+39	12050887	Heat the food in the microwave	162.92	0.00->0.00	N->N	0.1167->0.1112
+40	12050902	Heat the food in the microwave	167.92	0.70->0.70	Y->Y	0.1311->0.1278
+41	12052941	Stamp the seal 	170.03	0.00->0.30	N->N	0.0714->0.0714
+42	12050962	Heat the food in the microwave	170.25	0.00->0.00	N->N	0.1153->0.1107
+43	12052824	Stamp the seal 	172.10	0.40->0.40	N->N	0.0665->0.0659
+44	12050892	Heat the food in the microwave	173.08	0.30->0.70	N->Y	0.1773->0.1315
+45	12050792	Heat the food in the microwave	175.25	0.70->0.70	Y->Y	0.1004->0.0971
+46	12050813	Heat the food in the microwave	175.25	0.70->0.70	Y->Y	0.1250->0.1164
+47	12053052	Stamp the seal 	213.50	0.00->0.00	N->N	0.0834->0.0831
+48	12053049	Stamp the seal 	237.57	0.00->0.00	N->N	0.0737->0.0715
+49	12052836	Stamp the seal 	238.30	0.00->0.00	N->N	0.0836->0.0834
+50	12053045	Stamp the seal 	264.22	0.00->0.30	N->N	0.0728->0.0729

@@ -1,0 +1,7 @@
+dataset,split,mode,point_label,avg_duration_sec,success_rate,task_progress,mean_l2,success_rate_ci_lo,success_rate_ci_hi
+AgiBot,L1,original,AgiBot-L1,22.0,0.3,0.46,0.0845,0.18,0.42
+AgiBot,L2,original,AgiBot-L2,42.0,0.22,0.416,0.0942,0.12,0.34
+AgiBot,L3,original,AgiBot-L3,126.0,0.16,0.406,0.0748,0.06,0.28
+DROID,L1,original,DROID-L1,6.597333333333333,0.3,0.492,0.1291,0.18,0.42
+DROID,L2,original,DROID-L2,9.986666666666668,0.18,0.42,0.1255,0.08,0.3
+DROID,L3,original,DROID-L3,15.518666666666668,0.22,0.434,0.1389,0.12,0.34

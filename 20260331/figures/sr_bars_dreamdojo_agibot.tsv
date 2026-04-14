@@ -1,0 +1,10 @@
+dataset	split	mode	success_rate	success_rate_pct
+DreamDojo-AgiBot	L1	original	0.66	66.0
+DreamDojo-AgiBot	L1	llm_dual	0.74	74.0
+DreamDojo-AgiBot	L1	llm_val	0.76	76.0
+DreamDojo-AgiBot	L2	original	0.34	34.0
+DreamDojo-AgiBot	L2	llm_dual	0.44	44.0
+DreamDojo-AgiBot	L2	llm_val	0.48	48.0
+DreamDojo-AgiBot	L3	original	0.3	30.0
+DreamDojo-AgiBot	L3	llm_dual	0.46	46.0
+DreamDojo-AgiBot	L3	llm_val	0.5	50.0

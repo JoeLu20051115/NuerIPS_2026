@@ -1,0 +1,701 @@
+dataset,episode_id,task,mode,mode_label,level,duration_sec,duration_bucket_abs,task_progress,mean_l2,task_success
+DROID,1356,Put the blue box into the carrier bag,task_token_only,original,L1,6.533333333333333,0-30s,0.9,0.1234093444875373,True
+DROID,1121,Turn on the fourth switch from the right on the adapter,task_token_only,original,L1,6.866666666666666,0-30s,0.9,0.10995079035204576,True
+DROID,1692,Put the carrot plushie in the pan,task_token_only,original,L1,7.133333333333334,0-30s,0.7,0.08935912881938524,True
+DROID,1245,Move the orange plushie to the right,task_token_only,original,L1,8.2,0-30s,0.9,0.16461010823901598,True
+DROID,1530,Put the plush toy in the red bowl,task_token_only,original,L1,7.6,0-30s,0.8,0.12201270001207472,True
+DROID,1374,Press the power button on the extension cord.,task_token_only,original,L1,8.266666666666667,0-30s,0.9,0.09832359874099039,True
+DROID,1608,Press the middle white key on the keyboard,task_token_only,original,L1,7.266666666666667,0-30s,0.8,0.0872823156646878,True
+DROID,1328,Press the top switch on the stove,task_token_only,original,L1,9.0,0-30s,0.7,0.037545130875915406,True
+DROID,1071,Push the right switch down,task_token_only,original,L1,6.2,0-30s,0.8,0.12638301073413072,True
+DROID,1727,Put the purple plush toy on the bowl,task_token_only,original,L1,5.133333333333334,0-30s,0.7,0.06322112738963655,True
+DROID,1510,Press down the sauce sachet,task_token_only,original,L1,8.866666666666667,0-30s,0.7,0.10329765517336376,True
+DROID,1682,Put the book in the green bowl,task_token_only,original,L1,8.133333333333333,0-30s,0.4,0.084821892990538,False
+DROID,1643,Close the grill sandwich maker,task_token_only,original,L1,8.466666666666667,0-30s,0.4,0.11024506295892167,False
+DROID,1748,Put the green plushie on the orange plate,task_token_only,original,L1,6.133333333333334,0-30s,0.9,0.06482985373522375,True
+DROID,1247,Move the cup backwards,task_token_only,original,L1,6.0,0-30s,0.7,0.07483523138839855,True
+DROID,1042,Put the pen inside the white bowl,task_token_only,original,L1,7.333333333333333,0-30s,0.9,0.07930781929820135,True
+DROID,1486,Take the marker out of the cup and put it on the table,task_token_only,original,L1,9.933333333333334,0-30s,0.7,0.11296568474868378,True
+DROID,1090,Move the paper to the left,task_token_only,original,L1,7.466666666666667,0-30s,0.7,0.11300779776685198,True
+DROID,1852,Put the marker in the mug,task_token_only,original,L1,8.666666666666666,0-30s,0.4,0.15865520529857458,False
+DROID,1478,Remove the black spoon from the cutlery box,task_token_only,original,L1,10.0,0-30s,0.7,0.14028226485038062,True
+DROID,1249,Put the orange object into the black bowl.,task_token_only,original,L1,4.266666666666667,0-30s,0.4,0.09345694221845889,False
+DROID,1305,Put the green cube in the black bowl,task_token_only,original,L1,3.466666666666667,0-30s,0.4,0.21504940483479004,False
+DROID,1831,Move the plastic corn to the right,task_token_only,original,L1,4.8,0-30s,0.8,0.08206444980887975,True
+DROID,1891,Put the lunchbox in the wooden bowl,task_token_only,original,L1,6.866666666666666,0-30s,0.7,0.10202580794493227,True
+DROID,1667,Put the red marker inside the mug,task_token_only,original,L1,10.4,0-30s,0.7,0.17769807021955644,True
+DROID,1131,Move the towel to the right,task_token_only,original,L1,4.6,0-30s,0.7,0.1460139170069681,True
+DROID,1863,Turn on the big switch on the adapter,task_token_only,original,L1,7.466666666666667,0-30s,0.7,0.11517665028298296,True
+DROID,1502,Put the yellow block in the white bowl,task_token_only,original,L1,7.666666666666667,0-30s,0.9,0.15215476536474085,True
+DROID,1783,Put one orange block in the green bowl,task_token_only,original,L1,9.666666666666666,0-30s,0.7,0.08807462400045966,True
+DROID,1893,Put the marker in the bowl,task_token_only,original,L1,9.2,0-30s,0.4,0.04402600563032596,False
+DROID,1367,Move the black thing to the right,task_token_only,original,L1,10.466666666666667,0-30s,0.4,0.14795387679885832,False
+DROID,1164,Push the f twelve key on the keyboard,task_token_only,original,L1,10.4,0-30s,0.7,0.06230182975265266,True
+DROID,1400,Put the top wooden piece on the table,task_token_only,original,L1,9.0,0-30s,0.4,0.15742493013665704,False
+DROID,1399,Put the marker in the mug,task_token_only,original,L1,8.733333333333333,0-30s,0.4,0.12758902123153398,False
+DROID,1791,Turn on the light switch on the wall,task_token_only,original,L1,9.8,0-30s,0.7,0.08443542018522161,True
+DROID,1314,Place the orange block on the green one,task_token_only,original,L1,7.133333333333334,0-30s,0.7,0.07332940985506747,True
+DROID,1150,Turn on the right light switch,task_token_only,original,L1,7.0,0-30s,0.4,0.12042536365797929,False
+DROID,1206,Put the black marker inside the pot,task_token_only,original,L1,10.2,0-30s,0.7,0.14653781989478906,True
+DROID,1749,Press a button on the back of the sound bar,task_token_only,original,L1,7.666666666666667,0-30s,0.4,0.16516270952694112,False
+DROID,1726,Close the drawer of the small box.,task_token_only,original,L1,6.066666666666666,0-30s,0.7,0.11323514904570309,True
+DROID,1790,Put the green block in the black bowl,task_token_only,original,L1,9.6,0-30s,0.7,0.10611095042079673,True
+DROID,1250,Move the mug forward.,task_token_only,original,L1,9.666666666666666,0-30s,0.7,0.09575149485946706,True
+DROID,1565,Move the gray towel to the left,task_token_only,original,L1,4.733333333333333,0-30s,0.7,0.16115556129137001,True
+DROID,1724,Move the green bowl to the left side of the desk,task_token_only,original,L1,5.333333333333333,0-30s,0.4,0.11384940659536745,False
+DROID,1159,Move the blue bowl of candy to the right,task_token_only,original,L1,9.0,0-30s,0.4,0.12866719914851446,False
+DROID,1345,Move the mug forward,task_token_only,original,L1,5.4,0-30s,0.6,0.12664914912236253,True
+DROID,1236,Move the grey towel to the right,task_token_only,original,L1,4.933333333333334,0-30s,0.8,0.07458407949696932,True
+DROID,1232,Press a button on the air cooler,task_token_only,original,L1,7.933333333333334,0-30s,0.4,0.2029175192158377,False
+DROID,1337,Put the blue ring in the box,task_token_only,original,L1,9.466666666666667,0-30s,0.4,0.07583905214540214,False
+DROID,1284,Close the top drawer,task_token_only,original,L1,3.1333333333333333,0-30s,0.7,0.1810764484092472,True
+DROID,1937,Move the blue marker to the right,task_token_only,original,L1,6.933333333333334,0-30s,0.4,0.13545454012055771,False
+DROID,1906,Put the marker inside the cup,task_token_only,original,L1,10.4,0-30s,0.4,0.13435957655884878,False
+DROID,1264,Put the calculator on the tray,task_token_only,original,L1,7.133333333333334,0-30s,0.4,0.12881547751151243,False
+DROID,1340,Move the blue cup on the left to the right,task_token_only,original,L1,7.666666666666667,0-30s,0.4,0.11728312894546274,False
+DROID,1234,Move the mug to the left of the marker,task_token_only,original,L1,8.933333333333334,0-30s,0.4,0.11484334971984783,False
+DROID,1114,Close the lid of the bowl,task_token_only,original,L1,9.533333333333333,0-30s,0.7,0.15499507126422615,True
+DROID,1218,Move the grey bear backwards,task_token_only,original,L1,8.133333333333333,0-30s,0.4,0.1487057363639821,False
+DROID,1273,Move the blue sponge forwards,task_token_only,original,L1,8.666666666666666,0-30s,0.4,0.17140212084737516,False
+DROID,1734,Move the blue cup closer to you,task_token_only,original,L1,6.6,0-30s,0.7,0.12487335794762572,True
+DROID,1691,Put the orange item into the desk shelf,task_token_only,original,L1,7.466666666666667,0-30s,0.4,0.31014661651945136,False
+DROID,1492,Put the stuffed toy on the blanket,task_token_only,original,L1,8.133333333333333,0-30s,0.4,0.10091312258406822,False
+DROID,1910,Put the silver knife in the open drawer.,task_token_only,original,L1,9.466666666666667,0-30s,0.3,0.22004234684568633,False
+DROID,1452,Remove the spoon out of the glass cup,task_token_only,original,L1,10.133333333333333,0-30s,0.4,0.11381512497149492,False
+DROID,1311,Remove the orange block from the top of the stack.,task_token_only,original,L1,5.733333333333333,0-30s,0.7,0.08339522701039971,True
+DROID,1978,Take the marker out of the mug and put it on the table,task_token_only,original,L1,11.266666666666667,0-30s,0.4,0.14688567735238836,False
+DROID,1091,Press a button on the pressing iron,task_token_only,original,L1,8.866666666666667,0-30s,0.6,0.16233299140136379,True
+DROID,1782,Press the button on top of the breakfast maker,task_token_only,original,L1,11.0,0-30s,0.7,0.04869636876291166,True
+DROID,1544,Press the orange button on the stove,task_token_only,original,L1,9.933333333333334,0-30s,0.7,0.06929372177781783,True
+DROID,1133,Put the green thing into the bowl,task_token_only,original,L1,10.866666666666667,0-30s,0.4,0.09573539271830193,False
+DROID,1424,Put the marker in the silver pot,task_token_only,original,L1,8.933333333333334,0-30s,0.4,0.0405305576945146,False
+DROID,1443,Turn off the light switch.,task_token_only,original,L1,4.666666666666667,0-30s,0.7,0.08149479604866557,True
+DROID,1407,Remove the doll from the bowl,task_token_only,original,L1,6.6,0-30s,0.4,0.06826948168275176,False
+DROID,1617,Move the plush toy from right to left.,task_token_only,original,L1,11.266666666666667,0-30s,0.7,0.0558505579739729,True
+DROID,1640,Move the white mug backwards.,task_token_only,original,L1,10.466666666666667,0-30s,0.4,0.10444059360815704,False
+DROID,1714,Put the can on the metal object,task_token_only,original,L1,10.8,0-30s,0.4,0.10116610791914926,False
+DROID,1854,Move the orange plushy backwards,task_token_only,original,L1,6.6,0-30s,0.7,0.09295100197633742,True
+DROID,1343,Turn on the right light switch,task_token_only,original,L1,4.933333333333334,0-30s,0.4,0.07077485437721688,False
+DROID,1573,Turn on the second switch from the left side of the adapter,task_token_only,original,L1,6.8,0-30s,0.7,0.08061758059743208,True
+DROID,1338,Move the tall stack of blocks to the left,task_token_only,original,L1,7.6,0-30s,0.4,0.07612342071113781,False
+DROID,1128,Move the cube to the cube,task_token_only,original,L1,9.533333333333333,0-30s,0.4,0.16680239107842235,False
+DROID,1428,Put the pen in the cup,task_token_only,original,L1,9.733333333333333,0-30s,0.4,0.08425152368475937,False
+DROID,1252,Put the wooden cups on the wooden blocks,task_token_only,original,L1,9.466666666666667,0-30s,0.3,0.07719930107837873,False
+DROID,1170,Place the blue cup inside the orange cup,task_token_only,original,L1,5.933333333333334,0-30s,0.4,0.11085673530751124,False
+DROID,1683,Take the pen out of the cup and put it on the table,task_token_only,original,L1,9.066666666666666,0-30s,0.4,0.055176085758116444,False
+DROID,1108,Move the white mug to the right.,task_token_only,original,L1,11.066666666666666,0-30s,0.3,0.14811891928516074,False
+DROID,1712,Put the plastic jar in an upright position,task_token_only,original,L1,8.266666666666667,0-30s,0.4,0.18690453894559522,False
+DROID,1277,Move some objects from the transparent bowl to the pink bowl,task_token_only,original,L1,10.733333333333333,0-30s,0.7,0.14562045026608192,True
+DROID,1989,Press a button on the remote control.,task_token_only,original,L1,10.6,0-30s,0.4,0.14263811560743497,False
+DROID,1729,Push the open drawer closed,task_token_only,original,L1,7.6,0-30s,0.4,0.09705589714746694,False
+DROID,1651,Move the grey towel to the right.,task_token_only,original,L1,5.533333333333333,0-30s,0.4,0.09670819726063007,False
+DROID,1129,Close the book,task_token_only,original,L1,10.733333333333333,0-30s,0.4,0.17284212179001823,False
+DROID,1275,Put the black marker in the silver pot,task_token_only,original,L1,9.0,0-30s,0.4,0.07304215442546906,False
+DROID,1499,Close the top drawer of the left cabinet,task_token_only,original,L1,6.066666666666666,0-30s,0.4,0.15401565678306905,False
+DROID,1190,Put the brown doll in the white bowl,task_token_only,original,L1,6.866666666666666,0-30s,0.4,0.05199998469515618,False
+DROID,1890,Close the chest drawer,task_token_only,original,L1,4.466666666666667,0-30s,0.4,0.08946152536564574,False
+DROID,1832,Push the key on the keyboard,task_token_only,original,L1,7.8,0-30s,0.4,0.12000104230096072,False
+DROID,1719,Put the towel on the bin,task_token_only,original,L1,10.533333333333333,0-30s,0.4,0.22703129350700232,False
+DROID,1103,Open the second to last right role bottom drawer,task_token_only,original,L1,10.866666666666667,0-30s,0.2,0.23855473124403992,False
+DROID,1127,Move the bottom-right clear bottle to the table,task_token_only,original,L2,8.333333333333334,0-30s,0.3,0.07732096879249736,False
+DROID,1835,Put the object near the cardboard box in the colourless bowl,task_token_only,original,L2,6.333333333333333,0-30s,0.4,0.0704948894578229,False
+DROID,1390,Close the open drawer,task_token_only,original,L2,3.2,0-30s,0.4,0.20511881525008868,False
+DROID,1700,Move the grey bear forwards,task_token_only,original,L2,6.8,0-30s,0.4,0.20408207014372107,False
+DROID,1766,Take the marker from the brown cup and put it on the table,task_token_only,original,L2,7.8,0-30s,0.7,0.11375267558168185,True
+DROID,1255,Move the blue object to the right,task_token_only,original,L2,8.866666666666667,0-30s,0.7,0.17616529419352286,True
+DROID,1413,Move the yellow mug backwards,task_token_only,original,L2,10.533333333333333,0-30s,0.4,0.07415665432792036,False
+DROID,1566,Press a button on the left washing machine,task_token_only,original,L2,8.866666666666667,0-30s,0.4,0.16141266829450107,False
+DROID,1964,Close the sliding lid on the travel mug,task_token_only,original,L2,6.8,0-30s,0.4,0.11082375511902787,False
+DROID,1710,Move the blue block to the left,task_token_only,original,L2,5.933333333333334,0-30s,0.7,0.10551327383903801,True
+DROID,1917,Press the on/off button on the coffee machine.,task_token_only,original,L2,10.933333333333334,0-30s,0.4,0.14340293698237364,False
+DROID,1123,Move the green towel to the right.,task_token_only,original,L2,7.333333333333333,0-30s,0.4,0.09221174111679192,False
+DROID,1023,Close the drawer,task_token_only,original,L2,8.2,0-30s,0.3,0.17875688986306368,False
+DROID,1331,Move the red basket to the left.,task_token_only,original,L2,10.066666666666666,0-30s,0.4,0.21289971861601287,False
+DROID,1877,Move the marker away from you,task_token_only,original,L2,7.933333333333334,0-30s,0.4,0.17020328994375586,False
+DROID,1999,Move the first left bowl to the right,task_token_only,original,L2,10.4,0-30s,0.4,0.1868060845671529,False
+DROID,1037,Move the mug to the right,task_token_only,original,L2,10.0,0-30s,0.4,0.15774475724665932,False
+DROID,1763,Move the tin can to the left,task_token_only,original,L2,4.066666666666666,0-30s,0.4,0.09504817624253918,False
+DROID,1120,Close the top drawer on the left,task_token_only,original,L2,5.066666666666666,0-30s,0.4,0.12385339245616611,False
+DROID,1194,Push a button on the heater,task_token_only,original,L2,7.8,0-30s,0.4,0.156425934996856,False
+DROID,1272,Put one white cap in the transparent bowl,task_token_only,original,L2,10.933333333333334,0-30s,0.4,0.12475231429154705,False
+DROID,1043,Press the left switch,task_token_only,original,L2,8.0,0-30s,0.4,0.1483704569391958,False
+DROID,1627,Move the orange cup from the drying rack,task_token_only,original,L2,7.466666666666667,0-30s,0.4,0.14368585630285136,False
+DROID,1269,Close the right cupboard door,task_token_only,original,L2,6.866666666666666,0-30s,0.4,0.22682940546815522,False
+DROID,1179,Move the spatula to the right,task_token_only,original,L2,5.266666666666667,0-30s,0.3,0.07822104237306776,False
+DROID,1316,Move the bowl slightly to the left,task_token_only,original,L2,5.666666666666667,0-30s,0.7,0.08978115609670466,True
+DROID,1938,Put the glue stick inside the mug cup,task_token_only,original,L2,5.733333333333333,0-30s,0.4,0.14629150250583314,False
+DROID,1630,Move the clear object to the bottom-right corner of the table,task_token_only,original,L2,8.8,0-30s,0.4,0.14272415589369108,False
+DROID,1538,Move the brown object on the rack forward,task_token_only,original,L2,5.133333333333334,0-30s,0.4,0.07896972148935538,False
+DROID,1886,Close the top drawer of the right cabinet,task_token_only,original,L2,3.2,0-30s,0.7,0.15240340935175006,True
+DROID,1618,Put the sharpie in the mug,task_token_only,original,L2,10.8,0-30s,0.4,0.16828205986188227,False
+DROID,1491,Press a key on the keyboard,task_token_only,original,L1,9.666666666666666,0-30s,0.3,0.12898050618248738,False
+DROID,1386,Close the bottom drawer of the cabinet to the right.,task_token_only,original,L2,4.4,0-30s,0.4,0.12450329470757084,False
+DROID,1034,Press the button on the left of the coffee machine,task_token_only,original,L1,9.133333333333333,0-30s,0.7,0.09664642163739562,True
+DROID,1151,Move the pencil to the left,task_token_only,original,L2,6.466666666666667,0-30s,0.7,0.14499153994996858,True
+DROID,1039,Put the yellow block in the light blue cup,task_token_only,original,L2,4.6,0-30s,0.7,0.0926186128045403,True
+DROID,1137,Move the brown doll to the right,task_token_only,original,L1,5.6,0-30s,0.4,0.07302586529181349,False
+DROID,1813,Put one green straw in the mug.,task_token_only,original,L1,9.933333333333334,0-30s,0.4,0.19099674481202097,False
+DROID,1261,Move the white box to the right,task_token_only,original,L2,10.666666666666666,0-30s,0.4,0.21683315974874942,False
+DROID,1300,Move the white hanger to the bottom rod,task_token_only,original,L2,9.0,0-30s,0.4,0.11882564338448263,False
+DROID,1928,Move the computer mouse to the left,task_token_only,original,L2,9.533333333333333,0-30s,0.4,0.21776090741039708,False
+DROID,1267,Put the block in the bowl,task_token_only,original,L2,6.933333333333334,0-30s,0.4,0.17690164055108817,False
+DROID,1231,Put the orange marker in the red mug,task_token_only,original,L2,7.333333333333333,0-30s,0.4,0.17960518753623575,False
+DROID,1349,Move the objects on the score counter to the right,task_token_only,original,L2,10.266666666666667,0-30s,0.0,0.11580895358175429,False
+DROID,1817,Put the small purple bowl into the yellow bowl,task_token_only,original,L2,10.533333333333333,0-30s,0.4,0.12843276016934424,False
+DROID,1241,Move the doll to the left,task_token_only,original,L2,6.333333333333333,0-30s,0.3,0.1456698322444204,False
+DROID,1049,Press a button on the coffee machine,task_token_only,original,L1,7.0,0-30s,0.4,0.1473973729487944,False
+DROID,1394,Press a button the keyboard,task_token_only,original,L2,6.0,0-30s,0.7,0.12255581957588679,True
+DROID,1772,Press a button on the washing machine on the right.,task_token_only,original,L2,7.066666666666666,0-30s,0.3,0.1465481398780967,False
+DROID,1145,Move the cup towards the monitor,task_token_only,original,L1,5.6,0-30s,0.4,0.08724465473391001,False
+DROID,1698,Remove the green circular object from the orange object,task_token_only,original,L1,9.333333333333334,0-30s,0.4,0.0816132418358319,False
+DROID,1027,Put the brown object on the closest ribbon roll,task_token_only,original,L1,10.666666666666666,0-30s,0.4,0.06724129195503639,False
+DROID,1015,Put the marker inside the cup,task_token_only,original,L3,12.533333333333333,0-30s,0.7,0.18851490845912125,True
+DROID,1023,Close the drawer,task_token_only,original,L2,8.2,0-30s,0.3,0.17875688986306368,False
+DROID,1037,Move the mug to the right,task_token_only,original,L2,10.0,0-30s,0.4,0.15774475724665932,False
+DROID,1039,Put the yellow block in the light blue cup,task_token_only,original,L2,4.6,0-30s,0.7,0.0926186128045403,True
+DROID,1041,Put the blue cup on the sink,task_token_only,original,L3,13.866666666666667,0-30s,0.7,0.0852906787386735,True
+DROID,1043,Press the left switch,task_token_only,original,L2,8.0,0-30s,0.4,0.1483704569391958,False
+DROID,1066,Put the hand mixer into the white cup,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.2074222928805948,False
+DROID,1102,Put the cereals inside the blue bowl,task_token_only,original,L3,15.8,0-30s,0.3,0.14016824483385423,False
+DROID,1104,Put the marker on the table,task_token_only,original,L3,11.8,0-30s,0.3,0.1015007314351818,False
+DROID,1117,Put the marker on the table,task_token_only,original,L3,25.6,0-30s,0.6,0.1471389884016349,True
+DROID,1120,Close the top drawer on the left,task_token_only,original,L2,5.066666666666666,0-30s,0.6,0.12385339245616611,True
+DROID,1123,Move the green towel to the right.,task_token_only,original,L2,7.333333333333333,0-30s,0.4,0.09221174111679192,False
+DROID,1127,Move the bottom-right clear bottle to the table,task_token_only,original,L2,8.333333333333334,0-30s,0.3,0.07732096879249736,False
+DROID,1147,Put the top pillow toy block on top of the stacked toy blocks,task_token_only,original,L3,23.8,0-30s,0.4,0.062891135709242,False
+DROID,1151,Move the pencil to the left,task_token_only,original,L2,6.466666666666667,0-30s,0.7,0.14499153994996858,True
+DROID,1167,Press a button on the flashlight,task_token_only,original,L3,16.0,0-30s,0.7,0.1418028605009043,True
+DROID,1179,Move the spatula to the right,task_token_only,original,L2,5.266666666666667,0-30s,0.3,0.07822104237306776,False
+DROID,1194,Push a button on the heater,task_token_only,original,L2,7.8,0-30s,0.7,0.156425934996856,True
+DROID,1231,Put the orange marker in the red mug,task_token_only,original,L2,7.333333333333333,0-30s,0.4,0.17960518753623575,False
+DROID,1241,Move the doll to the left,task_token_only,original,L2,6.333333333333333,0-30s,0.0,0.1456698322444204,False
+DROID,1255,Move the blue object to the right,task_token_only,original,L2,8.866666666666667,0-30s,0.7,0.17616529419352286,True
+DROID,1256,Put the black pen inside the brown coffee cup then pull it out and set it on the counter,task_token_only,original,L3,21.733333333333334,0-30s,0.4,0.06270500727958844,False
+DROID,1258,Put the yellow marker inside the white and green mug,task_token_only,original,L3,17.066666666666666,0-30s,0.4,0.21484900429651657,False
+DROID,1261,Move the white box to the right,task_token_only,original,L2,10.666666666666666,0-30s,0.4,0.21683315974874942,False
+DROID,1267,Put the block in the bowl,task_token_only,original,L2,6.933333333333334,0-30s,0.4,0.17690164055108817,False
+DROID,1269,Close the right cupboard door,task_token_only,original,L2,6.866666666666666,0-30s,0.4,0.22682940546815522,False
+DROID,1272,Put one white cap in the transparent bowl,task_token_only,original,L2,10.933333333333334,0-30s,0.4,0.12475231429154705,False
+DROID,1274,Open the top right drawer,task_token_only,original,L3,22.866666666666667,0-30s,0.8,0.14119000501981277,True
+DROID,1292,Remove the cups from the grey tray.,task_token_only,original,L3,18.6,0-30s,0.3,0.11445031391323436,False
+DROID,1300,Move the white hanger to the bottom rod,task_token_only,original,L2,9.0,0-30s,0.4,0.11882564338448263,False
+DROID,1315,Press a button on the keyboard,task_token_only,original,L3,13.6,0-30s,0.4,0.12317345453004232,False
+DROID,1316,Move the bowl slightly to the left,task_token_only,original,L2,5.666666666666667,0-30s,0.7,0.08978115609670466,True
+DROID,1324,Pick the marker and put it in the cup,task_token_only,original,L3,17.266666666666666,0-30s,0.4,0.1170902403377192,False
+DROID,1325,Put the fork in the drawer,task_token_only,original,L3,14.333333333333334,0-30s,0.8,0.09654277271465,True
+DROID,1331,Move the red basket to the left.,task_token_only,original,L2,10.066666666666666,0-30s,0.4,0.21289971861601287,False
+DROID,1346,Remove the marker from the green bowl and put it in the table,task_token_only,original,L3,9.933333333333334,0-30s,0.4,0.054524753502503236,False
+DROID,1349,Move the objects on the score counter to the right,task_token_only,original,L2,10.266666666666667,0-30s,0.0,0.11580895358175429,False
+DROID,1386,Close the bottom drawer of the cabinet to the right.,task_token_only,original,L2,4.4,0-30s,0.4,0.12450329470757084,False
+DROID,1390,Close the open drawer,task_token_only,original,L2,3.2,0-30s,0.4,0.20511881525008868,False
+DROID,1394,Press a button the keyboard,task_token_only,original,L2,6.0,0-30s,0.7,0.12255581957588679,True
+DROID,1401,Put the fork on the mat on the table,task_token_only,original,L3,11.533333333333333,0-30s,0.7,0.06593738819198385,True
+DROID,1413,Move the yellow mug backwards,task_token_only,original,L2,10.533333333333333,0-30s,0.4,0.07415665432792036,False
+DROID,1434,Move the green cup to the right,task_token_only,original,L3,24.066666666666666,0-30s,0.6,0.09067047307415603,True
+DROID,1440,Move the uncovered cup to the left,task_token_only,original,L3,14.066666666666666,0-30s,0.4,0.1148306379489994,False
+DROID,1464,Put the red marker on the table.,task_token_only,original,L3,12.933333333333334,0-30s,0.4,0.10548927311020538,False
+DROID,1477,Pick the marker from the table and put it in the cup,task_token_only,original,L3,9.666666666666666,0-30s,0.0,0.09033144615073922,False
+DROID,1488,Open the red drawer,task_token_only,original,L3,13.333333333333334,0-30s,0.4,0.1139470660280149,False
+DROID,1512,Move the pink block from the tray to the table,task_token_only,original,L3,13.133333333333333,0-30s,0.4,0.09892073083505075,False
+DROID,1514,Put the car key on the square plate,task_token_only,original,L3,12.0,0-30s,0.4,0.07378527109443374,False
+DROID,1517,Move the cup forward,task_token_only,original,L3,12.066666666666666,0-30s,0.7,0.11553667161170662,True
+DROID,1526,Move the objects from the orange bowl into the silver bowl,task_token_only,original,L3,24.0,0-30s,0.4,0.10949471283511562,False
+DROID,1538,Move the brown object on the rack forward,task_token_only,original,L2,5.133333333333334,0-30s,0.4,0.07896972148935538,False
+DROID,1542,"Open the oven door, then remove the blue bowl from the oven and close the oven",task_token_only,original,L3,26.933333333333334,0-30s,0.7,0.17517432616863005,True
+DROID,1548,Put the marker into the cup.,task_token_only,original,L3,20.666666666666668,0-30s,0.3,0.06289668839527457,False
+DROID,1550,Put the pink plate on the blue bowl,task_token_only,original,L3,22.2,0-30s,0.4,0.07262753103103597,False
+DROID,1557,Pick up the blue block from the green bowl and put it on the blue block on the table,task_token_only,original,L3,11.133333333333333,0-30s,0.4,0.151113849507595,False
+DROID,1560,Put the candy bar in the bowl,task_token_only,original,L3,13.733333333333333,0-30s,0.7,0.14279311047807697,True
+DROID,1566,Press a button on the left washing machine,task_token_only,original,L2,8.866666666666667,0-30s,0.4,0.16141266829450107,False
+DROID,1572,Remove the pen from the mug cup and place it on the table,task_token_only,original,L3,13.066666666666666,0-30s,0.9,0.11476383998455603,True
+DROID,1599,Put the grey mug inside the open upper cabinet.,task_token_only,original,L3,23.866666666666667,0-30s,0.4,0.17053111297877258,False
+DROID,1603,Remove the yellow toy from the green bowl and put it on the table,task_token_only,original,L3,9.4,0-30s,0.4,0.07461847985371868,False
+DROID,1618,Put the sharpie in the mug,task_token_only,original,L2,10.8,0-30s,0.4,0.16828205986188227,False
+DROID,1627,Move the orange cup from the drying rack,task_token_only,original,L2,7.466666666666667,0-30s,0.4,0.14368585630285136,False
+DROID,1630,Move the clear object to the bottom-right corner of the table,task_token_only,original,L2,8.8,0-30s,0.3,0.14272415589369108,False
+DROID,1636,Remove one silver fork from the right side of the open drawer and put it on the counter.,task_token_only,original,L3,18.6,0-30s,0.4,0.11999180720380447,False
+DROID,1641,Remove the red block from the pot and put it on top of the cupboard,task_token_only,original,L3,16.466666666666665,0-30s,0.4,0.05741363732641654,False
+DROID,1648,Put the yellow spiky toy in the green bowl,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.12265025742060409,False
+DROID,1659,Press the orange button,task_token_only,original,L3,20.733333333333334,0-30s,0.9,0.09395342968053937,True
+DROID,1672,Transfer the bottle from the bowl to the mug,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.1388242048749183,False
+DROID,1687,Pick up the gray bowl and put it in the white crisper drawer that is in the sink,task_token_only,original,L3,9.6,0-30s,0.0,0.1394589551672978,False
+DROID,1700,Move the grey bear forwards,task_token_only,original,L2,6.8,0-30s,0.4,0.20408207014372107,False
+DROID,1710,Move the blue block to the left,task_token_only,original,L2,5.933333333333334,0-30s,0.7,0.10551327383903801,True
+DROID,1746,Pick the bottle on the table and put it in the mug,task_token_only,original,L3,7.466666666666667,0-30s,0.8,0.0904441852699693,True
+DROID,1751,Take the marker from the cup and put it on the table,task_token_only,original,L3,15.4,0-30s,0.9,0.14397224180242793,True
+DROID,1752,Move the brown fruit from the green bowl to the wooden tray,task_token_only,original,L3,16.133333333333333,0-30s,0.7,0.051764664600834155,True
+DROID,1763,Move the tin can to the left,task_token_only,original,L2,4.066666666666666,0-30s,0.4,0.09504817624253918,False
+DROID,1764,Put the straw inside the mug,task_token_only,original,L3,14.133333333333333,0-30s,0.4,0.19015670258265524,False
+DROID,1766,Take the marker from the brown cup and put it on the table,task_token_only,original,L2,7.8,0-30s,0.7,0.11375267558168185,True
+DROID,1772,Press a button on the washing machine on the right.,task_token_only,original,L2,7.066666666666666,0-30s,0.3,0.1465481398780967,False
+DROID,1774,Press the button on the right of the top of the oven,task_token_only,original,L3,15.466666666666667,0-30s,0.4,0.07646978132237238,False
+DROID,1797,Put the cup in front of the blue plate,task_token_only,original,L3,19.6,0-30s,0.4,0.10847721577450053,False
+DROID,1805,Put the cups upright,task_token_only,original,L3,12.666666666666666,0-30s,0.8,0.20069997578151222,True
+DROID,1817,Put the small purple bowl into the yellow bowl,task_token_only,original,L2,10.533333333333333,0-30s,0.4,0.12843276016934424,False
+DROID,1824,Move the small green bowl backwards,task_token_only,original,L3,14.6,0-30s,0.4,0.12153607891058027,False
+DROID,1835,Put the object near the cardboard box in the colourless bowl,task_token_only,original,L2,6.333333333333333,0-30s,0.4,0.0704948894578229,False
+DROID,1858,Remove the purple ball from the bowl and put it on the table,task_token_only,original,L3,12.266666666666667,0-30s,0.4,0.09206740847871177,False
+DROID,1872,Press the button on the top of the coffee maker,task_token_only,original,L3,11.8,0-30s,0.4,0.05368135727571425,False
+DROID,1877,Move the marker away from you,task_token_only,original,L2,7.933333333333334,0-30s,0.4,0.17020328994375586,False
+DROID,1886,Close the top drawer of the right cabinet,task_token_only,original,L2,3.2,0-30s,0.4,0.15240340935175006,False
+DROID,1888,Pick up the pen from the table and put it in the grey bowl.,task_token_only,original,L3,10.0,0-30s,0.4,0.10635673907860506,False
+DROID,1899,Put the grey building block on the table,task_token_only,original,L3,15.0,0-30s,0.4,0.07024988649409708,False
+DROID,1917,Press the on/off button on the coffee machine.,task_token_only,original,L2,10.933333333333334,0-30s,0.3,0.14340293698237364,False
+DROID,1919,Move the yellow sponge from the black bowl and place it on the open drawer,task_token_only,original,L3,9.266666666666667,0-30s,0.4,0.09701441065505834,False
+DROID,1925,Move the sachets from the plate to the cup in the middle,task_token_only,original,L3,13.6,0-30s,0.4,0.1598461062386731,False
+DROID,1928,Move the computer mouse to the left,task_token_only,original,L2,9.533333333333333,0-30s,0.6,0.21776090741039708,True
+DROID,1938,Put the glue stick inside the mug cup,task_token_only,original,L2,5.733333333333333,0-30s,0.4,0.14629150250583314,False
+DROID,1945,Put the candy bar in the bowl,task_token_only,original,L3,12.533333333333333,0-30s,0.4,0.1135205930578211,False
+DROID,1950,Remove the marker out of the cup,task_token_only,original,L3,14.4,0-30s,0.7,0.11385431389404795,True
+DROID,1964,Close the sliding lid on the travel mug,task_token_only,original,L2,6.8,0-30s,0.4,0.11082375511902787,False
+DROID,1999,Move the first left bowl to the right,task_token_only,original,L2,10.4,0-30s,0.4,0.1868060845671529,False
+DROID,1888,Pick up the pen from the table and put it in the grey bowl.,task_token_only,original,L3,10.0,0-30s,0.7,0.10635673907860506,True
+DROID,1432,Pick the marker and put it in the bowl,task_token_only,original,L3,11.4,0-30s,0.4,0.06108988421102152,False
+DROID,1659,Press the orange button,task_token_only,original,L3,20.733333333333334,0-30s,0.9,0.09395342968053937,True
+DROID,1751,Take the marker from the cup and put it on the table,task_token_only,original,L3,15.4,0-30s,0.9,0.14397224180242793,True
+DROID,1610,Pick up the orange cup and put it in the black bowl,task_token_only,original,L3,6.866666666666666,0-30s,0.8,0.10623706048419124,True
+DROID,1310,Put the cubes in the black bowl,task_token_only,original,L3,16.733333333333334,0-30s,0.7,0.2501469637739795,True
+DROID,1405,Pick up the green marker from the gray pen holder in the open drawer and put it on the table,task_token_only,original,L3,16.333333333333332,0-30s,0.8,0.13921278316551197,True
+DROID,1412,Pick the marker and put it in the cup,task_token_only,original,L3,16.733333333333334,0-30s,0.8,0.10737759446727298,True
+DROID,1517,Move the cup forward,task_token_only,original,L3,12.066666666666666,0-30s,0.7,0.11553667161170662,True
+DROID,1187,Put the marker in the white bowl,task_token_only,original,L3,12.333333333333334,0-30s,0.7,0.04694110930026213,True
+DROID,1015,Put the marker inside the cup,task_token_only,original,L3,12.533333333333333,0-30s,0.7,0.18851490845912125,True
+DROID,1550,Put the pink plate on the blue bowl,task_token_only,original,L3,22.2,0-30s,0.4,0.07262753103103597,False
+DROID,1572,Remove the pen from the mug cup and place it on the table,task_token_only,original,L3,13.066666666666666,0-30s,0.9,0.11476383998455603,True
+DROID,1117,Put the marker on the table,task_token_only,original,L3,25.6,0-30s,0.6,0.1471389884016349,True
+DROID,1325,Put the fork in the drawer,task_token_only,original,L3,14.333333333333334,0-30s,0.7,0.09654277271465,True
+DROID,1746,Pick the bottle on the table and put it in the mug,task_token_only,original,L3,7.466666666666667,0-30s,0.8,0.0904441852699693,True
+DROID,1138,Pick up the pen from the red cup and put it on the table.,task_token_only,original,L3,8.533333333333333,0-30s,0.7,0.11548542697364476,True
+DROID,1464,Put the red marker on the table.,task_token_only,original,L3,12.933333333333334,0-30s,0.4,0.10548927311020538,False
+DROID,1274,Open the top right drawer,task_token_only,original,L3,22.866666666666667,0-30s,0.8,0.14119000501981277,True
+DROID,1324,Pick the marker and put it in the cup,task_token_only,original,L3,17.266666666666666,0-30s,0.4,0.1170902403377192,False
+DROID,1842,Put the white mug on the plate dryer,task_token_only,original,L3,19.6,0-30s,0.4,0.16020685255472772,False
+DROID,1477,Pick the marker from the table and put it in the cup,task_token_only,original,L3,9.666666666666666,0-30s,0.0,0.09033144615073922,False
+DROID,1919,Move the yellow sponge from the black bowl and place it on the open drawer,task_token_only,original,L3,9.266666666666667,0-30s,0.4,0.09701441065505834,False
+DROID,1176,Put the red cup on the red plate,task_token_only,original,L3,11.333333333333334,0-30s,0.7,0.09004576261236563,True
+DROID,1545,Press the letter W on the keyboard,task_token_only,original,L3,12.466666666666667,0-30s,0.7,0.08476237116539458,True
+DROID,1601,Remove the orange object from the bowl and put it on the table,task_token_only,original,L3,6.733333333333333,0-30s,0.7,0.07032657073841468,True
+DROID,1759,Remove the blue cup from the pink cup and put it on the table,task_token_only,original,L3,9.2,0-30s,0.7,0.05581044455960995,True
+DROID,1251,Pick the fruit in the bowl on the windowsill and put it on the plate on the drawer,task_token_only,original,L3,14.666666666666666,0-30s,1.0,0.15759098160769172,True
+DROID,1524,Put the red can in the plastic bowl,task_token_only,original,L3,11.6,0-30s,0.8,0.10304572587359613,True
+DROID,1376,Put the blue marker from the clear container on the right into the black mug.,task_token_only,original,L3,11.533333333333333,0-30s,0.7,0.07795725927802039,True
+DROID,1779,Pick up the orange object tool and put it in the bowl,task_token_only,original,L3,5.6,0-30s,0.8,0.09045859498980942,True
+DROID,1213,Put the marker in the mug,task_token_only,original,L3,18.4,0-30s,0.8,0.11037756748204941,True
+DROID,1185,Remove the marker from the mug.,task_token_only,original,L3,15.466666666666667,0-30s,0.9,0.050553875711809526,True
+DROID,1479,Put the white coffee cup on the white coaster,task_token_only,original,L3,19.6,0-30s,0.8,0.2523532993875889,True
+DROID,1353,Pick up the blue block from the lime green block and put it in the green bowl,task_token_only,original,L3,8.933333333333334,0-30s,0.8,0.07318917868082528,True
+DROID,1563,Pick up the pen from the table and put it in the cup.,task_token_only,original,L3,20.2,0-30s,0.4,0.20715374839351441,False
+DROID,1633,Put the marker in the cup,task_token_only,original,L3,12.466666666666667,0-30s,0.9,0.12138123007903472,True
+DROID,1838,Put the purple fruit into the bowl,task_token_only,original,L3,16.533333333333335,0-30s,0.4,0.1015048639228258,False
+DROID,1555,Remove the glue stick from the bowl and place it on the table,task_token_only,original,L3,6.666666666666667,0-30s,0.4,0.10595964705827561,False
+DROID,1285,Pick up the silver spoon from the table and put it in the mug cup,task_token_only,original,L3,17.866666666666667,0-30s,0.7,0.17866271639383932,True
+DROID,1142,Put the plate on top of the bowl,task_token_only,original,L3,11.866666666666667,0-30s,0.7,0.11909917178394747,True
+DROID,1134,Open the top drawer.,task_token_only,original,L3,11.666666666666666,0-30s,0.7,0.22059068199782872,True
+DROID,1212,Move the coffee maker slightly to the left,task_token_only,original,L3,11.533333333333333,0-30s,0.4,0.12345200574256987,False
+DROID,1082,Remove the pen from the mug and put it on the table,task_token_only,original,L3,8.0,0-30s,0.7,0.0893349987771375,True
+DROID,1732,Put the blue pen inside the clear cup,task_token_only,original,L3,12.333333333333334,0-30s,0.4,0.07570039136863263,False
+DROID,1433,Pick up the white objects from the table and put them in the open drawer and close it,task_token_only,original,L3,22.066666666666666,0-30s,0.4,0.13100435390472695,False
+DROID,1040,Remove the hanger from the bar.,task_token_only,original,L3,11.666666666666666,0-30s,0.4,0.20926240408165056,False
+DROID,1851,Move the bowl to the right,task_token_only,original,L3,18.466666666666665,0-30s,0.4,0.14497879732734945,False
+DROID,1013,Put the right yellow toy in the bowl,task_token_only,original,L3,11.466666666666667,0-30s,0.0,0.10412812111122483,False
+DROID,1613,Close the door.,task_token_only,original,L3,11.733333333333333,0-30s,0.8,0.2478911959049359,True
+DROID,1631,Remove the pen from the white cup and put it on the table,task_token_only,original,L3,15.333333333333334,0-30s,0.0,0.15296534010170693,False
+DROID,1393,Move the red bowl in the upper cabinet forwards.,task_token_only,original,L3,15.066666666666666,0-30s,0.9,0.1692513417872934,True
+DROID,1160,Open the drawer on the far right,task_token_only,original,L3,16.533333333333335,0-30s,0.4,0.17284381768793378,False
+DROID,1672,Transfer the bottle from the bowl to the mug,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.1388242048749183,False
+DROID,1752,Move the brown fruit from the green bowl to the wooden tray,task_token_only,original,L3,16.133333333333333,0-30s,0.4,0.051764664600834155,False
+DROID,1434,Move the green cup to the right,task_token_only,original,L3,24.066666666666666,0-30s,0.6,0.09067047307415603,True
+DROID,1641,Remove the red block from the pot and put it on top of the cupboard,task_token_only,original,L3,16.466666666666665,0-30s,0.4,0.05741363732641654,False
+DROID,1041,Put the blue cup on the sink,task_token_only,original,L3,13.866666666666667,0-30s,0.7,0.0852906787386735,True
+DROID,1147,Put the top pillow toy block on top of the stacked toy blocks,task_token_only,original,L3,23.8,0-30s,0.4,0.062891135709242,False
+DROID,1514,Put the car key on the square plate,task_token_only,original,L3,12.0,0-30s,0.4,0.07378527109443374,False
+DROID,1899,Put the grey building block on the table,task_token_only,original,L3,15.0,0-30s,0.4,0.07024988649409708,False
+DROID,1950,Remove the marker out of the cup,task_token_only,original,L3,14.4,0-30s,0.7,0.11385431389404795,True
+DROID,1774,Press the button on the right of the top of the oven,task_token_only,original,L3,15.466666666666667,0-30s,0.4,0.07646978132237238,False
+DROID,1401,Put the fork on the mat on the table,task_token_only,original,L3,11.533333333333333,0-30s,0.7,0.06593738819198385,True
+DROID,1858,Remove the purple ball from the bowl and put it on the table,task_token_only,original,L3,12.266666666666667,0-30s,0.4,0.09206740847871177,False
+DROID,1512,Move the pink block from the tray to the table,task_token_only,original,L3,13.133333333333333,0-30s,0.4,0.09892073083505075,False
+DROID,1872,Press the button on the top of the coffee maker,task_token_only,original,L3,11.8,0-30s,0.4,0.05368135727571425,False
+DROID,1440,Move the uncovered cup to the left,task_token_only,original,L3,14.066666666666666,0-30s,0.4,0.1148306379489994,False
+DROID,1346,Remove the marker from the green bowl and put it in the table,task_token_only,original,L3,9.933333333333334,0-30s,0.4,0.054524753502503236,False
+DROID,1488,Open the red drawer,task_token_only,original,L3,13.333333333333334,0-30s,0.4,0.1139470660280149,False
+DROID,1548,Put the marker into the cup.,task_token_only,original,L3,20.666666666666668,0-30s,0.3,0.06289668839527457,False
+DROID,1104,Put the marker on the table,task_token_only,original,L3,11.8,0-30s,0.4,0.1015007314351818,False
+DROID,1315,Press a button on the keyboard,task_token_only,original,L3,13.6,0-30s,0.4,0.12317345453004232,False
+DROID,1102,Put the cereals inside the blue bowl,task_token_only,original,L3,15.8,0-30s,0.3,0.14016824483385423,False
+DROID,1526,Move the objects from the orange bowl into the silver bowl,task_token_only,original,L3,24.0,0-30s,0.4,0.10949471283511562,False
+DROID,1797,Put the cup in front of the blue plate,task_token_only,original,L3,19.6,0-30s,0.4,0.10847721577450053,False
+DROID,1292,Remove the cups from the grey tray.,task_token_only,original,L3,18.6,0-30s,0.3,0.11445031391323436,False
+DROID,1805,Put the cups upright,task_token_only,original,L3,12.666666666666666,0-30s,0.7,0.20069997578151222,True
+DROID,1636,Remove one silver fork from the right side of the open drawer and put it on the counter.,task_token_only,original,L3,18.6,0-30s,0.4,0.11999180720380447,False
+DROID,1256,Put the black pen inside the brown coffee cup then pull it out and set it on the counter,task_token_only,original,L3,21.733333333333334,0-30s,0.4,0.06270500727958844,False
+DROID,1603,Remove the yellow toy from the green bowl and put it on the table,task_token_only,original,L3,9.4,0-30s,0.4,0.07461847985371868,False
+DROID,1560,Put the candy bar in the bowl,task_token_only,original,L3,13.733333333333333,0-30s,0.7,0.14279311047807697,True
+DROID,1557,Pick up the blue block from the green bowl and put it on the blue block on the table,task_token_only,original,L3,11.133333333333333,0-30s,0.4,0.151113849507595,False
+DROID,1648,Put the yellow spiky toy in the green bowl,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.12265025742060409,False
+DROID,1599,Put the grey mug inside the open upper cabinet.,task_token_only,original,L3,23.866666666666667,0-30s,0.4,0.17053111297877258,False
+DROID,1066,Put the hand mixer into the white cup,task_token_only,original,L3,12.066666666666666,0-30s,0.4,0.2074222928805948,False
+DROID,1167,Press a button on the flashlight,task_token_only,original,L3,16.0,0-30s,0.7,0.1418028605009043,True
+DROID,1258,Put the yellow marker inside the white and green mug,task_token_only,original,L3,17.066666666666666,0-30s,0.4,0.21484900429651657,False
+DROID,1687,Pick up the gray bowl and put it in the white crisper drawer that is in the sink,task_token_only,original,L3,9.6,0-30s,0.4,0.1394589551672978,False
+DROID,1542,"Open the oven door, then remove the blue bowl from the oven and close the oven",task_token_only,original,L3,26.933333333333334,0-30s,0.7,0.17517432616863005,True
+DROID,1764,Put the straw inside the mug,task_token_only,original,L3,14.133333333333333,0-30s,0.4,0.19015670258265524,False
+DROID,1945,Put the candy bar in the bowl,task_token_only,original,L3,12.533333333333333,0-30s,0.4,0.1135205930578211,False
+DROID,1925,Move the sachets from the plate to the cup in the middle,task_token_only,original,L3,13.6,0-30s,0.4,0.1598461062386731,False
+DROID,1824,Move the small green bowl backwards,task_token_only,original,L3,14.6,0-30s,0.4,0.12153607891058027,False
+DROID,1953,Put the marker in the mug on the table,task_token_only,original,L3,14.266666666666667,0-30s,0.4,0.21386186384733427,False
+DROID,1834,Put the pink thing into the cup,task_token_only,original,L3,14.0,0-30s,0.4,0.13916405412242322,False
+DROID,1885,Put the blue marker on the table,task_token_only,original,L3,12.2,0-30s,0.4,0.06923906866112735,False
+DROID,1260,Remove one cup from the cabinet,task_token_only,original,L3,27.133333333333333,0-30s,0.4,0.2265478230874137,False
+DROID,1318,Use the silver ladle to put some of the contents of the yellow bowl into the blue bowl,task_token_only,original,L3,27.4,0-30s,0.4,0.1860105891118473,False
+DROID,1197,Put the bowl on the dryer,task_token_only,original,L3,22.266666666666666,0-30s,0.7,0.1718728274701772,True
+DROID,1513,Put the grey building block on the tray,task_token_only,original,L3,13.733333333333333,0-30s,0.0,0.08282653172094602,False
+DROID,1028,Put the marker in the cup,task_token_only,original,L3,16.2,0-30s,0.3,0.2324948686751922,False
+DROID,1625,Put the pen into the white cup,task_token_only,original,L3,13.4,0-30s,0.8,0.14179319797244852,True
+DROID,1709,Put the blue block inside the open drawer then close the drawer,task_token_only,original,L3,10.8,0-30s,0.4,0.1102743620679335,False
+DROID,1840,Pick up the yellow toy close to the edge and put it in the green bowl,task_token_only,original,L3,10.8,0-30s,0.3,0.11762748721671623,False
+DROID,1882,Move the packet from the open drawer to the shelf above it,task_token_only,original,L3,15.466666666666667,0-30s,0.4,0.15750953548367622,False
+DROID,1939,Remove the pen from the cup and put it on the table,task_token_only,original,L3,18.8,0-30s,0.4,0.11650492198788304,True
+DROID,1474,Put the pen in the cup,task_token_only,original,L3,28.533333333333335,0-30s,0.4,0.11370944830536674,False
+DROID,1814,Put the brown towel in the bowl,task_token_only,original,L3,19.0,0-30s,0.3,0.09011695234798378,False
+DROID,1051,Move the blue cup to the right,task_token_only,original,L3,16.6,0-30s,0.7,0.25856707590299816,True
+DROID,1588,Remove the cup from the blue tray and put it on the rack,task_token_only,original,L3,7.666666666666667,0-30s,0.4,0.11163424063818299,False
+DROID,1571,Move the bottle from the cup to the table,task_token_only,original,L3,11.666666666666666,0-30s,0.4,0.15399920775048612,False
+DROID,1516,Press a button on the dishwasher,task_token_only,original,L3,15.6,0-30s,0.4,0.203630390516948,False
+DROID,1870,Put the spoon in the cup,task_token_only,original,L3,13.866666666666667,0-30s,0.3,0.38986674372275454,False
+DROID,1087,Put the plastic knife in the cup,task_token_only,original,L3,12.333333333333334,0-30s,0.4,0.1900832753398812,False
+DROID,1730,Open the bottom drawer of the right cabinet,task_token_only,original,L3,11.666666666666666,0-30s,0.4,0.1860508371354795,False
+DROID,1580,Open the second drawer from the top fully,task_token_only,original,L3,12.2,0-30s,0.4,0.13705803910874406,False
+DROID,1788,Pick up the black measuring spoon from the open drawer and put it on the kitchen counter,task_token_only,original,L3,17.466666666666665,0-30s,0.4,0.2661614876741471,False
+DROID,1896,Put the orange cup in the top compartment,task_token_only,original,L3,12.6,0-30s,0.4,0.22569102711605782,False
+DROID,1436,"Open the drawer, pick up the orange plush toy, put it in the box that is in the drawer and close the drawer",task_token_only,original,L3,36.93333333333333,30-60s,0.4,0.07431721769766655,False
+DROID,1743,Turn off the light switch,task_token_only,original,L3,11.533333333333333,0-30s,0.4,0.12279789470590312,False
+DROID,1909,Put the measuring spoon in the yellow bowl,task_token_only,original,L3,15.133333333333333,0-30s,0.4,0.15207517558495048,False
+DROID,1591,Put the screwdriver in the open drawer then close the drawer,task_token_only,original,L3,8.533333333333333,0-30s,0.3,0.20706527966952218,False
+DROID,1078,Move the white mug to the right,task_token_only,original,L3,14.933333333333334,0-30s,0.4,0.11425991522752299,False
+DROID,1663,Put the cutlery in the cup,task_token_only,original,L3,13.333333333333334,0-30s,0.4,0.0867533587517167,False
+DROID,1784,Put the ladle in the silver cup,task_token_only,original,L3,17.066666666666666,0-30s,0.4,0.18597531668163936,False
+DROID,1750,Remove the folk from the open drawer second position to the right and put it on the cupboard,task_token_only,original,L3,15.8,0-30s,0.3,0.15646276048355798,False
+DROID,1581,Remove the green marker from the grey bowl and put it on the table,task_token_only,original,L3,9.2,0-30s,0.4,0.15828582653443105,False
+DROID,1303,Move the tea bag to the other cup,task_token_only,original,L3,20.466666666666665,0-30s,0.4,0.1763796548225813,False
+DROID,1053,Put the orange can in open cabinet.,task_token_only,original,L3,18.866666666666667,0-30s,0.7,0.2472589951105623,True
+DROID,1188,Put the lime green block in the green bowl,task_token_only,original,L3,15.733333333333333,0-30s,0.0,0.18972297092764032,False
+DROID,1785,Put the orange bottle in the drawer,task_token_only,original,L3,13.4,0-30s,0.0,0.11639869596065078,False
+DROID,1810,Remove the marker from the mug cup and place it on the table,task_token_only,original,L3,12.866666666666667,0-30s,0.4,0.07114664918532126,False
+DROID,1279,Put the white object inside the mug,task_token_only,original,L3,12.2,0-30s,0.4,0.17278039858000716,False
+DROID,1688,Move the mug to the right,task_token_only,original,L3,11.533333333333333,0-30s,0.3,0.11295055434257799,False
+DROID,1504,Pick up the brown block on the left and put it in the green bowl,task_token_only,original,L3,7.133333333333334,0-30s,0.0,0.10297215668263554,False
+DROID,1518,Put the black screwdriver inside the topmost drawer then close the drawer,task_token_only,original,L3,8.466666666666667,0-30s,0.4,0.3283076135359763,False
+DROID,1115,Move the mug forward then remove the spoon from the mug and put it in the cup,task_token_only,original,L3,20.0,0-30s,0.4,0.09579780365678754,False
+DROID,1453,"Remove the marker from the paper cup, put it on the top part of the desk, open the top middle cabinet door, put the paper cup inside the cabinet and close the cabinet door",task_token_only,original,L3,37.666666666666664,30-60s,0.0,0.10042143317646561,False
+DROID,1884,Remove the marker from the white mug.,task_token_only,original,L3,16.266666666666666,0-30s,0.4,0.10346682001713524,False
+DROID,1836,Put the yellow in the small cup,task_token_only,original,L3,13.0,0-30s,0.4,0.2637389446769846,False
+DROID,1867,Put the paper cup inside the white mug,task_token_only,original,L3,14.466666666666667,0-30s,0.0,0.21277941413362078,False
+DROID,1881,Close the top left drawer,task_token_only,original,L3,30.866666666666667,30-60s,0.4,0.2952174256977442,False
+DROID,1713,Put the screwdriver in the drawer and close it,task_token_only,original,L3,6.8,0-30s,0.4,0.29095702239374416,False
+DROID,1511,Remove the white and black mug from the dish rack and put it on the counter.,task_token_only,original,L3,13.266666666666667,0-30s,0.0,0.1481470843806635,False
+DROID,1758,Remove the scissors in middle compartment of the opened drawer and put it on the right side of the wooden spatula on the far left,task_token_only,original,L3,9.066666666666666,0-30s,0.3,0.1537632702947388,False
+DROID,1204,Move the silver bowl to the table,task_token_only,original,L3,24.533333333333335,0-30s,0.0,0.12245598129442103,False
+DROID,1596,Move the mug to the right.,task_token_only,original,L3,13.6,0-30s,0.4,0.060831888290540204,False
+DROID,1282,Open the cupboard door,task_token_only,original,L3,18.0,0-30s,0.3,0.15534461706309657,False
+DROID,1949,Move the red mug forwards.,task_token_only,original,L3,14.333333333333334,0-30s,0.4,0.07076206207617938,False
+AgiBot,12093035,Restock supermarket items,task_token_only,original,L1,16.416667522,0-30s,0.7,0.06898277252912521,True
+AgiBot,12093225,Restock supermarket items,task_token_only,original,L1,15.866667494,0-30s,0.8,0.06821118295192719,True
+AgiBot,12093263,Restock supermarket items,task_token_only,original,L1,15.900000829,0-30s,0.7,0.07251546035210292,True
+AgiBot,12093270,Restock supermarket items,task_token_only,original,L1,15.666667483,0-30s,0.2,0.08184811721245448,False
+AgiBot,12093282,Restock supermarket items,task_token_only,original,L1,14.950000779,0-30s,0.4,0.07542156800627708,False
+AgiBot,12093284,Restock supermarket items,task_token_only,original,L1,14.366667415,0-30s,0.4,0.07098638638854027,False
+AgiBot,12093297,Restock supermarket items,task_token_only,original,L1,17.616667585,0-30s,0.4,0.0780749221642812,False
+AgiBot,12093309,Restock supermarket items,task_token_only,original,L1,18.100000943,0-30s,0.7,0.06505537778139114,True
+AgiBot,12093348,Restock supermarket items,task_token_only,original,L1,17.216667564,0-30s,0.4,0.05580435941616694,False
+AgiBot,12093350,Restock supermarket items,task_token_only,original,L1,17.500000912,0-30s,0.4,0.07554162045319875,False
+AgiBot,12093356,Restock supermarket items,task_token_only,original,L1,15.800000824,0-30s,0.3,0.07532679289579391,False
+AgiBot,12093359,Restock supermarket items,task_token_only,original,L1,16.166667509,0-30s,0.0,0.06560998658339183,False
+AgiBot,12093365,Restock supermarket items,task_token_only,original,L1,16.316667517,0-30s,0.3,0.06596655026078224,False
+AgiBot,12093367,Restock supermarket items,task_token_only,original,L1,16.716667538,0-30s,0.4,0.056385704626639686,False
+AgiBot,12093482,Restock supermarket items,task_token_only,original,L1,15.300000797,0-30s,0.4,0.07511594146490097,False
+AgiBot,12093483,Restock supermarket items,task_token_only,original,L1,17.316667569,0-30s,0.4,0.05472136785586675,False
+AgiBot,12093492,Restock supermarket items,task_token_only,original,L1,17.016667554,0-30s,0.6,0.07349491864442825,True
+AgiBot,12093497,Restock supermarket items,task_token_only,original,L1,16.416667522,0-30s,0.7,0.06559266274174054,True
+AgiBot,12093549,Restock supermarket items,task_token_only,original,L1,16.783334208,0-30s,0.4,0.06240975484251976,True
+AgiBot,12093566,Restock supermarket items,task_token_only,original,L1,17.866667598,0-30s,0.4,0.07640973230202992,False
+AgiBot,12093596,Restock supermarket items,task_token_only,original,L1,16.800000876,0-30s,0.4,0.07174220557014148,False
+AgiBot,12093633,Restock supermarket items,task_token_only,original,L1,16.716667538,0-30s,0.6,0.07932418212294579,True
+AgiBot,12093660,Restock supermarket items,task_token_only,original,L1,15.666667483,0-30s,0.4,0.07262588044007619,False
+AgiBot,12093685,Restock supermarket items,task_token_only,original,L1,14.300000745,0-30s,0.4,0.06344009811679523,False
+AgiBot,12093687,Restock supermarket items,task_token_only,original,L1,15.716667486,0-30s,0.2,0.07018962502479553,False
+AgiBot,12093688,Restock supermarket items,task_token_only,original,L1,15.833334159,0-30s,0.4,0.06491718317071597,False
+AgiBot,12093689,Restock supermarket items,task_token_only,original,L1,16.516667528,0-30s,0.7,0.0621907872458299,True
+AgiBot,12093695,Restock supermarket items,task_token_only,original,L1,16.916667548,0-30s,0.4,0.0653247982263565,False
+AgiBot,12093729,Restock supermarket items,task_token_only,original,L1,17.466667577,0-30s,0.4,0.054208005468050637,False
+AgiBot,12093732,Restock supermarket items,task_token_only,original,L1,14.516667423,0-30s,0.3,0.06654470413923264,False
+AgiBot,12093733,Restock supermarket items,task_token_only,original,L1,17.600000917,0-30s,0.7,0.06006177142262459,True
+AgiBot,12093734,Restock supermarket items,task_token_only,original,L1,17.750000925,0-30s,0.0,0.0781358170012633,False
+AgiBot,12093745,Restock supermarket items,task_token_only,original,L1,16.866667546,0-30s,0.4,0.0757180005311966,False
+AgiBot,12093764,Restock supermarket items,task_token_only,original,L1,15.816667491,0-30s,0.4,0.07156448935468991,False
+AgiBot,12093912,Restock supermarket items,task_token_only,original,L1,16.350000852,0-30s,0.4,0.07004695634047191,False
+AgiBot,12094096,Restock supermarket items,task_token_only,original,L1,17.65000092,0-30s,0.4,0.057367018113533653,False
+AgiBot,12094232,Restock supermarket items,task_token_only,original,L1,14.400000751,0-30s,0.4,0.05912943184375763,False
+AgiBot,12093079,Clear the countertop waste,task_token_only,original,L1,24.350001269,0-30s,0.4,0.09949461370706558,False
+AgiBot,12093093,Clear the countertop waste,task_token_only,original,L1,25.916668018,0-30s,0.9,0.10852608581384023,True
+AgiBot,12093103,Clear the countertop waste,task_token_only,original,L1,30.316668247,30-60s,0.7,0.08674513796965282,True
+AgiBot,12093111,Clear the countertop waste,task_token_only,original,L1,33.283335069,30-60s,0.7,0.064200342943271,True
+AgiBot,12093142,Clear the countertop waste,task_token_only,original,L1,27.916668122,0-30s,0.7,0.11079165587822597,True
+AgiBot,12093226,Clear the countertop waste,task_token_only,original,L1,25.450001327,0-30s,0.9,0.0994613915681839,True
+AgiBot,12093316,Clear the countertop waste,task_token_only,original,L1,29.266668193,0-30s,0.7,0.08919351051251094,True
+AgiBot,12093324,Clear the countertop waste,task_token_only,original,L1,27.633334774,0-30s,0.4,0.11053554713726044,True
+AgiBot,12093355,Clear the countertop waste,task_token_only,original,L1,24.966667968,0-30s,0.7,0.11589477956295013,True
+AgiBot,12093372,Clear the countertop waste,task_token_only,original,L1,31.433334972,30-60s,0.7,0.12663142879803976,True
+AgiBot,12093547,Clear the countertop waste,task_token_only,original,L1,26.650001389,0-30s,0.8,0.07099458575248718,True
+AgiBot,12093587,Clear the countertop waste,task_token_only,original,L1,27.11666808,0-30s,0.9,0.10927573963999748,True
+AgiBot,12093696,Clear the countertop waste,task_token_only,original,L1,28.866668172,0-30s,0.7,0.11734375109275182,True
+AgiBot,12093756,Clear the countertop waste,task_token_only,original,L1,28.250001473,0-30s,0.7,0.12546505282322565,True
+AgiBot,12095836,Clear the countertop waste,task_token_only,original,L1,26.150001363,0-30s,0.9,0.10204897696773212,True
+AgiBot,12095888,Clear the countertop waste,task_token_only,original,L1,25.116667976,0-30s,0.9,0.12207354853550594,True
+AgiBot,12096108,Clear the countertop waste,task_token_only,original,L1,27.200001418,0-30s,0.9,0.11713453630606334,True
+AgiBot,12096115,Clear the countertop waste,task_token_only,original,L1,27.066668078,0-30s,0.9,0.10034277786811192,True
+AgiBot,12096128,Clear the countertop waste,task_token_only,original,L1,25.566668,0-30s,0.7,0.0956277425090472,True
+AgiBot,12096132,Clear the countertop waste,task_token_only,original,L1,25.983334688,0-30s,0.9,0.11654624839623769,True
+AgiBot,12096162,Clear the countertop waste,task_token_only,original,L1,27.200001418,0-30s,0.9,0.11199840406576793,True
+AgiBot,12096166,Clear the countertop waste,task_token_only,original,L1,28.250001473,0-30s,0.7,0.11052747319142024,True
+AgiBot,12096177,Clear the countertop waste,task_token_only,original,L1,25.050001306,0-30s,0.9,0.12093483656644821,True
+AgiBot,12096184,Clear the countertop waste,task_token_only,original,L1,26.550001384,0-30s,0.7,0.11193066835403442,True
+AgiBot,12096187,Clear the countertop waste,task_token_only,original,L1,27.283334756,0-30s,0.7,0.06634401281674702,True
+AgiBot,12096193,Clear the countertop waste,task_token_only,original,L1,30.550001593,30-60s,0.7,0.1092434823513031,True
+AgiBot,12096200,Clear the countertop waste,task_token_only,original,L1,28.616668159,0-30s,1.0,0.08917974929014842,True
+AgiBot,12096228,Clear the countertop waste,task_token_only,original,L1,30.616668263,30-60s,0.7,0.09742996841669083,True
+AgiBot,12096250,Clear the countertop waste,task_token_only,original,L1,26.766668062,0-30s,0.4,0.11212156961361568,True
+AgiBot,12096258,Clear the countertop waste,task_token_only,original,L1,26.800001397,0-30s,0.9,0.08773733427127202,True
+AgiBot,12096259,Clear the countertop waste,task_token_only,original,L1,24.766667958,0-30s,0.7,0.09645494446158409,True
+AgiBot,12096273,Clear the countertop waste,task_token_only,original,L1,25.883334683,0-30s,0.9,0.0840773085753123,True
+AgiBot,12096290,Clear the countertop waste,task_token_only,original,L1,30.56666826,30-60s,0.9,0.07617659370104472,True
+AgiBot,12096309,Clear the countertop waste,task_token_only,original,L1,25.500001329,0-30s,0.7,0.08706038196881612,True
+AgiBot,12096311,Clear the countertop waste,task_token_only,original,L1,26.216668033,0-30s,0.7,0.1107706328233083,True
+AgiBot,12096320,Clear the countertop waste,task_token_only,original,L1,30.066668234,30-60s,0.7,0.09332273652156194,True
+AgiBot,12096322,Clear the countertop waste,task_token_only,original,L1,27.150001415,0-30s,0.7,0.09445383896430333,True
+AgiBot,12096361,Clear the countertop waste,task_token_only,original,L1,32.366668354,30-60s,0.9,0.07279082511862119,True
+AgiBot,12079165,Open drawer and store items,task_token_only,original,L1,29.466668203,0-30s,0.3,0.08852872500816981,False
+AgiBot,12079171,Open drawer and store items,task_token_only,original,L1,29.01666818,0-30s,0.4,0.09630986551443736,False
+AgiBot,12079192,Open drawer and store items,task_token_only,original,L1,29.850001556,0-30s,0.8,0.07529354467988014,True
+AgiBot,12079202,Open drawer and store items,task_token_only,original,L1,27.366668093,0-30s,0.4,0.08520701775948207,False
+AgiBot,12079204,Open drawer and store items,task_token_only,original,L1,27.86666812,0-30s,0.7,0.10063588122526805,True
+AgiBot,12079206,Open drawer and store items,task_token_only,original,L1,29.366668198,0-30s,0.3,0.0976594090461731,False
+AgiBot,12079216,Open drawer and store items,task_token_only,original,L1,29.4166682,0-30s,0.4,0.09180547297000885,False
+AgiBot,12079219,Open drawer and store items,task_token_only,original,L1,28.366668146,0-30s,0.7,0.10374643405278523,True
+AgiBot,12079222,Open drawer and store items,task_token_only,original,L1,28.466668151,0-30s,0.4,0.1403905600309372,False
+AgiBot,12079232,Open drawer and store items,task_token_only,original,L1,26.150001363,0-30s,0.4,0.09353137016296387,False
+AgiBot,12079234,Open drawer and store items,task_token_only,original,L1,28.316668143,0-30s,0.0,0.10564266890287399,False
+AgiBot,12079236,Open drawer and store items,task_token_only,original,L1,28.016668127,0-30s,0.4,0.09750780711571376,False
+AgiBot,12079239,Open drawer and store items,task_token_only,original,L1,31.000001616,30-60s,0.3,0.09051260352134705,False
+AgiBot,12079251,Open drawer and store items,task_token_only,original,L1,31.51666831,30-60s,0.4,0.1087981586654981,False
+AgiBot,12079258,Open drawer and store items,task_token_only,original,L1,28.666668161,0-30s,0.4,0.10048787916700046,False
+AgiBot,12079264,Open drawer and store items,task_token_only,original,L1,27.266668088,0-30s,0.4,0.11586073040962219,False
+AgiBot,12079267,Open drawer and store items,task_token_only,original,L1,30.116668237,30-60s,0.4,0.08495493605732918,False
+AgiBot,12079268,Open drawer and store items,task_token_only,original,L1,30.616668263,30-60s,0.4,0.06137764826416969,False
+AgiBot,12079269,Open drawer and store items,task_token_only,original,L1,27.516668101,0-30s,0.4,0.08831147352854411,False
+AgiBot,12079273,Open drawer and store items,task_token_only,original,L1,30.216668242,30-60s,0.6,0.07252975429097812,True
+AgiBot,12079275,Open drawer and store items,task_token_only,original,L1,28.216668138,0-30s,0.3,0.09848300864299138,False
+AgiBot,12079279,Open drawer and store items,task_token_only,original,L1,27.066668078,0-30s,0.4,0.10061400632063548,False
+AgiBot,12079280,Open drawer and store items,task_token_only,original,L1,27.716668112,0-30s,0.4,0.08573973551392555,False
+AgiBot,12079284,Open drawer and store items,task_token_only,original,L1,29.116668185,0-30s,0.4,0.07857293014725049,False
+AgiBot,12079286,Open drawer and store items,task_token_only,original,L1,31.116668289,30-60s,0.4,0.12239821255207062,False
+AgiBot,12079290,Open drawer and store items,task_token_only,original,L1,28.716668164,0-30s,0.4,0.09917292495568593,False
+AgiBot,12079293,Open drawer and store items,task_token_only,original,L1,28.516668153,0-30s,0.4,0.11435246964295705,False
+AgiBot,12079295,Open drawer and store items,task_token_only,original,L1,27.716668112,0-30s,0.4,0.10421296705802281,False
+AgiBot,12079298,Open drawer and store items,task_token_only,original,L1,29.933334894,0-30s,0.6,0.12061156829198201,True
+AgiBot,12079300,Open drawer and store items,task_token_only,original,L1,28.800001502,0-30s,0.4,0.10367072373628616,False
+AgiBot,12079304,Open drawer and store items,task_token_only,original,L1,29.800001554,0-30s,0.7,0.09446261078119278,True
+AgiBot,12079363,Open drawer and store items,task_token_only,original,L1,30.50000159,30-60s,0.4,0.07988997176289558,False
+AgiBot,12079385,Open drawer and store items,task_token_only,original,L1,28.550001488,0-30s,0.4,0.10104723771413167,False
+AgiBot,12079423,Open drawer and store items,task_token_only,original,L1,28.966668177,0-30s,0.4,0.11961755404869716,False
+AgiBot,12079436,Open drawer and store items,task_token_only,original,L1,30.916668279,30-60s,0.4,0.07220636680722237,False
+AgiBot,12079447,Open drawer and store items,task_token_only,original,L1,29.08333485,0-30s,0.8,0.09616751968860626,True
+AgiBot,12079458,Open drawer and store items,task_token_only,original,L1,28.316668143,0-30s,0.4,0.1048837701479594,False
+AgiBot,12079460,Open drawer and store items,task_token_only,original,L1,29.716668216,0-30s,0.7,0.10183039059241612,True
+AgiBot,12067151,Pack moving objects from conveyor,task_token_only,original,L1,23.816667908,0-30s,0.3,0.08547572294871013,False
+AgiBot,12067158,Pack moving objects from conveyor,task_token_only,original,L1,47.88333583,30-60s,0.9,0.0841799999276797,True
+AgiBot,12067164,Pack moving objects from conveyor,task_token_only,original,L1,23.083334537,0-30s,0.3,0.06401850904027621,False
+AgiBot,12067166,Pack moving objects from conveyor,task_token_only,original,L1,55.416669556,30-60s,0.4,0.09381687641143799,False
+AgiBot,12067175,Pack moving objects from conveyor,task_token_only,original,L1,40.583335449,30-60s,0.6,0.0673508457839489,True
+AgiBot,12067178,Pack moving objects from conveyor,task_token_only,original,L1,22.25000116,0-30s,0.4,0.08524209633469582,False
+AgiBot,12067183,Pack moving objects from conveyor,task_token_only,original,L1,20.683334412,0-30s,0.4,0.07937696576118469,False
+AgiBot,12067184,Pack moving objects from conveyor,task_token_only,original,L1,56.183336263,30-60s,0.3,0.06863619883855183,False
+AgiBot,12067191,Pack moving objects from conveyor,task_token_only,original,L1,44.250002307,30-60s,0.8,0.06978426376978557,True
+AgiBot,12067193,Pack moving objects from conveyor,task_token_only,original,L1,22.216667825,0-30s,0.4,0.08314546942710876,False
+AgiBot,12067199,Pack moving objects from conveyor,task_token_only,original,L1,50.05000261,30-60s,0.6,0.08177347977956136,True
+AgiBot,12067208,Pack moving objects from conveyor,task_token_only,original,L1,41.483335496,30-60s,0.4,0.0820034792025884,False
+AgiBot,12067211,Pack moving objects from conveyor,task_token_only,original,L1,46.016669066,30-60s,0.4,0.07393415768941243,False
+AgiBot,12067217,Pack moving objects from conveyor,task_token_only,original,L1,27.750001447,0-30s,0.4,0.08518005162477493,False
+AgiBot,12067226,Pack moving objects from conveyor,task_token_only,original,L1,33.550001749,30-60s,0.4,0.09608420232931773,False
+AgiBot,12067229,Pack moving objects from conveyor,task_token_only,original,L1,43.550002271,30-60s,0.7,0.06776793176929156,True
+AgiBot,12067237,Pack moving objects from conveyor,task_token_only,original,L1,20.650001076,0-30s,0.4,0.07539554312825203,False
+AgiBot,12067238,Pack moving objects from conveyor,task_token_only,original,L1,28.916668174,0-30s,0.4,0.11229208235939343,False
+AgiBot,12067242,Pack moving objects from conveyor,task_token_only,original,L1,22.516667841,0-30s,0.4,0.07236511881152789,False
+AgiBot,12067245,Pack moving objects from conveyor,task_token_only,original,L1,25.650001337,0-30s,0.4,0.0674269733329614,False
+AgiBot,12067252,Pack moving objects from conveyor,task_token_only,original,L1,22.016667814,0-30s,0.4,0.08814408878485362,False
+AgiBot,12067260,Pack moving objects from conveyor,task_token_only,original,L1,55.283336216,30-60s,0.6,0.08185735841592152,True
+AgiBot,12067269,Pack moving objects from conveyor,task_token_only,original,L1,51.683336028,30-60s,0.4,0.07376004631320636,False
+AgiBot,12067278,Pack moving objects from conveyor,task_token_only,original,L1,20.650001076,0-30s,0.7,0.06206911181410154,True
+AgiBot,12067285,Pack moving objects from conveyor,task_token_only,original,L1,23.716667903,0-30s,0.4,0.06120047842462858,False
+AgiBot,12067294,Pack moving objects from conveyor,task_token_only,original,L1,22.583334511,0-30s,0.4,0.07678197075923283,False
+AgiBot,12067298,Pack moving objects from conveyor,task_token_only,original,L1,28.950001509,0-30s,0.9,0.06682440762718518,True
+AgiBot,12067299,Pack moving objects from conveyor,task_token_only,original,L1,23.416667887,0-30s,0.4,0.07895695169766744,False
+AgiBot,12067300,Pack moving objects from conveyor,task_token_only,original,L1,25.150001311,0-30s,0.4,0.07149816676974297,False
+AgiBot,12067308,Pack moving objects from conveyor,task_token_only,original,L1,24.183334594,0-30s,0.3,0.04769457752505938,False
+AgiBot,12067313,Pack moving objects from conveyor,task_token_only,original,L1,21.050001097,0-30s,0.3,0.07303523893157642,False
+AgiBot,12067322,Pack moving objects from conveyor,task_token_only,original,L1,22.150001154999998,0-30s,0.4,0.06744957094391187,False
+AgiBot,12067327,Pack moving objects from conveyor,task_token_only,original,L1,40.65000212,30-60s,0.7,0.05708923811713854,True
+AgiBot,12067336,Pack moving objects from conveyor,task_token_only,original,L1,50.150002615,30-60s,0.4,0.07934491336345673,False
+AgiBot,12067344,Pack moving objects from conveyor,task_token_only,original,L1,50.783335981,30-60s,0.4,0.05792062232891718,False
+AgiBot,12067349,Pack moving objects from conveyor,task_token_only,original,L1,19.650001024,0-30s,0.4,0.06633833919962247,False
+AgiBot,12067355,Pack moving objects from conveyor,task_token_only,original,L1,22.216667825,0-30s,0.4,0.06409308686852455,False
+AgiBot,12055595,Pack in the supermarket,task_token_only,original,L3,78.400004088,60-120s,0.4,0.07107979493836562,False
+AgiBot,12055618,Pack in the supermarket,task_token_only,original,L3,97.000005058,60-120s,0.7,0.0845973789691925,True
+AgiBot,12055722,Pack in the supermarket,task_token_only,original,L3,64.333336688,60-120s,0.8,0.07197648907701175,True
+AgiBot,12055834,Pack in the supermarket,task_token_only,original,L3,55.066669538,30-60s,0.4,0.07417398442824681,False
+AgiBot,12055850,Pack in the supermarket,task_token_only,original,L3,106.966672245,60-120s,0.3,0.12764887263377508,False
+AgiBot,12055885,Pack in the supermarket,task_token_only,original,L3,19.88333437,0-30s,0.4,0.1142074465751648,False
+AgiBot,12055891,Pack in the supermarket,task_token_only,original,L3,94.950004952,60-120s,0.4,0.12884217500686646,False
+AgiBot,12055899,Pack in the supermarket,task_token_only,original,L3,44.483335653,30-60s,0.7,0.11369340121746063,True
+AgiBot,12055925,Pack in the supermarket,task_token_only,original,L3,99.750005202,60-120s,0.3,0.08720829213658969,False
+AgiBot,12055931,Pack in the supermarket,task_token_only,original,L3,68.466670237,60-120s,0.4,0.09200763702392578,False
+AgiBot,12055936,Pack in the supermarket,task_token_only,original,L3,45.483335705,30-60s,0.7,0.09637511024872462,True
+AgiBot,12056123,Pack in the supermarket,task_token_only,original,L3,67.533336855,60-120s,0.4,0.08720851317048073,False
+AgiBot,12056212,Pack in the supermarket,task_token_only,original,L3,20.266667723,0-30s,0.4,0.09425752858320872,False
+AgiBot,12056262,Pack in the supermarket,task_token_only,original,L3,92.11667147,60-120s,0.4,0.09611384943127632,False
+AgiBot,12056366,Pack in the supermarket,task_token_only,original,L3,54.500002842,30-60s,0.4,0.09236299743254979,False
+AgiBot,12056529,Pack in the supermarket,task_token_only,original,L3,73.566670503,60-120s,0.4,0.052996265391508736,False
+AgiBot,12056598,Pack in the supermarket,task_token_only,original,L3,63.783336659,60-120s,0.4,0.10441577931245168,False
+AgiBot,12056630,Pack in the supermarket,task_token_only,original,L3,69.383336951,60-120s,0.7,0.07518190642197926,True
+AgiBot,12056666,Pack in the supermarket,task_token_only,original,L3,44.50000232,30-60s,0.0,0.08331724504629771,False
+AgiBot,12056690,Pack in the supermarket,task_token_only,original,L3,19.850001035,0-30s,0.4,0.0787438340485096,False
+AgiBot,12056691,Pack in the supermarket,task_token_only,original,L3,66.133336782,60-120s,0.3,0.09170106301705043,False
+AgiBot,12056695,Pack in the supermarket,task_token_only,original,L3,33.966668438,30-60s,0.4,0.07207756241162618,False
+AgiBot,12056924,Pack in the supermarket,task_token_only,original,L3,43.500002268,30-60s,0.4,0.10636715963482857,False
+AgiBot,12056947,Pack in the supermarket,task_token_only,original,L3,42.033335525,30-60s,0.4,0.09009569510817528,False
+AgiBot,12057013,Pack in the supermarket,task_token_only,original,L3,60.883336508,60-120s,0.4,0.115413598716259,False
+AgiBot,12057111,Pack in the supermarket,task_token_only,original,L3,37.083335267,30-60s,0.4,0.10964453220367432,False
+AgiBot,12057155,Pack in the supermarket,task_token_only,original,L3,23.783334573,0-30s,0.4,0.07801727453867595,False
+AgiBot,12057172,Pack in the supermarket,task_token_only,original,L3,21.30000111,0-30s,0.4,0.10822180410226186,False
+AgiBot,12057175,Pack in the supermarket,task_token_only,original,L3,68.250003559,60-120s,0.0,0.08283239354689916,False
+AgiBot,12057176,Pack in the supermarket,task_token_only,original,L3,96.066671676,60-120s,0.8,0.10489847262700398,True
+AgiBot,12057210,Pack in the supermarket,task_token_only,original,L3,67.166670169,60-120s,0.4,0.0977200133105119,False
+AgiBot,12057227,Pack in the supermarket,task_token_only,original,L3,20.483334401,0-30s,0.4,0.0926046830912431,False
+AgiBot,12057242,Pack in the supermarket,task_token_only,original,L3,92.216671476,60-120s,0.4,0.06362981349229813,False
+AgiBot,12057318,Pack in the supermarket,task_token_only,original,L3,45.266669027,30-60s,0.6,0.09703028947114944,True
+AgiBot,12057337,Pack in the supermarket,task_token_only,original,L3,64.666670039,60-120s,0.4,0.06499915073315303,False
+AgiBot,12057354,Pack in the supermarket,task_token_only,original,L3,60.066669799,60-120s,0.7,0.06905547281106313,True
+AgiBot,12057359,Pack in the supermarket,task_token_only,original,L3,41.616668837,30-60s,0.0,0.07742572948336601,False
+AgiBot,12052348,Clear table in the restaurant,task_token_only,original,L3,93.800004892,60-120s,0.4,0.07104971259832382,False
+AgiBot,12052353,Clear table in the restaurant,task_token_only,original,L3,20.133334383,0-30s,0.3,0.06661729452510674,False
+AgiBot,12052355,Clear table in the restaurant,task_token_only,original,L3,50.750002646,30-60s,0.4,0.09410085901618004,True
+AgiBot,12052365,Clear table in the restaurant,task_token_only,original,L3,72.983337139,60-120s,0.4,0.07643309483925502,True
+AgiBot,12052496,Clear table in the restaurant,task_token_only,original,L3,28.416668148,0-30s,0.7,0.07181087881326675,True
+AgiBot,12052515,Clear table in the restaurant,task_token_only,original,L3,97.000005058,60-120s,0.4,0.07940116027990977,False
+AgiBot,12052516,Clear table in the restaurant,task_token_only,original,L3,72.766670461,60-120s,0.4,0.08811818559964497,False
+AgiBot,12052521,Clear table in the restaurant,task_token_only,original,L3,126.333339922,120s+,0.4,0.07245479027430217,True
+AgiBot,12052534,Clear table in the restaurant,task_token_only,original,L3,78.05000407,60-120s,0.4,0.06878957028190295,False
+AgiBot,12052536,Clear table in the restaurant,task_token_only,original,L3,27.733334779,0-30s,0.7,0.07391084854801495,True
+AgiBot,12052539,Clear table in the restaurant,task_token_only,original,L3,114.883339324,60-120s,0.4,0.05436500534415245,False
+AgiBot,12052552,Clear table in the restaurant,task_token_only,original,L3,22.650001181,0-30s,0.7,0.07705269878109296,True
+AgiBot,12052607,Clear table in the restaurant,task_token_only,original,L3,140.333340652,120s+,0.4,0.0820857398211956,True
+AgiBot,12052615,Clear table in the restaurant,task_token_only,original,L3,83.716671032,60-120s,0.4,0.07845041528344154,True
+AgiBot,12052639,Clear table in the restaurant,task_token_only,original,L3,118.066672824,60-120s,0.4,0.09247370188434918,True
+AgiBot,12052646,Clear table in the restaurant,task_token_only,original,L3,74.40000388,60-120s,0.7,0.0728560561935107,True
+AgiBot,12052650,Clear table in the restaurant,task_token_only,original,L3,53.933336146,30-60s,0.4,0.06968762601415317,False
+AgiBot,12052674,Clear table in the restaurant,task_token_only,original,L3,100.550005244,60-120s,0.4,0.07932625710964203,False
+AgiBot,12052683,Clear table in the restaurant,task_token_only,original,L3,24.000001251,0-30s,0.4,0.07765188564856847,False
+AgiBot,12052685,Clear table in the restaurant,task_token_only,original,L3,112.633339207,60-120s,0.8,0.0542835338662068,True
+AgiBot,12052690,Clear table in the restaurant,task_token_only,original,L3,128.433340031,120s+,0.8,0.07790657381216685,True
+AgiBot,12052691,Clear table in the restaurant,task_token_only,original,L3,67.333336845,60-120s,0.3,0.07707010954618454,False
+AgiBot,12052706,Clear table in the restaurant,task_token_only,original,L3,44.100002299,30-60s,0.7,0.0961129479110241,True
+AgiBot,12052724,Clear table in the restaurant,task_token_only,original,L3,59.200003087,30-60s,0.4,0.0678763488928477,False
+AgiBot,12052745,Clear table in the restaurant,task_token_only,original,L3,77.066670686,60-120s,0.4,0.07551057140032451,False
+AgiBot,12052747,Clear table in the restaurant,task_token_only,original,L3,56.366669606,30-60s,0.4,0.07793067023158073,False
+AgiBot,12052777,Clear table in the restaurant,task_token_only,original,L3,89.583338005,60-120s,0.7,0.0680397159109513,True
+AgiBot,12052779,Clear table in the restaurant,task_token_only,original,L3,48.183335846,30-60s,0.7,0.06748375296592712,True
+AgiBot,12052781,Clear table in the restaurant,task_token_only,original,L3,108.050005635,60-120s,0.7,0.059215646237134933,True
+AgiBot,12052785,Clear table in the restaurant,task_token_only,original,L3,46.166669074,30-60s,0.4,0.08398677160342534,False
+AgiBot,12052786,Clear table in the restaurant,task_token_only,original,L3,22.150001154999998,0-30s,0.4,0.07886114468177159,True
+AgiBot,12052907,Clear table in the restaurant,task_token_only,original,L3,109.450005708,60-120s,0.4,0.06213643029332161,False
+AgiBot,12052912,Clear table in the restaurant,task_token_only,original,L3,79.366670805,60-120s,0.4,0.09343148519595464,False
+AgiBot,12052919,Clear table in the restaurant,task_token_only,original,L3,56.466669611,30-60s,0.7,0.07992865517735481,True
+AgiBot,12052927,Clear table in the restaurant,task_token_only,original,L3,19.516667684,0-30s,0.7,0.08178991824388504,True
+AgiBot,12052940,Clear table in the restaurant,task_token_only,original,L3,106.000005528,60-120s,0.6,0.07906645412246387,True
+AgiBot,12052942,Clear table in the restaurant,task_token_only,original,L3,87.150004545,60-120s,0.4,0.09114202360312144,False
+AgiBot,12052966,Clear table in the restaurant,task_token_only,original,L3,50.733335979,30-60s,0.4,0.06966649120052655,False
+AgiBot,12052735,Stamp the seal ,task_token_only,original,L3,148.133341059,120s+,0.4,0.052982185035943985,False
+AgiBot,12052738,Stamp the seal ,task_token_only,original,L3,122.483339721,120s+,0.4,0.06441593294342358,False
+AgiBot,12052750,Stamp the seal ,task_token_only,original,L3,49.200002565,30-60s,0.7,0.06247782955567042,True
+AgiBot,12052818,Stamp the seal ,task_token_only,original,L3,217.366678003,120s+,0.7,0.05401876817146937,True
+AgiBot,12052824,Stamp the seal ,task_token_only,original,L3,172.100008975,120s+,0.7,0.049118137607971825,True
+AgiBot,12052835,Stamp the seal ,task_token_only,original,L3,127.350006641,120s+,0.7,0.054561592638492584,True
+AgiBot,12052836,Stamp the seal ,task_token_only,original,L3,238.300012428,120s+,0.4,0.04116865061223507,False
+AgiBot,12052858,Stamp the seal ,task_token_only,original,L3,167.450008733,120s+,0.4,0.048178788274526596,False
+AgiBot,12052860,Stamp the seal ,task_token_only,original,L3,44.066668964,30-60s,0.4,0.06507713223497073,False
+AgiBot,12052878,Stamp the seal ,task_token_only,original,L3,73.100003812,60-120s,0.7,0.04579188053806623,True
+AgiBot,12052908,Stamp the seal ,task_token_only,original,L3,147.750007705,120s+,0.4,0.05582886065045992,False
+AgiBot,12052913,Stamp the seal ,task_token_only,original,L3,123.200006425,120s+,0.4,0.06338458384076755,False
+AgiBot,12052941,Stamp the seal ,task_token_only,original,L3,170.033342201,120s+,0.7,0.05602010587851206,True
+AgiBot,12052945,Stamp the seal ,task_token_only,original,L3,124.750006506,120s+,0.4,0.0558030940592289,False
+AgiBot,12052949,Stamp the seal ,task_token_only,original,L3,99.166671838,60-120s,0.0,0.053794194012880325,False
+AgiBot,12052962,Stamp the seal ,task_token_only,original,L3,233.633345518,120s+,0.4,0.045140751947959266,False
+AgiBot,12052970,Stamp the seal ,task_token_only,original,L3,208.250010861,120s+,0.7,0.045540484289328255,True
+AgiBot,12052992,Stamp the seal ,task_token_only,original,L3,132.066673554,120s+,0.4,0.039758309721946716,False
+AgiBot,12053001,Stamp the seal ,task_token_only,original,L3,117.533339463,60-120s,0.4,0.04256821175416311,False
+AgiBot,12053003,Stamp the seal ,task_token_only,original,L3,78.216670745,60-120s,0.4,0.05172058939933777,True
+AgiBot,12053011,Stamp the seal ,task_token_only,original,L3,53.133336104,30-60s,0.4,0.0705223170419534,False
+AgiBot,12053012,Stamp the seal ,task_token_only,original,L3,25.566668,0-30s,0.4,0.061326779425144196,False
+AgiBot,12053045,Stamp the seal ,task_token_only,original,L3,264.216680446,120s+,0.8,0.04827230672041575,True
+AgiBot,12053049,Stamp the seal ,task_token_only,original,L3,237.566679056,120s+,0.0,0.05885130042831103,False
+AgiBot,12053052,Stamp the seal ,task_token_only,original,L3,213.500011134,120s+,0.7,0.0496398371954759,True
+AgiBot,12053058,Stamp the seal ,task_token_only,original,L3,177.650009265,120s+,0.4,0.05181840931375822,False
+AgiBot,12053062,Stamp the seal ,task_token_only,original,L3,134.783340362,120s+,0.7,0.051029399037361145,True
+AgiBot,12053069,Stamp the seal ,task_token_only,original,L3,84.183337723,60-120s,0.3,0.05197143306334814,False
+AgiBot,12053070,Stamp the seal ,task_token_only,original,L3,53.500002789999996,30-60s,0.3,0.05537568777799606,False
+AgiBot,12053084,Stamp the seal ,task_token_only,original,L3,247.983346266,120s+,0.4,0.046803971752524376,False
+AgiBot,12053089,Stamp the seal ,task_token_only,original,L3,197.000010274,120s+,0.4,0.07545182853937149,False
+AgiBot,12053100,Stamp the seal ,task_token_only,original,L3,125.566673215,120s+,0.7,0.06970869501431783,True
+AgiBot,12053104,Stamp the seal ,task_token_only,original,L3,90.250004706,60-120s,0.4,0.05302651971578598,False
+AgiBot,12053109,Stamp the seal ,task_token_only,original,L3,65.483336748,60-120s,0.4,0.04682853321234385,False
+AgiBot,12053116,Stamp the seal ,task_token_only,original,L3,40.433335442,30-60s,0.4,0.0551738478243351,False
+AgiBot,12053129,Stamp the seal ,task_token_only,original,L3,204.166677314,120s+,0.3,0.08811408653855324,False
+AgiBot,12053142,Stamp the seal ,task_token_only,original,L3,105.350005494,60-120s,0.7,0.05704487736026446,True
+AgiBot,12050785,Heat the food in the microwave,task_token_only,original,L3,133.616673635,120s+,0.7,0.07680341849724452,True
+AgiBot,12050788,Heat the food in the microwave,task_token_only,original,L3,151.116674548,120s+,0.4,0.06391484290361404,False
+AgiBot,12050792,Heat the food in the microwave,task_token_only,original,L3,175.250009139,120s+,0.4,0.08936371157566707,False
+AgiBot,12050801,Heat the food in the microwave,task_token_only,original,L3,128.750006714,120s+,0.4,0.08353021989266078,False
+AgiBot,12050802,Heat the food in the microwave,task_token_only,original,L3,180.083342725,120s+,0.4,0.06526811048388481,False
+AgiBot,12050810,Heat the food in the microwave,task_token_only,original,L3,149.250007783,120s+,0.4,0.06905709703763326,False
+AgiBot,12050813,Heat the food in the microwave,task_token_only,original,L3,175.250009139,120s+,0.4,0.06342333431045215,False
+AgiBot,12050818,Heat the food in the microwave,task_token_only,original,L3,128.716673379,120s+,0.3,0.06368623053034146,False
+AgiBot,12050822,Heat the food in the microwave,task_token_only,original,L3,141.083340691,120s+,0.4,0.07829847931861877,False
+AgiBot,12050829,Heat the food in the microwave,task_token_only,original,L3,141.850007398,120s+,0.4,0.07133232429623604,False
+AgiBot,12050837,Heat the food in the microwave,task_token_only,original,L3,107.916672294,60-120s,0.4,0.0656910091638565,False
+AgiBot,12050846,Heat the food in the microwave,task_token_only,original,L3,145.383340915,120s+,0.4,0.0746611716846625,False
+AgiBot,12050851,Heat the food in the microwave,task_token_only,original,L3,169.283342162,120s+,0.4,0.07906828075647354,False
+AgiBot,12050856,Heat the food in the microwave,task_token_only,original,L3,137.550007173,120s+,0.4,0.06408365815877914,False
+AgiBot,12050863,Heat the food in the microwave,task_token_only,original,L3,162.850008493,120s+,0.4,0.06540888672073682,False
+AgiBot,12050872,Heat the food in the microwave,task_token_only,original,L3,146.783340988,120s+,0.4,0.07920085390408833,False
+AgiBot,12050874,Heat the food in the microwave,task_token_only,original,L3,122.816673072,120s+,0.4,0.0720840295155843,False
+AgiBot,12050878,Heat the food in the microwave,task_token_only,original,L3,118.783339528,60-120s,0.3,0.07374269763628642,False
+AgiBot,12050887,Heat the food in the microwave,task_token_only,original,L3,162.916675163,120s+,0.7,0.06054508996506532,True
+AgiBot,12050892,Heat the food in the microwave,task_token_only,original,L3,173.08334236,120s+,0.4,0.08098207414150238,False
+AgiBot,12050901,Heat the food in the microwave,task_token_only,original,L3,133.616673635,120s+,0.4,0.07169001922011375,False
+AgiBot,12050902,Heat the food in the microwave,task_token_only,original,L3,167.916675424,120s+,0.4,0.07581367840369542,False
+AgiBot,12050906,Heat the food in the microwave,task_token_only,original,L3,167.450008733,120s+,0.4,0.08886416753133138,False
+AgiBot,12050915,Heat the food in the microwave,task_token_only,original,L3,148.650007752,120s+,0.4,0.08753801137208939,False
+AgiBot,12050922,Heat the food in the microwave,task_token_only,original,L3,146.216674292,120s+,0.4,0.08917546893159549,False
+AgiBot,12050925,Heat the food in the microwave,task_token_only,original,L3,137.650007179,120s+,0.4,0.06380717207988103,False
+AgiBot,12050928,Heat the food in the microwave,task_token_only,original,L3,101.983338652,60-120s,0.4,0.08471511801083882,False
+AgiBot,12050931,Heat the food in the microwave,task_token_only,original,L3,170.550008894,120s+,0.7,0.054315440356731415,True
+AgiBot,12050938,Heat the food in the microwave,task_token_only,original,L3,132.216673562,120s+,0.7,0.07950526600082715,True
+AgiBot,12050947,Heat the food in the microwave,task_token_only,original,L3,151.716674579,120s+,0.4,0.0854630321264267,False
+AgiBot,12050948,Heat the food in the microwave,task_token_only,original,L3,154.050008034,120s+,0.4,0.07161044950286548,False
+AgiBot,12050949,Heat the food in the microwave,task_token_only,original,L3,158.416674928,120s+,0.4,0.08513446648915608,False
+AgiBot,12050958,Heat the food in the microwave,task_token_only,original,L3,138.583340561,120s+,0.3,0.06829701364040375,False
+AgiBot,12050962,Heat the food in the microwave,task_token_only,original,L3,170.250008879,120s+,0.4,0.07021934663256009,False
+AgiBot,12050965,Heat the food in the microwave,task_token_only,original,L3,127.083339961,120s+,0.4,0.08092357714970906,False
+AgiBot,12050967,Heat the food in the microwave,task_token_only,original,L3,122.21667304,120s+,0.4,0.08104923988382022,False
+AgiBot,12050971,Heat the food in the microwave,task_token_only,original,L3,167.116675382,120s+,0.3,0.06746896480520566,False
+AgiBot,12050973,Heat the food in the microwave,task_token_only,original,L3,139.916673963,120s+,0.4,0.07178407286604245,False

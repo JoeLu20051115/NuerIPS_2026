@@ -1,0 +1,3323 @@
+{
+  "name": "Agi_DualBetter_L1_50",
+  "duration_range_sec": [
+    14.300000745,
+    27.150001415
+  ],
+  "summary": {
+    "original": {
+      "mean_l2": 0.0848379997909069,
+      "mean_task_progress": 0.5059999999999999,
+      "success_rate": 0.4,
+      "rate_of_l2_lt_0_1": 0.7
+    },
+    "llm_dual": {
+      "mean_l2": 0.06603214103728532,
+      "mean_task_progress": 0.6319999999999996,
+      "success_rate": 0.6,
+      "rate_of_l2_lt_0_1": 0.98
+    }
+  },
+  "episodes": [
+    {
+      "index": 1,
+      "episode_id": "12093685",
+      "task": "Restock supermarket items",
+      "duration_sec": 14.300000745,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.8,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06485922634601593,
+      "mean_l2_llm_dual": 0.049606421341498695,
+      "progress_delta": 0.4,
+      "l2_improvement": 0.015252805004517235,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093685",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06485922634601593,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items in the target area, but the arrangement and visibility do not convincingly satisfy the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001401_03_18_19_18_49_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093685",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.2277152659371495,
+        "mean_l2": 0.049606421341498695,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the items restocked on the shelf, closely resembling the real final observation. While there are some minor pose offsets, the overall task intent is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001402_03_18_19_19_15_n4.mp4"
+      }
+    },
+    {
+      "index": 2,
+      "episode_id": "12093284",
+      "task": "Restock supermarket items",
+      "duration_sec": 14.366667415,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.062199946492910385,
+      "mean_l2_llm_dual": 0.07015708709756534,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": -0.007957140604654953,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093284",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.062199946492910385,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, and the visibility is poor, making it difficult to confirm task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001113_03_18_16_58_20_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093284",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area"
+        },
+        "plan_time": 1.2364501478150487,
+        "mean_l2": 0.07015708709756534,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and visibility do not convincingly satisfy the task goal of restocking. The items appear to be partially obscured and not properly placed.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001114_03_18_16_58_50_n4.mp4"
+      }
+    },
+    {
+      "index": 3,
+      "episode_id": "12093687",
+      "task": "Restock supermarket items",
+      "duration_sec": 15.716667486,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.0880972867210706,
+      "mean_l2_llm_dual": 0.07285556693871816,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.015241719782352448,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093687",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0880972867210706,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame is unclear and does not convincingly show the items restocked on the shelf. The visibility of the items is poor, making it difficult to assess if the task goal is achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001417_03_18_19_26_06_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093687",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.4106955947354436,
+        "mean_l2": 0.07285556693871816,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and visibility do not convincingly match the intended goal state. Key items are obscured and not properly placed.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001418_03_18_19_26_35_n4.mp4"
+      }
+    },
+    {
+      "index": 4,
+      "episode_id": "12093263",
+      "task": "Restock supermarket items",
+      "duration_sec": 15.900000829,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.6,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.08279736091693242,
+      "mean_l2_llm_dual": 0.049160571147998176,
+      "progress_delta": 0.19999999999999996,
+      "l2_improvement": 0.03363678976893424,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093263",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08279736091693242,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items being manipulated but does not clearly demonstrate that the items have been restocked on the shelf. The key objects are not in their intended final positions.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001065_03_18_16_33_13_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093263",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area"
+        },
+        "plan_time": 1.0685085374861956,
+        "mean_l2": 0.049160571147998176,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items being placed on the shelf, indicating progress towards restocking. Although the exact arrangement is not fully clear, the task intent is satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001066_03_18_16_33_42_n4.mp4"
+      }
+    },
+    {
+      "index": 5,
+      "episode_id": "12093359",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.166667509,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06074738875031471,
+      "mean_l2_llm_dual": 0.04955132802327474,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.01119606072703997,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093359",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06074738875031471,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, and the overall arrangement does not satisfy the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001209_03_18_17_50_24_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093359",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.3819041373208165,
+        "mean_l2": 0.04955132802327474,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the robot's hand reaching towards the shelf but does not convincingly indicate that the items have been restocked. The key objects are not in their intended positions.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001210_03_18_17_50_57_n4.mp4"
+      }
+    },
+    {
+      "index": 6,
+      "episode_id": "12093365",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.316667517,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06055873384078344,
+      "mean_l2_llm_dual": 0.06905021518468857,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": -0.008491481343905129,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093365",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06055873384078344,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, and the visibility of the items is obscured, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001225_03_18_17_58_15_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093365",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.8792816270142794,
+        "mean_l2": 0.06905021518468857,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items being manipulated, but the overall arrangement does not satisfy the task goal of restocking the shelves as intended. The key objects are not in their final positions.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001226_03_18_17_58_43_n4.mp4"
+      }
+    },
+    {
+      "index": 7,
+      "episode_id": "12093912",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.350000852,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06911965707937877,
+      "mean_l2_llm_dual": 0.0712537815173467,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": -0.002134124437967927,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093912",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06911965707937877,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items being restocked on the shelf, and the visibility is poor, making it difficult to confirm task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001593_03_18_20_47_37_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093912",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.3025558954104781,
+        "mean_l2": 0.0712537815173467,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows an attempt to restock items, but the key object is not placed in the target region, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001594_03_18_20_48_03_n4.mp4"
+      }
+    },
+    {
+      "index": 8,
+      "episode_id": "12093035",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.416667522,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07333821803331375,
+      "mean_l2_llm_dual": 0.05691321939229965,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.0164249986410141,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093035",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07333821803331375,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items being moved but does not clearly demonstrate that the items have been restocked on the shelf as intended.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001033_03_18_16_15_49_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093035",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.4915877720341086,
+        "mean_l2": 0.05691321939229965,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items restocked on the shelf, closely resembling the real final observation. While there are some minor pose offsets, the task intent is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001034_03_18_16_16_19_n4.mp4"
+      }
+    },
+    {
+      "index": 9,
+      "episode_id": "12093633",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.716667538,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.6,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07667606075604756,
+      "mean_l2_llm_dual": 0.06506731609503429,
+      "progress_delta": 0.19999999999999996,
+      "l2_improvement": 0.011608744661013276,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093633",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07667606075604756,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and visibility do not convincingly satisfy the task goal of restocking. Key items are obscured and not properly placed.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001369_03_18_19_03_55_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093633",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.1754200644791126,
+        "mean_l2": 0.06506731609503429,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items being positioned on the shelf, indicating progress towards restocking. However, the arrangement is not fully convincing compared to the reference goal state.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001370_03_18_19_04_25_n4.mp4"
+      }
+    },
+    {
+      "index": 10,
+      "episode_id": "12093549",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.783334208,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06357931718230247,
+      "mean_l2_llm_dual": 0.06759135673443477,
+      "progress_delta": 0.39999999999999997,
+      "l2_improvement": -0.004012039552132293,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093549",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06357931718230247,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, and the view is obstructed, making it difficult to confirm task completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001321_03_18_18_41_50_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093549",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area"
+        },
+        "plan_time": 1.0974791934713721,
+        "mean_l2": 0.06759135673443477,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items on the shelf, indicating that restocking has occurred, although the arrangement is not fully aligned with the reference goal state.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001322_03_18_18_42_17_n4.mp4"
+      }
+    },
+    {
+      "index": 11,
+      "episode_id": "12093596",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.800000876,
+      "progress_original": 0.2,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06864676003654797,
+      "mean_l2_llm_dual": 0.04734742144743601,
+      "progress_delta": 0.2,
+      "l2_improvement": 0.02129933858911196,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093596",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06864676003654797,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.2,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows a chaotic scene with items not properly restocked on the shelf, failing to meet the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001353_03_18_18_56_33_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093596",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.0916587635874748,
+        "mean_l2": 0.04734742144743601,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items in the target area, but the overall arrangement does not convincingly satisfy the task goal of restocking the items as seen in the real final observation.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001354_03_18_18_56_58_n4.mp4"
+      }
+    },
+    {
+      "index": 12,
+      "episode_id": "12093695",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.916667548,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07227333262562752,
+      "mean_l2_llm_dual": 0.06477724947035313,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.007496083155274391,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12093695",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07227333262562752,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the robot interacting with the items on the shelf, indicating an attempt to restock. Although the exact placement is not clear, the intent to restock is evident, satisfying the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001465_03_18_19_48_13_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093695",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.19938784558326,
+        "mean_l2": 0.06477724947035313,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items restocked on the shelf, with a clear intent to complete the task. Although there are some pose offsets, the overall arrangement aligns with the goal state.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001466_03_18_19_48_43_n4.mp4"
+      }
+    },
+    {
+      "index": 13,
+      "episode_id": "12093741",
+      "task": "Restock supermarket items",
+      "duration_sec": 16.916667548,
+      "progress_original": 0.0,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.05927041297157606,
+      "mean_l2_llm_dual": 0.05191612740357717,
+      "progress_delta": 0.4,
+      "l2_improvement": 0.007354285567998886,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093741",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05927041297157606,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.0,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not show any restocking of the items on the shelf, and instead shows a different set of items that are not aligned with the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001545_03_18_20_25_34_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093741",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.2226575603708625,
+        "mean_l2": 0.05191612740357717,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and completeness do not convincingly satisfy the task goal of restocking the supermarket items.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001546_03_18_20_26_01_n4.mp4"
+      }
+    },
+    {
+      "index": 14,
+      "episode_id": "12093492",
+      "task": "Restock supermarket items",
+      "duration_sec": 17.016667554,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07461688543359439,
+      "mean_l2_llm_dual": 0.052483427027861275,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.022133458405733115,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12093492",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07461688543359439,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and placement do not convincingly meet the task goal of restocking. The items appear to be in a disorganized state, and the key objects are not fully in the target region.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001289_03_18_18_27_29_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093492",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.337525861337781,
+        "mean_l2": 0.052483427027861275,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows items restocked on the shelf, closely resembling the real final observation. While there are some minor pose offsets, the overall task intent is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001290_03_18_18_27_59_n4.mp4"
+      }
+    },
+    {
+      "index": 15,
+      "episode_id": "12093350",
+      "task": "Restock supermarket items",
+      "duration_sec": 17.500000912,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.08347586542367935,
+      "mean_l2_llm_dual": 0.07160051042834918,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.01187535499533017,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093350",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08347586542367935,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, and the view is obscured, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001177_03_18_17_32_39_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093350",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area"
+        },
+        "plan_time": 1.4428696651011705,
+        "mean_l2": 0.07160051042834918,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items in the target area, but the arrangement and visibility do not convincingly satisfy the task goal of restocking the items.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001178_03_18_17_33_15_n4.mp4"
+      }
+    },
+    {
+      "index": 16,
+      "episode_id": "12094096",
+      "task": "Restock supermarket items",
+      "duration_sec": 17.65000092,
+      "progress_original": 0.6,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06054355328281721,
+      "mean_l2_llm_dual": 0.0557388961315155,
+      "progress_delta": 0.09999999999999998,
+      "l2_improvement": 0.004804657151301704,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12094096",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06054355328281721,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the items being placed on the shelf, indicating progress towards restocking. Although the exact placement is not fully clear, the intent to restock is evident, satisfying the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001609_03_18_20_54_58_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12094096",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.1910579008981586,
+        "mean_l2": 0.0557388961315155,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the items on the shelf, with some items in the correct position, indicating that the restocking task is almost fully achieved despite some visual discrepancies.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001610_03_18_20_55_32_n4.mp4"
+      }
+    },
+    {
+      "index": 17,
+      "episode_id": "12093734",
+      "task": "Restock supermarket items",
+      "duration_sec": 17.750000925,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07412041227022807,
+      "mean_l2_llm_dual": 0.0628266545633475,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.01129375770688057,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12093734",
+        "task": "Restock supermarket items",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Restock supermarket items"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07412041227022807,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the items restocked on the shelf, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001529_03_18_20_18_06_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093734",
+        "task": "Restock supermarket items",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to storage area",
+          "grasp item from shelf",
+          "move to designated restock location",
+          "place item on shelf",
+          "return to storage area"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to storage area  \ngrasp item from shelf  \nmove to designated restock location  \nplace item on shelf  \nreturn to storage area  "
+        },
+        "plan_time": 1.1896171793341637,
+        "mean_l2": 0.0628266545633475,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items on the shelf, but the arrangement and presence of items do not convincingly match the goal state. Key items are not fully restocked as intended.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001530_03_18_20_18_31_n4.mp4"
+      }
+    },
+    {
+      "index": 18,
+      "episode_id": "12067349",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 19.650001024,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.06567900503675143,
+      "mean_l2_llm_dual": 0.07944545894861221,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": -0.01376645391186078,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12067349",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06567900503675143,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects near the target area, but they are not convincingly placed in the box, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001607_03_18_20_54_00_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067349",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.9963382296264172,
+        "mean_l2": 0.07944545894861221,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows some objects in the target region, indicating partial success in packing. While not all objects are fully in the box, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001608_03_18_20_54_28_n4.mp4"
+      }
+    },
+    {
+      "index": 19,
+      "episode_id": "12055885",
+      "task": "Pack in the supermarket",
+      "duration_sec": 19.88333437,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.11689310520887375,
+      "mean_l2_llm_dual": 0.0673888549208641,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.049504250288009644,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12055885",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11689310520887375,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the bag but does not clearly indicate that the item has been successfully packed inside it.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001109_03_18_16_56_24_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12055885",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "repeat for the next item"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nrepeat for the next item"
+        },
+        "plan_time": 1.33790148422122,
+        "mean_l2": 0.0673888549208641,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the object not placed in the target container, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001110_03_18_16_56_52_n4.mp4"
+      }
+    },
+    {
+      "index": 20,
+      "episode_id": "12052353",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 20.133334383,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06675664708018303,
+      "mean_l2_llm_dual": 0.06385971481601398,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.0028969322641690526,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052353",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06675664708018303,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the objects still on the table and not cleared, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001037_03_18_16_17_50_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052353",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.3019228167831898,
+        "mean_l2": 0.06385971481601398,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the cup and dish still on the table, indicating that the task of clearing the table is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001038_03_18_16_18_18_n4.mp4"
+      }
+    },
+    {
+      "index": 21,
+      "episode_id": "12056212",
+      "task": "Pack in the supermarket",
+      "duration_sec": 20.266667723,
+      "progress_original": 0.6,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10126355787118275,
+      "mean_l2_llm_dual": 0.07916242505113284,
+      "progress_delta": 0.30000000000000004,
+      "l2_improvement": 0.022101132820049912,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12056212",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10126355787118275,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the object (bottle) being placed in the container, but the positioning is not fully clear. However, the task intent is satisfied as the bottle is in the vicinity of the target area.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001221_03_18_17_56_24_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12056212",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nclose the packing container  "
+        },
+        "plan_time": 1.2729491163045168,
+        "mean_l2": 0.07916242505113284,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item placed in the bag, which satisfies the task goal. There are minor visual discrepancies, but the intent of packing is clearly achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001222_03_18_17_56_50_n4.mp4"
+      }
+    },
+    {
+      "index": 22,
+      "episode_id": "12057227",
+      "task": "Pack in the supermarket",
+      "duration_sec": 20.483334401,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.09561918800075848,
+      "mean_l2_llm_dual": 0.06121424771845341,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.03440494028230508,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12057227",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.09561918800075848,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the item partially in the bag, but the overall arrangement does not convincingly satisfy the task goal of packing in the supermarket.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001525_03_18_20_16_21_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12057227",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the shelf",
+          "grasp the item",
+          "move to the cart",
+          "place the item in the cart",
+          "move to the next item on the shelf"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the shelf  \ngrasp the item  \nmove to the cart  \nplace the item in the cart  \nmove to the next item on the shelf  "
+        },
+        "plan_time": 1.270492180250585,
+        "mean_l2": 0.06121424771845341,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the item not placed in the bag, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001526_03_18_20_16_48_n4.mp4"
+      }
+    },
+    {
+      "index": 23,
+      "episode_id": "12067237",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 20.650001076,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.6,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07673705493410428,
+      "mean_l2_llm_dual": 0.06454602380593617,
+      "progress_delta": 0.19999999999999996,
+      "l2_improvement": 0.012191031128168106,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12067237",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07673705493410428,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some movement towards the target area, but the key object is not convincingly placed in the target region, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001303_03_18_18_33_52_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067237",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.2643759557977319,
+        "mean_l2": 0.06454602380593617,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.6,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows some objects moved towards the target area, but not all are fully in the box. However, the task intent is still satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001304_03_18_18_34_18_n4.mp4"
+      }
+    },
+    {
+      "index": 24,
+      "episode_id": "12067313",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 21.050001097,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.0742832322915395,
+      "mean_l2_llm_dual": 0.05531404415766398,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.018969188133875527,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12067313",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0742832322915395,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the objects still on the conveyor and not packed into the box, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001527_03_18_20_17_13_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067313",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area.  "
+        },
+        "plan_time": 1.3113926304504275,
+        "mean_l2": 0.05531404415766398,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects in motion but does not convincingly demonstrate that they have been successfully packed into the target area.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001528_03_18_20_17_40_n4.mp4"
+      }
+    },
+    {
+      "index": 25,
+      "episode_id": "12057172",
+      "task": "Pack in the supermarket",
+      "duration_sec": 21.30000111,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10808014372984569,
+      "mean_l2_llm_dual": 0.05040039370457331,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.057679750025272376,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12057172",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10808014372984569,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item in the bag, indicating that the task goal is satisfied despite some visual noise and potential pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001461_03_18_19_46_20_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12057172",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the shelf",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the box",
+          "close the box"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the shelf  \ngrasp the item  \nmove to the packing area  \nplace the item in the box  \nclose the box"
+        },
+        "plan_time": 1.0818271562457085,
+        "mean_l2": 0.05040039370457331,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the item placed in the bag, which satisfies the task goal despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001462_03_18_19_46_44_n4.mp4"
+      }
+    },
+    {
+      "index": 26,
+      "episode_id": "12067252",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 22.016667814,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.08838100731372833,
+      "mean_l2_llm_dual": 0.06686584278941154,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.021515164524316788,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12067252",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.08838100731372833,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects on the conveyor but does not convincingly demonstrate that they have been packed into the target area.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001367_03_18_19_02_56_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067252",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.2823446588590741,
+        "mean_l2": 0.06686584278941154,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects near the target area but not convincingly placed within the box, indicating partial completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001368_03_18_19_03_27_n4.mp4"
+      }
+    },
+    {
+      "index": 27,
+      "episode_id": "12067294",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 22.583334511,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07966739684343338,
+      "mean_l2_llm_dual": 0.049223298827807106,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.030444098015626274,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12067294",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07966739684343338,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some movement towards the target area, but the objects are not clearly packed or positioned as intended. The task goal is not convincingly achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001447_03_18_19_40_01_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067294",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.936161857098341,
+        "mean_l2": 0.049223298827807106,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the objects moved closer to the target area, satisfying the task goal despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001448_03_18_19_40_29_n4.mp4"
+      }
+    },
+    {
+      "index": 28,
+      "episode_id": "12052552",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 22.650001181,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.07923404375712077,
+      "mean_l2_llm_dual": 0.0740794191757838,
+      "progress_delta": 0.20000000000000007,
+      "l2_improvement": 0.005154624581336975,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12052552",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07923404375712077,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the cup and plate being handled, indicating an attempt to clear the table. While the positioning may not be perfect, the intent to clear the table is evident, satisfying the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001213_03_18_17_52_33_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052552",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.2682458003982902,
+        "mean_l2": 0.0740794191757838,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the table mostly cleared, with the cup and plate in a similar position to the real final observation. The task intent is clearly satisfied despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001214_03_18_17_53_01_n4.mp4"
+      }
+    },
+    {
+      "index": 29,
+      "episode_id": "12067164",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 23.083334537,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06350114444891612,
+      "mean_l2_llm_dual": 0.054348779221375786,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.009152365227540336,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12067164",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06350114444891612,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects in motion but does not convincingly demonstrate that they have been successfully packed into the target area.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001063_03_18_16_32_10_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067164",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.3564967568963766,
+        "mean_l2": 0.054348779221375786,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects moved closer to the target area, but they are not fully packed or positioned correctly in the box, indicating partial completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001064_03_18_16_32_42_n4.mp4"
+      }
+    },
+    {
+      "index": 30,
+      "episode_id": "12057155",
+      "task": "Pack in the supermarket",
+      "duration_sec": 23.783334573,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.0768109733859698,
+      "mean_l2_llm_dual": 0.03817177005112171,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.03863920333484809,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12057155",
+        "task": "Pack in the supermarket",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack in the supermarket"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0768109733859698,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the task goal being achieved, as the object is not properly placed in the bag.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001445_03_18_19_39_05_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12057155",
+        "task": "Pack in the supermarket",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to the item location",
+          "grasp the item",
+          "move to the packing area",
+          "place the item in the packing area",
+          "close the packing container"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to the item location  \ngrasp the item  \nmove to the packing area  \nplace the item in the packing area  \nclose the packing container  "
+        },
+        "plan_time": 1.4965514466166496,
+        "mean_l2": 0.03817177005112171,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the bag being manipulated but does not convincingly demonstrate that the item is packed into the bag, indicating partial completion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001446_03_18_19_39_32_n4.mp4"
+      }
+    },
+    {
+      "index": 31,
+      "episode_id": "12052683",
+      "task": "Clear table in the restaurant",
+      "duration_sec": 24.000001251,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07398495078086853,
+      "mean_l2_llm_dual": 0.04332756623625755,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.030657384544610977,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12052683",
+        "task": "Clear table in the restaurant",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear table in the restaurant"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07398495078086853,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001325_03_18_18_43_29_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12052683",
+        "task": "Clear table in the restaurant",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to table",
+          "grasp dirty dish",
+          "place dirty dish in bin",
+          "move to table",
+          "grasp silverware"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+        },
+        "plan_time": 1.207833243533969,
+        "mean_l2": 0.04332756623625755,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the table, indicating that the task of clearing the table is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001326_03_18_18_43_52_n4.mp4"
+      }
+    },
+    {
+      "index": 32,
+      "episode_id": "12093079",
+      "task": "Clear the countertop waste",
+      "duration_sec": 24.350001269,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.09992662817239761,
+      "mean_l2_llm_dual": 0.09615641708175342,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.003770211090644196,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12093079",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.09992662817239761,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste item in the target container, indicating that the task goal is satisfied despite a slight misalignment.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001023_03_18_16_10_27_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093079",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in waste bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in waste bin  "
+        },
+        "plan_time": 1.895367224700749,
+        "mean_l2": 0.09615641708175342,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste item in close proximity to the target container, indicating that the task is almost fully achieved despite a slight offset.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001024_03_18_16_11_03_n4.mp4"
+      }
+    },
+    {
+      "index": 33,
+      "episode_id": "12096259",
+      "task": "Clear the countertop waste",
+      "duration_sec": 24.766667958,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.0938006875415643,
+      "mean_l2_llm_dual": 0.0731431432068348,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.020657544334729508,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12096259",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.0938006875415643,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight pose offset does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001519_03_18_20_13_22_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096259",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.4812157042324543,
+        "mean_l2": 0.0731431432068348,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight differences in perspective do not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001520_03_18_20_13_50_n4.mp4"
+      }
+    },
+    {
+      "index": 34,
+      "episode_id": "12093355",
+      "task": "Clear the countertop waste",
+      "duration_sec": 24.966667968,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.11442342400550842,
+      "mean_l2_llm_dual": 0.08421391372879346,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.030209510276714965,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12093355",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11442342400550842,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, which aligns with the task goal of clearing the countertop waste. Although the perspective is slightly distorted, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001151_03_18_17_18_33_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093355",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.7194230509921908,
+        "mean_l2": 0.08421391372879346,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, which aligns with the task goal of clearing the countertop waste. The slight pose offset does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001152_03_18_17_19_01_n4.mp4"
+      }
+    },
+    {
+      "index": 35,
+      "episode_id": "12095888",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.116667976,
+      "progress_original": 0.9,
+      "progress_llm_dual": 1.0,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.1288136492172877,
+      "mean_l2_llm_dual": 0.090253962824742,
+      "progress_delta": 0.09999999999999998,
+      "l2_improvement": 0.038559686392545686,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12095888",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.1288136492172877,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the waste bin, indicating that the task of clearing the countertop waste is almost fully achieved. The slight pose offset does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001263_03_18_18_15_31_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12095888",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.0802779523655772,
+        "mean_l2": 0.090253962824742,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 1.0,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can successfully placed in the waste container, satisfying the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001264_03_18_18_15_58_n4.mp4"
+      }
+    },
+    {
+      "index": 36,
+      "episode_id": "12067300",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 25.150001311,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07589287931720416,
+      "mean_l2_llm_dual": 0.0708868217964967,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.005006057520707458,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12067300",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07589287931720416,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the objects still on the conveyor and not packed into the box, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001495_03_18_20_02_21_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067300",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing container."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing container."
+        },
+        "plan_time": 1.6996223106980324,
+        "mean_l2": 0.0708868217964967,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some objects still on the conveyor and not fully packed into the box, indicating incomplete task achievement.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001496_03_18_20_02_49_n4.mp4"
+      }
+    },
+    {
+      "index": 37,
+      "episode_id": "12067212",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 25.216667981,
+      "progress_original": 0.2,
+      "progress_llm_dual": 0.3,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.07958325743675232,
+      "mean_l2_llm_dual": 0.08200845122337341,
+      "progress_delta": 0.09999999999999998,
+      "l2_improvement": -0.0024251937866210938,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12067212",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.07958325743675232,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.2,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame does not clearly show the moving objects being packed from the conveyor, and the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001239_03_18_18_04_46_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067212",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.641156492754817,
+        "mean_l2": 0.08200845122337341,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows that the key object is not in the target region, and the overall arrangement does not satisfy the task goal.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001240_03_18_18_05_17_n4.mp4"
+      }
+    },
+    {
+      "index": 38,
+      "episode_id": "12093226",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.450001327,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10075576106707256,
+      "mean_l2_llm_dual": 0.07019244382778804,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.030563317239284515,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12093226",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10075576106707256,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the can inside the container, which satisfies the task goal of clearing the countertop waste. The slight visual distortion does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001103_03_18_16_53_28_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093226",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.6713194958865643,
+        "mean_l2": 0.07019244382778804,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the can in the waste container, indicating that the task of clearing the countertop waste is almost fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001104_03_18_16_53_59_n4.mp4"
+      }
+    },
+    {
+      "index": 39,
+      "episode_id": "12096309",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.500001329,
+      "progress_original": 0.4,
+      "progress_llm_dual": 0.7,
+      "success_original": false,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10217142850160599,
+      "mean_l2_llm_dual": 0.07085142781337102,
+      "progress_delta": 0.29999999999999993,
+      "l2_improvement": 0.03132000068823497,
+      "win_reason": "success",
+      "task_token_only": {
+        "episode_id": "12096309",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10217142850160599,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows some items in the container, but it is unclear if all waste has been cleared from the countertop. The task goal is not fully achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001567_03_18_20_35_22_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096309",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.250741825439036,
+        "mean_l2": 0.07085142781337102,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task goal is satisfied despite some visual noise and uncertainty in the frame.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001568_03_18_20_35_49_n4.mp4"
+      }
+    },
+    {
+      "index": 40,
+      "episode_id": "12053012",
+      "task": "Stamp the seal ",
+      "duration_sec": 25.566668,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.05888844778140386,
+      "mean_l2_llm_dual": 0.053425706923007965,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.005462740858395897,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12053012",
+        "task": "Stamp the seal ",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Stamp the seal "
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.05888844778140386,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal being stamped on the document, which satisfies the task goal despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001371_03_18_19_04_48_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12053012",
+        "task": "Stamp the seal ",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the seal's location",
+          "Grasp the stamp",
+          "Move to the seal's surface",
+          "Press the stamp onto the seal",
+          "Release the stamp"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the seal's location  \nGrasp the stamp  \nMove to the seal's surface  \nPress the stamp onto the seal  \nRelease the stamp"
+        },
+        "plan_time": 1.122729940339923,
+        "mean_l2": 0.053425706923007965,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the seal stamped on the document, indicating that the task goal is satisfied despite some pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001372_03_18_19_05_13_n4.mp4"
+      }
+    },
+    {
+      "index": 41,
+      "episode_id": "12096128",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.566668,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10559119780858357,
+      "mean_l2_llm_dual": 0.10452212393283844,
+      "progress_delta": 0.20000000000000007,
+      "l2_improvement": 0.001069073875745133,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12096128",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10559119780858357,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task of clearing the countertop waste is almost fully achieved, despite some visual discrepancies.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001311_03_18_18_37_11_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096128",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.2133491169661283,
+        "mean_l2": 0.10452212393283844,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight differences in perspective do not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001312_03_18_18_37_38_n4.mp4"
+      }
+    },
+    {
+      "index": 42,
+      "episode_id": "12067245",
+      "task": "Pack moving objects from conveyor",
+      "duration_sec": 25.650001337,
+      "progress_original": 0.3,
+      "progress_llm_dual": 0.4,
+      "success_original": false,
+      "success_llm_dual": false,
+      "mean_l2_original": 0.06888427585363388,
+      "mean_l2_llm_dual": 0.05695058902104696,
+      "progress_delta": 0.10000000000000003,
+      "l2_improvement": 0.011933686832586922,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12067245",
+        "task": "Pack moving objects from conveyor",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Pack moving objects from conveyor"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.06888427585363388,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.3,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows the objects still on the conveyor and not packed, indicating that the task goal is not achieved.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001351_03_18_18_55_39_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12067245",
+        "task": "Pack moving objects from conveyor",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "Move to the conveyor.",
+          "Grasp the moving object.",
+          "Lift the object from the conveyor.",
+          "Move to the designated packing area.",
+          "Place the object in the packing area."
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "Move to the conveyor.  \nGrasp the moving object.  \nLift the object from the conveyor.  \nMove to the designated packing area.  \nPlace the object in the packing area."
+        },
+        "plan_time": 1.7130517335608602,
+        "mean_l2": 0.05695058902104696,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.4,
+        "rule_success": false,
+        "task_success": false,
+        "judge_reason": "The predicted final frame shows one object partially in the target area, but the overall arrangement does not convincingly satisfy the task goal of packing all moving objects.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001352_03_18_18_56_08_n4.mp4"
+      }
+    },
+    {
+      "index": 43,
+      "episode_id": "12093093",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.916668018,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.7,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10781271507342656,
+      "mean_l2_llm_dual": 0.06029230604569117,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.04752040902773539,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12093093",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10781271507342656,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task of clearing the countertop waste is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001039_03_18_16_18_51_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12093093",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.4027255093678832,
+        "mean_l2": 0.06029230604569117,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task of clearing the countertop waste is almost fully achieved, despite some minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001040_03_18_16_19_23_n4.mp4"
+      }
+    },
+    {
+      "index": 44,
+      "episode_id": "12096132",
+      "task": "Clear the countertop waste",
+      "duration_sec": 25.983334688,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.11177820712327957,
+      "mean_l2_llm_dual": 0.08869223296642303,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.023085974156856537,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12096132",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11177820712327957,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items in the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight visual distortion does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001327_03_18_18_44_17_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096132",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in waste bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in waste bin  "
+        },
+        "plan_time": 1.2423616955056787,
+        "mean_l2": 0.08869223296642303,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight pose offset is acceptable given the task intent is satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001328_03_18_18_44_44_n4.mp4"
+      }
+    },
+    {
+      "index": 45,
+      "episode_id": "12095836",
+      "task": "Clear the countertop waste",
+      "duration_sec": 26.150001363,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10851360733310382,
+      "mean_l2_llm_dual": 0.06629826873540878,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.04221533859769504,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12095836",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10851360733310382,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although the can is not perfectly positioned, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001247_03_18_18_08_20_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12095836",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.2140483753755689,
+        "mean_l2": 0.06629826873540878,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, indicating that the task of clearing the countertop waste is almost fully achieved. The slight pose offset does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001248_03_18_18_08_49_n4.mp4"
+      }
+    },
+    {
+      "index": 46,
+      "episode_id": "12096311",
+      "task": "Clear the countertop waste",
+      "duration_sec": 26.216668033,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.11212139204144478,
+      "mean_l2_llm_dual": 0.055076210449139275,
+      "progress_delta": 0.20000000000000007,
+      "l2_improvement": 0.057045181592305504,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12096311",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11212139204144478,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although the visual quality is poor, the intent of the task is satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001583_03_18_20_42_56_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096311",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.0506515325978398,
+        "mean_l2": 0.055076210449139275,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although the can is slightly tilted, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001584_03_18_20_43_22_n4.mp4"
+      }
+    },
+    {
+      "index": 47,
+      "episode_id": "12096184",
+      "task": "Clear the countertop waste",
+      "duration_sec": 26.550001384,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.11081299185752869,
+      "mean_l2_llm_dual": 0.08022718752423923,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.03058580433328946,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12096184",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.11081299185752869,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although the perspective is slightly different, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001391_03_18_19_13_54_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096184",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.2682541739195585,
+        "mean_l2": 0.08022718752423923,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the waste bin, which satisfies the task goal of clearing the countertop waste. The slight pose offset does not detract from the successful completion of the task.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001392_03_18_19_14_22_n4.mp4"
+      }
+    },
+    {
+      "index": 48,
+      "episode_id": "12096250",
+      "task": "Clear the countertop waste",
+      "duration_sec": 26.766668062,
+      "progress_original": 0.8,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.1072233517964681,
+      "mean_l2_llm_dual": 0.08485752592484157,
+      "progress_delta": 0.09999999999999998,
+      "l2_improvement": 0.022365825871626527,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12096250",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.1072233517964681,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 1,
+        "step_alignment_l2_lt_0_1": 0.3333333333333333,
+        "task_progress": 0.8,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items inside the container, indicating that the task of clearing the countertop waste is mostly achieved, despite some visual distortion.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001487_03_18_19_58_28_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096250",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "lift waste item",
+          "move to waste bin",
+          "place waste item in bin"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nlift waste item  \nmove to waste bin  \nplace waste item in bin  "
+        },
+        "plan_time": 1.1648510014638305,
+        "mean_l2": 0.08485752592484157,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items placed inside the container, which aligns with the task goal of clearing the countertop waste. Although there are some visual distortions, the essential task intent is satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001488_03_18_19_58_56_n4.mp4"
+      }
+    },
+    {
+      "index": 49,
+      "episode_id": "12096115",
+      "task": "Clear the countertop waste",
+      "duration_sec": 27.066668078,
+      "progress_original": 0.9,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.10186982154846191,
+      "mean_l2_llm_dual": 0.08516217023134232,
+      "progress_delta": 0.0,
+      "l2_improvement": 0.0167076513171196,
+      "win_reason": "l2",
+      "task_token_only": {
+        "episode_id": "12096115",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.10186982154846191,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although there is some visual distortion, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001295_03_18_18_30_10_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096115",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.2438815562054515,
+        "mean_l2": 0.08516217023134232,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can inside the container, which aligns with the task goal of clearing the countertop waste. Although the perspective is slightly different, the intent of the task is clearly satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001296_03_18_18_30_37_n4.mp4"
+      }
+    },
+    {
+      "index": 50,
+      "episode_id": "12096322",
+      "task": "Clear the countertop waste",
+      "duration_sec": 27.150001415,
+      "progress_original": 0.7,
+      "progress_llm_dual": 0.9,
+      "success_original": true,
+      "success_llm_dual": true,
+      "mean_l2_original": 0.09122439722220103,
+      "mean_l2_llm_dual": 0.053151159236828484,
+      "progress_delta": 0.20000000000000007,
+      "l2_improvement": 0.03807323798537255,
+      "win_reason": "progress",
+      "task_token_only": {
+        "episode_id": "12096322",
+        "task": "Clear the countertop waste",
+        "mode": "task_token_only",
+        "sub_instructions": [
+          "Clear the countertop waste"
+        ],
+        "planner_meta": {
+          "planner_mode": "disabled"
+        },
+        "plan_time": 0.0,
+        "mean_l2": 0.09122439722220103,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 2,
+        "step_alignment_l2_lt_0_1": 0.6666666666666666,
+        "task_progress": 0.7,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the green can placed in the container, which aligns with the task goal of clearing the countertop waste. Although the positioning is not perfect, the intent of the task is satisfied.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001615_03_18_20_57_39_n3.mp4"
+      },
+      "dual_llm": {
+        "episode_id": "12096322",
+        "task": "Clear the countertop waste",
+        "mode": "dual_llm",
+        "sub_instructions": [
+          "move to countertop",
+          "grasp waste item",
+          "move to waste bin",
+          "place waste item in bin",
+          "return to starting position"
+        ],
+        "planner_meta": {
+          "planner_mode": "real_api",
+          "api_called": true,
+          "api_success": true,
+          "error": null,
+          "model": "gpt-4o-mini",
+          "raw_response": "move to countertop  \ngrasp waste item  \nmove to waste bin  \nplace waste item in bin  \nreturn to starting position  "
+        },
+        "plan_time": 1.1840604655444622,
+        "mean_l2": 0.053151159236828484,
+        "num_steps": 3,
+        "num_step_pass_l2_lt_0_1": 3,
+        "step_alignment_l2_lt_0_1": 1.0,
+        "task_progress": 0.9,
+        "rule_success": true,
+        "task_success": true,
+        "judge_reason": "The predicted final frame shows the waste items placed in the container, satisfying the task goal despite minor pose offsets.",
+        "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/001616_03_18_20_58_06_n4.mp4"
+      }
+    }
+  ]
+}

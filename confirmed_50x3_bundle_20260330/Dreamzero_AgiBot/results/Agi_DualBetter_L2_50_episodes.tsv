@@ -1,0 +1,51 @@
+#	Episode	Task	Dur(s)	Prog t->d	Succ t->d	L2 t->d	Win
+1	12096108	Clear the countertop waste	27.20	0.90->0.90	Y->Y	0.1244->0.0861	l2
+2	12079264	Open drawer and store items	27.27	0.40->0.40	N->N	0.1185->0.0849	l2
+3	12096187	Clear the countertop waste	27.28	0.40->0.90	Y->Y	0.0693->0.0828	progress
+4	12093324	Clear the countertop waste	27.63	0.70->0.70	Y->Y	0.1088->0.0637	l2
+5	12093142	Clear the countertop waste	27.92	0.90->0.90	Y->Y	0.1091->0.0730	l2
+6	12093756	Clear the countertop waste	28.25	0.40->0.90	Y->Y	0.1258->0.0773	progress
+7	12096166	Clear the countertop waste	28.25	0.80->0.90	Y->Y	0.0922->0.0890	progress
+8	12079234	Open drawer and store items	28.32	0.00->0.40	N->N	0.1054->0.1009	progress
+9	12052496	Clear table in the restaurant	28.42	0.40->0.90	Y->Y	0.0765->0.0506	progress
+10	12093696	Clear the countertop waste	28.87	0.90->0.90	Y->Y	0.1133->0.1126	l2
+11	12067238	Pack moving objects from conveyor	28.92	0.40->0.40	N->N	0.1056->0.0582	l2
+12	12093316	Clear the countertop waste	29.27	0.40->0.90	Y->Y	0.0900->0.1030	progress
+13	12079298	Open drawer and store items	29.93	0.40->0.40	N->N	0.1223->0.0903	l2
+14	12096320	Clear the countertop waste	30.07	0.70->0.70	Y->Y	0.0931->0.0922	l2
+15	12093103	Clear the countertop waste	30.32	0.70->0.70	Y->Y	0.0858->0.0824	l2
+16	12096193	Clear the countertop waste	30.55	0.70->0.70	Y->Y	0.1073->0.0962	l2
+17	12093372	Clear the countertop waste	31.43	0.90->0.90	Y->Y	0.1129->0.0917	l2
+18	12093111	Clear the countertop waste	33.28	0.70->0.90	Y->Y	0.0681->0.0907	progress
+19	12056695	Pack in the supermarket	33.97	0.40->0.70	N->Y	0.0742->0.0500	success
+20	12057111	Pack in the supermarket	37.08	0.00->0.40	N->N	0.1105->0.0694	progress
+21	12053116	Stamp the seal 	40.43	0.40->0.70	N->Y	0.0554->0.0676	success
+22	12067327	Pack moving objects from conveyor	40.65	0.40->0.70	N->Y	0.0665->0.0664	success
+23	12067208	Pack moving objects from conveyor	41.48	0.40->0.60	N->Y	0.0916->0.0437	success
+24	12057359	Pack in the supermarket	41.62	0.40->0.70	N->Y	0.0774->0.0504	success
+25	12056924	Pack in the supermarket	43.50	0.00->0.40	N->N	0.0891->0.0657	progress
+26	12067191	Pack moving objects from conveyor	44.25	0.40->0.40	N->N	0.0773->0.0416	l2
+27	12056666	Pack in the supermarket	44.50	0.00->0.40	N->N	0.0892->0.0581	progress
+28	12055936	Pack in the supermarket	45.48	0.70->0.70	Y->Y	0.0934->0.0554	l2
+29	12067211	Pack moving objects from conveyor	46.02	0.30->0.40	N->N	0.0695->0.0788	progress
+30	12067158	Pack moving objects from conveyor	47.88	0.30->0.40	N->N	0.0835->0.0736	progress
+31	12052779	Clear table in the restaurant	48.18	0.40->0.70	Y->Y	0.0658->0.0613	progress
+32	12052966	Clear table in the restaurant	50.73	0.40->0.70	Y->Y	0.0710->0.0749	progress
+33	12052355	Clear table in the restaurant	50.75	0.70->0.70	Y->Y	0.1018->0.0638	l2
+34	12052650	Clear table in the restaurant	53.93	0.40->0.80	N->Y	0.0690->0.0636	success
+35	12055834	Pack in the supermarket	55.07	0.40->0.40	N->N	0.0759->0.0442	l2
+36	12067260	Pack moving objects from conveyor	55.28	0.60->0.60	Y->Y	0.0807->0.0632	l2
+37	12067166	Pack moving objects from conveyor	55.42	0.40->0.40	N->N	0.0931->0.0559	l2
+38	12067184	Pack moving objects from conveyor	56.18	0.30->0.40	N->N	0.0774->0.0719	progress
+39	12052919	Clear table in the restaurant	56.47	0.70->0.70	Y->Y	0.0787->0.0500	l2
+40	12057354	Pack in the supermarket	60.07	0.40->0.70	N->Y	0.0677->0.0507	success
+41	12057013	Pack in the supermarket	60.88	0.30->0.40	N->N	0.1247->0.1064	progress
+42	12056598	Pack in the supermarket	63.78	0.40->0.70	N->Y	0.1044->0.0847	success
+43	12055722	Pack in the supermarket	64.33	0.40->0.80	N->Y	0.0774->0.0543	success
+44	12057337	Pack in the supermarket	64.67	0.40->0.70	N->Y	0.0725->0.0597	success
+45	12056691	Pack in the supermarket	66.13	0.00->0.70	N->Y	0.0824->0.0530	success
+46	12052691	Clear table in the restaurant	67.33	0.40->0.90	Y->Y	0.0769->0.0437	progress
+47	12056123	Pack in the supermarket	67.53	0.00->0.40	N->N	0.0929->0.0610	progress
+48	12057175	Pack in the supermarket	68.25	0.40->0.70	N->Y	0.0874->0.0344	success
+49	12055931	Pack in the supermarket	68.47	0.40->0.70	N->Y	0.0898->0.0390	success
+50	12056630	Pack in the supermarket	69.38	0.70->0.90	Y->Y	0.0803->0.0454	progress

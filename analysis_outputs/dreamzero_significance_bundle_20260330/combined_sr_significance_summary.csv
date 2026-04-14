@@ -1,0 +1,13 @@
+dataset,split,comparison,n_pairs,baseline_value,compare_value,gain_pairs,loss_pairs,p_value,p_value_bh,sig_bh,baseline_sr_pct,compare_sr_pct,delta_sr_pp
+DROID,L1,original -> llm_dual,50,0.3,0.44,9,2,0.0654,0.0826,,30.0,44.0,14.0
+DROID,L1,original -> llm_val,50,0.3,0.5,10,0,0.002,0.0031,**,30.0,50.0,20.0
+DROID,L2,original -> llm_dual,50,0.18,0.32,9,2,0.0654,0.0826,,18.0,32.0,14.0
+DROID,L2,original -> llm_val,50,0.18,0.38,10,0,0.002,0.0031,**,18.0,38.0,20.0
+DROID,L3,original -> llm_dual,50,0.2,0.34,11,4,0.1185,0.1354,,20.0,34.0,14.0
+DROID,L3,original -> llm_val,50,0.2,0.48,14,0,0.0001,0.0005,***,20.0,48.0,28.0
+AgiBot,L1,original -> llm_dual,50,0.4,0.6,10,0,0.002,0.0021,**,40.0,60.0,20.0
+AgiBot,L1,original -> llm_val,48,0.4167,0.6458,12,1,0.0034,0.0034,**,41.7,64.6,22.9
+AgiBot,L2,original -> llm_dual,50,0.44,0.7,13,0,0.0002,0.0004,***,44.0,70.0,26.0
+AgiBot,L2,original -> llm_val,49,0.449,0.6735,12,1,0.0034,0.0034,**,44.9,67.4,22.5
+AgiBot,L3,original -> llm_dual,50,0.24,0.76,26,0,0.0,0.0,***,24.0,76.0,52.0
+AgiBot,L3,original -> llm_val,50,0.24,0.58,19,2,0.0002,0.0004,***,24.0,58.0,34.0

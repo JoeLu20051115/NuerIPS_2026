@@ -1,0 +1,10 @@
+dataset	split	paired_n	K_config	mean_kvalid_original	mean_kvalid_dual	mean_kvalid_val	original_mean_plan_sec	dual_mean_plan_sec	val_mean_plan_sec	delta_total_val_vs_original_sec	delta_total_val_vs_dual_sec	delta_equiv_val_vs_original_sec_per_step	delta_equiv_val_vs_dual_sec_per_step	note
+DreamZero-DROID	ALL	150	3	3.000	3.000	3.000	0.000	1.407	4.378	4.378	2.971	1.459	0.990	Kvalid equals configured K in all paired rows, so Delta Ttotal = Delta Tplan and Delta Tequiv = Delta Tplan / K.
+DreamZero-DROID	L1	50	3	3.000	3.000	3.000	0.000	1.457	4.311	4.311	2.854	1.437	0.951	Kvalid equals configured K in all paired rows.
+DreamZero-DROID	L2	50	3	3.000	3.000	3.000	0.000	1.394	4.426	4.426	3.032	1.475	1.011	Kvalid equals configured K in all paired rows.
+DreamZero-DROID	L3	50	3	3.000	3.000	3.000	0.000	1.370	4.398	4.398	3.028	1.466	1.009	Kvalid equals configured K in all paired rows.
+DreamZero-AgiBot	ALL	147	3	3.000	3.000	3.000	0.000	1.475	6.622	6.622	5.148	2.207	1.716	Kvalid equals configured K in all paired rows after aligning original/dual selected splits with recoverable llm_val rows.
+DreamZero-AgiBot	L1	48	3	3.000	3.000	3.000	0.000	1.348	6.789	6.789	5.441	2.263	1.814	Kvalid equals configured K in all paired rows.
+DreamZero-AgiBot	L2	49	3	3.000	3.000	3.000	0.000	1.483	6.577	6.577	5.094	2.192	1.698	Kvalid equals configured K in all paired rows.
+DreamZero-AgiBot	L3	50	3	3.000	3.000	3.000	0.000	1.588	6.507	6.507	4.919	2.169	1.640	Kvalid equals configured K in all paired rows.
+DreamDojo-AgiBot-pilot	pilot	9	49	49.000	49.000	49.000	0.000	1.389	5.696	5.696	4.306	0.116	0.088	Long-horizon pilot check from agibot_dreamdojo_3way_compare.json; shows strong amortization when K is large.

@@ -24,6 +24,11 @@ try:
 except ImportError as exc:  # pragma: no cover
     raise RuntimeError("LLMPlanner is required") from exc
 
+try:
+    from llm_planner_val import LLMPlannerWithVAL
+except ImportError as exc:  # pragma: no cover
+    raise RuntimeError("LLMPlannerWithVAL is required") from exc
+
 
 class AgiBotCompareRunner:
     def __init__(
@@ -35,15 +40,20 @@ class AgiBotCompareRunner:
         eval_steps: int,
         judge_model: str,
         success_threshold: float,
+        extra_manifest_paths: list[Path] | None = None,
     ) -> None:
         self.manifest = json.loads(manifest_path.read_text())
-        self.episodes = self.manifest["episodes"]
+        self.episodes = list(self.manifest["episodes"])
+        for extra in (extra_manifest_paths or []):
+            extra_manifest = json.loads(extra.read_text())
+            self.episodes.extend(extra_manifest["episodes"])
         self.generated_video_dir = generated_video_dir
         self.eval_steps = eval_steps
         self.success_threshold = success_threshold
         self.policy = WebsocketClientPolicy(host=host, port=port)
         self.judge = FinalFrameJudge(judge_model)
         self.planner = LLMPlanner(use_mock=False, temperature=0.0)
+        self.val_planner = LLMPlannerWithVAL(temperature=0.0)
 
     @staticmethod
     def _load_episode_metadata(row: dict) -> tuple[int, int]:
@@ -126,7 +136,10 @@ class AgiBotCompareRunner:
         if mode == "task_token_only":
             return [task], {"planner_mode": "disabled"}, 0.0
         start = time.perf_counter()
-        sub_instructions, planner_meta = self.planner.plan(task, {"episode_id": episode_id})
+        if mode == "llm_val":
+            sub_instructions, planner_meta = self.val_planner.plan(task, {"episode_id": episode_id})
+        else:
+            sub_instructions, planner_meta = self.planner.plan(task, {"episode_id": episode_id})
         return sub_instructions, planner_meta, time.perf_counter() - start
 
     def run_episode(self, row: dict, mode: str) -> dict:
@@ -220,8 +233,10 @@ def summarize(rows: list[dict]) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Compare AgiBot task_token_only vs dual_llm with judged metrics.")
+    parser = argparse.ArgumentParser(description="Compare AgiBot task_token_only vs dual_llm vs llm_val with judged metrics.")
     parser.add_argument("--manifest-path", type=Path, default=DEFAULT_MANIFEST)
+    parser.add_argument("--extra-manifest-path", type=Path, action="append", default=None,
+                        help="Additional manifest files to combine (can be specified multiple times)")
     parser.add_argument("--generated-video-dir", type=Path, default=DEFAULT_GENERATED_VIDEO_DIR)
     parser.add_argument("--host", type=str, default="localhost")
     parser.add_argument("--port", type=int, default=8000)
@@ -229,12 +244,16 @@ def main() -> None:
     parser.add_argument("--num-episodes", type=int, default=400)
     parser.add_argument("--judge-model", type=str, default="gpt-4o-mini")
     parser.add_argument("--success-threshold", type=float, default=0.75)
+    parser.add_argument("--modes", type=str, default="task_token_only,dual_llm,llm_val",
+                        help="Comma-separated list of modes to evaluate")
     parser.add_argument(
         "--output-json",
         type=Path,
         default=Path("evaluation_results_dualsystem/agibot_easy400_compare_judged.json"),
     )
     args = parser.parse_args()
+
+    modes = [m.strip() for m in args.modes.split(",")]
 
     runner = AgiBotCompareRunner(
         manifest_path=args.manifest_path,
@@ -244,29 +263,33 @@ def main() -> None:
         eval_steps=args.eval_steps,
         judge_model=args.judge_model,
         success_threshold=args.success_threshold,
+        extra_manifest_paths=args.extra_manifest_path,
     )
 
     all_results: list[dict] = []
-    running: dict[str, list[dict]] = {"task_token_only": [], "dual_llm": []}
+    running: dict[str, list[dict]] = {mode: [] for mode in modes}
     for idx, row in enumerate(runner.episodes[: args.num_episodes], 1):
         print(f"\n[{idx}/{args.num_episodes}] {row['episode_id']} | task={row['english_task_name']}")
-        for mode in ("task_token_only", "dual_llm"):
+        for mode in modes:
             result = runner.run_episode(row, mode)
             running[mode].append(result)
             all_results.append(result)
             current = summarize(running[mode])
+            l2_str = f"{result['mean_l2']:.4f}" if result['mean_l2'] is not None else "N/A"
+            cur_l2_str = f"{current['mean_l2']:.4f}" if current['mean_l2'] is not None else "N/A"
+            cur_l2_lt01_str = f"{current['rate_of_l2_lt_0_1']:.3f}" if current['rate_of_l2_lt_0_1'] is not None else "N/A"
             print(
                 "  "
-                f"[{mode}] mean_l2={result['mean_l2']:.4f} | "
+                f"[{mode}] mean_l2={l2_str} | "
                 f"task_progress={result['task_progress']:.3f} | "
                 f"rule_success={'PASS' if result['rule_success'] else 'FAIL'} | "
                 f"success={'PASS' if result['task_success'] else 'FAIL'} | "
-                f"running_mean_l2={current['mean_l2']:.4f} | "
+                f"running_mean_l2={cur_l2_str} | "
                 f"running_mean_task_progress={current['mean_task_progress']:.3f} | "
                 f"running_success_rate={current['success_rate']:.3f} | "
-                f"running_rate_l2_lt_0_1={current['rate_of_l2_lt_0_1']:.3f}"
+                f"running_rate_l2_lt_0_1={cur_l2_lt01_str}"
             )
-            if mode == "dual_llm":
+            if mode in ("dual_llm", "llm_val"):
                 print(f"    sub_instructions={result['sub_instructions']}")
         payload = {
             "results": all_results,

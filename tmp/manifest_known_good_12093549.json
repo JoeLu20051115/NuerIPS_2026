@@ -1,0 +1,69 @@
+{
+  "episodes": [
+    {
+      "episode_id": "12093549",
+      "task_group": "restock_supermarket_items",
+      "task_id": 2810229,
+      "job_id": 3371990,
+      "sn_code": "A2D0015AB00061",
+      "english_task_name": "Restock supermarket items",
+      "relative_episode_dir": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549",
+      "camera_paths": {
+        "head": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/head_color.mp4",
+        "hand_right": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/hand_right_color.mp4",
+        "hand_left": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/hand_left_color.mp4"
+      },
+      "camera_frames": {
+        "head": 394,
+        "hand_right": 394,
+        "hand_left": 394
+      },
+      "duration_sec": 16.783334208,
+      "camera_list": [
+        "head",
+        "hand_right",
+        "hand_left"
+      ],
+      "fps": {
+        "head": 30,
+        "hand_right": 30,
+        "hand_left": 30
+      },
+      "h5_path": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/aligned_joints.h5",
+      "data_info_path": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/data_info.json",
+      "meta_info_path": "data/agibot_easy400_for_droid/extracted/restock_supermarket_items/2810229/3371990/A2D0015AB00061/12093549/meta_info.json",
+      "num_steps": 394,
+      "active_frame_start": 31,
+      "active_frame_end": 305,
+      "action_plan": [
+        "Pick up the brown plum juice from the restock box with the right arm.",
+        "Place the brown plum juice on the shelf where the brown plum juice is located with the right arm."
+      ],
+      "state_joint_shape": [
+        394,
+        14
+      ],
+      "action_joint_shape": [
+        394,
+        14
+      ],
+      "right_arm_joint_slice": [
+        7,
+        14
+      ],
+      "left_arm_joint_slice": [
+        0,
+        7
+      ],
+      "gripper_key": "state/right_effector/position",
+      "action_gripper_key": "action/right_effector/position",
+      "dreamzero_camera_mapping": {
+        "observation/exterior_image_0_left": "head_color.mp4",
+        "observation/exterior_image_1_left": "hand_left_color.mp4",
+        "observation/wrist_image_left": "hand_right_color.mp4"
+      },
+      "has_all_cameras": true,
+      "valid_for_dreamzero_adapter": true
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+Split,Comparison,n_pairs,SR,Gain Pairs,Loss Pairs,McNemar p,BH p,Sig
+L1,original -> llm_dual,50,40.0% -> 60.0%,10,0,0.002,0.0029,**
+L1,original -> llm_val,48,41.7% -> 64.6%,12,1,0.0034,0.0034,**
+L2,original -> llm_dual,50,44.0% -> 70.0%,13,0,0.0002,0.0005,***
+L2,original -> llm_val,49,44.9% -> 67.3%,12,1,0.0034,0.0034,**
+L3,original -> llm_dual,50,24.0% -> 76.0%,26,0,0.0,0.0,***
+L3,original -> llm_val,50,24.0% -> 58.0%,19,2,0.0002,0.0005,***

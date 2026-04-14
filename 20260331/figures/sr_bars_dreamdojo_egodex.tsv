@@ -1,0 +1,10 @@
+dataset	split	mode	success_rate	success_rate_pct
+DreamDojo-EgoDex	L1	original	0.36	36.0
+DreamDojo-EgoDex	L1	llm_dual	0.34	34.0
+DreamDojo-EgoDex	L1	llm_val	0.38	38.0
+DreamDojo-EgoDex	L2	original	0.3	30.0
+DreamDojo-EgoDex	L2	llm_dual	0.44	44.0
+DreamDojo-EgoDex	L2	llm_val	0.48	48.0
+DreamDojo-EgoDex	L3	original	0.22	22.0
+DreamDojo-EgoDex	L3	llm_dual	0.34	34.0
+DreamDojo-EgoDex	L3	llm_val	0.4	40.0

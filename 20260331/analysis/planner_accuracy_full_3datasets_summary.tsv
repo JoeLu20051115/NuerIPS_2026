@@ -1,0 +1,10 @@
+dataset	n	metric	llm_raw	llm_self	llm_val	note
+DROID	300	VAL-valid rate	0.3833	0.7400	0.9967	planner logical validity
+DROID	300	Self-changed rate		0.4400		share of episodes where blind self-review changed the plan
+DROID	300	VAL-corrected rate			0.6333	share of episodes where VAL path performed a correction
+AgiBot	300	VAL-valid rate	1.0000	0.8767	1.0000	planner logical validity
+AgiBot	300	Self-changed rate		0.2500		share of episodes where blind self-review changed the plan
+AgiBot	300	VAL-corrected rate			0.1233	share of episodes where VAL path performed a correction
+EgoDex	1000	VAL-valid rate	0.9200	0.9560	0.9910	planner logical validity
+EgoDex	1000	GT similarity	0.2047	0.2031	0.2047	token-F1 recall against annotated goal-step decomposition
+EgoDex	1000	Combined score	0.5623	0.5795	0.5979	0.5 * VAL-validity + 0.5 * GT similarity

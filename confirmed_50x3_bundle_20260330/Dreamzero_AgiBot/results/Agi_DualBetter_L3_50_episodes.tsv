@@ -1,0 +1,51 @@
+#	Episode	Task	Dur(s)	Prog t->d	Succ t->d	L2 t->d	Win
+1	12052516	Clear table in the restaurant	72.77	0.40->0.70	N->Y	0.0836->0.0494	success
+2	12052365	Clear table in the restaurant	72.98	0.40->0.80	N->Y	0.0769->0.0491	success
+3	12052646	Clear table in the restaurant	74.40	0.60->0.90	Y->Y	0.0760->0.0547	progress
+4	12052745	Clear table in the restaurant	77.07	0.30->0.40	N->N	0.0747->0.0715	progress
+5	12052534	Clear table in the restaurant	78.05	0.40->0.70	N->Y	0.0685->0.0580	success
+6	12055595	Pack in the supermarket	78.40	0.40->0.70	N->Y	0.0773->0.0824	success
+7	12053069	Stamp the seal 	84.18	0.30->0.40	N->N	0.0522->0.0401	progress
+8	12052777	Clear table in the restaurant	89.58	0.70->0.90	Y->Y	0.0659->0.0499	progress
+9	12053104	Stamp the seal 	90.25	0.00->0.70	N->Y	0.0589->0.0498	success
+10	12052348	Clear table in the restaurant	93.80	0.70->0.70	Y->Y	0.0719->0.0619	l2
+11	12055891	Pack in the supermarket	94.95	0.40->0.70	N->Y	0.1274->0.0739	success
+12	12057176	Pack in the supermarket	96.07	0.40->0.70	N->Y	0.1034->0.0715	success
+13	12052515	Clear table in the restaurant	97.00	0.40->0.70	N->Y	0.0740->0.0405	success
+14	12055618	Pack in the supermarket	97.00	0.70->0.80	Y->Y	0.0811->0.0568	progress
+15	12052949	Stamp the seal 	99.17	0.30->0.40	N->N	0.0516->0.0495	progress
+16	12055925	Pack in the supermarket	99.75	0.40->0.90	N->Y	0.0882->0.0727	success
+17	12050928	Heat the food in the microwave	101.98	0.40->0.40	N->N	0.0881->0.0609	l2
+18	12053142	Stamp the seal 	105.35	0.40->0.70	N->Y	0.0594->0.0529	success
+19	12052940	Clear table in the restaurant	106.00	0.70->0.70	Y->Y	0.0852->0.0586	l2
+20	12055850	Pack in the supermarket	106.97	0.40->0.40	N->N	0.1159->0.0758	l2
+21	12050837	Heat the food in the microwave	107.92	0.30->0.40	N->N	0.0660->0.0561	progress
+22	12052907	Clear table in the restaurant	109.45	0.40->0.70	N->Y	0.0632->0.0376	success
+23	12052685	Clear table in the restaurant	112.63	0.40->0.80	Y->Y	0.0524->0.0426	progress
+24	12053001	Stamp the seal 	117.53	0.40->0.70	N->Y	0.0426->0.0546	success
+25	12052639	Clear table in the restaurant	118.07	0.40->0.40	N->Y	0.0895->0.0652	success
+26	12050878	Heat the food in the microwave	118.78	0.30->0.40	N->N	0.0766->0.0431	progress
+27	12052738	Stamp the seal 	122.48	0.70->0.70	Y->Y	0.0668->0.0504	l2
+28	12052913	Stamp the seal 	123.20	0.40->0.70	N->Y	0.0637->0.0534	success
+29	12052945	Stamp the seal 	124.75	0.70->0.70	Y->Y	0.0608->0.0542	l2
+30	12053100	Stamp the seal 	125.57	0.40->0.70	N->Y	0.0656->0.0509	success
+31	12050965	Heat the food in the microwave	127.08	0.40->0.90	N->Y	0.0800->0.0553	success
+32	12052690	Clear table in the restaurant	128.43	0.80->0.90	Y->Y	0.0842->0.0527	progress
+33	12050818	Heat the food in the microwave	128.72	0.30->0.40	N->N	0.0566->0.0639	progress
+34	12050785	Heat the food in the microwave	133.62	0.40->0.70	N->Y	0.0752->0.0758	success
+35	12053062	Stamp the seal 	134.78	0.40->0.70	N->Y	0.0501->0.0445	success
+36	12050958	Heat the food in the microwave	138.58	0.40->0.40	N->N	0.0710->0.0548	l2
+37	12050973	Heat the food in the microwave	139.92	0.40->0.40	N->N	0.0695->0.0541	l2
+38	12052607	Clear table in the restaurant	140.33	0.40->0.70	Y->Y	0.0844->0.0500	progress
+39	12050922	Heat the food in the microwave	146.22	0.40->0.40	N->N	0.0864->0.0568	l2
+40	12050872	Heat the food in the microwave	146.78	0.40->0.70	N->Y	0.0787->0.0538	success
+41	12052735	Stamp the seal 	148.13	0.40->0.40	N->N	0.0552->0.0393	l2
+42	12050949	Heat the food in the microwave	158.42	0.40->0.70	N->Y	0.0854->0.0715	success
+43	12052858	Stamp the seal 	167.45	0.40->0.70	N->Y	0.0488->0.0472	success
+44	12052941	Stamp the seal 	170.03	0.40->0.70	N->Y	0.0514->0.0506	success
+45	12052824	Stamp the seal 	172.10	0.40->0.70	N->Y	0.0528->0.0467	success
+46	12053089	Stamp the seal 	197.00	0.30->0.70	N->Y	0.0755->0.0498	success
+47	12053129	Stamp the seal 	204.17	0.00->0.70	N->Y	0.0805->0.0747	success
+48	12053052	Stamp the seal 	213.50	0.70->0.80	Y->Y	0.0471->0.0410	progress
+49	12052962	Stamp the seal 	233.63	0.40->0.70	Y->Y	0.0479->0.0558	progress
+50	12053049	Stamp the seal 	237.57	0.30->0.70	N->Y	0.0674->0.0366	success

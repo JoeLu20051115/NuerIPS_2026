@@ -1,0 +1,4 @@
+dataset,L1_SR,L2_SR,L3_SR,delta_L1_to_L3_pp,monotone_decline,ordered_split_or,ordered_split_p,readout
+DROID,0.3,0.18,0.22,-7.999999999999999,False,0.7986678183554319,0.34558717114308113,mixed trend
+AgiBot,0.3,0.22,0.16,-13.999999999999998,True,0.666014896681102,0.09748574893665363,supports claim
+Pooled,0.3,0.2,0.19,-10.999999999999998,True,0.7306205078425481,0.06597276534764762,supports claim

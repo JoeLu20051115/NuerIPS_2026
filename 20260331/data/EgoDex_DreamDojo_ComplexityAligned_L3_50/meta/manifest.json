@@ -1,0 +1,1175 @@
+{
+  "name": "EgoDex_DreamDojo_ComplexityAligned_L3_50",
+  "selection_rule": "Start from egodex_dreamdojo_easy400. Convert num_frames to duration_sec at 20 FPS. Sort all episodes by duration and split into three duration terciles. Within each tercile, compute a semantic complexity score from task_group verbs: score = (# semantic ops) + 0.75 * (# stateful ops), where stateful ops are {stack, unstack, insert, remove, open, close, add}. Select 50 episodes per split: lowest-score rows for L1, middle window for L2, highest-score rows for L3; for L3, ties prefer longer durations.",
+  "source_manifest": "data/egodex_dreamdojo_easy400/meta/manifest.json",
+  "source_info": "data/egodex_eval_official/EgoDex_Eval/meta/info.json",
+  "count": 50,
+  "task_counts": {
+    "open_close_insert_remove_tupperware": 25,
+    "insert_remove_furniture_bench_cabinet": 9,
+    "add_remove_lid": 12,
+    "insert_remove_usb": 3,
+    "stack_unstack_plates": 1
+  },
+  "summary": {
+    "count": 50,
+    "mean_duration_sec": 17.268000000000004,
+    "min_duration_sec": 6.55,
+    "max_duration_sec": 39.75,
+    "mean_step_proxy": 3.0,
+    "mean_unique_ops": 3.0,
+    "stateful_rate": 1.0
+  },
+  "episodes": [
+    {
+      "episode_id": "open_close_insert_remove_tupperware/33",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/33.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/33.hdf5",
+      "num_frames": 131,
+      "duration_sec": 6.55,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/15",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/15.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/15.hdf5",
+      "num_frames": 148,
+      "duration_sec": 7.4,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/16",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/16.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/16.hdf5",
+      "num_frames": 173,
+      "duration_sec": 8.65,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/8",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/8.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/8.hdf5",
+      "num_frames": 177,
+      "duration_sec": 8.85,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/12",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/12.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/12.hdf5",
+      "num_frames": 181,
+      "duration_sec": 9.05,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/27",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/27.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/27.hdf5",
+      "num_frames": 182,
+      "duration_sec": 9.1,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/28",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/28.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/28.hdf5",
+      "num_frames": 184,
+      "duration_sec": 9.2,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/6",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/6.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/6.hdf5",
+      "num_frames": 188,
+      "duration_sec": 9.4,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/5",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/5.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/5.hdf5",
+      "num_frames": 192,
+      "duration_sec": 9.6,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/0",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/0.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/0.hdf5",
+      "num_frames": 200,
+      "duration_sec": 10.0,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/22",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/22.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/22.hdf5",
+      "num_frames": 201,
+      "duration_sec": 10.05,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/4",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/4.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/4.hdf5",
+      "num_frames": 218,
+      "duration_sec": 10.9,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/34",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/34.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/34.hdf5",
+      "num_frames": 220,
+      "duration_sec": 11.0,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/21",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/21.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/21.hdf5",
+      "num_frames": 233,
+      "duration_sec": 11.65,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/11",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/11.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/11.hdf5",
+      "num_frames": 237,
+      "duration_sec": 11.85,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/24",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/24.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/24.hdf5",
+      "num_frames": 268,
+      "duration_sec": 13.4,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/31",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/31.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/31.hdf5",
+      "num_frames": 277,
+      "duration_sec": 13.85,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/29",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/29.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/29.hdf5",
+      "num_frames": 290,
+      "duration_sec": 14.5,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/32",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/32.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/32.hdf5",
+      "num_frames": 311,
+      "duration_sec": 15.55,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/17",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/17.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/17.hdf5",
+      "num_frames": 315,
+      "duration_sec": 15.75,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/33",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/33.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/33.hdf5",
+      "num_frames": 317,
+      "duration_sec": 15.85,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/8",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/8.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/8.hdf5",
+      "num_frames": 319,
+      "duration_sec": 15.95,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/35",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/35.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/35.hdf5",
+      "num_frames": 320,
+      "duration_sec": 16.0,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/14",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/14.mp4",
+      "h5_path": "add_remove_lid/14.hdf5",
+      "num_frames": 330,
+      "duration_sec": 16.5,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/20",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/20.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/20.hdf5",
+      "num_frames": 330,
+      "duration_sec": 16.5,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "add_remove_lid/8",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/8.mp4",
+      "h5_path": "add_remove_lid/8.hdf5",
+      "num_frames": 345,
+      "duration_sec": 17.25,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_usb/22",
+      "task_group": "insert_remove_usb",
+      "english_task_name": "Insert or remove the USB device from the port.",
+      "mp4_path": "insert_remove_usb/22.mp4",
+      "h5_path": "insert_remove_usb/22.hdf5",
+      "num_frames": 347,
+      "duration_sec": 17.35,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/24",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/24.mp4",
+      "h5_path": "add_remove_lid/24.hdf5",
+      "num_frames": 349,
+      "duration_sec": 17.45,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/14",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/14.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/14.hdf5",
+      "num_frames": 355,
+      "duration_sec": 17.75,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "add_remove_lid/23",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/23.mp4",
+      "h5_path": "add_remove_lid/23.hdf5",
+      "num_frames": 363,
+      "duration_sec": 18.15,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/20",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/20.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/20.hdf5",
+      "num_frames": 365,
+      "duration_sec": 18.25,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/2",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/2.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/2.hdf5",
+      "num_frames": 375,
+      "duration_sec": 18.75,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/1",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/1.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/1.hdf5",
+      "num_frames": 382,
+      "duration_sec": 19.1,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "add_remove_lid/13",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/13.mp4",
+      "h5_path": "add_remove_lid/13.hdf5",
+      "num_frames": 408,
+      "duration_sec": 20.4,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/9",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/9.mp4",
+      "h5_path": "add_remove_lid/9.hdf5",
+      "num_frames": 409,
+      "duration_sec": 20.45,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/5",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/5.mp4",
+      "h5_path": "add_remove_lid/5.hdf5",
+      "num_frames": 416,
+      "duration_sec": 20.8,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/25",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/25.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/25.hdf5",
+      "num_frames": 431,
+      "duration_sec": 21.55,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "open_close_insert_remove_tupperware/26",
+      "task_group": "open_close_insert_remove_tupperware",
+      "english_task_name": "Open or close the tupperware container and insert or remove the object.",
+      "mp4_path": "open_close_insert_remove_tupperware/26.mp4",
+      "h5_path": "open_close_insert_remove_tupperware/26.hdf5",
+      "num_frames": 432,
+      "duration_sec": 21.6,
+      "semantic_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_step_proxy": 4,
+      "semantic_unique_ops": 4,
+      "semantic_stateful_ops": [
+        "close",
+        "insert",
+        "open",
+        "remove"
+      ],
+      "semantic_stateful_count": 4,
+      "semantic_complexity_score": 7.0
+    },
+    {
+      "episode_id": "add_remove_lid/2",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/2.mp4",
+      "h5_path": "add_remove_lid/2.hdf5",
+      "num_frames": 435,
+      "duration_sec": 21.75,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/21",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/21.mp4",
+      "h5_path": "add_remove_lid/21.hdf5",
+      "num_frames": 439,
+      "duration_sec": 21.95,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/24",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/24.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/24.hdf5",
+      "num_frames": 452,
+      "duration_sec": 22.6,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/4",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/4.mp4",
+      "h5_path": "add_remove_lid/4.hdf5",
+      "num_frames": 453,
+      "duration_sec": 22.65,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/19",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/19.mp4",
+      "h5_path": "add_remove_lid/19.hdf5",
+      "num_frames": 478,
+      "duration_sec": 23.9,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "add_remove_lid/22",
+      "task_group": "add_remove_lid",
+      "english_task_name": "Add or remove the lid from the container.",
+      "mp4_path": "add_remove_lid/22.mp4",
+      "h5_path": "add_remove_lid/22.hdf5",
+      "num_frames": 490,
+      "duration_sec": 24.5,
+      "semantic_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "add",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/14",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/14.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/14.hdf5",
+      "num_frames": 492,
+      "duration_sec": 24.6,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/2",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/2.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/2.hdf5",
+      "num_frames": 502,
+      "duration_sec": 25.1,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_usb/36",
+      "task_group": "insert_remove_usb",
+      "english_task_name": "Insert or remove the USB device from the port.",
+      "mp4_path": "insert_remove_usb/36.mp4",
+      "h5_path": "insert_remove_usb/36.hdf5",
+      "num_frames": 589,
+      "duration_sec": 29.45,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_furniture_bench_cabinet/21",
+      "task_group": "insert_remove_furniture_bench_cabinet",
+      "english_task_name": "Insert or remove the object from the cabinet on the furniture bench.",
+      "mp4_path": "insert_remove_furniture_bench_cabinet/21.mp4",
+      "h5_path": "insert_remove_furniture_bench_cabinet/21.hdf5",
+      "num_frames": 600,
+      "duration_sec": 30.0,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "stack_unstack_plates/30",
+      "task_group": "stack_unstack_plates",
+      "english_task_name": "Stack or unstack the plates at the target location.",
+      "mp4_path": "stack_unstack_plates/30.mp4",
+      "h5_path": "stack_unstack_plates/30.hdf5",
+      "num_frames": 624,
+      "duration_sec": 31.2,
+      "semantic_ops": [
+        "stack",
+        "unstack"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "stack",
+        "unstack"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    },
+    {
+      "episode_id": "insert_remove_usb/21",
+      "task_group": "insert_remove_usb",
+      "english_task_name": "Insert or remove the USB device from the port.",
+      "mp4_path": "insert_remove_usb/21.mp4",
+      "h5_path": "insert_remove_usb/21.hdf5",
+      "num_frames": 795,
+      "duration_sec": 39.75,
+      "semantic_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_step_proxy": 2,
+      "semantic_unique_ops": 2,
+      "semantic_stateful_ops": [
+        "insert",
+        "remove"
+      ],
+      "semantic_stateful_count": 2,
+      "semantic_complexity_score": 3.5
+    }
+  ]
+}
