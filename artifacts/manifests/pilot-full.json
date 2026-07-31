@@ -1,0 +1,265 @@
+{
+  "files": [
+    {
+      "path": "episodes.jsonl",
+      "sha256": "48caf422b21ec2fe30fe34ad34abec8b7a0f8e67b1efa6c34418a2fef0eed5c0",
+      "size": 30594
+    },
+    {
+      "path": "run.json",
+      "sha256": "1cf41595f753a2eaf907749e8329834fddcaed7da9b8d56bb65e12ddd1f5afa6",
+      "size": 479
+    },
+    {
+      "path": "videos/task_00_episode_00_success.mp4",
+      "sha256": "7f6a94b1f9b3aa737279b8c3cfbb35c410154a0ff28e9f4a1ede44972ad64a91",
+      "size": 132440
+    },
+    {
+      "path": "videos/task_00_episode_01_success.mp4",
+      "sha256": "e1cf68c84b0b632964f1303be2cc2b6222f51c757ed3bb8fb979c331a478533f",
+      "size": 131068
+    },
+    {
+      "path": "videos/task_00_episode_02_success.mp4",
+      "sha256": "028ea953c756c4604e577fe91e0e9286c70c07c748b4e538fbffea480607a79f",
+      "size": 111234
+    },
+    {
+      "path": "videos/task_00_episode_03_success.mp4",
+      "sha256": "016d3e76bf06ffe3641ce7615048cdcf098cd5c0d7c14520c73f742f4e41b7fa",
+      "size": 134111
+    },
+    {
+      "path": "videos/task_00_episode_04_success.mp4",
+      "sha256": "ff1c4ea71d08edf96639af23df3b543e37dd50d661b4fcfca7b8a69713417057",
+      "size": 138191
+    },
+    {
+      "path": "videos/task_01_episode_00_success.mp4",
+      "sha256": "89640e98ea60cc7c56d08d4c156b3b5dd46d173df2908efb4febe4756942d16f",
+      "size": 141670
+    },
+    {
+      "path": "videos/task_01_episode_01_success.mp4",
+      "sha256": "496632fe7fbc7376f2ded3fbd88def3b9d89f1e58a22250bd951820794ab01cf",
+      "size": 138297
+    },
+    {
+      "path": "videos/task_01_episode_02_success.mp4",
+      "sha256": "74c6094e9b09e80a7b5e6712840e924f44c3ed72016ae2471c348d30d02f9f29",
+      "size": 140330
+    },
+    {
+      "path": "videos/task_01_episode_03_success.mp4",
+      "sha256": "7859e54a7aea61f9909acd7f9f08b182f2ebfa842c36bff56eec48aff6c06d35",
+      "size": 144924
+    },
+    {
+      "path": "videos/task_01_episode_04_success.mp4",
+      "sha256": "56092797a6f83e1a88dd126f14ece4811f08c6470031704333006ac7be4dd93b",
+      "size": 163037
+    },
+    {
+      "path": "videos/task_02_episode_00_success.mp4",
+      "sha256": "852d00d809ccf547ab61881436991b327ca76d6fd76b3bed98b22f7677859cb9",
+      "size": 110918
+    },
+    {
+      "path": "videos/task_02_episode_01_success.mp4",
+      "sha256": "a9b41c561098cf05dbd0d864c303c4e5cdb597a0e703a3b65152e16c304aa1fa",
+      "size": 173655
+    },
+    {
+      "path": "videos/task_02_episode_02_success.mp4",
+      "sha256": "55dd93c3335c84128d8fa4b376ddd4705190ad8c9a5c26e0ee57570f45939c32",
+      "size": 131094
+    },
+    {
+      "path": "videos/task_02_episode_03_success.mp4",
+      "sha256": "27ed121ee7ebef26732bb8bef189439e3876fa77f4ef6b06de9e156fcc58fcb1",
+      "size": 130145
+    },
+    {
+      "path": "videos/task_02_episode_04_success.mp4",
+      "sha256": "b51868b61c35886e6d489ea9ac39b871bb5b7df6a44158b3a60caa42141e09db",
+      "size": 122746
+    },
+    {
+      "path": "videos/task_03_episode_00_success.mp4",
+      "sha256": "28c9442372a80190c59c478895e81246c4a341d5a930c33ab38a7dfef57bef63",
+      "size": 128973
+    },
+    {
+      "path": "videos/task_03_episode_01_success.mp4",
+      "sha256": "7e1ca1ca84d336b040a3acef71ede6ec0d04aed787935a142dfaa8eb91cddd45",
+      "size": 118877
+    },
+    {
+      "path": "videos/task_03_episode_02_success.mp4",
+      "sha256": "5e6df2c36f58a752cc7672e921577c12a43353bf92b8abbddbf4445b47f07052",
+      "size": 130046
+    },
+    {
+      "path": "videos/task_03_episode_03_success.mp4",
+      "sha256": "1f3bc1134fb7d07b26225b5bc913e0166d5c66bc9430f2c1eb734f12b14fa11c",
+      "size": 119902
+    },
+    {
+      "path": "videos/task_03_episode_04_success.mp4",
+      "sha256": "86252ef8bfd3cf208b1e661903beb97e7417733f67bdfd3edf44597b9e6a4975",
+      "size": 134555
+    },
+    {
+      "path": "videos/task_04_episode_00_success.mp4",
+      "sha256": "74cffc8147a9cc3fa0159019301269c958578b0afc5568cb1cbb14de90864d1b",
+      "size": 110117
+    },
+    {
+      "path": "videos/task_04_episode_01_success.mp4",
+      "sha256": "be9341e6ef86ee341d3347337982db88592746dafd6c97f098a301c41ee02819",
+      "size": 109092
+    },
+    {
+      "path": "videos/task_04_episode_02_success.mp4",
+      "sha256": "f41d19d550d86381ce1d8360d1c2a1e67767d3bc216a72bf9059baa0ae6b6453",
+      "size": 114387
+    },
+    {
+      "path": "videos/task_04_episode_03_success.mp4",
+      "sha256": "0d10974cc8eb727caefe61fbb01db8975aa607a08938fdb7b8682fe46c05a1f5",
+      "size": 109730
+    },
+    {
+      "path": "videos/task_04_episode_04_success.mp4",
+      "sha256": "3b316cc95d75e84fb94b952c43da120b1a1a2485434f80d841718657dcb1147a",
+      "size": 109488
+    },
+    {
+      "path": "videos/task_05_episode_00_success.mp4",
+      "sha256": "68c3ee7f3d843877b3ee786075407b241ae19f92645ae62909d7b6c0bdebb9e6",
+      "size": 67800
+    },
+    {
+      "path": "videos/task_05_episode_01_success.mp4",
+      "sha256": "9c84989fb023244ad048ecea855d9e6f06e8b6fdc31262e5c8192d92e85d2469",
+      "size": 92067
+    },
+    {
+      "path": "videos/task_05_episode_02_success.mp4",
+      "sha256": "21da1acc3b86e7bb9fd63ab6df7c8923c80a131871d1dde6137cfc03416bdc5c",
+      "size": 113035
+    },
+    {
+      "path": "videos/task_05_episode_03_success.mp4",
+      "sha256": "5b0385c828d7f3d7fdfc0ee7fae724b7082cf9dc66e06dd71c91bfd2ca3aeb78",
+      "size": 68588
+    },
+    {
+      "path": "videos/task_05_episode_04_success.mp4",
+      "sha256": "df643b5d29a83c2eb162b4261aeefe65e49c0a7878dec1df7efa87451b2a4544",
+      "size": 78275
+    },
+    {
+      "path": "videos/task_06_episode_00_success.mp4",
+      "sha256": "648df6e01cbcd928b6e2e5f7246b9fda771a34cd48ac4a439c444d8ad060596f",
+      "size": 116571
+    },
+    {
+      "path": "videos/task_06_episode_01_success.mp4",
+      "sha256": "dc9727d8f739592135521a1aa6164f9a53c4db0b707201432785a1af32f795d2",
+      "size": 129204
+    },
+    {
+      "path": "videos/task_06_episode_02_success.mp4",
+      "sha256": "60053e31d7182e3d46ee7107f5104b6bfe644010878852e8b93bf360038ebf99",
+      "size": 129049
+    },
+    {
+      "path": "videos/task_06_episode_03_success.mp4",
+      "sha256": "dee28cb7771ebb37c7c69163e7fc99cda070cd1cbc0e94d4360c67a034e24ea3",
+      "size": 117950
+    },
+    {
+      "path": "videos/task_06_episode_04_success.mp4",
+      "sha256": "18bdcf667fe39c931ffe1a88801a56f06b6db19b3362490013cc2ebe110a6596",
+      "size": 122526
+    },
+    {
+      "path": "videos/task_07_episode_00_success.mp4",
+      "sha256": "9da8a99d78045dc8898040abdad248a44394d10d136f078ed6d25c9d33cbc431",
+      "size": 143263
+    },
+    {
+      "path": "videos/task_07_episode_01_success.mp4",
+      "sha256": "2cec1e19695d1d8924ead2b1ca9f263f76c3b7b9c3c815a8c9d3510d0ab06125",
+      "size": 157712
+    },
+    {
+      "path": "videos/task_07_episode_02_success.mp4",
+      "sha256": "3848d29375bdbf1c0790416a0ae8e28498b0e308bb2d06526e0816a04e0d6ff8",
+      "size": 124921
+    },
+    {
+      "path": "videos/task_07_episode_03_success.mp4",
+      "sha256": "56a4bb26c75ccc81126df69f26f4d11da7f2334034d10cd054889330b65742f9",
+      "size": 134685
+    },
+    {
+      "path": "videos/task_07_episode_04_success.mp4",
+      "sha256": "ef2624b9d63295507f7fb34efc6e5898de44cd7f5611157b4c703a33e085b7eb",
+      "size": 142229
+    },
+    {
+      "path": "videos/task_08_episode_00_failure.mp4",
+      "sha256": "88bae64d7c64c974542b7f948d38ae4c3741145511a115daee173575c7f9ae06",
+      "size": 224723
+    },
+    {
+      "path": "videos/task_08_episode_01_failure.mp4",
+      "sha256": "1e801216dd21c72f73c1a438afdc77bcc7ad92420a2e2483889edab04ece3b3a",
+      "size": 210094
+    },
+    {
+      "path": "videos/task_08_episode_02_failure.mp4",
+      "sha256": "1b0a368c063d5e86e248badf5f7f79759277639dc661b93c738f04ecc91ca40c",
+      "size": 222508
+    },
+    {
+      "path": "videos/task_08_episode_03_success.mp4",
+      "sha256": "4fa2ade363870ba085a1dd9d13b3b5dfd4dd97e4d458c19e373bc8865d90f4c5",
+      "size": 228769
+    },
+    {
+      "path": "videos/task_08_episode_04_failure.mp4",
+      "sha256": "f61f5623f4d323cba17d8d9a8593d2f70d09a306b60fefef82c435f109fe8d8c",
+      "size": 263335
+    },
+    {
+      "path": "videos/task_09_episode_00_success.mp4",
+      "sha256": "9e6ab1bc96ce490610fc01e50d613b4c6afce46cf509ec3296b076e5a6c67c61",
+      "size": 139499
+    },
+    {
+      "path": "videos/task_09_episode_01_success.mp4",
+      "sha256": "95764cd497da8870debfc6fb23e6880762a7d1acd1d55f093593a66d5803372a",
+      "size": 136736
+    },
+    {
+      "path": "videos/task_09_episode_02_success.mp4",
+      "sha256": "d8ddc81ed1cd2fad64d06e4f3436b5ac5a00381f53f5c25a310b4802358fa8f8",
+      "size": 137510
+    },
+    {
+      "path": "videos/task_09_episode_03_failure.mp4",
+      "sha256": "c4ace3489043ac6d718e5905d91661b6bb7f6ea257461f2c1bfe4b31c4f22ee3",
+      "size": 249661
+    },
+    {
+      "path": "videos/task_09_episode_04_success.mp4",
+      "sha256": "1eb74e30dcdfb98cc977eb850b1fbb4d059b1279a6720e2b703e213baa76495d",
+      "size": 140703
+    }
+  ],
+  "version": 1
+}
