@@ -59,10 +59,15 @@ CUDA_VISIBLE_DEVICES=1 external_repos/openpi/.venv/bin/python scripts/snapshot_a
 
 ```bash
 docker build -t pi05-libero-eval:650c5b0 \
-  -f external_repos/openpi/examples/libero/Dockerfile external_repos/openpi
+  -f docker/Dockerfile.libero external_repos/openpi
 docker run --rm --gpus 'device=1' pi05-libero-eval:650c5b0 \
   nvidia-smi --query-gpu=name --format=csv,noheader
 ```
+
+The local Dockerfile is identical in runtime dependencies to the pinned OpenPI
+file, except that it prebuilds `bddl==1.0.1` with setuptools 75.3.0. This avoids
+an upstream Python 3.8 build-isolation regression and does not change the
+installed evaluation environment.
 
 ## Smoke and pilot gates
 
