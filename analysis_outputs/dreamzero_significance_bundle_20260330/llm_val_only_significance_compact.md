@@ -1,8 +1,0 @@
-| Dataset   | Split   | Comparison          |   Binary exact p BH | Binary exact p Sig   |   t(Task Progress) |   p(Task Progress) BH | p(Task Progress) Sig   |   t(Mean L2) |   p(Mean L2) BH | p(Mean L2) Sig   |
-|:----------|:--------|:--------------------|--------------------:|:---------------------|-------------------:|----------------------:|:-----------------------|-------------:|----------------:|:-----------------|
-| DROID     | L1      | original -> llm_val |              0.0033 | **                   |             4.342  |                0.0001 | ***                    |       4.5663 |               0 | ***              |
-| DROID     | L2      | original -> llm_val |              0.0033 | **                   |             4.1225 |                0.0002 | ***                    |       6.0188 |               0 | ***              |
-| DROID     | L3      | original -> llm_val |              0.0007 | ***                  |             4.3519 |                0.0001 | ***                    |       5.3845 |               0 | ***              |
-| AgiBot    | L1      | original -> llm_val |              0.0046 | **                   |             3.6865 |                0.0008 | ***                    |       6.8423 |               0 | ***              |
-| AgiBot    | L2      | original -> llm_val |              0.0046 | **                   |             5.77   |                0      | ***                    |       7.8771 |               0 | ***              |
-| AgiBot    | L3      | original -> llm_val |              0.0007 | ***                  |             5.2873 |                0      | ***                    |       6.7564 |               0 | ***              |

@@ -1,0 +1,31 @@
+timestamp=2026-08-01T00:41:38+08:00
+workspace=/mnt/data3/data_xingrui/lueq/NuerIPS_2026
+shell_cwd=/home/xingrui/lueq/NuerIPS_2026
+branch=dreamzero
+head=8af5f2a440379fdd32b54bacddc4a439cc2e8714
+
+[resolved targets]
+.claude	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/.claude	4.0K
+.venv	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/.venv	14G
+.venv_agibot_eval	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/.venv_agibot_eval	267M
+.vscode	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/.vscode	8.0K
+__pycache__	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/__pycache__	48K
+check_act_aloha_baseline.py	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/check_act_aloha_baseline.py	4.0K
+groot	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/groot	4.4M
+scripts	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/scripts	20K
+socket_test_optimized_AR.py	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/socket_test_optimized_AR.py	40K
+table30v2_multitask_baseline_aloha_remote_files.json	MISSING
+table30v2_multitask_baseline_aloha_repo	MISSING
+vector_graph_white.pdf	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/vector_graph_white.pdf	16K
+vector_graph_white.svg	/mnt/data3/data_xingrui/lueq/NuerIPS_2026/vector_graph_white.svg	8.0K
+
+[pre-cleanup disk]
+/dev/nvme2n1p1 14T total, 8.4T used, 4.8T available, 64% used
+
+[process audit]
+No active process used a resolved cleanup target. The only matches were the audit shell and rg commands themselves.
+
+[git status counts]
+modified=6 deleted=12025 untracked=6 other=0
+
+Note: the 42G table30 repository and its manifest had already disappeared between the design inventory and this final pre-delete audit. They were not deleted by this cleanup command.

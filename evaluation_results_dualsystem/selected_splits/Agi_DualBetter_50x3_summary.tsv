@@ -1,7 +1,0 @@
-Split	Mode	Mean L2	Task Progress	SR	L2<0.1
-L1	original	0.0848	0.506	40.0%	70.0%
-L1	llm_dual	0.0660	0.632	60.0%	98.0%
-L2	original	0.0895	0.450	44.0%	70.0%
-L2	llm_dual	0.0685	0.658	70.0%	92.0%
-L3	original	0.0715	0.422	24.0%	94.0%
-L3	llm_dual	0.0553	0.650	76.0%	100.0%

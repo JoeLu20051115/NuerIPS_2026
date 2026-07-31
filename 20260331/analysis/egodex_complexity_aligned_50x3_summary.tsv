@@ -1,4 +1,0 @@
-split	n	mean_time_sec	mean_step_proxy	mean_unique_ops	stateful_rate	task_mix
-L1	50	2.557000	2.000000	2.000000	0.000000	vertical_pick_place:34, basic_pick_place:13, pick_place_food:3
-L2	50	4.956000	2.000000	2.000000	0.540000	insert_remove_furniture_bench_cabinet:6, stack_unstack_plates:15, add_remove_lid:3, insert_remove_usb:3, basic_pick_place:17, pick_place_food:6
-L3	50	17.268000	3.000000	3.000000	1.000000	open_close_insert_remove_tupperware:25, insert_remove_furniture_bench_cabinet:9, add_remove_lid:12, insert_remove_usb:3, stack_unstack_plates:1
