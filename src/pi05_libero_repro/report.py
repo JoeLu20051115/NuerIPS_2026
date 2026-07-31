@@ -42,6 +42,7 @@ def build_report(records: Iterable[EpisodeRecord]) -> dict:
     records = list(records)
     errors = []
     grouped = defaultdict(list)
+    paired = defaultdict(dict)
     seen = set()
 
     for record in records:
@@ -55,6 +56,7 @@ def build_report(records: Iterable[EpisodeRecord]) -> dict:
             errors.append({"code": "unknown_task", "episode": record.key_text})
             continue
         grouped[(record.checkpoint, record.task_id)].append(record)
+        paired[(record.task_id, record.episode_idx)][record.checkpoint] = record
         if record.seed != 7:
             errors.append({"code": "seed_mismatch", "episode": record.key_text, "actual": record.seed})
         if record.episode_idx < 0 or record.episode_idx >= 50:
@@ -71,6 +73,22 @@ def build_report(records: Iterable[EpisodeRecord]) -> dict:
             errors.append({"code": "predicate_mismatch", "episode": record.key_text})
         if not all(math.isfinite(value) for value in (record.action_min, record.action_max, record.action_mean)):
             errors.append({"code": "nonfinite_action", "episode": record.key_text})
+        if record.inference_requests != math.ceil(record.steps / 5):
+            errors.append({"code": "control_horizon_mismatch", "episode": record.key_text})
+
+    for (task_id, episode_idx), pair in paired.items():
+        if set(pair) != {"full", "early"}:
+            continue
+        full = pair["full"]
+        early = pair["early"]
+        if full.init_state_sha256 != early.init_state_sha256:
+            errors.append(
+                {"code": "init_state_mismatch", "task_id": task_id, "episode_idx": episode_idx}
+            )
+        if full.first_frame_sha256 != early.first_frame_sha256:
+            errors.append(
+                {"code": "first_frame_mismatch", "task_id": task_id, "episode_idx": episode_idx}
+            )
 
     checkpoint_reports = {}
     for checkpoint, target in TARGETS.items():

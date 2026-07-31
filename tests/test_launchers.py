@@ -49,3 +49,10 @@ def test_libero_image_allows_unprivileged_python_execution() -> None:
     dockerfile = (ROOT / "docker" / "Dockerfile.libero").read_text()
 
     assert "chmod o+x /root" in dockerfile
+
+
+def test_policy_server_persists_identity_and_runtime_log() -> None:
+    launcher = (ROOT / "scripts" / "run_policy_server.sh").read_text()
+
+    assert 'server.log' in launcher
+    assert 'tee' in launcher

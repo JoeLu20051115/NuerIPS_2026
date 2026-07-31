@@ -26,6 +26,12 @@ expected_norm=$(jq -r ".checkpoints.$checkpoint_name.norm_stats_sha256" "$repo_r
 actual_norm=$(sha256sum "$norm_stats" | cut -d' ' -f1)
 [[ "$actual_norm" == "$expected_norm" ]] || { echo "norm stats hash mismatch" >&2; exit 1; }
 mkdir -p "$log_dir"
+log_dir=$(realpath --canonicalize-existing "$log_dir")
+if [[ -n "$(find "$log_dir" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+  echo "log directory must be empty: $log_dir" >&2
+  exit 1
+fi
+exec > >(tee "$log_dir/server.log") 2>&1
 
 printf 'checkpoint=%s gpu=%s port=%s dir=%s norm_stats_sha256=%s\n' \
   "$checkpoint_name" "$gpu" "$port" "$checkpoint_dir" "$actual_norm"
@@ -33,4 +39,3 @@ cd "$openpi_dir"
 exec env CUDA_VISIBLE_DEVICES="$gpu" XLA_PYTHON_CLIENT_MEM_FRACTION=0.70 \
   uv run scripts/serve_policy.py --port "$port" \
   policy:checkpoint --policy.config pi05_libero --policy.dir "$checkpoint_dir"
-

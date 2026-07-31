@@ -98,6 +98,31 @@ def test_seed_episode_index_and_hash_integrity_are_required() -> None:
         assert any(error["code"] == expected_code for error in report["errors"])
 
 
+def test_cross_checkpoint_inputs_and_control_horizon_must_match() -> None:
+    base = records_for("full", 462) + records_for("early", 215)
+    early_first = 500
+    cases = [
+        (
+            base[:early_first]
+            + [replace(base[early_first], init_state_sha256="a" * 64)]
+            + base[early_first + 1 :],
+            "init_state_mismatch",
+        ),
+        (
+            base[:early_first]
+            + [replace(base[early_first], first_frame_sha256="b" * 64)]
+            + base[early_first + 1 :],
+            "first_frame_mismatch",
+        ),
+        ([replace(base[0], inference_requests=3)] + base[1:], "control_horizon_mismatch"),
+    ]
+
+    for broken, expected_code in cases:
+        report = build_report(broken)
+        assert report["accepted"] is False
+        assert any(error["code"] == expected_code for error in report["errors"])
+
+
 def test_report_cli_writes_outputs_and_returns_acceptance(tmp_path: Path) -> None:
     full_path = tmp_path / "full.jsonl"
     early_path = tmp_path / "early.jsonl"
