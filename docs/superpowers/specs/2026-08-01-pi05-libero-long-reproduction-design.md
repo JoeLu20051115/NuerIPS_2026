@@ -32,6 +32,8 @@ Every downloaded artifact receives a path, byte-size, and SHA-256 manifest. The 
 
 The two checkpoints have different normalization-statistics hashes. Each policy server must load the `assets/physical-intelligence/libero/norm_stats.json` shipped with its own checkpoint. Sharing or silently substituting normalization statistics is a hard failure.
 
+The model architecture is supplied by the pinned OpenPI source rather than reconstructed from weights. The reproduction records the effective `pi05_libero` configuration: π₀.₅ mode, Gemma 2B PaliGemma backbone, Gemma 300M action expert, bfloat16 inference, continuous state input for this checkpoint, ten-step action horizon, and a padded 32-dimensional internal state/action representation whose LIBERO output transform returns the first seven action dimensions. A generated architecture/config snapshot and parameter-tree summary are required deliverables.
+
 ## Workspace Cleanup
 
 Retain only:
@@ -60,6 +62,8 @@ GPU 0: COAST audit, targeted reruns, and repeatability checks once available
 ```
 
 The two 500-episode chains may run concurrently, but each chain processes the official task order and episode order sequentially. OpenPI's JAX policy starts at `jax.random.key(0)` and splits its key on every inference request, so task-sharding one checkpoint across multiple independent servers would reset the policy RNG and would not reproduce the official request sequence. Three-server task sharding is therefore permitted only as an explicitly labeled diagnostic and cannot supply the primary reported score.
+
+Evaluator progress alone is insufficient for exact resume because restarting a policy server also resets its JAX key. The primary run should remain uninterrupted. If a restart occurs, either restart that checkpoint's primary run from episode zero or restore a recorded, independently verified policy RNG state/request count that reproduces the same next sampled action. A resumed run without this proof is diagnostic only.
 
 GPU 0 is currently occupied by another user's training process. It is never preempted or terminated; it is used only after capacity becomes available. MuJoCo EGL rendering runs in the official Docker evaluator while the OpenPI model server runs in the repository's Python 3.11 environment.
 
@@ -107,7 +111,7 @@ Evaluation advances only when the preceding gate passes:
 3. **Policy smoke test:** load each checkpoint, verify model/config compatibility, input masks and shapes, finite 10×7 actions, and plausible unnormalized action ranges.
 4. **Two-episode test:** two episodes per checkpoint with complete structured records and playable, correctly oriented videos.
 5. **Small pilot:** ten tasks times five trials per checkpoint. Require no invalid episodes and inspect per-task videos, action distributions, reset hashes, and predicate consistency.
-6. **Primary run:** 500 sequential episodes for each checkpoint, with atomic progress records and exact resume.
+6. **Primary run:** 500 sequential episodes for each checkpoint, with atomic progress records and an uninterrupted policy RNG stream (or a separately verified exact RNG-state restoration).
 7. **Result audit:** independently recompute aggregates from episode records and verify cardinality, uniqueness, task mapping, and confidence intervals.
 
 ## Systematic Discrepancy Debugging
@@ -136,7 +140,8 @@ The reproduction is accepted only when all of the following are present and veri
 - Per-episode videos or a documented storage-reduced video policy that still retains all failures and audit samples.
 - Machine-readable per-task and aggregate reports plus a human-readable comparison table.
 - Full checkpoint overall success in `[89.4%, 95.4%]`.
-- Early checkpoint overall success in `[38%, 48%]`, or a root-cause-backed protocol analysis plus COAST-compatible audit if the official 50-state result is statistically different.
+- Early checkpoint overall success in `[38%, 48%]`. If it is statistically different, a root-cause-backed protocol analysis and COAST-compatible audit are additional debugging evidence, not substitutes for the requested primary result.
+- Effective π₀.₅ architecture/config snapshot and parameter-tree summary tied to the pinned OpenPI commit and each loaded checkpoint.
 - Fresh verification commands proving counts, hashes, environment versions, result recomputation, and absence of invalid episodes.
 
 The active goal is not complete until the two 500-episode runs and their audits are finished. Passing smoke tests or pilots alone is not completion.
