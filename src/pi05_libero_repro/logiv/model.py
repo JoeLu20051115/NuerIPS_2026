@@ -44,6 +44,11 @@ class TruthValue(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 
+class GoalMode(str, Enum):
+    METADATA_ASSISTED = "METADATA_ASSISTED"
+    GOAL_PREDICTION = "GOAL_PREDICTION"
+
+
 @dataclass(frozen=True)
 class FactSnapshot:
     """Evidence-backed partial symbolic state for one physical epoch."""
@@ -122,3 +127,54 @@ class GroundAction:
     @property
     def retry_key(self) -> Tuple[str, Tuple[str, ...]]:
         return (self.schema, self.arguments)
+
+
+@dataclass(frozen=True)
+class SignedGoal:
+    positive: FrozenSet[Fact]
+    negative: FrozenSet[Fact] = frozenset()
+
+    def __post_init__(self) -> None:
+        if self.positive & self.negative:
+            raise ValueError("goal facts cannot be both positive and negative")
+
+
+@dataclass(frozen=True)
+class FrozenGoal:
+    goal_id: str
+    goal_epoch: int
+    literals: SignedGoal
+    source: str
+
+
+@dataclass(frozen=True)
+class CandidateSubtask:
+    occurrence_id: str
+    rough_rank: int
+    action: GroundAction
+    instruction: str
+    evidence_source: str
+    lineage_root: str
+
+
+@dataclass(frozen=True)
+class Proposal:
+    task_id: int
+    task_name: str
+    source_bddl: str
+    source_bddl_sha256: str
+    epoch_id: int
+    goal_mode: GoalMode
+    provider: str
+    prompt_version: str
+    registered_objects: Tuple[ObjectDecl, ...]
+    initial_snapshot: FactSnapshot
+    candidate_subtasks: Tuple[CandidateSubtask, ...]
+    grounded_goal: SignedGoal | None
+
+
+@dataclass(frozen=True)
+class ProposalPackage:
+    proposal: Proposal
+    frozen_goal: FrozenGoal
+    problem: TaskProblem
