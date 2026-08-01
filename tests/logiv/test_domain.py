@@ -130,6 +130,13 @@ def test_grounding_rejects_wrong_argument_type() -> None:
         FixedDomain().ground(problem(), "place-on", ("pot_1", "pot_1_start", "drawer_access"))
 
 
+def test_grounding_rejects_add_delete_overlap_after_binding() -> None:
+    with pytest.raises(DomainError, match="grounded Add/Del overlap"):
+        FixedDomain().ground(
+            problem(), "place-on", ("pot_1", "stove_surface", "stove_surface")
+        )
+
+
 @pytest.mark.parametrize(
     "mutated",
     [

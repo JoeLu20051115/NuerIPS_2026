@@ -153,6 +153,7 @@
       "objects": [
         ["akita_black_bowl_1", "movable"],
         ["kitchen_table_akita_black_bowl_init_region", "relative-region"],
+        ["kitchen_table_recovery_surface", "surface"],
         ["white_cabinet_1_bottom_region", "container-region"],
         ["white_cabinet_1_bottom_access", "access"]
       ],
@@ -164,6 +165,7 @@
       ],
       "initial_false": [
         ["holding", "akita_black_bowl_1"],
+        ["at", "akita_black_bowl_1", "kitchen_table_recovery_surface"],
         ["at", "akita_black_bowl_1", "white_cabinet_1_bottom_region"],
         ["closed", "white_cabinet_1_bottom_access"]
       ],

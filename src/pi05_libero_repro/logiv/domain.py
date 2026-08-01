@@ -86,7 +86,7 @@ class ActionSchema:
                     f"parameter {parameter} expects {expected}, got {argument} - {actual}"
                 )
             values[parameter] = argument
-        return GroundAction(
+        action = GroundAction(
             schema=self.name,
             arguments=tuple(arguments),
             preconditions=frozenset(item.bind(values) for item in self.preconditions),
@@ -97,6 +97,9 @@ class ActionSchema:
                 item.bind(values) for item in self.negative_preconditions
             ),
         )
+        if action.add_effects & action.del_effects:
+            raise DomainError(f"grounded Add/Del overlap in {action.pddl()}")
+        return action
 
 
 def _template(predicate: str, *arguments: str) -> FactTemplate:
