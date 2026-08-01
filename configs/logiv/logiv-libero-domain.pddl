@@ -1,0 +1,75 @@
+(define (domain logiv-libero)
+  (:requirements :strips :typing :negative-preconditions)
+  (:types movable location access switchable - object
+          surface container-region relative-region - location)
+  (:predicates
+    (at ?x0 - movable ?x1 - location)
+    (holding ?x0 - movable)
+    (handempty)
+    (open ?x0 - access)
+    (closed ?x0 - access)
+    (powered-on ?x0 - switchable)
+    (powered-off ?x0 - switchable)
+    (accessible ?x0 - container-region ?x1 - access)
+  )
+  (:action pick
+    :parameters (?object - movable ?from - location)
+    :precondition (and (at ?object ?from) (handempty))
+    :effect (and (holding ?object) (not (at ?object ?from)) (not (handempty)))
+  )
+  (:action place-on
+    :parameters (?object - movable ?from - location ?to - surface)
+    :precondition (and (at ?object ?from) (handempty))
+    :effect (and (at ?object ?to) (not (at ?object ?from)))
+  )
+  (:action place-in
+    :parameters (?object - movable ?from - location ?to - container-region ?access - access)
+    :precondition (and (at ?object ?from) (handempty) (accessible ?to ?access) (open ?access))
+    :effect (and (at ?object ?to) (not (at ?object ?from)))
+  )
+  (:action place-relative
+    :parameters (?object - movable ?from - location ?to - relative-region)
+    :precondition (and (at ?object ?from) (handempty))
+    :effect (and (at ?object ?to) (not (at ?object ?from)))
+  )
+  (:action open-access
+    :parameters (?access - access)
+    :precondition (and (closed ?access) (handempty))
+    :effect (and (open ?access) (not (closed ?access)))
+  )
+  (:action close-access
+    :parameters (?access - access)
+    :precondition (and (open ?access) (handempty))
+    :effect (and (closed ?access) (not (open ?access)))
+  )
+  (:action turn-on
+    :parameters (?device - switchable)
+    :precondition (and (powered-off ?device))
+    :effect (and (powered-on ?device) (not (powered-off ?device)))
+  )
+  (:action turn-off
+    :parameters (?device - switchable)
+    :precondition (and (powered-on ?device))
+    :effect (and (powered-off ?device) (not (powered-on ?device)))
+  )
+  (:action put-down
+    :parameters (?object - movable ?to - surface)
+    :precondition (and (holding ?object))
+    :effect (and (at ?object ?to) (handempty) (not (holding ?object)))
+  )
+  (:action place-held-on
+    :parameters (?object - movable ?to - surface)
+    :precondition (and (holding ?object))
+    :effect (and (at ?object ?to) (handempty) (not (holding ?object)))
+  )
+  (:action place-held-in
+    :parameters (?object - movable ?to - container-region ?access - access)
+    :precondition (and (holding ?object) (accessible ?to ?access) (open ?access))
+    :effect (and (at ?object ?to) (handempty) (not (holding ?object)))
+  )
+  (:action place-held-relative
+    :parameters (?object - movable ?to - relative-region)
+    :precondition (and (holding ?object))
+    :effect (and (at ?object ?to) (handempty) (not (holding ?object)))
+  )
+)

@@ -14,6 +14,9 @@
 - Do not modify checkpoint parameters, official BDDL files, native success predicates, initial states, or the existing open-loop evaluator semantics.
 - Use the real `/home/xingrui/.local/bin/Validate`; local STRIPS execution may prune candidates but may not issue authorization.
 - Keep `VALIDATION_ERROR` distinct from `INVALID` and fail closed on grounding, fence, compiler, certificate, or budget errors.
+- Preserve TRUE/FALSE/UNKNOWN evidence, signed positive/negative preconditions and Goals, and run signed-trace before classic VAL.
+- Bind every state-changing request/response to a phase-valid ContextEnvelope; stale callbacks are no-ops.
+- Dispatch only through an atomic safety-permit consume-and-enqueue boundary; external evaluator success remains independent of the controller Goal.
 - Persist first-pass subtasks as `candidate.plan` plus `proposal.json`, `initial_problem.pddl`, and an occurrence sidecar.
 - Never add linear-plan adjacency edges. Task 8 must contain two unordered `place-on` occurrences and a DAG layer width of at least two.
 - In the no-API phase, label results `scripted-vlm/oracle-grounding`; do not claim measured VLM perception improvement.
@@ -24,7 +27,7 @@
 
 ## File Map
 
-- `src/pi05_libero_repro/logiv/model.py`: immutable facts, actions, proposals, snapshots, occurrences, certificates, receipts, graphs, and terminal enums.
+- `src/pi05_libero_repro/logiv/model.py`: immutable signed facts, tri-state snapshots, context envelopes, actions, proposals, occurrences, certificates, receipts, graphs, and terminal enums.
 - `src/pi05_libero_repro/logiv/domain.py`: fixed typed STRIPS schemas, grounding, local transition, lint, and deterministic PDDL rendering.
 - `src/pi05_libero_repro/logiv/proposal.py`: ten Scripted-VLM task proposals and proposal/Problem/plan/sidecar artifact writer.
 - `src/pi05_libero_repro/logiv/val.py`: fail-closed VAL subprocess wrapper and certificate hashing.
@@ -63,7 +66,7 @@ Run `uv run pytest tests/logiv/test_domain.py -v`. Expect collection failure bec
 
 - [ ] **Step 3: Implement immutable model and minimal fixed schemas**
 
-Use frozen dataclasses and `frozenset[Fact]`. Define schemas `place-on`, `place-in`, `place-relative`, `open-access`, `close-access`, `turn-on`, `turn-off`, `put-down`, `place-held-on`, `place-held-in`, and `place-held-relative`. Make parameter binding type-checked against `TaskProblem.objects`. Keep `handempty` unchanged across successful nominal macro placements; held recovery actions delete `holding(object)` and add `handempty`.
+Use frozen dataclasses and disjoint `true_facts`/`false_facts`. Define `TruthValue`, `FactSnapshot`, signed positive/negative Goal fields, and schemas `pick`, `place-on`, `place-in`, `place-relative`, `open-access`, `close-access`, `turn-on`, `turn-off`, `put-down`, `place-held-on`, `place-held-in`, and `place-held-relative`. Make parameter binding type-checked against `TaskProblem.objects`. Keep `handempty` unchanged across successful nominal macro placements; `pick` and held recovery actions update holding/handempty explicitly.
 
 - [ ] **Step 4: Generate public PDDL and verify GREEN**
 
@@ -94,7 +97,7 @@ Run `uv run pytest tests/logiv/test_proposal.py -v`; expect import failure.
 
 - [ ] **Step 3: Implement all ten proposals**
 
-Translate official BDDL registered objects, relevant initial relations, access state, device state, original goals, and candidate macro actions into the fixture. Include evidence strings that identify `task_instruction`, `initial_image_review`, or `official_registered_object_metadata`; do not label BDDL Goal as visual evidence.
+Translate official BDDL registered objects, relevant positive and negative initial relations, access state, device state, and candidate actions into the fixture. In metadata-assisted mode proposals carry no Goal; the provider freezes official BDDL Goal separately with `goal_id/goal_epoch`. Include evidence strings that identify `task_instruction`, `initial_image_review`, or `official_registered_object_metadata`; do not label BDDL Goal as visual evidence. Task 3 uses `pick → place-held-in → close-access`; task 8 uses two unordered placement macros.
 
 - [ ] **Step 4: Render and verify all proposals**
 
@@ -112,7 +115,7 @@ Commit with `feat: add LIBERO scripted VLM proposals`.
 
 **Interfaces:**
 - Consumes: rendered Domain/Problem/Plan and occurrence sidecar bytes.
-- Produces: `ValidationStatus`, `ValidationResult`, `PlanCertificate`, `ValWrapper.validate(...)`, and `verify_certificate(...)`.
+- Produces: `SignedTraceStatus`, `ValidationStatus`, `ValidationResult`, `PlanCertificate`, `run_signed_trace(...)`, `ValWrapper.validate(...)`, and `verify_certificate(...)`.
 
 - [ ] **Step 1: Write failing real-process tests**
 
@@ -124,7 +127,7 @@ Run `uv run pytest tests/logiv/test_val.py -v`; expect import failure.
 
 - [ ] **Step 3: Implement fail-closed wrapper**
 
-Invoke `subprocess.run` with explicit argv, captured UTF-8 output, no shell, and timeout. Recognize VAL success only from exit zero plus its success marker; recognize ordinary invalid plans only from known plan-failure markers. Hash length-prefixed named payloads to prevent concatenation ambiguity.
+Run deterministic signed-trace first: unknown positive/negative preconditions or Goal literals return `PLAN_GROUNDING_INCOMPLETE`; schema/parser/domain errors fail closed. Only a complete signed trace reaches `subprocess.run` with explicit argv, captured UTF-8 output, no shell, and timeout. Recognize VAL success only from exit zero plus its success marker; recognize ordinary invalid plans only from known plan-failure markers. Hash length-prefixed named payloads and the full ContextEnvelope to prevent concatenation ambiguity.
 
 - [ ] **Step 4: Verify GREEN against installed VAL**
 
@@ -154,7 +157,7 @@ Run `uv run pytest tests/logiv/test_dag.py -v`; expect import failure.
 
 - [ ] **Step 3: Implement support provenance and threat protection**
 
-Track the latest unthreatened producer for each action precondition and Goal fact. Add protection precedence only when a deleter would otherwise threaten a causal link. Store all reasons on one edge. Never iterate adjacent plan pairs to create edges.
+Track the latest unthreatened producer for each signed action precondition and Goal literal. Add effects support positive literals and threaten negative links; delete effects support negative literals and threaten positive links. Store all reasons on one edge. Never iterate adjacent plan pairs to create edges.
 
 - [ ] **Step 4: Verify GREEN and mutation property**
 
@@ -206,7 +209,7 @@ Commit with `feat: add bounded certified repair`.
 
 - [ ] **Step 1: Write failing state-machine tests**
 
-Use synchronous real fakes, not assertion-only mocks. Test normal commit; stale receipt cannot authorize; precondition failure skips suffix recertification; effect failure remaining plan includes the failed occurrence and recertifies once; goal failure with empty agenda skips empty VAL; no replacement before STOPPED; retries create new attempt IDs but preserve occurrence/lineage; atomic install rejects stale parent graph/epoch; each budget prevents further dispatch.
+Use synchronous real fakes, not assertion-only mocks. Test normal commit; UNKNOWN never satisfies either gate polarity; stale ContextEnvelope/receipt produces `STALE_CALLBACK_NOOP`; precondition failure skips suffix recertification; effect failure remaining plan includes the failed occurrence and recertifies once; goal failure with empty agenda skips empty VAL; no replacement before STOPPED; post-stop unknown enters HALT_PENDING; retries create new attempt IDs but preserve occurrence/lineage; safety permit consume-and-enqueue is the only dispatch point; atomic install rejects stale parent graph/epoch; external evaluator alone creates episode success; each budget prevents further dispatch.
 
 - [ ] **Step 2: Verify RED**
 
@@ -233,7 +236,7 @@ Commit with `feat: add LOGIV fact-gated controller`.
 
 **Interfaces:**
 - Consumes: existing `prepare_observation`, fixed task proposal, inner LIBERO predicate API, and websocket policy client.
-- Produces: `LiberoOracleGrounder`, `Pi05MacroExecutor`, `SubtaskPromptRenderer`, and a complete `AttemptResult` with stopped fence evidence, frames, actions, and post-action snapshot.
+- Produces: `LiberoOracleGrounder`, `SimulatorSafetySupervisor`, `Pi05MacroExecutor`, `SubtaskPromptRenderer`, and a complete `AttemptResult` with stopped fence evidence, frames, actions, and post-action tri-state snapshot.
 
 - [ ] **Step 1: Write failing adapter tests**
 
@@ -270,7 +273,7 @@ Commit with `feat: integrate LOGIV with LIBERO and pi05`.
 
 - [ ] **Step 1: Write failing record/evaluator tests**
 
-Assert unique run/task/episode keys, atomic JSONL append, event hash chain, task-8 graph width metrics, valid terminal-cause enum, prompt/config hashes, and exact initial-state/first-frame pairing with baseline. Run a fake two-subtask episode through the evaluator boundary and assert each occurrence receives its own prompt.
+Assert unique run/arm/goal-mode/task/episode keys, atomic JSONL append, event hash chain, ContextEnvelope, task-8 graph width metrics, safety/evaluator receipt fields, valid failure taxonomy, prompt/config hashes, and exact initial-state/first-frame pairing with baseline. Run a fake two-subtask episode through the evaluator boundary and assert each occurrence receives its own prompt.
 
 - [ ] **Step 2: Verify RED**
 
@@ -278,7 +281,7 @@ Run `uv run pytest tests/logiv/test_records.py tests/logiv/test_evaluator.py -v`
 
 - [ ] **Step 3: Implement evaluator and report**
 
-Reuse existing task ordering, initial states, rendering, video naming conventions, and image preparation. Add `--task-ids`, `--episode-indices`, `--prompt-version`, `--max-action-steps`, budgets, `--development-only`, and explicit `--oracle-grounding` acknowledgement. Refuse nonempty unrecognized output directories and any holdout request when the prompt version is unlocked.
+Reuse existing task ordering, initial states, rendering, video naming conventions, and image preparation. Add explicit method arm and goal mode, `--task-ids`, `--episode-indices`, `--prompt-version`, `--max-action-steps`, budgets, deviation mode, `--development-only`, and `--oracle-grounding` acknowledgement. Freeze a ten-task coverage manifest before rollout. Refuse nonempty unrecognized output directories and any holdout request when the prompt version is unlocked.
 
 - [ ] **Step 4: Verify GREEN and CLI help**
 
@@ -350,9 +353,8 @@ Run a fresh policy server and empty output directory. Require exactly 50 valid r
 
 - [ ] **Step 5: Run complete 10×50 and report**
 
-After task-8 acceptance, run all ten tasks from task 0 episode 0 with a fresh uninterrupted server. Require 500 valid records, all native success agreements, and auditable artifacts. Compare against 460/500; state the measured result even if the overall target is not met.
+After task-8 acceptance, run all ten tasks from task 0 episode 0 with a fresh uninterrupted server. Require 500 allocated records including all terminal failures, independent native evaluator results, and auditable artifacts. Compare against 460/500; state the measured result even if the overall target is not met. Then run the preregistered Stage-only, Graph-without-VAL, and VAL-without-localized-repair arms with isolated artifacts; Base reuses only the already audited open-loop records. Report task-wise Wilson intervals and 10,000 task-stratified paired bootstraps.
 
 - [ ] **Step 6: Final verification and commit small reports/config only**
 
 Run the full test suite, verify manifests and report cardinality, ensure no videos/logs/keys are staged, and commit prompt configs plus small result summaries with `results: evaluate LOGIV on pi05 LIBERO-10`.
-

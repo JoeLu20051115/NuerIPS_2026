@@ -54,8 +54,8 @@ initial observation
 - `candidate.plan`：标准 VAL plan 文本，每行一个 grounded action，例如：
 
 ```text
-(place-in akita_black_bowl_1 kitchen_table_akita_black_bowl_init_region white_cabinet_1_bottom_region white_cabinet_1_bottom_region)
-(close-access white_cabinet_1_bottom_region)
+(place-in akita_black_bowl_1 kitchen_table_akita_black_bowl_init_region white_cabinet_1_bottom_region white_cabinet_1_bottom_access)
+(close-access white_cabinet_1_bottom_access)
 ```
 
 另有 `candidate.occurrences.json` 保存稳定 occurrence ID、原始候选索引、action lineage 和自然语言 VLA 指令。PDDL plan 文本本身不承担 occurrence ID、证据或 retry 元数据。
@@ -81,6 +81,8 @@ initial observation
 - `place-held-on(object, surface)`
 - `place-held-in(object, container-region, access)`
 - `place-held-relative(object, target-region)`
+
+容器的 BDDL region 与执行器操作的 access/handle 使用两个不同的 registered symbolic IDs；coverage manifest 的 sidecar 将二者绑定到同一个 LIBERO fixture。这样可以保持 PDDL 单类型对象约束，而不会让一个 ID 同时冒充 `container-region` 与 `access`。
 
 一个 placement 宏动作内部允许 π₀.₅ 完成接近、抓取、搬运和释放。这样既与现有 policy 的自然语言能力匹配，也避免单夹爪内部资源把所有多物体任务不必要地编译成全序链。
 
@@ -240,3 +242,19 @@ Repair 另有限制 `max_edits`、`max_candidates` 和 `val_timeout_seconds`。�
 4. 故障注入测试证明任何 deviation 后都不会在未重新授权时继续 dispatch。
 5. 至少完成 task 8 的固定 50-state LOGIV 评估并与 27/50 基线比较；只有实测超过基线才报告“提升”。
 6. 完成全 10×50 后，才可以对总体 π₀.₅ success rate 作提升或回退结论。
+
+## 15. 2026-08-02 最新运行时合同补充
+
+本节吸收用户确认后的最新版正文/附录，若与前文存在冲突，以本节更严格的合同为准。
+
+- `GroundFacts` 使用 `TRUE/FALSE/UNKNOWN` 三值语义。UNKNOWN 既不能满足正 precondition，也不能满足负 precondition；PDDL effect 不能充当物理 effect 的证据。
+- `TaskProblem`、动作和 Goal 均保存正负字面量。VAL 前必须先运行 signed-trace；经典 PDDL closed-world semantics 不得把未观测事实自动升级为可用的 FALSE 证据。
+- 所有可改变控制状态的请求均绑定 `ContextEnvelope(phase, goal_mode, request_id, request_generation, episode_id, goal_id, goal_epoch, epoch_id, graph_version, occurrence_id, attempt_id, certificate_hash, safety_epoch)`；不适用字段显式为 `None/⊥`。迟到、重复或父上下文不匹配只记录 `STALE_CALLBACK_NOOP`。
+- `goal_mode` 必须显式为 `METADATA_ASSISTED` 或 `GOAL_PREDICTION`。本阶段只实现并报告前者；Scripted-VLM proposal 不携带 Goal，官方 BDDL Goal 以不可变 `goal_id/goal_epoch` 冻结。
+- 未知执行结果、fence/settling timeout 或 post-stop grounding failure 生成 UNKNOWN receipt，冻结 cursor 和 attempt，并进入 `HALT_PENDING`。只有 halt acknowledgement 后才是 `SAFE_STOPPED`；超时是 `UNSAFE_TERMINAL / MANUAL_INTERVENTION_REQUIRED`。
+- dispatch gate 通过 `SafetySupervisor.consume_and_enqueue` 单一调用原子绑定 snapshot、Graph、certificate、attempt 和 safety epoch。仿真实现提供同步 permit/watchdog/action-limit supervisor，并明确它不是现实机器人安全证明；不支持该原子接口的真实平台 fail closed。
+- episode 的最终成功由只读 external evaluator handle 独立给出。内部 Goal 满足、VAL-valid 或 effect-consistent 均不能替代 `EPISODE_SUCCESS`。
+- fixed Domain 同时包含说明性细粒度 `pick`/`place-held-*` 和原子 placement 宏。一个 proposal 对同一物体搬运只能选择一种粒度。task 3 使用细粒度动作以覆盖论文黑碗轨迹；task 8 使用两个原子 `place-on` 以保留真实独立分支。
+- 覆盖清单在运行前冻结：恰好 10 个 task IDs、registered objects、predicates、nominal/recovery schemas、goal mode 和 unsupported cases。结果记录必须包含 grounding/schema rejection 与每个任务的 coverage。
+- evaluator 支持五个隔离方法臂：`BASE`、`STAGE_ONLY`、`GRAPH_WITHOUT_VAL`、`VAL_WITHOUT_LOCALIZED_REPAIR` 与 `FULL_LOGIV`。任何无 VAL 臂不能复用 Full 的 certificate/provenance/retry 输出。
+- 主结果按 task 报 `x/50` 与 Wilson 区间；跨 task estimand 是 10 个 task 的等权 paired success-difference macro-average，并在 task 内对共享 initial-state pairs 做 10,000 次 bootstrap。
