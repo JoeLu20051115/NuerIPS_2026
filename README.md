@@ -2,6 +2,27 @@
 
 This repository evaluates the full and 2,000-step π₀.₅ checkpoints on the ten long-horizon tasks in the official `libero_10` suite. Each primary result contains 50 valid trials per task (500 per checkpoint) using OpenPI's camera, state, control, reset, and native success semantics.
 
+## Reproduced result
+
+Both requested 10×50 evaluations passed the predeclared acceptance audit:
+
+| Checkpoint | Successes | Reproduced | Reference |
+| --- | ---: | ---: | ---: |
+| Full π₀.₅ | 460/500 | **92.0%** | 92.4% |
+| Early π₀.₅ (2k steps) | 218/500 | **43.6%** | 43% |
+
+All 1,000 episodes are valid. Each checkpoint has exactly 50 trials for each
+task, all native success predicates agree, and every H.264 video is 224×224
+with its decoded frame count equal to the recorded control-step count. The 500
+cross-checkpoint pairs have identical task/episode keys, initial-state hashes,
+and first-frame hashes.
+
+- [Human-readable per-task report](results/pi05-libero-long-summary.md)
+- [Machine-readable report](results/pi05-libero-long-summary.json)
+- [Final protocol and integrity audit](results/pi05-libero-long-audit.md)
+- [Full-run SHA-256 manifest](artifacts/manifests/primary-full.json)
+- [Early-run SHA-256 manifest](artifacts/manifests/primary-early.json)
+
 ## Locked inputs
 
 - OpenPI: `650c5b0283a49c42784fb5055a0507da2c6d347d`
