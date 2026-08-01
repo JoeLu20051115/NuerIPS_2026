@@ -136,9 +136,13 @@ def test_negative_goal_literal_is_supported_by_delete_effect() -> None:
     graph = CausalDagCompiler(REAL_VAL, timeout_seconds=5.0).compile(
         problem, plan, sidecar, result.certificate, context
     )
-    first = graph.canonical_agenda[0]
+    producer = next(
+        node.node_id
+        for node in graph.nodes
+        if node.action is not None and node.action.arguments[0] == "moka_pot_1"
+    )
 
-    assert SignedLiteral(start, positive=False) in graph.edge(first, "GOAL").support_literals
+    assert SignedLiteral(start, positive=False) in graph.edge(producer, "GOAL").support_literals
 
 
 def test_compiler_rejects_certificate_mismatch_and_invalid_graph_edges() -> None:

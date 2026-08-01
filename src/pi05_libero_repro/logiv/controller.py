@@ -48,6 +48,7 @@ class DispatchStatus(str, Enum):
     SAFETY_VETO = "SAFETY_VETO"
     WATCHDOG_EXPIRED = "WATCHDOG_EXPIRED"
     EXECUTOR_REJECTED_NOT_ENQUEUED = "EXECUTOR_REJECTED_NOT_ENQUEUED"
+    ACTION_BUDGET_EXHAUSTED = "ACTION_BUDGET_EXHAUSTED"
 
 
 class ExecutorStatus(str, Enum):
@@ -774,6 +775,11 @@ class LogivController:
                 return self._result(
                     ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
                     "EXECUTOR_REJECTED_NOT_ENQUEUED",
+                )
+            if start.status is DispatchStatus.ACTION_BUDGET_EXHAUSTED:
+                return self._result(
+                    ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
+                    "BUDGET_EXHAUSTED",
                 )
             if (
                 start.status is not DispatchStatus.ENQUEUED

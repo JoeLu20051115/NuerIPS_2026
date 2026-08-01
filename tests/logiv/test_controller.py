@@ -306,8 +306,8 @@ def test_normal_task8_commits_both_branches_and_external_evaluator_succeeds() ->
 
     assert result.status is ControllerStatus.EPISODE_SUCCESS
     assert [action.arguments[0] for action in dispatcher.dispatches] == [
-        "moka_pot_1",
         "moka_pot_2",
+        "moka_pot_1",
     ]
     assert [receipt.status for receipt in result.receipts] == [
         AttemptReceiptStatus.COMMITTED,

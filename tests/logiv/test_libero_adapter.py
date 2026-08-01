@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import replace
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -70,6 +71,7 @@ class FakeEnv:
         self.env = FakeInnerEnv()
         self.actions: list[np.ndarray] = []
         self.step_hook = None
+        self.done = False
         self.obs = {
             "agentview_image": np.zeros((8, 8, 3), dtype=np.uint8),
             "robot0_eye_in_hand_image": np.zeros((8, 8, 3), dtype=np.uint8),
@@ -83,7 +85,7 @@ class FakeEnv:
         self.actions.append(value)
         if self.step_hook is not None:
             self.step_hook(len(self.actions), value)
-        return dict(self.obs), 0.0, False, {}
+        return dict(self.obs), 0.0, self.done, {}
 
 
 class FakeImageTools:
@@ -183,6 +185,39 @@ def test_oracle_grounder_maps_relations_holding_and_exactly_one_location() -> No
     assert Fact("handempty") in response.snapshot.false_facts
 
 
+def test_reliable_holding_overrides_stale_on_relation_before_exactly_one_lint() -> None:
+    env = FakeEnv()
+    source = "kitchen_table_moka_pot_left_init_region"
+    target = "flat_stove_1_cook_region"
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", source): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            # Contact can leave LIBERO's On predicate true just after grasp.
+            ("on", "moka_pot_2", source): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+    env.env.held.add("moka_pot_2")
+    package, _, grounder = _grounder(env)
+
+    response = grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS,
+        _context(),
+        monitored_fact_universe(package.problem),
+    )
+
+    assert response.status is GroundingStatus.OK
+    assert response.snapshot is not None
+    assert Fact("holding", ("moka_pot_2",)) in response.snapshot.true_facts
+    assert Fact("at", ("moka_pot_2", source)) in response.snapshot.false_facts
+    assert Fact("handempty") in response.snapshot.false_facts
+
+
 def test_conflicting_locations_fail_closed() -> None:
     env = FakeEnv()
     for object_name in ("moka_pot_1", "moka_pot_2"):
@@ -208,13 +243,65 @@ def test_conflicting_locations_fail_closed() -> None:
     assert "exactly-one" in response.reason
 
 
+def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
+    env = FakeEnv()
+    recovery = "kitchen_table_recovery_surface"
+    source_1 = "kitchen_table_moka_pot_right_init_region"
+    source_2 = "kitchen_table_moka_pot_left_init_region"
+    target = "flat_stove_1_cook_region"
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source_1): True,
+            ("on", "moka_pot_1", source_2): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", source_1): False,
+            ("on", "moka_pot_2", source_2): False,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+    # ``kitchen_table`` is an arena workspace and cannot be queried through
+    # LIBERO's ordinary object-state predicate table.  The current simulator
+    # contact pair is the positive recovery-surface evidence.
+    geom_names = ("moka_pot_2_geom", "table_collision")
+    geom_ids = {name: index for index, name in enumerate(geom_names)}
+    env.env.get_object = lambda name: env.env.objects_dict[name]
+    env.env.sim = SimpleNamespace(
+        model=SimpleNamespace(
+            ngeom=len(geom_names),
+            geom_name2id=lambda name: geom_ids[name],
+            geom_id2name=lambda index: geom_names[index],
+        ),
+        data=SimpleNamespace(
+            ncon=1,
+            contact=[SimpleNamespace(geom1=geom_ids["moka_pot_2_geom"], geom2=geom_ids["table_collision"])],
+        ),
+    )
+    package, _, grounder = _grounder(env)
+
+    response = grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS,
+        _context(),
+        monitored_fact_universe(package.problem),
+    )
+
+    assert response.status is GroundingStatus.OK
+    assert response.snapshot is not None
+    assert Fact("at", ("moka_pot_2", recovery)) in response.snapshot.true_facts
+    assert Fact("holding", ("moka_pot_2",)) in response.snapshot.false_facts
+
+
 def test_prompt_for_task8_names_only_one_branch_and_forbids_advancing() -> None:
     package, _ = _task8()
     renderer = SubtaskPromptRenderer()
-    first, second = [item.action for item in package.proposal.candidate_subtasks]
+    by_object = {
+        item.action.arguments[0]: item.action
+        for item in package.proposal.candidate_subtasks
+    }
 
-    first_prompt = renderer.render(first)
-    second_prompt = renderer.render(second)
+    first_prompt = renderer.render(by_object["moka_pot_1"])
+    second_prompt = renderer.render(by_object["moka_pot_2"])
 
     assert "right moka pot" in first_prompt.lower()
     assert "left moka pot" not in first_prompt.lower()
@@ -224,10 +311,14 @@ def test_prompt_for_task8_names_only_one_branch_and_forbids_advancing() -> None:
     assert "right moka pot" not in second_prompt.lower()
 
 
-def test_macro_executor_stops_on_observed_effect_flushes_chunk_and_preserves_gripper() -> None:
+def test_macro_executor_stops_on_observed_effect_flushes_chunk_and_settles_released() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
-    action = package.proposal.candidate_subtasks[0].action
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
     start_location = action.arguments[1]
     target = action.arguments[2]
     env.env.relations[("on", "moka_pot_1", start_location)] = True
@@ -280,10 +371,294 @@ def test_macro_executor_stops_on_observed_effect_flushes_chunk_and_preserves_gri
     # Two task actions, then two settling holds: the unused two chunk actions are flushed.
     assert len(env.actions) == 4
     assert np.allclose(env.actions[-1][:6], 0.0)
-    assert env.actions[-1][-1] == pytest.approx(0.65)
+    assert env.actions[-1][-1] == pytest.approx(-1.0)
     assert executor.results[-1].unused_actions_flushed == 2
     assert executor.results[-1].detector_calls == 2
+    assert executor.total_action_steps == 2
     assert Fact("at", ("moka_pot_1", target)) in grounder.peek_snapshot().true_facts
+
+
+def test_effect_gated_macro_stops_when_object_lands_on_recovery_surface() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = package.proposal.candidate_subtasks[0].action
+    assert action.arguments[0] == "moka_pot_2"
+    object_name, source, target = action.arguments
+    recovery = "kitchen_table_recovery_surface"
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", object_name, "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", object_name, source): True,
+            ("on", object_name, target): False,
+            ("on", object_name, "kitchen_table"): True,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def land_outside_nominal_regions(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", object_name, source)] = False
+
+    env.step_hook = land_outside_nominal_regions
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((4, 7), dtype=np.float64)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v5.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=4,
+        max_action_steps=12,
+        max_total_action_steps=12,
+        settling_steps=0,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.reason == "observed target-location divergence"
+    assert len(executor.results[0].actions) == 1
+    assert executor.results[0].unused_actions_flushed == 3
+    assert executor.results[0].post_snapshot is not None
+    assert Fact("at", (object_name, recovery)) in (
+        executor.results[0].post_snapshot.true_facts
+    )
+
+
+def test_v2_task8_prompt_uses_concise_training_style_and_explicit_release() -> None:
+    package, _ = _task8()
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v2.json"
+    )
+    by_object = {
+        item.action.arguments[0]: item.action
+        for item in package.proposal.candidate_subtasks
+    }
+
+    assert renderer.render(by_object["moka_pot_1"]).startswith(
+        "Put the moka pot closest to the stove"
+    )
+    assert "release" in renderer.render(by_object["moka_pot_1"]).lower()
+    assert renderer.render(by_object["moka_pot_2"]).startswith(
+        "Put the remaining moka pot on the stove"
+    )
+
+
+def test_v3_macro_switches_from_acquire_to_finish_on_verified_holding() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    source, target = action.arguments[1:]
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def transition(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.held.add("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", source)] = False
+        elif step == 2:
+            env.env.held.remove("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", target)] = True
+
+    env.step_hook = transition
+    client = FakeClient(
+        [
+            np.zeros((2, 7), dtype=np.float64),
+            np.zeros((2, 7), dtype=np.float64),
+        ]
+    )
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=client,
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v3.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=2,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert len(client.requests) == 2
+    assert client.requests[0]["prompt"].startswith("Pick up")
+    assert client.requests[1]["prompt"].startswith("Put the moka pot you are holding")
+    assert len(executor.results[0].prompt_history) == 2
+    assert executor.results[0].unused_actions_flushed == 2
+    assert len(executor.results[0].actions) == 2
+
+
+def test_v4_task8_order_and_prompts_bind_the_same_objects() -> None:
+    package, _ = _task8()
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v4.json"
+    )
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert first.arguments[0] == "moka_pot_2"
+    assert second.arguments[0] == "moka_pot_1"
+    assert "closest to the stove" in renderer.render_phase(first, "acquire")
+    assert "remaining moka pot" in renderer.render_phase(second, "acquire")
+    assert renderer.has_phase(first, "finish")
+    assert renderer.has_phase(second, "finish")
+
+
+def test_v5_uses_training_task_prompt_but_keeps_occurrence_effect_boundaries() -> None:
+    package, _ = _task8()
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v5.json"
+    )
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert renderer.render(first) == "Put both moka pots on the stove."
+    assert renderer.render(second) == "Put both moka pots on the stove."
+    assert not renderer.has_phase(first, "finish")
+    assert not renderer.has_phase(second, "finish")
+    assert first != second
+
+
+def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    source, target = action.arguments[1:]
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def transition(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.held.add("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            # LIBERO's done is task success, not an absorbing terminal state.
+            env.done = True
+        elif step == 2:
+            env.env.held.remove("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", target)] = True
+
+    env.step_hook = transition
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient(
+            [
+                np.zeros((1, 7), dtype=np.float64),
+                np.zeros((1, 7), dtype=np.float64),
+            ]
+        ),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v3.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=2,
+        max_total_action_steps=2,
+        settling_steps=0,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.reason == "observed declared effects"
+    assert len(executor.results[0].actions) == 2
+    assert len(executor.results[0].prompt_history) == 2
+
+
+def test_episode_action_budget_rejects_before_creating_another_attempt() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    for object_name in ("moka_pot_1", "moka_pot_2"):
+        for location in (
+            "kitchen_table_moka_pot_right_init_region",
+            "kitchen_table_moka_pot_left_init_region",
+            "flat_stove_1_cook_region",
+        ):
+            env.env.relations[("on", object_name, location)] = False
+    env.env.relations[("on", "moka_pot_1", action.arguments[1])] = True
+    env.env.relations[("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region")] = True
+    env.env.relations[("turnon", "flat_stove_1")] = True
+    env.env.relations[("turnoff", "flat_stove_1")] = False
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=1,
+        max_total_action_steps=1,
+        settling_steps=0,
+    )
+    first = executor.consume_permit_and_enqueue(action, _context(), package.proposal.initial_snapshot)
+    assert executor.await_outcome(first).status is ExecutorStatus.SUCCEEDED
+    current = grounder.peek_snapshot()
+    second_context = replace(_context(), epoch_id=store.epoch_id, request_id="request-2")
+
+    second = executor.consume_permit_and_enqueue(action, second_context, current)
+
+    assert second.status is DispatchStatus.ACTION_BUDGET_EXHAUSTED
+    assert second.attempt_id is None
 
 
 @pytest.mark.parametrize(

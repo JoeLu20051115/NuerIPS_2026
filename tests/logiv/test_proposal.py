@@ -40,7 +40,10 @@ def test_task8_keeps_two_distinct_unordered_placement_occurrences() -> None:
     candidates = package.proposal.candidate_subtasks
 
     assert [item.action.schema for item in candidates] == ["place-on", "place-on"]
-    assert {item.action.arguments[0] for item in candidates} == {"moka_pot_1", "moka_pot_2"}
+    assert [item.action.arguments[0] for item in candidates] == ["moka_pot_2", "moka_pot_1"]
+    assert Fact("at", ("moka_pot_2", "kitchen_table_recovery_surface")) in (
+        package.problem.initial_false
+    )
     assert candidates[0].occurrence_id != candidates[1].occurrence_id
     assert all(item.rough_rank in {0, 1} for item in candidates)
 

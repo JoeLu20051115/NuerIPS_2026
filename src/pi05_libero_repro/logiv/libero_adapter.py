@@ -210,6 +210,46 @@ class LiberoOracleGrounder:
             return TruthValue.TRUE
         return TruthValue.FALSE
 
+    def _support_contact(self, object_name: str, support_name: str) -> TruthValue:
+        """Ground workspace support from the current MuJoCo contact graph.
+
+        LIBERO's kitchen table is an arena workspace, not an entry in
+        ``object_states_dict``.  Consequently ``On(obj, kitchen_table)`` is not
+        a valid ordinary BDDL predicate query.  Contact pairs are a deterministic
+        geometry source for that registered alias and avoid interpreting absent
+        region membership as a table relation.
+        """
+
+        try:
+            model = self.inner.sim.model
+            data = self.inner.sim.data
+            object_model = self.inner.get_object(object_name)
+            object_geom_ids = {
+                int(model.geom_name2id(name)) for name in object_model.contact_geoms
+            }
+            support_geom_ids = {
+                geom_id
+                for geom_id in range(int(model.ngeom))
+                if (
+                    (geom_name := model.geom_id2name(geom_id)) is not None
+                    and (
+                        geom_name == f"{support_name}_collision"
+                        or geom_name.endswith("table_collision")
+                        and support_name.endswith("table")
+                    )
+                )
+            }
+            if not object_geom_ids or not support_geom_ids:
+                return TruthValue.UNKNOWN
+            for index in range(int(data.ncon)):
+                contact = data.contact[index]
+                pair = {int(contact.geom1), int(contact.geom2)}
+                if pair & object_geom_ids and pair & support_geom_ids:
+                    return TruthValue.TRUE
+            return TruthValue.FALSE
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return TruthValue.UNKNOWN
+
     def _switch_truth(self, resolved: str, *, powered_on: bool) -> TruthValue:
         """Use the raw joint and declared fixture ranges to close LIBERO's qpos==0 gap."""
 
@@ -259,12 +299,20 @@ class LiberoOracleGrounder:
                 if any(value is TruthValue.TRUE for value in other_values):
                     return TruthValue.FALSE
                 broad = self._predicate(["on", object_name, resolved])
+                contact = self._support_contact(object_name, resolved)
                 held = self._holding(object_name)
-                if broad is TruthValue.TRUE and held is TruthValue.FALSE and all(
+                supported = (
+                    TruthValue.TRUE
+                    if TruthValue.TRUE in {broad, contact}
+                    else TruthValue.FALSE
+                    if broad is TruthValue.FALSE and contact is TruthValue.FALSE
+                    else TruthValue.UNKNOWN
+                )
+                if supported is TruthValue.TRUE and held is TruthValue.FALSE and all(
                     value is TruthValue.FALSE for value in other_values
                 ):
                     return TruthValue.TRUE
-                if broad is TruthValue.FALSE or held is TruthValue.TRUE:
+                if supported is TruthValue.FALSE or held is TruthValue.TRUE:
                     return TruthValue.FALSE
                 return TruthValue.UNKNOWN
             return self._predicate([self._location_predicate(location), object_name, resolved])
@@ -294,6 +342,21 @@ class LiberoOracleGrounder:
         holding_facts = sorted(
             fact for fact in self.monitored_facts | required if fact.predicate == "holding"
         )
+        dominance_overrides: list[tuple[str, str, str]] = []
+        for holding_fact in holding_facts:
+            if values.get(holding_fact) is not TruthValue.TRUE:
+                continue
+            object_name = holding_fact.arguments[0]
+            for fact, value in tuple(values.items()):
+                if (
+                    fact.predicate == "at"
+                    and fact.arguments[0] == object_name
+                    and value is TruthValue.TRUE
+                ):
+                    values[fact] = TruthValue.FALSE
+                    dominance_overrides.append(
+                        (holding_fact.pddl(), fact.pddl(), "reliable-holding-over-at")
+                    )
         holding_values = [values.get(fact, TruthValue.UNKNOWN) for fact in holding_facts]
         if any(value is TruthValue.TRUE for value in holding_values):
             values[Fact("handempty")] = TruthValue.FALSE
@@ -341,6 +404,7 @@ class LiberoOracleGrounder:
             "epoch_id": epoch_id,
             "observation_hash": _observation_hash(observation, epoch_id),
             "values": [(fact.pddl(), values[fact].value) for fact in sorted(values)],
+            "dominance_overrides": dominance_overrides,
         }
         evidence_hash = hashlib.sha256(
             json.dumps(evidence_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -378,12 +442,53 @@ class LiberoOracleGrounder:
         return self._snapshot(frozenset())
 
     def effects_satisfied(self, action: GroundAction) -> bool:
+        return self.observe_action_progress(action)[0]
+
+    def observe_action_progress(self, action: GroundAction) -> tuple[bool, bool]:
+        """Return (declared effects satisfied, object at a different known location).
+
+        The second signal is intentionally limited to grounded place macros that
+        carry an explicit source and target.  It does not infer a location from
+        missing predicates: a different registered ``at`` fact must be TRUE and
+        source, target, and holding must all be explicitly FALSE.
+        """
+
         self.detector_calls += 1
+        required = action.add_effects | action.del_effects
+        location_schema = action.schema in {"place-on", "place-in", "place-relative"}
+        if location_schema and len(action.arguments) >= 3:
+            object_name, source, target = action.arguments[:3]
+            required |= frozenset(
+                {
+                    Fact("at", (object_name, source)),
+                    Fact("at", (object_name, target)),
+                    Fact("holding", (object_name,)),
+                }
+            )
         try:
-            snapshot = self._snapshot(action.add_effects | action.del_effects)
+            snapshot = self._snapshot(required)
         except GroundingError:
-            return False
-        return snapshot.satisfies(positive=action.add_effects, negative=action.del_effects)
+            return False, False
+        effects_satisfied = snapshot.satisfies(
+            positive=action.add_effects,
+            negative=action.del_effects,
+        )
+        if not location_schema or len(action.arguments) < 3:
+            return effects_satisfied, False
+        object_name, source, target = action.arguments[:3]
+        required_false = {
+            Fact("at", (object_name, source)),
+            Fact("at", (object_name, target)),
+            Fact("holding", (object_name,)),
+        }
+        alternative_location = any(
+            fact.predicate == "at"
+            and fact.arguments[0] == object_name
+            and fact.arguments[1] not in {source, target}
+            for fact in snapshot.true_facts
+        )
+        target_diverged = required_false <= snapshot.false_facts and alternative_location
+        return effects_satisfied, target_diverged
 
 
 @dataclass(frozen=True)
@@ -400,7 +505,7 @@ class SimulatorSafetySupervisor:
         self,
         *,
         watchdog_seconds: float,
-        action_limit: float = 1.0,
+        action_limit: float = 1.1,
         workspace_low: tuple[float, float, float] = (-2.0, -2.0, -0.1),
         workspace_high: tuple[float, float, float] = (2.0, 2.0, 2.5),
     ) -> None:
@@ -452,6 +557,7 @@ class AttemptResult:
     context: ContextEnvelope
     action: GroundAction
     prompt: str
+    prompt_history: tuple[str, ...]
     pre_epoch: int
     post_epoch: int | None
     executor_status: ExecutorStatus
@@ -463,6 +569,7 @@ class AttemptResult:
     detector_calls: int
     unused_actions_flushed: int
     post_snapshot: FactSnapshot | None
+    post_snapshot_error: str | None = None
     reason: str = ""
 
 
@@ -490,6 +597,7 @@ class Pi05MacroExecutor:
         max_action_steps: int,
         settling_steps: int,
         stop_on_effects: bool = True,
+        max_total_action_steps: int | None = None,
     ) -> None:
         if replan_steps <= 0 or max_action_steps <= 0 or settling_steps < 0:
             raise ValueError("invalid executor bounds")
@@ -504,6 +612,12 @@ class Pi05MacroExecutor:
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
         self.stop_on_effects = bool(stop_on_effects)
+        self.max_total_action_steps = (
+            max_action_steps if max_total_action_steps is None else max_total_action_steps
+        )
+        if self.max_total_action_steps <= 0:
+            raise ValueError("max_total_action_steps must be positive")
+        self.total_action_steps = 0
         self._lock = threading.RLock()
         self._next_attempt = 0
         self._active: str | None = None
@@ -524,6 +638,8 @@ class Pi05MacroExecutor:
                 return DispatchStart(DispatchStatus.EXECUTOR_REJECTED_NOT_ENQUEUED, context=context)
             if snapshot.epoch_id != context.epoch_id or snapshot.epoch_id != self.store.epoch_id:
                 return DispatchStart(DispatchStatus.SAFETY_VETO, context=context)
+            if self.total_action_steps >= self.max_total_action_steps:
+                return DispatchStart(DispatchStatus.ACTION_BUDGET_EXHAUSTED, context=context)
             decision = self.safety.authorize(self.store, context)
             if decision.status is not DispatchStatus.ENQUEUED or decision.safety_epoch is None:
                 return DispatchStart(decision.status, context=context)
@@ -588,12 +704,27 @@ class Pi05MacroExecutor:
         frames: list[np.ndarray] = []
         inference_requests = 0
         detector_start = self.grounder.detector_calls
-        prompt = self.prompt_renderer.render(queued.action)
+        phase_flushed = 0
+        phase = "acquire"
+        prompt = self.prompt_renderer.render_phase(queued.action, phase)
+        prompt_history = [prompt]
+        place_schemas = {
+            "place-on",
+            "place-in",
+            "place-relative",
+            "place-held-on",
+            "place-held-in",
+            "place-held-relative",
+            "put-down",
+        }
         status = ExecutorStatus.SUCCEEDED
         reason = "macro bound reached"
 
         try:
             for _ in range(self.max_action_steps):
+                if self.total_action_steps >= self.max_total_action_steps:
+                    reason = "episode-global low-level action budget reached"
+                    break
                 _, observation, _ = self.store.read()
                 element, main_image = prepare_observation(observation, prompt, self.image_tools)
                 frames.append(main_image)
@@ -611,7 +742,20 @@ class Pi05MacroExecutor:
                         )
                     selected = chunk[: self.replan_steps]
                     if any(not self.safety.validate_action(row) for row in selected):
-                        raise EpisodeInvalid("policy action violates finite/shape/limit checks")
+                        finite = bool(np.isfinite(selected).all())
+                        finite_values = selected[np.isfinite(selected)]
+                        minimum = (
+                            float(finite_values.min()) if finite_values.size else float("nan")
+                        )
+                        maximum = (
+                            float(finite_values.max()) if finite_values.size else float("nan")
+                        )
+                        raise EpisodeInvalid(
+                            "policy action violates finite/shape/limit checks: "
+                            f"shape={selected.shape}, finite={finite}, "
+                            f"min={minimum:.6g}, max={maximum:.6g}, "
+                            f"limit={self.safety.action_limit:.6g}"
+                        )
                     action_queue.extend(np.asarray(row, dtype=np.float64) for row in selected)
 
                 low_level_action = action_queue.popleft()
@@ -620,12 +764,45 @@ class Pi05MacroExecutor:
                 self._last_gripper_command = float(low_level_action[-1])
                 post_observation, _, done, _ = self.env.step(low_level_action.tolist())
                 actions.append(low_level_action.copy())
+                self.total_action_steps += 1
                 self.store.update(post_observation)
-                if self.stop_on_effects and self.grounder.effects_satisfied(queued.action):
-                    reason = "observed declared effects"
-                    break
-                if bool(done):
-                    reason = "simulator episode ended"
+                if self.stop_on_effects:
+                    effects_satisfied, target_diverged = (
+                        self.grounder.observe_action_progress(queued.action)
+                    )
+                    if effects_satisfied:
+                        reason = "observed declared effects"
+                        break
+                    if target_diverged:
+                        reason = "observed target-location divergence"
+                        break
+                if self.prompt_renderer.has_phase(queued.action, "finish"):
+                    try:
+                        phase_snapshot = self.grounder.peek_snapshot()
+                    except GroundingError:
+                        phase_snapshot = None
+                    if phase_snapshot is not None:
+                        object_name = queued.action.arguments[0]
+                        intended_holding = Fact("holding", (object_name,))
+                        held_objects = {
+                            fact.arguments[0]
+                            for fact in phase_snapshot.true_facts
+                            if fact.predicate == "holding"
+                        }
+                        if intended_holding in phase_snapshot.true_facts and phase != "finish":
+                            phase_flushed += len(action_queue)
+                            action_queue.clear()
+                            phase = "finish"
+                            prompt = self.prompt_renderer.render_phase(queued.action, phase)
+                            prompt_history.append(prompt)
+                        elif held_objects and object_name not in held_objects:
+                            reason = "observed unexpected-object holding divergence"
+                            break
+                # LIBERO overloads ``done`` with the current BDDL task-success
+                # predicate; its state remains step-able.  An effect-gated
+                # LOGIV occurrence therefore cannot use it as STOPPED evidence.
+                if bool(done) and not self.stop_on_effects:
+                    reason = "simulator task predicate became true"
                     break
         except (EpisodeInvalid, KeyError, TypeError, ValueError) as error:
             # A malformed policy response is outside the action contract.  It is
@@ -637,12 +814,17 @@ class Pi05MacroExecutor:
             reason = f"untrusted executor exception: {error}"
             self._halt_ack_possible = False
 
-        unused_actions_flushed = len(action_queue)
+        unused_actions_flushed = phase_flushed + len(action_queue)
         action_queue.clear()
         if status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED}:
             try:
                 hold = np.zeros(7, dtype=np.float64)
-                hold[-1] = self._last_gripper_command
+                release_completion = (
+                    self.stop_on_effects
+                    and queued.action.schema in place_schemas
+                    and reason == "observed declared effects"
+                )
+                hold[-1] = -1.0 if release_completion else self._last_gripper_command
                 for _ in range(self.settling_steps):
                     observation, _, _, _ = self.env.step(hold.tolist())
                     self.store.update(observation)
@@ -656,17 +838,19 @@ class Pi05MacroExecutor:
             else None
         )
         post_snapshot = None
+        post_snapshot_error = None
         if settled_epoch is not None:
             try:
                 post_snapshot = self.grounder.peek_snapshot()
-            except GroundingError:
-                pass
+            except GroundingError as error:
+                post_snapshot_error = str(error)
         self.results.append(
             AttemptResult(
                 attempt_id=start.attempt_id,
                 context=queued.context,
                 action=queued.action,
-                prompt=prompt,
+                prompt=prompt_history[0],
+                prompt_history=tuple(prompt_history),
                 pre_epoch=queued.pre_epoch,
                 post_epoch=settled_epoch,
                 executor_status=status,
@@ -682,6 +866,7 @@ class Pi05MacroExecutor:
                 detector_calls=self.grounder.detector_calls - detector_start,
                 unused_actions_flushed=unused_actions_flushed,
                 post_snapshot=post_snapshot,
+                post_snapshot_error=post_snapshot_error,
                 reason=reason,
             )
         )

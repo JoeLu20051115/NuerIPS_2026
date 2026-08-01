@@ -40,6 +40,18 @@ def _baseline_proxy(records) -> list[SimpleNamespace]:
     ]
 
 
+def load_comparator_records(path: Path):
+    """Load either the original π0.5 record schema or the LOGIV BASE schema."""
+
+    with Path(path).open(encoding="utf-8") as stream:
+        first = next((json.loads(line) for line in stream if line.strip()), None)
+    if first is None:
+        return []
+    if "method_arm" in first:
+        return load_episode_records(path)
+    return load_records(path)
+
+
 def build_report(
     records: list[LogivEpisodeRecord],
     *,
@@ -47,9 +59,14 @@ def build_report(
     bootstrap_samples: int,
     bootstrap_seed: int,
 ) -> dict:
-    errors = validate_episode_records(records)
+    baseline_records = list(baseline_records)
+    logiv_baseline = bool(baseline_records) and all(
+        isinstance(item, LogivEpisodeRecord) for item in baseline_records
+    )
+    reported_records = records + (baseline_records if logiv_baseline else [])
+    errors = validate_episode_records(reported_records)
     grouped = defaultdict(list)
-    for record in records:
+    for record in reported_records:
         grouped[(record.goal_mode, record.deviation_mode, record.method_arm)].append(record)
     settings = []
     for (goal_mode, deviation_mode, arm), arm_records in sorted(grouped.items()):
@@ -72,11 +89,11 @@ def build_report(
 
     comparisons = []
     for goal_mode, deviation_mode in sorted(
-        {(item.goal_mode, item.deviation_mode) for item in records}
+        {(item.goal_mode, item.deviation_mode) for item in reported_records}
     ):
         full = [
             item
-            for item in records
+            for item in reported_records
             if item.goal_mode == goal_mode
             and item.deviation_mode == deviation_mode
             and item.method_arm == "FULL_LOGIV"
@@ -86,7 +103,7 @@ def build_report(
         comparator_arms = sorted(
             {
                 item.method_arm
-                for item in records
+                for item in reported_records
                 if item.goal_mode == goal_mode
                 and item.deviation_mode == deviation_mode
                 and item.method_arm != "FULL_LOGIV"
@@ -97,7 +114,7 @@ def build_report(
                 arm,
                 [
                     item
-                    for item in records
+                    for item in reported_records
                     if item.goal_mode == goal_mode
                     and item.deviation_mode == deviation_mode
                     and item.method_arm == arm
@@ -105,7 +122,7 @@ def build_report(
             )
             for arm in comparator_arms
         ]
-        if baseline_records and deviation_mode == "NOMINAL":
+        if baseline_records and not logiv_baseline and deviation_mode == "NOMINAL":
             candidates.append(("BASE", _baseline_proxy(baseline_records)))
         for arm, comparator in candidates:
             try:
@@ -135,8 +152,8 @@ def build_report(
                 )
     return {
         "schema_version": 1,
-        "records": len(records),
-        "valid_records": sum(item.valid for item in records),
+        "records": len(reported_records),
+        "valid_records": sum(item.valid for item in reported_records),
         "errors": errors,
         "settings": settings,
         "paired_comparisons": comparisons,
@@ -197,7 +214,7 @@ def main() -> int:
     parser.add_argument("--bootstrap-samples", default=10_000, type=int)
     parser.add_argument("--bootstrap-seed", default=2026, type=int)
     args = parser.parse_args()
-    baseline = load_records(args.baseline) if args.baseline else []
+    baseline = load_comparator_records(args.baseline) if args.baseline else []
     report = build_report(
         load_episode_records(args.episodes),
         baseline_records=baseline,

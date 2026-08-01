@@ -301,6 +301,15 @@ def run_stage_only(
         )
         snapshot = replace(snapshot, epoch_id=context.epoch_id)
         start = dispatcher.consume_permit_and_enqueue(action, context, snapshot)
+        if start.status is DispatchStatus.ACTION_BUDGET_EXHAUSTED:
+            return _simple_result(
+                ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
+                "BUDGET_EXHAUSTED",
+                receipts,
+                events,
+                physical_attempts=index,
+                graph_installs=0,
+            )
         if start.status is not DispatchStatus.ENQUEUED or start.attempt_id is None:
             acknowledged = dispatcher.request_emergency_halt(None)
             return _simple_result(
@@ -428,6 +437,15 @@ def run_schema_only_graph(
                 graph_installs=1,
             )
         start = dispatcher.consume_permit_and_enqueue(action, pre_context, snapshot)
+        if start.status is DispatchStatus.ACTION_BUDGET_EXHAUSTED:
+            return _simple_result(
+                ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
+                "BUDGET_EXHAUSTED",
+                receipts,
+                events,
+                physical_attempts=index,
+                graph_installs=1,
+            )
         if start.status is not DispatchStatus.ENQUEUED or start.attempt_id is None:
             acknowledged = dispatcher.request_emergency_halt(None)
             return _simple_result(

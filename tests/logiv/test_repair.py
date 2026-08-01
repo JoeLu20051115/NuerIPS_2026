@@ -130,7 +130,12 @@ def test_trace_is_exactly_earliest_action_failure_or_final_goal_failure() -> Non
 
 def test_causal_slice_for_one_task8_goal_does_not_pull_in_sibling_branch() -> None:
     package, _, _, _, _, graph = nominal(8)
-    first, second = graph.canonical_agenda
+    producer = next(
+        node.node_id
+        for node in graph.nodes
+        if node.action is not None and node.action.arguments[0] == "moka_pot_1"
+    )
+    sibling = next(node_id for node_id in graph.canonical_agenda if node_id != producer)
     obligation = FailureObligation(
         consumer_id="GOAL",
         literal=SignedLiteral(
@@ -140,10 +145,57 @@ def test_causal_slice_for_one_task8_goal_does_not_pull_in_sibling_branch() -> No
 
     causal_slice = build_causal_slice(graph, (obligation,))
 
-    assert first in causal_slice.node_ids
-    assert second not in causal_slice.node_ids
-    assert causal_slice.canonical_seed == (first,)
+    assert producer in causal_slice.node_ids
+    assert sibling not in causal_slice.node_ids
+    assert causal_slice.canonical_seed == (producer,)
     assert package.problem.goal
+
+
+def test_task8_repair_rebinds_failed_branch_from_registered_recovery_surface() -> None:
+    package, plan, _, _, certificate, graph = nominal(8)
+    target = "flat_stove_1_cook_region"
+    recovery = "kitchen_table_recovery_surface"
+    problem = current_problem(
+        package.problem,
+        {
+            Fact("at", ("moka_pot_2", recovery)),
+            Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region")),
+            Fact("handempty"),
+            Fact("powered-on", ("flat_stove_1_power",)),
+        },
+        {
+            Fact("holding", ("moka_pot_1",)),
+            Fact("holding", ("moka_pot_2",)),
+            Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_left_init_region")),
+            Fact("at", ("moka_pot_1", recovery)),
+            Fact("at", ("moka_pot_1", target)),
+            Fact("at", ("moka_pot_2", "kitchen_table_moka_pot_right_init_region")),
+            Fact("at", ("moka_pot_2", "kitchen_table_moka_pot_left_init_region")),
+            Fact("at", ("moka_pot_2", target)),
+            Fact("powered-off", ("flat_stove_1_power",)),
+        },
+    )
+    context = replace(
+        recovery_context(graph, certificate, epoch=58),
+        episode_id="episode-8",
+        goal_id=package.frozen_goal.goal_id,
+    )
+    operator = RepairOperator(
+        ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset({"place-on"}),
+        bounds=RepairBounds(max_edits=3, max_candidates=4096, max_val_calls=8),
+    )
+
+    result = operator.repair(problem, plan, context=context)
+
+    assert result.status is RepairStatus.CERTIFIED
+    assert len(result.plan) == 2
+    assert result.plan[0].arguments == ("moka_pot_2", recovery, target)
+    assert result.plan[1].arguments == (
+        "moka_pot_1",
+        "kitchen_table_moka_pot_right_init_region",
+        target,
+    )
 
 
 def test_repair_dropped_bowl_rebuilds_pick_place_close() -> None:

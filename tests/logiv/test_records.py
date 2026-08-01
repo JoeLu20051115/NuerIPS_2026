@@ -16,6 +16,7 @@ from pi05_libero_repro.logiv.records import (
     validate_event_chain,
     validate_episode_records,
 )
+from scripts.report_logiv_results import build_report, load_comparator_records
 
 
 def _context() -> ContextEnvelope:
@@ -146,3 +147,31 @@ def test_task_stratified_paired_bootstrap_uses_equal_task_weight() -> None:
     assert result["estimate"] == pytest.approx(0.5)
     assert result["paired_episodes"] == 8
     assert len(result["percentile_95"]) == 2
+
+
+def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
+    tmp_path: Path,
+) -> None:
+    full_path = tmp_path / "full.jsonl"
+    base_path = tmp_path / "base.jsonl"
+    append_episode_record(full_path, _record(success=True))
+    append_episode_record(base_path, _record(arm="BASE", success=False))
+
+    full = load_episode_records(full_path)
+    baseline = load_comparator_records(base_path)
+    report = build_report(
+        full,
+        baseline_records=baseline,
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+
+    assert report["errors"] == []
+    assert report["records"] == 2
+    assert {item["method_arm"] for item in report["settings"]} == {
+        "BASE",
+        "FULL_LOGIV",
+    }
+    comparison = report["paired_comparisons"][0]
+    assert comparison["comparator"] == "BASE"
+    assert comparison["estimate"] == pytest.approx(1.0)

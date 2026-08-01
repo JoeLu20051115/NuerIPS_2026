@@ -56,7 +56,12 @@ from pi05_libero_repro.logiv.records import (
 )
 from pi05_libero_repro.logiv.repair import RepairBounds, RetryPolicy
 from pi05_libero_repro.logiv.val import ValWrapper
-from pi05_libero_repro.protocol import LIBERO_DUMMY_ACTION, prepare_observation, run_episode
+from pi05_libero_repro.protocol import (
+    LIBERO_DUMMY_ACTION,
+    EpisodeSeededClient,
+    prepare_observation,
+    run_episode,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -74,6 +79,11 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_array(value: np.ndarray) -> str:
     return _sha256_bytes(np.ascontiguousarray(value).tobytes())
+
+
+def _episode_policy_seed(master_seed: int, task_id: int, episode_idx: int) -> int:
+    payload = f"LOGIV-policy-seed-v1:{master_seed}:{task_id}:{episode_idx}".encode("utf-8")
+    return int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -194,6 +204,7 @@ def _attempt_json(result) -> dict[str, Any]:
         "context": result.context.payload(),
         "action": result.action.pddl(),
         "prompt": result.prompt,
+        "prompt_history": list(result.prompt_history),
         "pre_epoch": result.pre_epoch,
         "post_epoch": result.post_epoch,
         "executor_status": result.executor_status.value,
@@ -205,6 +216,17 @@ def _attempt_json(result) -> dict[str, Any]:
         "unused_actions_flushed": result.unused_actions_flushed,
         "post_snapshot_evidence_hash": (
             result.post_snapshot.evidence_hash if result.post_snapshot is not None else None
+        ),
+        "post_snapshot_error": result.post_snapshot_error,
+        "post_snapshot_true": (
+            sorted(fact.pddl() for fact in result.post_snapshot.true_facts)
+            if result.post_snapshot is not None
+            else None
+        ),
+        "post_snapshot_false": (
+            sorted(fact.pddl() for fact in result.post_snapshot.false_facts)
+            if result.post_snapshot is not None
+            else None
         ),
         "reason": result.reason,
     }
@@ -319,6 +341,7 @@ def _execute_symbolic_arm(
         max_action_steps=args.max_action_steps,
         settling_steps=args.settling_steps,
         stop_on_effects=arm is not MethodArm.STAGE_ONLY,
+        max_total_action_steps=args.base_max_steps,
     )
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     graph = None
@@ -427,7 +450,7 @@ def _execute_symbolic_arm(
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -436,12 +459,15 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "task_ids": list(task_ids),
         "episode_indices": list(episode_indices),
         "seed": args.seed,
+        "policy_rng_protocol": "episode-seeded-v1",
+        "policy_rng_seed_derivation": "uint32(sha256('LOGIV-policy-seed-v1:master:task:episode')[:4])",
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
         "oracle_grounding": args.oracle_grounding,
         "replan_steps": args.replan_steps,
         "max_action_steps": args.max_action_steps,
+        "max_total_action_steps": args.base_max_steps,
         "settling_steps": args.settling_steps,
         "max_physical_attempts": args.max_physical_attempts,
         "max_repair_rounds": args.max_repair_rounds,
@@ -486,8 +512,8 @@ def evaluate(args: argparse.Namespace) -> int:
             raise ValueError("nonempty output directory is not this exact recognized run")
         existing = load_episode_records(episodes_path)
         expected = len(task_ids) * len(episode_indices)
-        if len(existing) != expected and not args.diagnostic_resume:
-            raise ValueError("partial run requires --diagnostic-resume because policy RNG cannot be restored")
+        if len(existing) > expected:
+            raise ValueError("episode log exceeds configured allocation")
     else:
         output_dir.mkdir(parents=True, exist_ok=True)
         _write_json(run_path, config)
@@ -496,6 +522,8 @@ def evaluate(args: argparse.Namespace) -> int:
     np.random.seed(args.seed)
     suite = benchmark.get_benchmark_dict()["libero_10"]()
     client = websocket_client_policy.WebsocketClientPolicy(args.host, args.port)
+    if client.get_server_metadata().get("logiv_episode_rng_protocol") != 1:
+        raise ValueError("policy server does not support LOGIV episode RNG protocol v1")
     common_hashes = {
         "prompt_config_sha256": _sha256_file(Path(args.prompt_config)),
         "proposal_config_sha256": _sha256_file(DEFAULT_FIXTURE),
@@ -524,6 +552,18 @@ def evaluate(args: argparse.Namespace) -> int:
                 )
                 artifact_dir = output_dir / "artifacts" / f"task_{task_id:02d}" / f"episode_{episode_idx:03d}"
                 artifact_dir.mkdir(parents=True, exist_ok=False)
+                policy_seed = _episode_policy_seed(args.seed, task_id, episode_idx)
+                episode_client = EpisodeSeededClient(client, episode_seed=policy_seed)
+                _write_json(
+                    artifact_dir / "policy_rng.json",
+                    {
+                        "protocol": "episode-seeded-v1",
+                        "master_seed": args.seed,
+                        "task_id": task_id,
+                        "episode_idx": episode_idx,
+                        "episode_seed": policy_seed,
+                    },
+                )
                 journal = EventJournal(artifact_dir / "events.jsonl")
                 initial_state = np.asarray(initial_states[episode_idx])
                 init_hash = _sha256_array(initial_state)
@@ -541,7 +581,7 @@ def evaluate(args: argparse.Namespace) -> int:
                     if MethodArm(args.method_arm) is MethodArm.BASE:
                         outcome = run_episode(
                             env,
-                            client,
+                            episode_client,
                             initial_state,
                             str(task.language),
                             image_tools,
@@ -605,7 +645,7 @@ def evaluate(args: argparse.Namespace) -> int:
                         ) = _execute_symbolic_arm(
                             args,
                             env,
-                            client,
+                            episode_client,
                             image_tools,
                             task_id,
                             episode_id,
@@ -787,10 +827,10 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--replan-steps", default=5, type=int)
     parser.add_argument("--max-action-steps", default=260, type=int)
     parser.add_argument("--base-max-steps", default=520, type=int)
-    parser.add_argument("--settling-steps", default=3, type=int)
+    parser.add_argument("--settling-steps", default=10, type=int)
     parser.add_argument("--video-fps", default=10, type=int)
     parser.add_argument("--watchdog-seconds", default=60.0, type=float)
-    parser.add_argument("--action-limit", default=1.0, type=float)
+    parser.add_argument("--action-limit", default=1.1, type=float)
     parser.add_argument("--max-physical-attempts", default=12, type=int)
     parser.add_argument("--max-repair-rounds", default=4, type=int)
     parser.add_argument("--max-total-val-calls", default=40, type=int)

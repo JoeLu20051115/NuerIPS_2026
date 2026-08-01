@@ -188,9 +188,19 @@ scripts/run_logiv_eval.sh FULL_LOGIV 0 8001 runs/logiv-task8-v1 \
   --deviation-mode NOMINAL \
   --oracle-grounding \
   --development-only \
+  --prompt-config /repro/configs/logiv/prompts/pi05-subtasks-v5.json \
+  --prompt-version pi05-subtasks-v5 \
   --task-ids 8 \
   --episode-indices 0:3
 ```
+
+The policy server implements an episode-local RNG reset protocol. Each evaluator
+request carries a seed derived from `(master seed, task ID, episode index)` and
+the server returns a matching inference-index receipt. Run paired method arms
+serially against the **same server process**. A diagnostic run found that two
+separately loaded server instances could disagree despite matching reset state,
+first-frame hash, and episode seed; cross-instance arm comparisons are therefore
+rejected rather than treated as paired evidence.
 
 Task 8 is an explicit regression gate for the graph representation: its two
 moka-pot actions must have no edge between them and the recorded initial action
@@ -223,6 +233,15 @@ Passing unit tests and symbolic/VAL smoke checks demonstrates conformance to the
 runtime contract only. It does not establish simulator improvement, perception
 accuracy, physical safety, or real-robot performance; those claims require the
 allocated interactive rollouts and their external LIBERO evaluator receipts.
+
+The current task-8 development gate (five preselected episode IDs, not the
+preregistered 50-episode result) is recorded in
+`results/logiv-task8-seeded-dev5-v5c.json`: Full LOGIV succeeds on 4/5 versus
+Base on 3/5 with the same episode seeds. The paired difference is +0.20 with a
+wide 10,000-draw bootstrap interval `[0.00, 0.60]`. This is directional debugging
+evidence only. The successful recovered episode contains two certified repair
+rounds and an external LIBERO success receipt; all initial task-8 graphs retain
+action-layer width two.
 
 ## Design documents
 

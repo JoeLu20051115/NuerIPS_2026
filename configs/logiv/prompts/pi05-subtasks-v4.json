@@ -1,0 +1,39 @@
+{
+  "prompt_version": "pi05-subtasks-v4",
+  "templates": {
+    "pick": "Pick up {object} from {source}.",
+    "place-on": "Put {object} from {source} on {target}.",
+    "place-in": "Put {object} from {source} in {target} through {access}.",
+    "place-relative": "Put {object} from {source} at {target}.",
+    "open-access": "Open {access}.",
+    "close-access": "Close {access}.",
+    "turn-on": "Turn on {device}.",
+    "turn-off": "Turn off {device}.",
+    "put-down": "Put down {object} on {target}.",
+    "place-held-on": "Put the held {object} on {target}.",
+    "place-held-in": "Put the held {object} in {target} through {access}.",
+    "place-held-relative": "Put the held {object} at {target}."
+  },
+  "labels": {
+    "flat_stove_1_cook_region": "stove",
+    "kitchen_table_moka_pot_left_init_region": "left place on the table",
+    "kitchen_table_moka_pot_right_init_region": "right place on the table",
+    "moka_pot_1": "remaining moka pot",
+    "moka_pot_2": "moka pot closest to the stove"
+  },
+  "action_phase_overrides": {
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot closest to the stove, then hold it securely.",
+      "finish": "Put the moka pot you are holding on the stove and release it, then stop."
+    },
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the remaining moka pot from the table, then hold it securely.",
+      "finish": "Put the moka pot you are holding on the stove and release it, then stop."
+    }
+  },
+  "action_overrides": {
+    "(place-held-on moka_pot_1 flat_stove_1_cook_region)": "Put the moka pot you are holding on the stove and release it, then stop.",
+    "(place-held-on moka_pot_2 flat_stove_1_cook_region)": "Put the moka pot you are holding on the stove and release it, then stop."
+  },
+  "suffix": "Complete only this subtask, then stop. Do not start another subtask."
+}

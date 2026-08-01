@@ -383,6 +383,7 @@
         ["moka_pot_2", "movable"],
         ["kitchen_table_moka_pot_right_init_region", "relative-region"],
         ["kitchen_table_moka_pot_left_init_region", "relative-region"],
+        ["kitchen_table_recovery_surface", "surface"],
         ["flat_stove_1_cook_region", "surface"],
         ["flat_stove_1_power", "switchable"]
       ],
@@ -395,6 +396,8 @@
       "initial_false": [
         ["holding", "moka_pot_1"],
         ["holding", "moka_pot_2"],
+        ["at", "moka_pot_1", "kitchen_table_recovery_surface"],
+        ["at", "moka_pot_2", "kitchen_table_recovery_surface"],
         ["at", "moka_pot_1", "flat_stove_1_cook_region"],
         ["at", "moka_pot_2", "flat_stove_1_cook_region"],
         ["powered-off", "flat_stove_1_power"]
@@ -410,14 +413,14 @@
       "candidate_subtasks": [
         {
           "schema": "place-on",
-          "arguments": ["moka_pot_1", "kitchen_table_moka_pot_right_init_region", "flat_stove_1_cook_region"],
-          "instruction": "Pick up the right moka pot and place it on the stove cooking surface.",
+          "arguments": ["moka_pot_2", "kitchen_table_moka_pot_left_init_region", "flat_stove_1_cook_region"],
+          "instruction": "Pick up the left moka pot and place it on the stove cooking surface.",
           "evidence_source": "task_instruction"
         },
         {
           "schema": "place-on",
-          "arguments": ["moka_pot_2", "kitchen_table_moka_pot_left_init_region", "flat_stove_1_cook_region"],
-          "instruction": "Pick up the left moka pot and place it on the stove cooking surface.",
+          "arguments": ["moka_pot_1", "kitchen_table_moka_pot_right_init_region", "flat_stove_1_cook_region"],
+          "instruction": "Pick up the right moka pot and place it on the stove cooking surface.",
           "evidence_source": "task_instruction"
         }
       ]

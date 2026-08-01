@@ -30,6 +30,10 @@ class SubtaskPromptRenderer:
         payload = json.loads(raw)
         self.prompt_version = str(payload["prompt_version"])
         self.templates: Mapping[str, str] = payload["templates"]
+        self.overrides: Mapping[str, str] = payload.get("action_overrides", {})
+        self.phase_overrides: Mapping[str, Mapping[str, str]] = payload.get(
+            "action_phase_overrides", {}
+        )
         self.labels: Mapping[str, str] = payload.get("labels", {})
         self.suffix = str(payload["suffix"])
         self.config_hash = hashlib.sha256(raw).hexdigest()
@@ -48,6 +52,9 @@ class SubtaskPromptRenderer:
         return self._label(object_id)
 
     def render(self, action: GroundAction) -> str:
+        override = self.overrides.get(action.pddl())
+        if override is not None:
+            return override
         try:
             template = self.templates[action.schema]
         except KeyError as error:
@@ -76,3 +83,12 @@ class SubtaskPromptRenderer:
                 f"invalid template for action schema {action.schema}"
             ) from error
         return f"{stage} {self.suffix}"
+
+    def render_phase(self, action: GroundAction, phase: str) -> str:
+        phases = self.phase_overrides.get(action.pddl(), {})
+        if phase in phases:
+            return str(phases[phase])
+        return self.render(action)
+
+    def has_phase(self, action: GroundAction, phase: str) -> bool:
+        return phase in self.phase_overrides.get(action.pddl(), {})

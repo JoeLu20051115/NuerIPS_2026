@@ -16,6 +16,31 @@ class EpisodeInvalid(RuntimeError):
     pass
 
 
+class EpisodeSeededClient:
+    """Attach a deterministic episode-local RNG envelope to policy requests."""
+
+    def __init__(self, client: Any, *, episode_seed: int) -> None:
+        if episode_seed < 0 or episode_seed >= 2**32:
+            raise ValueError("episode_seed must fit uint32")
+        self._client = client
+        self.episode_seed = int(episode_seed)
+        self.inference_index = 0
+
+    def infer(self, element: dict) -> dict:
+        request = dict(element)
+        request["__logiv_episode_seed__"] = self.episode_seed
+        request["__logiv_inference_index__"] = self.inference_index
+        result = self._client.infer(request)
+        expected = {
+            "episode_seed": self.episode_seed,
+            "inference_index": self.inference_index,
+        }
+        if result.get("__logiv_rng__") != expected:
+            raise EpisodeInvalid("policy server did not honor episode RNG envelope")
+        self.inference_index += 1
+        return result
+
+
 @dataclass(frozen=True)
 class EpisodeOutcome:
     success: bool

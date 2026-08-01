@@ -3,7 +3,12 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from pi05_libero_repro.protocol import EpisodeInvalid, prepare_observation, run_episode
+from pi05_libero_repro.protocol import (
+    EpisodeInvalid,
+    EpisodeSeededClient,
+    prepare_observation,
+    run_episode,
+)
 
 
 class FakeImageTools:
@@ -86,6 +91,33 @@ def test_prepare_observation_rotates_images_and_orders_state() -> None:
     np.testing.assert_allclose(element["observation/state"], [1, 2, 3, 0, 0, 0, 4, 5])
     assert element["observation/state"].shape == (8,)
     assert element["prompt"] == "prompt"
+
+
+def test_episode_seeded_client_numbers_requests_from_zero_without_mutating_input() -> None:
+    class CapturingClient:
+        def __init__(self) -> None:
+            self.requests: list[dict] = []
+
+        def infer(self, element: dict) -> dict[str, np.ndarray]:
+            self.requests.append(element)
+            return {
+                "actions": np.zeros((1, 7), dtype=np.float32),
+                "__logiv_rng__": {
+                    "episode_seed": element["__logiv_episode_seed__"],
+                    "inference_index": element["__logiv_inference_index__"],
+                },
+            }
+
+    base = CapturingClient()
+    client = EpisodeSeededClient(base, episode_seed=7008002)
+    element = {"prompt": "test"}
+
+    client.infer(element)
+    client.infer(element)
+
+    assert element == {"prompt": "test"}
+    assert [request["__logiv_inference_index__"] for request in base.requests] == [0, 1]
+    assert all(request["__logiv_episode_seed__"] == 7008002 for request in base.requests)
 
 
 def test_wait_replan_reset_order_and_success() -> None:

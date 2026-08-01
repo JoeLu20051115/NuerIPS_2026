@@ -37,5 +37,5 @@ printf 'checkpoint=%s gpu=%s port=%s dir=%s norm_stats_sha256=%s\n' \
   "$checkpoint_name" "$gpu" "$port" "$checkpoint_dir" "$actual_norm"
 cd "$openpi_dir"
 exec env CUDA_VISIBLE_DEVICES="$gpu" XLA_PYTHON_CLIENT_MEM_FRACTION=0.70 \
-  uv run scripts/serve_policy.py --port "$port" \
-  policy:checkpoint --policy.config pi05_libero --policy.dir "$checkpoint_dir"
+  uv run "$repo_root/scripts/serve_episode_seeded_policy.py" --port "$port" \
+  --policy-config pi05_libero --policy-dir "$checkpoint_dir"
