@@ -20,6 +20,7 @@ and first-frame hashes.
 - [Human-readable per-task report](results/pi05-libero-long-summary.md)
 - [Machine-readable report](results/pi05-libero-long-summary.json)
 - [Final protocol and integrity audit](results/pi05-libero-long-audit.md)
+- [中文任务信息与逐任务结果](markdown/pi05-libero-long-task-results.md)
 - [Full-run SHA-256 manifest](artifacts/manifests/primary-full.json)
 - [Early-run SHA-256 manifest](artifacts/manifests/primary-early.json)
 
