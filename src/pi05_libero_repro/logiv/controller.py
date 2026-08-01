@@ -285,6 +285,8 @@ class LogivController:
         )
         if verified_graph.graph_hash != self.graph.graph_hash:
             raise ValueError("initial installation graph does not match certified inputs")
+        self.events.append(f"CERTIFICATE_ACTIVE:{self.certificate.certificate_hash}")
+        self.events.append(f"GRAPH_ACTIVE:{self.graph.graph_version}")
 
     def _result(self, status: ControllerStatus, cause: str | None = None) -> ControllerResult:
         result = ControllerResult(
@@ -423,6 +425,7 @@ class LogivController:
         self.snapshot = snapshot
         self.cursor = 0
         self.graph_installs += 1
+        self.events.append(f"CERTIFICATE_INSTALLED:{certificate.certificate_hash}")
         self.events.append("GRAPH_INSTALLED")
 
     def _halt(self, attempt_id: str | None, cause: str) -> ControllerResult:
@@ -751,6 +754,9 @@ class LogivController:
                     return terminal
                 continue
 
+            self.events.append(
+                f"FACTS_AUTHORIZED:{occurrence_id}:epoch-{self.snapshot.epoch_id}"
+            )
             if not self.budgets.consume_physical():
                 return self._result(
                     ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
@@ -782,6 +788,10 @@ class LogivController:
             )
             if start.context != attempt_context:
                 return self._halt(start.attempt_id, "SAFETY_CONTEXT_MISMATCH")
+            self.events.append(
+                f"EXECUTION_AUTHORIZED:{start.attempt_id}:"
+                f"epoch-{self.snapshot.epoch_id}:safety-{start.safety_epoch}"
+            )
             try:
                 self.retry_ledger.record_dispatch(
                     action,

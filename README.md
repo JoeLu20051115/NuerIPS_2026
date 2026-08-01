@@ -153,7 +153,80 @@ If a score misses, preserve evidence and debug one variable at a time in this or
 
 Large checkpoints, datasets, videos, and logs are excluded from Git. Their committed manifests and the final machine-readable report provide the audit trail.
 
+## LOGIV closed-loop development
+
+LOGIV is implemented under `src/pi05_libero_repro/logiv/` as a task-level
+closed-loop layer around the frozen full π₀.₅ checkpoint. The current no-API
+configuration is deliberately labeled `scripted-vlm/oracle-grounding`: the
+initial proposals are frozen in
+`configs/logiv/libero10-scripted-proposals.json`, while runtime facts come from
+the current LIBERO simulator predicates and grasp state. These oracle facts are
+development instrumentation, not a claim about GPT-4o perception quality.
+
+The fixed typed STRIPS domain is
+`configs/logiv/logiv-libero-domain.pddl`; the frozen ten-task coverage contract
+is `configs/logiv/libero10-coverage.json`. Plans are checked by the real VAL
+binary after a signed three-valued trace. Build the Ubuntu 22.04-compatible,
+hash-pinned VAL executable used inside the official evaluator container once:
+
+```bash
+scripts/build_val_for_libero.sh
+uv run pytest -q
+```
+
+Start a fresh full-checkpoint server, then run the task-8 development smoke in a
+second terminal:
+
+```bash
+scripts/run_policy_server.sh full 1 8001 \
+  /mnt/data3/data_xingrui/.cache/openpi/openpi-assets/checkpoints/pi05_libero \
+  runs/logiv-server-task8-v1
+
+scripts/run_logiv_eval.sh FULL_LOGIV 0 8001 runs/logiv-task8-v1 \
+  --run-id logiv-task8-v1 \
+  --goal-mode METADATA_ASSISTED \
+  --deviation-mode NOMINAL \
+  --oracle-grounding \
+  --development-only \
+  --task-ids 8 \
+  --episode-indices 0:3
+```
+
+Task 8 is an explicit regression gate for the graph representation: its two
+moka-pot actions must have no edge between them and the recorded initial action
+layer width must be at least two. The canonical agenda is deterministic, but it
+does not turn the causal DAG into an adjacency chain.
+
+The evaluator supports five isolated arms: `BASE`, `STAGE_ONLY`,
+`GRAPH_WITHOUT_VAL`, `VAL_WITHOUT_LOCALIZED_REPAIR`, and `FULL_LOGIV`.
+`GRAPH_WITHOUT_VAL` uses a separately marked schema-only graph and cannot reuse
+a Full LOGIV certificate. A holdout run requires `--prompt-locked`; unlocked
+prompts are accepted only with `--development-only`. `goal_mode` and
+`deviation_mode` are mandatory and never silently default to mixed settings.
+
+Each allocated episode writes an append-only `episodes.jsonl`, a hash-chained
+event journal, the initial/final graph hashes, certificate, exact per-attempt
+prompt and actions, STOPPED evidence, safety context, receipts, and video under
+its artifact directory. Terminal, grounding, validation, timeout, budget, and
+evaluator failures remain in the success-rate denominator. Generate task-wise
+Wilson intervals and the predeclared equal-task paired bootstrap with:
+
+```bash
+uv run python scripts/report_logiv_results.py \
+  --episodes runs/logiv-locked/episodes.jsonl \
+  --baseline runs/primary-full/episodes.jsonl \
+  --json results/logiv-libero10-summary.json \
+  --markdown results/logiv-libero10-summary.md
+```
+
+Passing unit tests and symbolic/VAL smoke checks demonstrates conformance to the
+runtime contract only. It does not establish simulator improvement, perception
+accuracy, physical safety, or real-robot performance; those claims require the
+allocated interactive rollouts and their external LIBERO evaluator receipts.
+
 ## Design documents
 
 - [Reproduction design](docs/superpowers/specs/2026-08-01-pi05-libero-long-reproduction-design.md)
 - [Implementation plan](docs/superpowers/plans/2026-08-01-pi05-libero-long-reproduction.md)
+- [LOGIV closed-loop design](docs/superpowers/specs/2026-08-02-logiv-libero-closed-loop-design.md)
+- [LOGIV implementation plan](docs/superpowers/plans/2026-08-02-logiv-libero-closed-loop.md)
