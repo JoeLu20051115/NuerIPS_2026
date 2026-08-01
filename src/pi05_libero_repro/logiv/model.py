@@ -49,6 +49,58 @@ class GoalMode(str, Enum):
     GOAL_PREDICTION = "GOAL_PREDICTION"
 
 
+class ContextPhase(str, Enum):
+    INITIAL = "INITIAL"
+    INITIAL_FACTS = "INITIAL_FACTS"
+    PREINSTALL_VAL = "PREINSTALL_VAL"
+    PRE_DISPATCH_FACTS = "PRE_DISPATCH_FACTS"
+    POST_STOP_FACTS = "POST_STOP_FACTS"
+    FINAL_GOAL = "FINAL_GOAL"
+    RECOVERY_VAL = "RECOVERY_VAL"
+
+
+@dataclass(frozen=True)
+class ContextEnvelope:
+    phase: ContextPhase
+    goal_mode: GoalMode
+    request_id: str
+    request_generation: int
+    episode_id: str
+    goal_id: str
+    goal_epoch: int
+    epoch_id: int
+    graph_version: str | None
+    occurrence_id: str | None
+    attempt_id: str | None
+    certificate_hash: str | None
+    safety_epoch: int | None
+
+    def __post_init__(self) -> None:
+        if not self.request_id or not self.episode_id or not self.goal_id:
+            raise ValueError("context IDs must be nonempty")
+        if min(self.request_generation, self.goal_epoch, self.epoch_id) < 0:
+            raise ValueError("context generations and epochs must be nonnegative")
+        if self.safety_epoch is not None and self.safety_epoch < 0:
+            raise ValueError("safety_epoch must be nonnegative or None")
+
+    def payload(self) -> dict[str, str | int | None]:
+        return {
+            "phase": self.phase.value,
+            "goal_mode": self.goal_mode.value,
+            "request_id": self.request_id,
+            "request_generation": self.request_generation,
+            "episode_id": self.episode_id,
+            "goal_id": self.goal_id,
+            "goal_epoch": self.goal_epoch,
+            "epoch_id": self.epoch_id,
+            "graph_version": self.graph_version,
+            "occurrence_id": self.occurrence_id,
+            "attempt_id": self.attempt_id,
+            "certificate_hash": self.certificate_hash,
+            "safety_epoch": self.safety_epoch,
+        }
+
+
 @dataclass(frozen=True)
 class FactSnapshot:
     """Evidence-backed partial symbolic state for one physical epoch."""
