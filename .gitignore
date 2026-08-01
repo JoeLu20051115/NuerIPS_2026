@@ -5,6 +5,7 @@ __pycache__/
 
 artifacts/checkpoints/
 artifacts/datasets/
+artifacts/tools/
 runs/
 external_repos/openpi/.venv/
 *.egg-info/

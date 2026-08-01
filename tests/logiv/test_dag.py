@@ -11,6 +11,7 @@ from pi05_libero_repro.logiv.dag import (
     CompilerError,
     GraphEdge,
     NodeKind,
+    SchemaOnlyCausalDagCompiler,
     SignedLiteral,
     validate_graph,
 )
@@ -78,6 +79,12 @@ def test_task8_dag_has_two_unordered_action_nodes_and_width_two() -> None:
     assert graph.edge(actions[0].node_id, actions[1].node_id) is None
     assert graph.edge(actions[1].node_id, actions[0].node_id) is None
     assert all(graph.edge(node.node_id, "GOAL") is not None for node in actions)
+
+    schema_only = SchemaOnlyCausalDagCompiler().compile(
+        package.problem, plan, sidecar, context
+    )
+    assert schema_only.action_layer_width() == 2
+    assert schema_only.certificate_hash != certificate.certificate_hash
 
 
 def test_task3_support_and_open_threat_create_real_place_before_close_edge() -> None:

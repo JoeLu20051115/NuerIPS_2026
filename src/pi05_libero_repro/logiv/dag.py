@@ -267,6 +267,22 @@ class CausalDagCompiler:
             retry_ledger_version=retry_ledger_version,
         ):
             raise CompilerError("certificate mismatch")
+        return self._compile_bound(
+            problem,
+            plan,
+            occurrence_sidecar,
+            certificate.certificate_hash,
+            context,
+        )
+
+    def _compile_bound(
+        self,
+        problem: TaskProblem,
+        plan: Sequence[GroundAction],
+        occurrence_sidecar: bytes,
+        certificate_hash: str,
+        context: ContextEnvelope,
+    ) -> CausalGraph:
         sidecar = _read_sidecar(occurrence_sidecar, plan)
         nodes = [GraphNode("INIT", NodeKind.INIT, -1)]
         for rank, (action, metadata) in enumerate(zip(plan, sidecar)):
@@ -379,7 +395,7 @@ class CausalDagCompiler:
         node_tuple = tuple(nodes)
         payload = _graph_payload(
             context.epoch_id,
-            certificate.certificate_hash,
+            certificate_hash,
             node_tuple,
             graph_edges,
             causal_links_tuple,
@@ -389,7 +405,7 @@ class CausalDagCompiler:
             graph_version=f"graph-{graph_hash[:16]}",
             graph_hash=graph_hash,
             source_epoch=context.epoch_id,
-            certificate_hash=certificate.certificate_hash,
+            certificate_hash=certificate_hash,
             nodes=node_tuple,
             edges=graph_edges,
             causal_links=causal_links_tuple,
@@ -413,3 +429,29 @@ class CausalDagCompiler:
         )
         validate_graph(graph)
         return graph
+
+
+class SchemaOnlyCausalDagCompiler:
+    """Ablation compiler that shares graph semantics but never accepts a VAL certificate."""
+
+    def compile(
+        self,
+        problem: TaskProblem,
+        plan: Sequence[GroundAction],
+        occurrence_sidecar: bytes,
+        context: ContextEnvelope,
+    ) -> CausalGraph:
+        binding = hashlib.sha256(
+            b"schema-only\0"
+            + _graph_payload(context.epoch_id, "NO_VAL_CERTIFICATE", (), (), ())
+            + occurrence_sidecar
+            + b"".join(action.pddl().encode("utf-8") + b"\n" for action in plan)
+        ).hexdigest()
+        helper = object.__new__(CausalDagCompiler)
+        return helper._compile_bound(
+            problem,
+            plan,
+            occurrence_sidecar,
+            binding,
+            context,
+        )

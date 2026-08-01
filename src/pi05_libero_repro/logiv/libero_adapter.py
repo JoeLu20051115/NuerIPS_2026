@@ -64,6 +64,8 @@ class TaskBinding:
     frozen: bool
     registered_objects: tuple[str, ...]
     symbol_bindings: Mapping[str, Mapping[str, str]]
+    supported_action_schemas: FrozenSet[str]
+    recovery_schemas: FrozenSet[str]
 
     @classmethod
     def from_manifest(cls, path: Path | str, task_id: int) -> "TaskBinding":
@@ -84,6 +86,8 @@ class TaskBinding:
                 str(key): {str(k): str(v) for k, v in value.items()}
                 for key, value in item.get("symbol_bindings", {}).items()
             },
+            supported_action_schemas=frozenset(item["supported_action_schemas"]),
+            recovery_schemas=frozenset(item["recovery_schemas"]),
         )
 
     def resolve(self, symbol: str) -> tuple[str, str | None]:
@@ -176,8 +180,8 @@ class LiberoOracleGrounder:
     @staticmethod
     def _location_predicate(location: str) -> str:
         if any(token in location for token in ("contain_region", "heating_region", "bottom_region")):
-            return "In"
-        return "On"
+            return "in"
+        return "on"
 
     def _predicate(self, state: list[str]) -> TruthValue:
         try:
@@ -201,10 +205,33 @@ class LiberoOracleGrounder:
         resolved, kind = self.binding.resolve(access)
         if kind == "always_open_access" and resolved == container:
             return TruthValue.TRUE
-        access_root = access.removesuffix("_access")
+        access_root = access[: -len("_access")] if access.endswith("_access") else access
         if access_root in container or resolved in container or container in resolved:
             return TruthValue.TRUE
         return TruthValue.FALSE
+
+    def _switch_truth(self, resolved: str, *, powered_on: bool) -> TruthValue:
+        """Use the raw joint and declared fixture ranges to close LIBERO's qpos==0 gap."""
+
+        try:
+            state = self.inner.object_states_dict[resolved]
+            model = self.inner.get_object(resolved)
+            articulation = model.object_properties["articulation"]
+            on_threshold = min(articulation["default_turnon_ranges"])
+            off_threshold = max(articulation["default_turnoff_ranges"])
+            qposes = []
+            for joint in model.joints:
+                address = state.env.sim.model.get_joint_qpos_addr(joint)
+                qposes.append(float(state.env.sim.data.qpos[address]))
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return self._predicate(
+                ["turnon" if powered_on else "turnoff", resolved]
+            )
+        if any(value >= on_threshold for value in qposes):
+            return TruthValue.TRUE if powered_on else TruthValue.FALSE
+        if qposes and all(value <= off_threshold for value in qposes):
+            return TruthValue.FALSE if powered_on else TruthValue.TRUE
+        return TruthValue.UNKNOWN
 
     def _truth(self, fact: Fact) -> TruthValue:
         predicate = fact.predicate
@@ -231,7 +258,7 @@ class LiberoOracleGrounder:
                 ]
                 if any(value is TruthValue.TRUE for value in other_values):
                     return TruthValue.FALSE
-                broad = self._predicate(["On", object_name, resolved])
+                broad = self._predicate(["on", object_name, resolved])
                 held = self._holding(object_name)
                 if broad is TruthValue.TRUE and held is TruthValue.FALSE and all(
                     value is TruthValue.FALSE for value in other_values
@@ -248,11 +275,11 @@ class LiberoOracleGrounder:
             resolved, kind = self.binding.resolve(access)
             if kind == "always_open_access":
                 return TruthValue.TRUE if predicate == "open" else TruthValue.FALSE
-            return self._predicate(["Open" if predicate == "open" else "Close", resolved])
+            return self._predicate(["open" if predicate == "open" else "close", resolved])
         if predicate in {"powered-on", "powered-off"}:
             device, = fact.arguments
             resolved, _ = self.binding.resolve(device)
-            return self._predicate(["Turnon" if predicate == "powered-on" else "Turnoff", resolved])
+            return self._switch_truth(resolved, powered_on=predicate == "powered-on")
         if predicate == "accessible":
             return self._accessible(*fact.arguments)
         return TruthValue.UNKNOWN
@@ -422,6 +449,7 @@ class SimulatorSafetySupervisor:
 @dataclass(frozen=True)
 class AttemptResult:
     attempt_id: str
+    context: ContextEnvelope
     action: GroundAction
     prompt: str
     pre_epoch: int
@@ -461,6 +489,7 @@ class Pi05MacroExecutor:
         replan_steps: int,
         max_action_steps: int,
         settling_steps: int,
+        stop_on_effects: bool = True,
     ) -> None:
         if replan_steps <= 0 or max_action_steps <= 0 or settling_steps < 0:
             raise ValueError("invalid executor bounds")
@@ -474,6 +503,7 @@ class Pi05MacroExecutor:
         self.replan_steps = replan_steps
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
+        self.stop_on_effects = bool(stop_on_effects)
         self._lock = threading.RLock()
         self._next_attempt = 0
         self._active: str | None = None
@@ -591,7 +621,7 @@ class Pi05MacroExecutor:
                 post_observation, _, done, _ = self.env.step(low_level_action.tolist())
                 actions.append(low_level_action.copy())
                 self.store.update(post_observation)
-                if self.grounder.effects_satisfied(queued.action):
+                if self.stop_on_effects and self.grounder.effects_satisfied(queued.action):
                     reason = "observed declared effects"
                     break
                 if bool(done):
@@ -634,6 +664,7 @@ class Pi05MacroExecutor:
         self.results.append(
             AttemptResult(
                 attempt_id=start.attempt_id,
+                context=queued.context,
                 action=queued.action,
                 prompt=prompt,
                 pre_epoch=queued.pre_epoch,

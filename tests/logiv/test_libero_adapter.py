@@ -54,7 +54,7 @@ class FakeInnerEnv:
         self.robots = [FakeRobot()]
 
     def _eval_predicate(self, state) -> bool:
-        key = tuple(str(item).lower() for item in state)
+        key = tuple(str(item) for item in state)
         if key not in self.relations:
             raise KeyError(key)
         return self.relations[key]
