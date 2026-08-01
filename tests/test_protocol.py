@@ -4,10 +4,12 @@ import numpy as np
 import pytest
 
 from pi05_libero_repro.protocol import (
+    derive_episode_seed,
     EpisodeInvalid,
     EpisodeSeededClient,
     prepare_observation,
     run_episode,
+    seed_episode_runtime,
 )
 
 
@@ -118,6 +120,39 @@ def test_episode_seeded_client_numbers_requests_from_zero_without_mutating_input
     assert element == {"prompt": "test"}
     assert [request["__logiv_inference_index__"] for request in base.requests] == [0, 1]
     assert all(request["__logiv_episode_seed__"] == 7008002 for request in base.requests)
+
+
+def test_episode_seed_derivation_is_namespace_separated_and_stable() -> None:
+    policy = derive_episode_seed("policy", master_seed=7, task_id=8, episode_idx=0)
+    simulator = derive_episode_seed(
+        "simulator", master_seed=7, task_id=8, episode_idx=0
+    )
+
+    assert policy == 2668564155
+    assert simulator != policy
+    assert simulator == derive_episode_seed(
+        "simulator", master_seed=7, task_id=8, episode_idx=0
+    )
+    with pytest.raises(ValueError, match="namespace"):
+        derive_episode_seed("", master_seed=7, task_id=8, episode_idx=0)
+
+
+def test_episode_runtime_seed_resets_numpy_and_environment() -> None:
+    class SeededEnv:
+        def __init__(self) -> None:
+            self.seeds: list[int] = []
+
+        def seed(self, value: int) -> None:
+            self.seeds.append(value)
+
+    env = SeededEnv()
+    seed_episode_runtime(env, 1806969158)
+    first = np.random.random(3)
+    seed_episode_runtime(env, 1806969158)
+    second = np.random.random(3)
+
+    assert env.seeds == [1806969158, 1806969158]
+    np.testing.assert_array_equal(first, second)
 
 
 def test_wait_replan_reset_order_and_success() -> None:

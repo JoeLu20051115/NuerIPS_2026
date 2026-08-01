@@ -194,13 +194,17 @@ scripts/run_logiv_eval.sh FULL_LOGIV 0 8001 runs/logiv-task8-v1 \
   --episode-indices 0:3
 ```
 
-The policy server implements an episode-local RNG reset protocol. Each evaluator
-request carries a seed derived from `(master seed, task ID, episode index)` and
-the server returns a matching inference-index receipt. Run paired method arms
-serially against the **same server process**. A diagnostic run found that two
-separately loaded server instances could disagree despite matching reset state,
-first-frame hash, and episode seed; cross-instance arm comparisons are therefore
-rejected rather than treated as paired evidence.
+The evaluator and policy server implement an episode-local RNG reset protocol.
+Namespace-separated seeds for the policy and simulator are derived from
+`(master seed, task ID, episode index)`. Before every reset the evaluator seeds
+Python, NumPy, and LIBERO; every policy request carries the independent policy
+seed and the server returns a matching inference-index receipt. This makes a
+resumed or isolated episode independent of the order in which earlier episodes
+were evaluated. Run paired method arms serially against the **same server
+process**. A diagnostic run found that two separately loaded server instances
+could disagree despite matching reset state, first-frame hash, and episode
+seed; cross-instance arm comparisons are therefore rejected rather than
+treated as paired evidence.
 
 Task 8 is an explicit regression gate for the graph representation: its two
 moka-pot actions must have no edge between them and the recorded initial action

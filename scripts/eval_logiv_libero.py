@@ -58,9 +58,11 @@ from pi05_libero_repro.logiv.repair import RepairBounds, RetryPolicy
 from pi05_libero_repro.logiv.val import ValWrapper
 from pi05_libero_repro.protocol import (
     LIBERO_DUMMY_ACTION,
+    derive_episode_seed,
     EpisodeSeededClient,
     prepare_observation,
     run_episode,
+    seed_episode_runtime,
 )
 
 
@@ -79,11 +81,6 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_array(value: np.ndarray) -> str:
     return _sha256_bytes(np.ascontiguousarray(value).tobytes())
-
-
-def _episode_policy_seed(master_seed: int, task_id: int, episode_idx: int) -> int:
-    payload = f"LOGIV-policy-seed-v1:{master_seed}:{task_id}:{episode_idx}".encode("utf-8")
-    return int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
 
 
 def _write_json(path: Path, value: Any) -> None:
@@ -450,7 +447,7 @@ def _execute_symbolic_arm(
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -461,6 +458,8 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "seed": args.seed,
         "policy_rng_protocol": "episode-seeded-v1",
         "policy_rng_seed_derivation": "uint32(sha256('LOGIV-policy-seed-v1:master:task:episode')[:4])",
+        "simulator_rng_protocol": "episode-seeded-v1",
+        "simulator_rng_seed_derivation": "uint32(sha256('LOGIV-simulator-seed-v1:master:task:episode')[:4])",
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
@@ -552,7 +551,18 @@ def evaluate(args: argparse.Namespace) -> int:
                 )
                 artifact_dir = output_dir / "artifacts" / f"task_{task_id:02d}" / f"episode_{episode_idx:03d}"
                 artifact_dir.mkdir(parents=True, exist_ok=False)
-                policy_seed = _episode_policy_seed(args.seed, task_id, episode_idx)
+                policy_seed = derive_episode_seed(
+                    "policy",
+                    master_seed=args.seed,
+                    task_id=task_id,
+                    episode_idx=episode_idx,
+                )
+                simulator_seed = derive_episode_seed(
+                    "simulator",
+                    master_seed=args.seed,
+                    task_id=task_id,
+                    episode_idx=episode_idx,
+                )
                 episode_client = EpisodeSeededClient(client, episode_seed=policy_seed)
                 _write_json(
                     artifact_dir / "policy_rng.json",
@@ -562,8 +572,11 @@ def evaluate(args: argparse.Namespace) -> int:
                         "task_id": task_id,
                         "episode_idx": episode_idx,
                         "episode_seed": policy_seed,
+                        "simulator_protocol": "episode-seeded-v1",
+                        "simulator_seed": simulator_seed,
                     },
                 )
+                seed_episode_runtime(env, simulator_seed)
                 journal = EventJournal(artifact_dir / "events.jsonl")
                 initial_state = np.asarray(initial_states[episode_idx])
                 init_hash = _sha256_array(initial_state)

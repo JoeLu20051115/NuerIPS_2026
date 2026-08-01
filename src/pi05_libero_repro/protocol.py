@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import hashlib
 import math
+import random
 from typing import Any, List, Tuple
 
 import numpy as np
@@ -14,6 +16,33 @@ MODEL_IMAGE_SIZE = 224
 
 class EpisodeInvalid(RuntimeError):
     pass
+
+
+def derive_episode_seed(
+    namespace: str, *, master_seed: int, task_id: int, episode_idx: int
+) -> int:
+    """Derive a stable, namespace-separated uint32 seed for one episode."""
+
+    if not namespace:
+        raise ValueError("seed namespace must be nonempty")
+    if any(not isinstance(value, int) for value in (master_seed, task_id, episode_idx)):
+        raise TypeError("master_seed, task_id, and episode_idx must be integers")
+    if task_id < 0 or episode_idx < 0:
+        raise ValueError("task_id and episode_idx must be nonnegative")
+    payload = f"LOGIV-{namespace}-seed-v1:{master_seed}:{task_id}:{episode_idx}".encode(
+        "utf-8"
+    )
+    return int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
+
+
+def seed_episode_runtime(env: Any, episode_seed: int) -> None:
+    """Reset all evaluator-side RNGs before an episode reset."""
+
+    if not isinstance(episode_seed, int) or not 0 <= episode_seed < 2**32:
+        raise ValueError("episode_seed must fit uint32")
+    random.seed(episode_seed)
+    np.random.seed(episode_seed)
+    env.seed(episode_seed)
 
 
 class EpisodeSeededClient:
