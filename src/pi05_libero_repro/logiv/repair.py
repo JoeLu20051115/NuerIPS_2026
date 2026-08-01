@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 import hashlib
 import heapq
 from itertools import product
 import json
-from typing import FrozenSet, Mapping, Sequence, Tuple
+from typing import Callable, FrozenSet, Mapping, Sequence, Tuple
 
 from pi05_libero_repro.logiv.dag import CausalGraph, SignedLiteral
 from pi05_libero_repro.logiv.domain import DomainError, FixedDomain, validate_state
@@ -130,6 +130,26 @@ def build_causal_slice(
         canonical_seed=seed,
         action_signatures=signatures,
     )
+
+
+def build_excluded_retry_slice(graph: CausalGraph, occurrence_id: str) -> CausalSlice:
+    if occurrence_id not in graph.node_map or occurrence_id in {"INIT", "GOAL"}:
+        raise RepairError(f"unknown failed occurrence: {occurrence_id}")
+    included = {occurrence_id}
+    frontier = [occurrence_id]
+    while frontier:
+        source = frontier.pop()
+        for edge in graph.edges:
+            if edge.source == source and edge.target not in included:
+                included.add(edge.target)
+                frontier.append(edge.target)
+    seed = tuple(node_id for node_id in graph.canonical_agenda if node_id in included)
+    signatures = tuple(
+        graph.node_map[node_id].action.retry_key
+        for node_id in seed
+        if graph.node_map[node_id].action is not None
+    )
+    return CausalSlice(frozenset(included), seed, signatures)
 
 
 @dataclass(frozen=True)
@@ -297,6 +317,7 @@ class RepairStatus(str, Enum):
     CERTIFIED = "CERTIFIED"
     NO_CERTIFIED_REPAIR_WITHIN_BUDGET = "NO_CERTIFIED_REPAIR_WITHIN_BUDGET"
     VALIDATION_ERROR = "VALIDATION_ERROR"
+    BUDGET_EXHAUSTED = "BUDGET_EXHAUSTED"
 
 
 @dataclass(frozen=True)
@@ -429,6 +450,7 @@ class RepairOperator:
         forbidden_retry_keys: FrozenSet[str] = frozenset(),
         lineage_roots: Mapping[ActionSignature, str] | None = None,
         causal_slice: CausalSlice | None = None,
+        val_call_guard: Callable[[], bool] | None = None,
     ) -> RepairResult:
         ledger = retry_ledger or RetryLedger()
         policy = retry_policy or self.retry_policy
@@ -511,13 +533,25 @@ class RepairOperator:
                 ):
                     if val_calls >= self.bounds.max_val_calls:
                         break
+                    if val_call_guard is not None and not val_call_guard():
+                        return RepairResult(
+                            status=RepairStatus.BUDGET_EXHAUSTED,
+                            explored_candidates=explored,
+                            val_calls=val_calls,
+                            reason="episode-global VAL budget exhausted",
+                        )
                     val_calls += 1
                     sidecar = self._sidecar(path, context, ledger, lineage_roots)
+                    candidate_context = replace(
+                        context,
+                        request_id=f"{context.request_id}-candidate-{val_calls}",
+                        request_generation=0,
+                    )
                     validation = self.val_wrapper.validate(
                         problem,
                         path,
                         sidecar,
-                        context,
+                        candidate_context,
                         forbidden_retry_keys=frozenset(forbidden_retry_keys),
                         retry_ledger_version=ledger.version,
                     )
