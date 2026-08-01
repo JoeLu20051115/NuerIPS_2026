@@ -234,8 +234,10 @@ class LiberoOracleGrounder:
                     (geom_name := model.geom_id2name(geom_id)) is not None
                     and (
                         geom_name == f"{support_name}_collision"
-                        or geom_name.endswith("table_collision")
-                        and support_name.endswith("table")
+                        or (
+                            geom_name.endswith("table_collision")
+                            and support_name.endswith("table")
+                        )
                     )
                 )
             }
@@ -249,6 +251,47 @@ class LiberoOracleGrounder:
             return TruthValue.FALSE
         except (KeyError, IndexError, TypeError, ValueError, AttributeError):
             return TruthValue.UNKNOWN
+
+    def _support_geometry(self, object_name: str, support_name: str) -> TruthValue:
+        """Check a registered workspace plane without using task-goal regions."""
+
+        if not support_name.endswith("table"):
+            return TruthValue.UNKNOWN
+        try:
+            workspace = np.asarray(self.inner.workspace_offset, dtype=np.float64)
+            size_value = getattr(self.inner, f"{support_name}_full_size", None)
+            if size_value is None:
+                size_value = self.inner.table_full_size
+            full_size = np.asarray(
+                size_value,
+                dtype=np.float64,
+            )
+            object_model = self.inner.get_object(object_name)
+            position = np.asarray(
+                self.inner.sim.data.body_xpos[self.inner.obj_body_id[object_name]],
+                dtype=np.float64,
+            )
+            bottom_offset = np.asarray(object_model.bottom_offset, dtype=np.float64)
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return TruthValue.UNKNOWN
+        if (
+            workspace.shape != (3,)
+            or full_size.ndim != 1
+            or full_size.size < 2
+            or position.shape != (3,)
+            or bottom_offset.shape != (3,)
+            or not all(
+                np.isfinite(value).all()
+                for value in (workspace, full_size, position, bottom_offset)
+            )
+        ):
+            return TruthValue.UNKNOWN
+        inside_xy = bool(
+            np.all(np.abs(position[:2] - workspace[:2]) <= full_size[:2] / 2.0)
+        )
+        bottom_height = float(position[2] + bottom_offset[2])
+        near_tabletop = abs(bottom_height - float(workspace[2])) <= 0.04
+        return TruthValue.TRUE if inside_xy and near_tabletop else TruthValue.FALSE
 
     def _switch_truth(self, resolved: str, *, powered_on: bool) -> TruthValue:
         """Use the raw joint and declared fixture ranges to close LIBERO's qpos==0 gap."""
@@ -300,12 +343,16 @@ class LiberoOracleGrounder:
                     return TruthValue.FALSE
                 broad = self._predicate(["on", object_name, resolved])
                 contact = self._support_contact(object_name, resolved)
+                geometry = self._support_geometry(object_name, resolved)
                 held = self._holding(object_name)
                 supported = (
                     TruthValue.TRUE
-                    if TruthValue.TRUE in {broad, contact}
+                    if TruthValue.TRUE in {broad, contact, geometry}
                     else TruthValue.FALSE
-                    if broad is TruthValue.FALSE and contact is TruthValue.FALSE
+                    if all(
+                        value is TruthValue.FALSE
+                        for value in (broad, contact, geometry)
+                    )
                     else TruthValue.UNKNOWN
                 )
                 if supported is TruthValue.TRUE and held is TruthValue.FALSE and all(

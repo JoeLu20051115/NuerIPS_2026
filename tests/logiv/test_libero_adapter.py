@@ -38,6 +38,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class FakeObject:
     def __init__(self, name: str) -> None:
         self.contact_geoms = [f"{name}_geom"]
+        self.bottom_offset = np.array([0.0, 0.0, -0.05])
 
 
 class FakeRobot:
@@ -290,6 +291,60 @@ def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
     assert response.snapshot is not None
     assert Fact("at", ("moka_pot_2", recovery)) in response.snapshot.true_facts
     assert Fact("holding", ("moka_pot_2",)) in response.snapshot.false_facts
+
+
+def test_oracle_grounder_uses_workspace_geometry_when_table_contact_is_missing() -> None:
+    env = FakeEnv()
+    source_1 = "kitchen_table_moka_pot_right_init_region"
+    source_2 = "kitchen_table_moka_pot_left_init_region"
+    target = "flat_stove_1_cook_region"
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source_1): True,
+            ("on", "moka_pot_1", source_2): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", source_1): False,
+            ("on", "moka_pot_2", source_2): False,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+    geom_names = ("moka_pot_2_geom",)
+    env.env.get_object = lambda name: env.env.objects_dict[name]
+    env.env.obj_body_id = {"moka_pot_1": 0, "moka_pot_2": 1}
+    env.env.workspace_offset = np.array([0.0, 0.0, 0.9])
+    env.env.kitchen_table_full_size = (1.0, 1.2, 0.05)
+    env.env.sim = SimpleNamespace(
+        model=SimpleNamespace(
+            ngeom=1,
+            geom_name2id=lambda name: geom_names.index(name),
+            geom_id2name=lambda index: geom_names[index],
+        ),
+        data=SimpleNamespace(
+            ncon=0,
+            contact=[],
+            body_xpos=np.array(
+                [
+                    [0.2, 0.1, 0.95],
+                    [-0.2, -0.1, 0.95],
+                ]
+            ),
+        ),
+    )
+    package, _, grounder = _grounder(env)
+
+    response = grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS,
+        _context(),
+        monitored_fact_universe(package.problem),
+    )
+
+    assert response.status is GroundingStatus.OK
+    assert response.snapshot is not None
+    assert Fact("at", ("moka_pot_2", "kitchen_table_recovery_surface")) in (
+        response.snapshot.true_facts
+    )
 
 
 def test_prompt_for_task8_names_only_one_branch_and_forbids_advancing() -> None:
