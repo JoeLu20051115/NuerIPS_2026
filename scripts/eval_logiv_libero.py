@@ -100,6 +100,40 @@ def _write_json(path: Path, value: Any) -> None:
     temporary.replace(path)
 
 
+def _allocate_episode_artifact_dir(
+    output_dir: Path, *, task_id: int, episode_idx: int
+) -> Path:
+    """Preserve an interrupted episode directory and allocate a retry generation."""
+
+    task_dir = output_dir / "artifacts" / f"task_{task_id:02d}"
+    task_dir.mkdir(parents=True, exist_ok=True)
+    base_name = f"episode_{episode_idx:03d}"
+    generation = 0
+    while True:
+        name = base_name if generation == 0 else f"{base_name}_resume_{generation:03d}"
+        candidate = task_dir / name
+        try:
+            candidate.mkdir(exist_ok=False)
+        except FileExistsError:
+            generation += 1
+            continue
+        if generation:
+            predecessor = (
+                base_name
+                if generation == 1
+                else f"{base_name}_resume_{generation - 1:03d}"
+            )
+            _write_json(
+                candidate / "resume.json",
+                {
+                    "reason": "orphan artifacts without an episode record",
+                    "predecessor": predecessor,
+                    "resume_generation": generation,
+                },
+            )
+        return candidate
+
+
 def _parse_ids(value: str, *, maximum: int) -> tuple[int, ...]:
     if value == "all":
         return tuple(range(maximum))
@@ -556,8 +590,9 @@ def evaluate(args: argparse.Namespace) -> int:
                 episode_id = (
                     f"{args.run_id}/{args.method_arm}/{args.goal_mode}/task-{task_id}/episode-{episode_idx}"
                 )
-                artifact_dir = output_dir / "artifacts" / f"task_{task_id:02d}" / f"episode_{episode_idx:03d}"
-                artifact_dir.mkdir(parents=True, exist_ok=False)
+                artifact_dir = _allocate_episode_artifact_dir(
+                    output_dir, task_id=task_id, episode_idx=episode_idx
+                )
                 policy_seed = derive_episode_seed(
                     "policy",
                     master_seed=args.seed,
