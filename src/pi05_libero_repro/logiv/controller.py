@@ -108,6 +108,18 @@ class DispatchStart:
 
 
 @dataclass(frozen=True)
+class ExecutionCompletionHint:
+    """Certificate-derived actions that are concurrently ready in the DAG."""
+
+    occurrence_ids: Tuple[str, ...]
+    actions: Tuple[GroundAction, ...]
+
+    def __post_init__(self) -> None:
+        if not self.occurrence_ids or len(self.occurrence_ids) != len(self.actions):
+            raise ValueError("completion hint IDs/actions must be nonempty and aligned")
+
+
+@dataclass(frozen=True)
 class ExecutorOutcome:
     status: ExecutorStatus
     attempt_id: str
@@ -775,8 +787,29 @@ class LogivController:
                 self.snapshot.epoch_id,
                 occurrence_id=occurrence_id,
             )
+            committed_ids = frozenset(self.graph.canonical_agenda[: self.cursor])
+            ready_ids = self.graph.ready_action_ids(committed_ids)
+            if not ready_ids or ready_ids[0] != occurrence_id:
+                return self._result(
+                    ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
+                    "COMPILER_ERROR",
+                )
+            node_map = self.graph.node_map
+            ready_actions = tuple(node_map[node_id].action for node_id in ready_ids)
+            if any(ready_action is None for ready_action in ready_actions):
+                return self._result(
+                    ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,
+                    "COMPILER_ERROR",
+                )
+            completion_hint = ExecutionCompletionHint(
+                occurrence_ids=ready_ids,
+                actions=tuple(ready_action for ready_action in ready_actions if ready_action),
+            )
             start = self.dispatcher.consume_permit_and_enqueue(
-                action, dispatch_context, self.snapshot
+                action,
+                dispatch_context,
+                self.snapshot,
+                completion_hint=completion_hint,
             )
             if start.status is not DispatchStatus.ENQUEUED:
                 self.budgets.refund_unenqueued_physical()

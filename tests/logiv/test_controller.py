@@ -139,6 +139,7 @@ class SymbolicDispatcher:
     def __init__(self, world: SymbolicWorld) -> None:
         self.world = world
         self.dispatches = []
+        self.completion_hints = []
         self.attempts = {}
         self.next_id = 0
         self.fail_once_schema = None
@@ -149,12 +150,15 @@ class SymbolicDispatcher:
         self.halt_ack = True
         self.halt_calls = 0
 
-    def consume_permit_and_enqueue(self, action, context, snapshot) -> DispatchStart:
+    def consume_permit_and_enqueue(
+        self, action, context, snapshot, *, completion_hint=None
+    ) -> DispatchStart:
         if self.dispatch_status is not DispatchStatus.ENQUEUED:
             return DispatchStart(status=self.dispatch_status, context=context)
         attempt_id = f"attempt-{self.next_id}"
         self.next_id += 1
         self.dispatches.append(action)
+        self.completion_hints.append(completion_hint)
         self.attempts[attempt_id] = action
         attempt_context = replace(
             context,
@@ -313,7 +317,24 @@ def test_normal_task8_commits_both_branches_and_external_evaluator_succeeds() ->
         AttemptReceiptStatus.COMMITTED,
         AttemptReceiptStatus.COMMITTED,
     ]
+    first_hint, second_hint = dispatcher.completion_hints
+    assert first_hint.occurrence_ids == controller.graph.canonical_agenda
+    assert [action.arguments[0] for action in first_hint.actions] == [
+        "moka_pot_2",
+        "moka_pot_1",
+    ]
+    assert second_hint.occurrence_ids == (controller.graph.canonical_agenda[1],)
     assert evaluator.calls == 1
+
+
+def test_serial_graph_dispatch_hint_never_crosses_action_precedence() -> None:
+    controller, _, _, dispatcher, _ = controller_for(3)
+
+    result = controller.run()
+
+    assert result.status is ControllerStatus.EPISODE_SUCCESS
+    assert all(len(hint.actions) == 1 for hint in dispatcher.completion_hints)
+    assert [hint.actions[0] for hint in dispatcher.completion_hints] == dispatcher.dispatches
 
 
 def test_effect_failure_recertifies_suffix_and_retries_same_uncommitted_occurrence() -> None:
