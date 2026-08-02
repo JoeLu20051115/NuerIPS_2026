@@ -34,6 +34,15 @@ class SubtaskPromptRenderer:
         self.frontier_overrides: Mapping[str, str] = payload.get(
             "frontier_action_overrides", {}
         )
+        self.frontier_fallback_overrides: Mapping[str, str] = payload.get(
+            "frontier_fallback_overrides", {}
+        )
+        self.recovery_frontier_overrides: Mapping[str, str] = payload.get(
+            "recovery_frontier_overrides", {}
+        )
+        self.frontier_completion_overrides: Mapping[str, str] = payload.get(
+            "frontier_completion_overrides", {}
+        )
         self.phase_overrides: Mapping[str, Mapping[str, str]] = payload.get(
             "action_phase_overrides", {}
         )
@@ -96,6 +105,24 @@ class SubtaskPromptRenderer:
     def render_frontier(self, action: GroundAction) -> str:
         """Render a shared policy instruction for a concurrently ready frontier."""
         return self.frontier_overrides.get(action.pddl(), self.render(action))
+
+    def render_frontier_fallback(self, action: GroundAction) -> str:
+        """Render the bounded fallback for a frontier with no primary progress."""
+        return self.frontier_fallback_overrides.get(
+            action.pddl(), self.render_frontier(action)
+        )
+
+    def render_recovery_frontier(self, action: GroundAction) -> str:
+        """Render a shared frontier instruction after a physical-state change."""
+        return self.recovery_frontier_overrides.get(
+            action.pddl(), self.render_frontier(action)
+        )
+
+    def render_frontier_completion(self, action: GroundAction) -> str:
+        """Render the bounded transition from a verified primary to its sibling."""
+        return self.frontier_completion_overrides.get(
+            action.pddl(), self.render_frontier(action)
+        )
 
     def has_phase(self, action: GroundAction, phase: str) -> bool:
         return phase in self.phase_overrides.get(action.pddl(), {})

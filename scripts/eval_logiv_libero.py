@@ -260,6 +260,7 @@ def _attempt_json(result) -> dict[str, Any]:
         "prompt": result.prompt,
         "prompt_history": list(result.prompt_history),
         "completion_mode": result.completion_mode,
+        "recovery_frontier": result.recovery_frontier,
         "completion_occurrence_ids": list(result.completion_occurrence_ids),
         "completion_actions": [action.pddl() for action in result.completion_actions],
         "completion_positive": sorted(
@@ -270,6 +271,10 @@ def _attempt_json(result) -> dict[str, Any]:
         ),
         "primary_effect_first_step": result.primary_effect_first_step,
         "frontier_followup_limit": result.frontier_followup_limit,
+        "frontier_completion_step": result.frontier_completion_step,
+        "frontier_completion_prompt": result.frontier_completion_prompt,
+        "frontier_fallback_step": result.frontier_fallback_step,
+        "frontier_fallback_prompt": result.frontier_fallback_prompt,
         "pre_epoch": result.pre_epoch,
         "post_epoch": result.post_epoch,
         "executor_status": result.executor_status.value,
@@ -410,6 +415,19 @@ def _execute_symbolic_arm(
             args.target_divergence_confirmation_steps
         ),
         frontier_followup_steps=args.frontier_followup_steps,
+        frontier_completion_followup_steps=(
+            args.frontier_completion_followup_steps or None
+        ),
+        frontier_completion_recovery_only=(
+            args.frontier_completion_recovery_only
+        ),
+        frontier_recovery_max_consumed_steps=(
+            args.frontier_recovery_max_consumed_steps or None
+        ),
+        frontier_fallback_after_steps=(args.frontier_fallback_after_steps or None),
+        frontier_fallback_followup_steps=(
+            args.frontier_fallback_followup_steps or None
+        ),
         stop_on_effects=arm is not MethodArm.STAGE_ONLY,
         max_total_action_steps=args.base_max_steps,
     )
@@ -547,6 +565,21 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
             args.target_divergence_confirmation_steps
         ),
         "frontier_followup_steps": args.frontier_followup_steps,
+        "frontier_completion_followup_steps": (
+            args.frontier_completion_followup_steps or None
+        ),
+        "frontier_completion_recovery_only": (
+            args.frontier_completion_recovery_only
+        ),
+        "frontier_recovery_max_consumed_steps": (
+            args.frontier_recovery_max_consumed_steps or None
+        ),
+        "frontier_fallback_after_steps": (
+            args.frontier_fallback_after_steps or None
+        ),
+        "frontier_fallback_followup_steps": (
+            args.frontier_fallback_followup_steps or None
+        ),
         "max_physical_attempts": args.max_physical_attempts,
         "max_repair_rounds": args.max_repair_rounds,
         "max_total_val_calls": args.max_total_val_calls,
@@ -949,6 +982,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--effect-confirmation-steps", default=5, type=int)
     parser.add_argument("--target-divergence-confirmation-steps", default=5, type=int)
     parser.add_argument("--frontier-followup-steps", default=180, type=int)
+    parser.add_argument("--frontier-completion-followup-steps", default=0, type=int)
+    parser.add_argument("--frontier-completion-recovery-only", action="store_true")
+    parser.add_argument("--frontier-recovery-max-consumed-steps", default=0, type=int)
+    parser.add_argument("--frontier-fallback-after-steps", default=0, type=int)
+    parser.add_argument("--frontier-fallback-followup-steps", default=120, type=int)
     parser.add_argument("--video-fps", default=10, type=int)
     parser.add_argument("--watchdog-seconds", default=60.0, type=float)
     parser.add_argument("--action-limit", default=1.1, type=float)

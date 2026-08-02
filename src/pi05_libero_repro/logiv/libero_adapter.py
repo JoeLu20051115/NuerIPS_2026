@@ -634,12 +634,17 @@ class AttemptResult:
     prompt: str
     prompt_history: tuple[str, ...]
     completion_mode: str
+    recovery_frontier: bool
     completion_occurrence_ids: tuple[str, ...]
     completion_actions: tuple[GroundAction, ...]
     completion_positive: FrozenSet[Fact]
     completion_negative: FrozenSet[Fact]
     primary_effect_first_step: int | None
     frontier_followup_limit: int | None
+    frontier_completion_step: int | None
+    frontier_completion_prompt: str | None
+    frontier_fallback_step: int | None
+    frontier_fallback_prompt: str | None
     pre_epoch: int
     post_epoch: int | None
     executor_status: ExecutorStatus
@@ -660,6 +665,8 @@ class _QueuedAttempt:
     action: GroundAction
     context: ContextEnvelope
     pre_epoch: int
+    policy_prompt: str
+    recovery_frontier: bool
     completion_mode: str
     completion_occurrence_ids: tuple[str, ...]
     completion_actions: tuple[GroundAction, ...]
@@ -686,6 +693,11 @@ class Pi05MacroExecutor:
         effect_confirmation_steps: int = 1,
         target_divergence_confirmation_steps: int | None = None,
         frontier_followup_steps: int | None = None,
+        frontier_completion_followup_steps: int | None = None,
+        frontier_completion_recovery_only: bool = False,
+        frontier_recovery_max_consumed_steps: int | None = None,
+        frontier_fallback_after_steps: int | None = None,
+        frontier_fallback_followup_steps: int | None = None,
         stop_on_effects: bool = True,
         max_total_action_steps: int | None = None,
     ) -> None:
@@ -699,12 +711,29 @@ class Pi05MacroExecutor:
                 and target_divergence_confirmation_steps <= 0
             )
             or (frontier_followup_steps is not None and frontier_followup_steps <= 0)
+            or (
+                frontier_completion_followup_steps is not None
+                and frontier_completion_followup_steps <= 0
+            )
+            or (
+                frontier_recovery_max_consumed_steps is not None
+                and frontier_recovery_max_consumed_steps < 0
+            )
+            or (
+                frontier_fallback_after_steps is not None
+                and frontier_fallback_after_steps <= 0
+            )
+            or (
+                frontier_fallback_followup_steps is not None
+                and frontier_fallback_followup_steps <= 0
+            )
         ):
             raise ValueError("invalid executor bounds")
         self.env = env
         self.client = client
         self.image_tools = image_tools
         self.store = observation_store
+        self._initial_graph_version: str | None = None
         self.grounder = grounder
         self.prompt_renderer = prompt_renderer
         self.safety = safety_supervisor
@@ -718,6 +747,17 @@ class Pi05MacroExecutor:
             else target_divergence_confirmation_steps
         )
         self.frontier_followup_steps = frontier_followup_steps
+        self.frontier_completion_followup_steps = (
+            frontier_completion_followup_steps
+        )
+        self.frontier_completion_recovery_only = bool(
+            frontier_completion_recovery_only
+        )
+        self.frontier_recovery_max_consumed_steps = (
+            frontier_recovery_max_consumed_steps
+        )
+        self.frontier_fallback_after_steps = frontier_fallback_after_steps
+        self.frontier_fallback_followup_steps = frontier_fallback_followup_steps
         self.stop_on_effects = bool(stop_on_effects)
         self.max_total_action_steps = (
             max_action_steps if max_total_action_steps is None else max_total_action_steps
@@ -749,6 +789,14 @@ class Pi05MacroExecutor:
                 return DispatchStart(DispatchStatus.SAFETY_VETO, context=context)
             if self.total_action_steps >= self.max_total_action_steps:
                 return DispatchStart(DispatchStatus.ACTION_BUDGET_EXHAUSTED, context=context)
+            if completion_hint is not None and (
+                completion_hint.actions[0] != action
+                or completion_hint.occurrence_ids[0] != context.occurrence_id
+            ):
+                return DispatchStart(
+                    DispatchStatus.EXECUTOR_REJECTED_NOT_ENQUEUED,
+                    context=context,
+                )
             decision = self.safety.authorize(self.store, context)
             if decision.status is not DispatchStatus.ENQUEUED or decision.safety_epoch is None:
                 return DispatchStart(decision.status, context=context)
@@ -760,28 +808,35 @@ class Pi05MacroExecutor:
                 safety_epoch=decision.safety_epoch,
             )
             completion_mode = "OCCURRENCE"
+            recovery_frontier = (
+                self._initial_graph_version is not None
+                and context.graph_version != self._initial_graph_version
+                and (
+                    self.frontier_recovery_max_consumed_steps is None
+                    or self.total_action_steps
+                    <= self.frontier_recovery_max_consumed_steps
+                )
+            )
+            policy_prompt = self.prompt_renderer.render_phase(action, "acquire")
             completion_occurrence_ids = (
                 (context.occurrence_id,) if context.occurrence_id is not None else ()
             )
             completion_actions = (action,)
             if completion_hint is not None:
-                if (
-                    completion_hint.actions[0] != action
-                    or completion_hint.occurrence_ids[0] != context.occurrence_id
-                ):
-                    return DispatchStart(
-                        DispatchStatus.EXECUTOR_REJECTED_NOT_ENQUEUED,
-                        context=context,
-                    )
+                render_frontier = (
+                    self.prompt_renderer.render_recovery_frontier
+                    if recovery_frontier
+                    else self.prompt_renderer.render_frontier
+                )
                 frontier_prompts = tuple(
-                    self.prompt_renderer.render_frontier(item)
-                    for item in completion_hint.actions
+                    render_frontier(item) for item in completion_hint.actions
                 )
                 if (
                     len(completion_hint.actions) >= 2
                     and len(set(frontier_prompts)) == 1
                 ):
                     completion_mode = "DAG_FRONTIER"
+                    policy_prompt = frontier_prompts[0]
                     completion_occurrence_ids = completion_hint.occurrence_ids
                     completion_actions = completion_hint.actions
             completion_positive = frozenset().union(
@@ -790,15 +845,19 @@ class Pi05MacroExecutor:
             completion_negative = frozenset().union(
                 *(item.del_effects for item in completion_actions)
             )
+            if self._initial_graph_version is None:
+                self._initial_graph_version = context.graph_version
             self._queued[attempt_id] = _QueuedAttempt(
-                action,
-                attempt_context,
-                snapshot.epoch_id,
-                completion_mode,
-                completion_occurrence_ids,
-                completion_actions,
-                completion_positive,
-                completion_negative,
+                action=action,
+                context=attempt_context,
+                pre_epoch=snapshot.epoch_id,
+                policy_prompt=policy_prompt,
+                recovery_frontier=recovery_frontier,
+                completion_mode=completion_mode,
+                completion_occurrence_ids=completion_occurrence_ids,
+                completion_actions=completion_actions,
+                completion_positive=completion_positive,
+                completion_negative=completion_negative,
             )
             self._active = attempt_id
             return DispatchStart(
@@ -859,11 +918,14 @@ class Pi05MacroExecutor:
         confirmed_divergence_steps = 0
         primary_effect_streak = 0
         primary_effect_first_step = None
-        prompt = (
-            self.prompt_renderer.render_frontier(queued.action)
-            if queued.completion_mode == "DAG_FRONTIER"
-            else self.prompt_renderer.render_phase(queued.action, phase)
-        )
+        frontier_fallback_step = None
+        frontier_fallback_prompt = None
+        frontier_fallback_triggered = False
+        frontier_completion_step = None
+        frontier_completion_prompt = None
+        frontier_completion_triggered = False
+        active_frontier_followup_steps = self.frontier_followup_steps
+        prompt = queued.policy_prompt
         prompt_history = [prompt]
         place_schemas = {
             "place-on",
@@ -949,10 +1011,38 @@ class Pi05MacroExecutor:
                     else:
                         confirmed_effect_steps = 0
                     if (
+                        queued.completion_mode == "DAG_FRONTIER"
+                        and self.frontier_completion_followup_steps is not None
+                        and (
+                            not self.frontier_completion_recovery_only
+                            or queued.recovery_frontier
+                        )
+                        and not frontier_completion_triggered
+                        and not frontier_fallback_triggered
+                        and primary_effect_streak >= self.effect_confirmation_steps
+                    ):
+                        frontier_completion_triggered = True
+                        frontier_completion_step = len(actions)
+                        completion_prompt = (
+                            self.prompt_renderer.render_frontier_completion(
+                                queued.action
+                            )
+                        )
+                        if completion_prompt != prompt:
+                            phase_flushed += len(action_queue)
+                            action_queue.clear()
+                            prompt = completion_prompt
+                            prompt_history.append(prompt)
+                        frontier_completion_prompt = completion_prompt
+                        active_frontier_followup_steps = (
+                            self.frontier_completion_followup_steps
+                        )
+                        confirmed_divergence_steps = 0
+                    if (
                         not effects_satisfied
                         and queued.completion_mode == "DAG_FRONTIER"
-                        and self.frontier_followup_steps is not None
-                        and primary_effect_streak >= self.frontier_followup_steps
+                        and active_frontier_followup_steps is not None
+                        and primary_effect_streak >= active_frontier_followup_steps
                     ):
                         reason = "frontier follow-up deadline reached"
                         break
@@ -966,7 +1056,35 @@ class Pi05MacroExecutor:
                             break
                     else:
                         confirmed_divergence_steps = 0
-                if self.prompt_renderer.has_phase(queued.action, "finish"):
+                    if (
+                        queued.completion_mode == "DAG_FRONTIER"
+                        and self.frontier_fallback_after_steps is not None
+                        and not frontier_fallback_triggered
+                        and not frontier_completion_triggered
+                        and primary_effect_first_step is None
+                        and len(actions) >= self.frontier_fallback_after_steps
+                    ):
+                        frontier_fallback_triggered = True
+                        frontier_fallback_step = len(actions)
+                        fallback_prompt = self.prompt_renderer.render_frontier_fallback(
+                            queued.action
+                        )
+                        if fallback_prompt != prompt:
+                            phase_flushed += len(action_queue)
+                            action_queue.clear()
+                            prompt = fallback_prompt
+                            prompt_history.append(prompt)
+                        frontier_fallback_prompt = fallback_prompt
+                        if self.frontier_fallback_followup_steps is not None:
+                            active_frontier_followup_steps = (
+                                self.frontier_fallback_followup_steps
+                            )
+                        confirmed_divergence_steps = 0
+                if (
+                    not frontier_fallback_triggered
+                    and not frontier_completion_triggered
+                    and self.prompt_renderer.has_phase(queued.action, "finish")
+                ):
                     try:
                         phase_snapshot = self.grounder.peek_snapshot()
                     except GroundingError:
@@ -1043,16 +1161,21 @@ class Pi05MacroExecutor:
                 prompt=prompt_history[0],
                 prompt_history=tuple(prompt_history),
                 completion_mode=queued.completion_mode,
+                recovery_frontier=queued.recovery_frontier,
                 completion_occurrence_ids=queued.completion_occurrence_ids,
                 completion_actions=queued.completion_actions,
                 completion_positive=queued.completion_positive,
                 completion_negative=queued.completion_negative,
                 primary_effect_first_step=primary_effect_first_step,
                 frontier_followup_limit=(
-                    self.frontier_followup_steps
+                    active_frontier_followup_steps
                     if queued.completion_mode == "DAG_FRONTIER"
                     else None
                 ),
+                frontier_completion_step=frontier_completion_step,
+                frontier_completion_prompt=frontier_completion_prompt,
+                frontier_fallback_step=frontier_fallback_step,
+                frontier_fallback_prompt=frontier_fallback_prompt,
                 pre_epoch=queued.pre_epoch,
                 post_epoch=settled_epoch,
                 executor_status=status,
