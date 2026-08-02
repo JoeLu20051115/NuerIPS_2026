@@ -69,3 +69,12 @@
 - Towards Long-horizon Embodied Agents with Tool-Aligned Vision-Language-Action Models：<https://arxiv.org/abs/2605.13119>
 
 后者还表明细粒度 VLA tool invocation 通常需要 tool-aligned post-training；因此本轮优先恢复 checkpoint 已训练的原始任务 prompt 分布。如果无训练的 frontier 方案仍不能越过 Base，再单独设计 task-segment relabeling/fine-tuning，而不把训练收益伪装成无训练 LOGIV 收益。
+
+## 7. Development iteration 2：瞬时偏离去抖与 follow-up 预算
+
+首个 frontier 候选在同一 policy server 的开发 seeds `2,5,7,8,14` 上得到 `3/5`，与 Base 的 `3/5` 持平，因此没有进入 holdout。artifact 给出两个新的直接证据：
+
+- seed 14 在第 127 步因单帧 target-location divergence 停止，但 settling 后 pot 2 已明确处于 `holding`。随后针对 held-pot 的恢复 attempt 消耗余下 393 步仍未完成。target divergence 必须与 effect gate 一样连续确认，不能由抓取转换期的单帧位置关系触发。
+- seed 2 在 520 步结束时 pot 2 已在 stove、pot 1 仍在初始位置，但所有预算已经消耗在同一个 frontier attempt，无法进入第二分支的事实驱动执行。训练示范中 pot 2 到 pot 1 完成的观测间隔为 107--199 步，因此设置 180 个连续步骤的 primary-effect follow-up 窗口；超时只停止当前 attempt，不提交 sibling，并把保留预算交回普通 fresh-fact gate。
+
+iteration 2 仍不添加 PDDL macro 或 action edge。frontier 模式使用两个 ready actions 共同的 `render(action)` 原始任务 prompt，并禁止 phase switch；若后续只剩单一 action，则恢复该 grounded action 的 targeted phase prompt。全局 520-step budget 不变。候选只有再次在同一开发 seeds 上严格高于 Base 才允许扩大。

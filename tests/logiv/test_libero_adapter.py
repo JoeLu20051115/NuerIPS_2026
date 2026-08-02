@@ -555,7 +555,7 @@ def test_identical_prompt_dag_frontier_waits_for_union_of_ready_effects() -> Non
         observation_store=store,
         grounder=grounder,
         prompt_renderer=SubtaskPromptRenderer(
-            ROOT / "configs/logiv/prompts/pi05-subtasks-v5.json"
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v14.json"
         ),
         safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
         replan_steps=1,
@@ -594,6 +594,124 @@ def test_identical_prompt_dag_frontier_waits_for_union_of_ready_effects() -> Non
     assert artifact["completion_positive"] == sorted(
         fact.pddl() for fact in first.add_effects | second.add_effects
     )
+
+
+def test_frontier_followup_deadline_reserves_budget_after_primary_completion() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+    target = first.arguments[2]
+    env.env.relations.update(
+        {
+            ("on", first.arguments[0], first.arguments[1]): True,
+            ("on", first.arguments[0], target): False,
+            ("on", second.arguments[0], second.arguments[1]): True,
+            ("on", second.arguments[0], target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def complete_only_primary(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", first.arguments[0], first.arguments[1])] = False
+            env.env.relations[("on", first.arguments[0], target)] = True
+
+    env.step_hook = complete_only_primary
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(4)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v14.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+        frontier_followup_steps=2,
+    )
+    hint = ExecutionCompletionHint(
+        occurrence_ids=("task08-o000", "task08-o001"),
+        actions=(first, second),
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        first,
+        _context(),
+        package.proposal.initial_snapshot,
+        completion_hint=hint,
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "frontier follow-up deadline reached"
+    result = executor.results[-1]
+    assert len(result.actions) == 2
+    assert result.primary_effect_first_step == 1
+    assert result.frontier_followup_limit == 2
+
+
+def test_transient_target_divergence_requires_consecutive_confirmation() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = package.proposal.candidate_subtasks[0].action
+    object_name, source, target = action.arguments
+    recovery = "kitchen_table_recovery_surface"
+    env.env.relations.update(
+        {
+            ("on", object_name, source): True,
+            ("on", object_name, "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", object_name, target): False,
+            ("on", object_name, recovery): False,
+            ("on", object_name, "kitchen_table"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_1", "kitchen_table"): True,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def transient_divergence_then_success(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", object_name, source)] = False
+            env.env.relations[("on", object_name, recovery)] = True
+        elif step == 2:
+            env.env.relations[("on", object_name, recovery)] = False
+            env.env.held.add(object_name)
+        elif step == 3:
+            env.env.held.remove(object_name)
+            env.env.relations[("on", object_name, target)] = True
+
+    env.step_hook = transient_divergence_then_success
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(4)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+        effect_confirmation_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed declared effects"
+    assert len(executor.results[-1].actions) == 4
 
 
 def test_different_frontier_prompts_fall_back_to_primary_occurrence_effects() -> None:
@@ -986,9 +1104,23 @@ def test_v12_keeps_nominal_training_prompt_and_targets_only_recovery() -> None:
     )
 
 
-def test_v13_matches_official_task8_prompt_exactly_and_keeps_targeted_recovery() -> None:
+def test_v13_matches_official_task8_prompt_exactly() -> None:
     renderer = SubtaskPromptRenderer(
         ROOT / "configs/logiv/prompts/pi05-subtasks-v13.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    nominal = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert [renderer.render_phase(action, "acquire") for action in nominal] == [
+        "put both moka pots on the stove",
+        "put both moka pots on the stove",
+    ]
+    assert all(not renderer.has_phase(action, "finish") for action in nominal)
+
+
+def test_v14_uses_exact_frontier_prompt_and_targeted_single_branch_recovery() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v14.json"
     )
     package = ScriptedProposalProvider().propose(8, epoch_id=0)
     domain = FixedDomain()
@@ -1012,12 +1144,15 @@ def test_v13_matches_official_task8_prompt_exactly_and_keeps_targeted_recovery()
         ),
     )
 
-    assert renderer.prompt_version == "pi05-subtasks-v13"
-    assert [renderer.render_phase(action, "acquire") for action in nominal] == [
+    assert renderer.prompt_version == "pi05-subtasks-v14"
+    assert [renderer.render(action) for action in nominal] == [
         "put both moka pots on the stove",
         "put both moka pots on the stove",
     ]
-    assert all(not renderer.has_phase(action, "finish") for action in nominal)
+    assert renderer.render_phase(nominal[1], "acquire") == (
+        "Pick up the right moka pot from the table, then hold it securely."
+    )
+    assert renderer.has_phase(nominal[1], "finish")
     assert renderer.render_phase(left_recovery, "acquire") == (
         "Pick up the left moka pot from the table, then hold it securely."
     )

@@ -499,9 +499,24 @@ class LiberoOracleGrounder:
         completion_positive: FrozenSet[Fact] | None = None,
         completion_negative: FrozenSet[Fact] | None = None,
     ) -> tuple[bool, bool]:
-        """Return (declared effects satisfied, object at a different known location).
+        completion, _, target_diverged = self.observe_action_progress_details(
+            action,
+            completion_positive=completion_positive,
+            completion_negative=completion_negative,
+        )
+        return completion, target_diverged
 
-        The second signal is intentionally limited to grounded place macros that
+    def observe_action_progress_details(
+        self,
+        action: GroundAction,
+        *,
+        completion_positive: FrozenSet[Fact] | None = None,
+        completion_negative: FrozenSet[Fact] | None = None,
+    ) -> tuple[bool, bool, bool]:
+        """Return completion, primary-effect, and factual-divergence signals.
+
+        The tuple contains completion-effects, primary-effects, and divergence.
+        The third signal is intentionally limited to grounded place macros that
         carry an explicit source and target.  It does not infer a location from
         missing predicates: a different registered ``at`` fact must be TRUE and
         source, target, and holding must all be explicitly FALSE.
@@ -524,13 +539,17 @@ class LiberoOracleGrounder:
         try:
             snapshot = self._snapshot(required)
         except GroundingError:
-            return False, False
+            return False, False, False
         effects_satisfied = snapshot.satisfies(
             positive=positive,
             negative=negative,
         )
+        primary_effects_satisfied = snapshot.satisfies(
+            positive=action.add_effects,
+            negative=action.del_effects,
+        )
         if not location_schema or len(action.arguments) < 3:
-            return effects_satisfied, False
+            return effects_satisfied, primary_effects_satisfied, False
         object_name, source, target = action.arguments[:3]
         required_false = {
             Fact("at", (object_name, source)),
@@ -544,7 +563,7 @@ class LiberoOracleGrounder:
             for fact in snapshot.true_facts
         )
         target_diverged = required_false <= snapshot.false_facts and alternative_location
-        return effects_satisfied, target_diverged
+        return effects_satisfied, primary_effects_satisfied, target_diverged
 
 
 @dataclass(frozen=True)
@@ -619,6 +638,8 @@ class AttemptResult:
     completion_actions: tuple[GroundAction, ...]
     completion_positive: FrozenSet[Fact]
     completion_negative: FrozenSet[Fact]
+    primary_effect_first_step: int | None
+    frontier_followup_limit: int | None
     pre_epoch: int
     post_epoch: int | None
     executor_status: ExecutorStatus
@@ -663,6 +684,7 @@ class Pi05MacroExecutor:
         max_action_steps: int,
         settling_steps: int,
         effect_confirmation_steps: int = 1,
+        frontier_followup_steps: int | None = None,
         stop_on_effects: bool = True,
         max_total_action_steps: int | None = None,
     ) -> None:
@@ -671,6 +693,7 @@ class Pi05MacroExecutor:
             or max_action_steps <= 0
             or settling_steps < 0
             or effect_confirmation_steps <= 0
+            or (frontier_followup_steps is not None and frontier_followup_steps <= 0)
         ):
             raise ValueError("invalid executor bounds")
         self.env = env
@@ -684,6 +707,7 @@ class Pi05MacroExecutor:
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
         self.effect_confirmation_steps = effect_confirmation_steps
+        self.frontier_followup_steps = frontier_followup_steps
         self.stop_on_effects = bool(stop_on_effects)
         self.max_total_action_steps = (
             max_action_steps if max_total_action_steps is None else max_total_action_steps
@@ -740,17 +764,12 @@ class Pi05MacroExecutor:
                         context=context,
                     )
                 frontier_prompts = tuple(
-                    self.prompt_renderer.render_phase(item, "acquire")
-                    for item in completion_hint.actions
-                )
-                no_phase_switch = not any(
-                    self.prompt_renderer.has_phase(item, "finish")
+                    self.prompt_renderer.render(item)
                     for item in completion_hint.actions
                 )
                 if (
                     len(completion_hint.actions) >= 2
                     and len(set(frontier_prompts)) == 1
-                    and no_phase_switch
                 ):
                     completion_mode = "DAG_FRONTIER"
                     completion_occurrence_ids = completion_hint.occurrence_ids
@@ -827,7 +846,14 @@ class Pi05MacroExecutor:
         phase_flushed = 0
         phase = "acquire"
         confirmed_effect_steps = 0
-        prompt = self.prompt_renderer.render_phase(queued.action, phase)
+        confirmed_divergence_steps = 0
+        primary_effect_streak = 0
+        primary_effect_first_step = None
+        prompt = (
+            self.prompt_renderer.render(queued.action)
+            if queued.completion_mode == "DAG_FRONTIER"
+            else self.prompt_renderer.render_phase(queued.action, phase)
+        )
         prompt_history = [prompt]
         place_schemas = {
             "place-on",
@@ -888,13 +914,19 @@ class Pi05MacroExecutor:
                 self.total_action_steps += 1
                 self.store.update(post_observation)
                 if self.stop_on_effects:
-                    effects_satisfied, target_diverged = (
-                        self.grounder.observe_action_progress(
+                    effects_satisfied, primary_satisfied, target_diverged = (
+                        self.grounder.observe_action_progress_details(
                             queued.action,
                             completion_positive=queued.completion_positive,
                             completion_negative=queued.completion_negative,
                         )
                     )
+                    if primary_satisfied:
+                        primary_effect_streak += 1
+                        if primary_effect_first_step is None:
+                            primary_effect_first_step = len(actions)
+                    else:
+                        primary_effect_streak = 0
                     if effects_satisfied:
                         confirmed_effect_steps += 1
                         if confirmed_effect_steps >= self.effect_confirmation_steps:
@@ -906,10 +938,25 @@ class Pi05MacroExecutor:
                             break
                     else:
                         confirmed_effect_steps = 0
-                    if not effects_satisfied and target_diverged:
-                        reason = "observed target-location divergence"
+                    if (
+                        not effects_satisfied
+                        and queued.completion_mode == "DAG_FRONTIER"
+                        and self.frontier_followup_steps is not None
+                        and primary_effect_streak >= self.frontier_followup_steps
+                    ):
+                        reason = "frontier follow-up deadline reached"
                         break
-                if self.prompt_renderer.has_phase(queued.action, "finish"):
+                    if not effects_satisfied and target_diverged:
+                        confirmed_divergence_steps += 1
+                        if confirmed_divergence_steps >= self.effect_confirmation_steps:
+                            reason = "observed target-location divergence"
+                            break
+                    else:
+                        confirmed_divergence_steps = 0
+                if (
+                    queued.completion_mode == "OCCURRENCE"
+                    and self.prompt_renderer.has_phase(queued.action, "finish")
+                ):
                     try:
                         phase_snapshot = self.grounder.peek_snapshot()
                     except GroundingError:
@@ -990,6 +1037,12 @@ class Pi05MacroExecutor:
                 completion_actions=queued.completion_actions,
                 completion_positive=queued.completion_positive,
                 completion_negative=queued.completion_negative,
+                primary_effect_first_step=primary_effect_first_step,
+                frontier_followup_limit=(
+                    self.frontier_followup_steps
+                    if queued.completion_mode == "DAG_FRONTIER"
+                    else None
+                ),
                 pre_epoch=queued.pre_epoch,
                 post_epoch=settled_epoch,
                 executor_status=status,
