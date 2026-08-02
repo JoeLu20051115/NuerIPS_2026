@@ -277,6 +277,15 @@ hashes match, but first-frame pixel hashes do not all match across the historica
 runs, so this is evidence that one known failure was repaired, not a valid paired
 performance estimate. The fresh post-stop effect gate remains unchanged.
 
+Two narrower follow-ups are retained rather than hidden. v11 applies visual
+left/right names to nominal and recovery actions; v12 restores the training-style
+nominal prompt and keeps left/right only for recovery. Both score 0/3 on selected
+v10 failures (`results/logiv-task8-v11-left-right-hard3.json` and
+`results/logiv-task8-v12-nominal-full-recovery-specific-hard3.json`). Their logs
+separate low-level non-completion from a fail-closed `POST_STOP_GROUNDING_FAILURE`
+when an already placed pot is knocked outside every registered location. No
+additional uplift is claimed from v11/v12.
+
 ## Design documents
 
 - [Reproduction design](docs/superpowers/specs/2026-08-01-pi05-libero-long-reproduction-design.md)

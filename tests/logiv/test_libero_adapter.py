@@ -778,6 +778,84 @@ def test_v10_task8_recovery_prompt_targets_only_the_failed_branch() -> None:
         assert "both" not in renderer.render_phase(action, "acquire").lower()
 
 
+def test_v11_task8_uses_visual_left_right_branch_names() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v11.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    domain = FixedDomain()
+    nominal = [item.action for item in package.proposal.candidate_subtasks]
+    left_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render_phase(nominal[0], "acquire") == (
+        "Put both moka pots on the stove."
+    )
+    assert renderer.render_phase(nominal[1], "acquire") == (
+        "Pick up the right moka pot from the table, then hold it securely."
+    )
+    assert renderer.render_phase(left_recovery, "acquire") == (
+        "Pick up the left moka pot from the table, then hold it securely."
+    )
+    assert renderer.render_phase(right_recovery, "acquire") == (
+        "Pick up the right moka pot from the table, then hold it securely."
+    )
+
+
+def test_v12_keeps_nominal_training_prompt_and_targets_only_recovery() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v12.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    domain = FixedDomain()
+    nominal = [item.action for item in package.proposal.candidate_subtasks]
+    left_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert [renderer.render_phase(action, "acquire") for action in nominal] == [
+        "Put both moka pots on the stove.",
+        "Put both moka pots on the stove.",
+    ]
+    assert renderer.render_phase(left_recovery, "acquire") == (
+        "Pick up the left moka pot from the table, then hold it securely."
+    )
+    assert renderer.render_phase(right_recovery, "acquire") == (
+        "Pick up the right moka pot from the table, then hold it securely."
+    )
+
+
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
