@@ -1,0 +1,129 @@
+{
+  "errors": [],
+  "paired_comparisons": [],
+  "records": 10,
+  "schema_version": 1,
+  "settings": [
+    {
+      "deviation_mode": "NOMINAL",
+      "failure_taxonomy": {
+        "BUDGET_EXHAUSTED": 1,
+        "POST_STOP_GROUNDING_FAILURE": 1
+      },
+      "goal_mode": "METADATA_ASSISTED",
+      "method_arm": "FULL_LOGIV",
+      "overall": {
+        "allocated": 10,
+        "rate": 0.8,
+        "successes": 8,
+        "wilson_95": [
+          0.49016247153664183,
+          0.9433178485456247
+        ]
+      },
+      "tasks": [
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 0,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 1,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 2,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 3,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 4,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 0.0,
+          "successes": 0,
+          "task_id": 5,
+          "wilson_95": [
+            0.0,
+            0.7934506856227626
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 6,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 7,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 1.0,
+          "successes": 1,
+          "task_id": 8,
+          "wilson_95": [
+            0.20654931437723745,
+            1.0
+          ]
+        },
+        {
+          "allocated": 1,
+          "rate": 0.0,
+          "successes": 0,
+          "task_id": 9,
+          "wilson_95": [
+            0.0,
+            0.7934506856227626
+          ]
+        }
+      ]
+    }
+  ],
+  "valid_records": 10
+}

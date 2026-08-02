@@ -50,8 +50,10 @@ class FakeInnerEnv:
         self.relations: dict[tuple[str, ...], bool] = {}
         self.held: set[str] = set()
         self.objects_dict = {
+            "black_book_1": FakeObject("black_book_1"),
             "moka_pot_1": FakeObject("moka_pot_1"),
             "moka_pot_2": FakeObject("moka_pot_2"),
+            "white_yellow_mug_1": FakeObject("white_yellow_mug_1"),
         }
         self.robots = [FakeRobot()]
 
@@ -142,6 +144,34 @@ def _grounder(env: FakeEnv):
     facts = monitored_fact_universe(package.problem)
     grounder = LiberoOracleGrounder(env, store, binding, facts)
     return package, store, grounder
+
+
+def test_task5_wrong_compartment_is_a_grounded_recovery_location() -> None:
+    env = FakeEnv()
+    package = ScriptedProposalProvider().propose(5, epoch_id=4)
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage.json", 5
+    )
+    locations = {
+        fact.arguments[1]
+        for fact in monitored_fact_universe(package.problem)
+        if fact.predicate == "at" and fact.arguments[0] == "black_book_1"
+    }
+    wrong = "desk_caddy_1_front_contain_region"
+    for location in locations:
+        relation = LiberoOracleGrounder._location_predicate(location)
+        env.env.relations[(relation, "black_book_1", location)] = location == wrong
+    grounder = LiberoOracleGrounder(
+        env,
+        LiberoObservationStore(dict(env.obs), epoch_id=4),
+        binding,
+        monitored_fact_universe(package.problem),
+    )
+
+    snapshot = grounder.peek_snapshot()
+
+    assert Fact("at", ("black_book_1", wrong)) in snapshot.true_facts
+    assert Fact("handempty") in snapshot.true_facts
 
 
 def test_oracle_grounder_maps_relations_holding_and_exactly_one_location() -> None:
@@ -605,6 +635,94 @@ def test_v5_uses_training_task_prompt_but_keeps_occurrence_effect_boundaries() -
     assert not renderer.has_phase(first, "finish")
     assert not renderer.has_phase(second, "finish")
     assert first != second
+
+
+def test_v6_uses_natural_prompts_for_observed_task5_and_task9_failures() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v6.json"
+    )
+    provider = ScriptedProposalProvider()
+    book = provider.propose(5, epoch_id=0).proposal.candidate_subtasks[0].action
+    microwave = provider.propose(9, epoch_id=0).proposal.candidate_subtasks
+
+    assert renderer.render(book) == (
+        "Pick up the book and place it in the back compartment of the caddy."
+    )
+    assert [renderer.render(item.action) for item in microwave] == [
+        "Put the yellow and white mug in the microwave.",
+        "Close the microwave.",
+    ]
+
+
+def test_v7_requests_stable_book_placement_and_full_microwave_task() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v7.json"
+    )
+    provider = ScriptedProposalProvider()
+    book = provider.propose(5, epoch_id=0).proposal.candidate_subtasks[0].action
+    microwave = provider.propose(9, epoch_id=0).proposal.candidate_subtasks[0].action
+
+    assert renderer.render(book) == (
+        "Lay the book flat and fully inside the back compartment of the caddy, "
+        "release it gently, and stop."
+    )
+    assert renderer.render(microwave) == (
+        "Put the yellow and white mug in the microwave and close it."
+    )
+
+
+def test_v8_recovery_prompts_cover_new_locations_and_reuse_microwave_task() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v8.json"
+    )
+    provider = ScriptedProposalProvider()
+    task5 = provider.propose(5, epoch_id=0)
+    moved_book = FixedDomain().ground(
+        task5.problem,
+        "place-in",
+        (
+            "black_book_1",
+            "desk_caddy_1_front_contain_region",
+            "desk_caddy_1_back_contain_region",
+            "desk_caddy_1_access",
+        ),
+    )
+    close_microwave = provider.propose(
+        9, epoch_id=0
+    ).proposal.candidate_subtasks[1].action
+
+    assert renderer.render(moved_book) == (
+        "Pick up the book and place it in the back compartment of the caddy."
+    )
+    assert renderer.render(close_microwave) == (
+        "Put the yellow and white mug in the microwave and close it."
+    )
+
+
+def test_v9_recovery_pick_and_microwave_phase_prompts_are_explicit() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v9.json"
+    )
+    provider = ScriptedProposalProvider()
+    task5 = provider.propose(5, epoch_id=0)
+    pick_book = FixedDomain().ground(
+        task5.problem,
+        "pick",
+        ("black_book_1", "study_table_recovery_surface"),
+    )
+    place_mug = provider.propose(
+        9, epoch_id=0
+    ).proposal.candidate_subtasks[0].action
+
+    assert renderer.render(pick_book) == (
+        "Pick up the book and place it in the back compartment of the caddy."
+    )
+    assert renderer.render_phase(place_mug, "acquire") == (
+        "Pick up the yellow and white mug."
+    )
+    assert renderer.render_phase(place_mug, "finish") == (
+        "Put the mug you are holding in the microwave and release it."
+    )
 
 
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:

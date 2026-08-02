@@ -92,6 +92,23 @@ def test_all_ten_fixtures_ground_and_coverage_is_frozen() -> None:
             coverage_item["registered_objects"]
         )
 
+    task5 = packages[5]
+    recovery_locations = {
+        "study_table_recovery_surface",
+        "desk_caddy_1_front_contain_region",
+        "desk_caddy_1_left_contain_region",
+        "desk_caddy_1_right_contain_region",
+    }
+    assert recovery_locations <= set(task5.problem.object_types)
+    assert {
+        Fact("at", ("black_book_1", location)) for location in recovery_locations
+    } <= task5.problem.initial_false
+    task9 = packages[9]
+    assert "kitchen_table_recovery_surface" in task9.problem.object_types
+    assert Fact(
+        "at", ("white_yellow_mug_1", "kitchen_table_recovery_surface")
+    ) in task9.problem.initial_false
+
 
 def test_all_ten_candidate_plans_reach_the_frozen_goal() -> None:
     provider = ScriptedProposalProvider(FIXTURE)

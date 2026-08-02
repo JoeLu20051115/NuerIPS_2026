@@ -247,6 +247,23 @@ evidence only. The successful recovered episode contains two certified repair
 rounds and an external LIBERO success receipt; all initial task-8 graphs retain
 action-layer width two.
 
+The directional 5-seed result did not survive expansion: the same-server v5c
+20-seed diagnostic is recorded in `results/logiv-task8-seeded-dev20-v5c.json`
+and is 11/20 for both Full LOGIV and Base (paired difference 0.00, interval
+`[-0.25, 0.25]`). It is retained to prevent cherry-picking. A later v7 run also
+seeds the simulator independently per episode; its Full and Base arms must both
+finish before any paired claim is made.
+
+An additional one-seed-per-task interactive smoke is recorded in
+`results/logiv-all10-seeded-smoke-v7.json`. Full LOGIV receives an external
+LIBERO success receipt on 8/10 frozen task IDs. Tasks 5 and 9 remain failures in
+this smoke and are included in the denominator. Follow-up prompt versions v6-v9
+and added table/caddy recovery locations convert their formerly ambiguous
+post-stop states into explicit factual deviations and certified recovery
+attempts, but have not yet converted those seed-0 episodes into successes under
+the matched 520-step budget. These are development diagnostics, not a claimed
+performance improvement or a replacement for the planned 10×50 evaluation.
+
 ## Design documents
 
 - [Reproduction design](docs/superpowers/specs/2026-08-01-pi05-libero-long-reproduction-design.md)

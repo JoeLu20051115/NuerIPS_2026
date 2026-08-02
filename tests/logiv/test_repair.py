@@ -198,6 +198,57 @@ def test_task8_repair_rebinds_failed_branch_from_registered_recovery_surface() -
     )
 
 
+def test_task5_repair_rebinds_book_from_observed_wrong_compartment() -> None:
+    package, plan, _, _, certificate, graph = nominal(5)
+    target = "desk_caddy_1_back_contain_region"
+    wrong = "desk_caddy_1_front_contain_region"
+    locations = {
+        name for name, type_name in package.problem.object_types.items()
+        if type_name in {"surface", "relative-region", "container-region"}
+    }
+    problem = current_problem(
+        package.problem,
+        {
+            Fact("at", ("black_book_1", wrong)),
+            Fact("handempty"),
+            Fact("open", ("desk_caddy_1_access",)),
+            *{
+                Fact("accessible", (location, "desk_caddy_1_access"))
+                for location in locations if "contain_region" in location
+            },
+        },
+        {
+            Fact("holding", ("black_book_1",)),
+            Fact("closed", ("desk_caddy_1_access",)),
+            *{
+                Fact("at", ("black_book_1", location))
+                for location in locations if location != wrong
+            },
+        },
+    )
+    context = replace(
+        recovery_context(graph, certificate, epoch=59),
+        episode_id="episode-5",
+        goal_id=package.frozen_goal.goal_id,
+    )
+    operator = RepairOperator(
+        ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset({"place-in"}),
+        bounds=RepairBounds(max_edits=3, max_candidates=4096, max_val_calls=8),
+    )
+
+    result = operator.repair(problem, plan, context=context)
+
+    assert result.status is RepairStatus.CERTIFIED
+    assert len(result.plan) == 1
+    assert result.plan[0].arguments == (
+        "black_book_1",
+        wrong,
+        target,
+        "desk_caddy_1_access",
+    )
+
+
 def test_repair_dropped_bowl_rebuilds_pick_place_close() -> None:
     package, plan, _, _, certificate, graph = nominal(3)
     true_facts = {

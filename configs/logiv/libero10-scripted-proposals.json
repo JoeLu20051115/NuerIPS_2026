@@ -251,18 +251,29 @@
       "objects": [
         ["black_book_1", "movable"],
         ["study_table_black_book_init_region", "relative-region"],
+        ["study_table_recovery_surface", "surface"],
         ["desk_caddy_1_back_contain_region", "container-region"],
+        ["desk_caddy_1_front_contain_region", "container-region"],
+        ["desk_caddy_1_left_contain_region", "container-region"],
+        ["desk_caddy_1_right_contain_region", "container-region"],
         ["desk_caddy_1_access", "access"]
       ],
       "initial_true": [
         ["at", "black_book_1", "study_table_black_book_init_region"],
         ["handempty"],
         ["accessible", "desk_caddy_1_back_contain_region", "desk_caddy_1_access"],
+        ["accessible", "desk_caddy_1_front_contain_region", "desk_caddy_1_access"],
+        ["accessible", "desk_caddy_1_left_contain_region", "desk_caddy_1_access"],
+        ["accessible", "desk_caddy_1_right_contain_region", "desk_caddy_1_access"],
         ["open", "desk_caddy_1_access"]
       ],
       "initial_false": [
         ["holding", "black_book_1"],
+        ["at", "black_book_1", "study_table_recovery_surface"],
         ["at", "black_book_1", "desk_caddy_1_back_contain_region"],
+        ["at", "black_book_1", "desk_caddy_1_front_contain_region"],
+        ["at", "black_book_1", "desk_caddy_1_left_contain_region"],
+        ["at", "black_book_1", "desk_caddy_1_right_contain_region"],
         ["closed", "desk_caddy_1_access"]
       ],
       "official_goal": {
@@ -433,6 +444,7 @@
       "objects": [
         ["white_yellow_mug_1", "movable"],
         ["kitchen_table_white_yellow_mug_init_region", "relative-region"],
+        ["kitchen_table_recovery_surface", "surface"],
         ["microwave_1_heating_region", "container-region"],
         ["microwave_1_access", "access"]
       ],
@@ -444,6 +456,7 @@
       ],
       "initial_false": [
         ["holding", "white_yellow_mug_1"],
+        ["at", "white_yellow_mug_1", "kitchen_table_recovery_surface"],
         ["at", "white_yellow_mug_1", "microwave_1_heating_region"],
         ["closed", "microwave_1_access"]
       ],
