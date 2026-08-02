@@ -1174,6 +1174,20 @@ def test_v15_separates_shared_frontier_prompt_from_relational_single_action_prom
     assert "right" not in renderer.render(second)
 
 
+def test_v16_uses_canonical_primary_prompt_then_remaining_object_prompt() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v16.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert renderer.render_frontier(first) == (
+        "put the moka pot closest to the stove on the stove"
+    )
+    assert renderer.render_frontier(second) == renderer.render_frontier(first)
+    assert renderer.render(second) == "put the remaining moka pot on the stove"
+
+
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
