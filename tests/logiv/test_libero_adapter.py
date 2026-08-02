@@ -2388,3 +2388,48 @@ def test_v41_switches_only_task0_tomato_after_verified_holding() -> None:
     assert renderer.render_phase(tomato, "finish") == (
         "Put the tomato sauce can you are holding in the basket and release it."
     )
+
+
+def test_v44_names_task2_by_appearance_without_a_false_side() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v44-task2-visual-identity.json"
+    )
+    prior = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v41-task0-holding-phase.json"
+    )
+    provider = ScriptedProposalProvider()
+    task2 = provider.propose(2, epoch_id=0)
+    place = next(
+        item.action
+        for item in task2.proposal.candidate_subtasks
+        if item.action.schema == "place-on"
+    )
+
+    assert renderer.render(place) == (
+        "put the silver moka pot with the black handle on the stove; "
+        "do not move the frying pan"
+    )
+    for candidate in provider.propose(8, epoch_id=0).proposal.candidate_subtasks:
+        assert renderer.render(candidate.action) == prior.render(candidate.action)
+
+
+def test_v45_closes_task3_drawer_fully_without_changing_task2() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v45-task3-full-close.json"
+    )
+    prior = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v44-task2-visual-identity.json"
+    )
+    provider = ScriptedProposalProvider()
+    task3 = provider.propose(3, epoch_id=0)
+    close = next(
+        item.action
+        for item in task3.proposal.candidate_subtasks
+        if item.action.schema == "close-access"
+    )
+
+    assert renderer.render(close) == (
+        "Push the bottom drawer fully closed until its front is flush with the cabinet."
+    )
+    for candidate in provider.propose(2, epoch_id=0).proposal.candidate_subtasks:
+        assert renderer.render(candidate.action) == prior.render(candidate.action)

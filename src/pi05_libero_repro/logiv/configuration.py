@@ -32,7 +32,13 @@ def load_extended_json(
         _parents=_parents | {resolved_path},
     )
     overlay_tasks = payload.pop("tasks", None)
-    merged = {**parent, **payload}
+    merged = dict(parent)
+    for key, value in payload.items():
+        parent_value = parent.get(key)
+        if isinstance(parent_value, dict) and isinstance(value, dict):
+            merged[key] = {**parent_value, **value}
+        else:
+            merged[key] = value
     if overlay_tasks is None:
         return merged
     if not isinstance(overlay_tasks, list) or not all(

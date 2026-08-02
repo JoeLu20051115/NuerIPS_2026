@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import hashlib
-import json
 from pathlib import Path
 from typing import Mapping
 
+from pi05_libero_repro.logiv.configuration import (
+    load_extended_json,
+    resolved_json_sha256,
+)
 from pi05_libero_repro.logiv.model import GroundAction
 
 
@@ -26,8 +28,7 @@ class SubtaskPromptRenderer:
 
     def __init__(self, path: Path | str = DEFAULT_PROMPT_PATH) -> None:
         self.path = Path(path)
-        raw = self.path.read_bytes()
-        payload = json.loads(raw)
+        payload = load_extended_json(self.path)
         self.prompt_version = str(payload["prompt_version"])
         self.templates: Mapping[str, str] = payload["templates"]
         self.overrides: Mapping[str, str] = payload.get("action_overrides", {})
@@ -48,7 +49,7 @@ class SubtaskPromptRenderer:
         )
         self.labels: Mapping[str, str] = payload.get("labels", {})
         self.suffix = str(payload["suffix"])
-        self.config_hash = hashlib.sha256(raw).hexdigest()
+        self.config_hash = resolved_json_sha256(self.path)
         if not self.prompt_version or not self.suffix:
             raise PromptConfigurationError("prompt version and suffix must be nonempty")
 
