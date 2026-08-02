@@ -12,6 +12,18 @@
       },
       "goal_mode": "METADATA_ASSISTED",
       "method_arm": "FULL_LOGIV",
+      "operational": {
+        "episodes_with_repair": 1,
+        "mean_graph_installs": 1.2,
+        "mean_inference_requests": 58.5,
+        "mean_physical_attempts": 2.2,
+        "mean_repair_rounds": 0.2,
+        "mean_steps": 288.8,
+        "mean_total_val_calls": 1.3,
+        "mean_wall_seconds": 58.26397179933265,
+        "successful_episodes_with_repair": 0,
+        "successful_recovery_episode_rate": 0.0
+      },
       "overall": {
         "allocated": 10,
         "rate": 0.8,

@@ -28,6 +28,32 @@ def _stats(records) -> dict:
     }
 
 
+def _operational(records) -> dict:
+    records = list(records)
+    repaired = [item for item in records if item.repair_rounds > 0]
+    successful_repaired = sum(item.success for item in repaired)
+
+    def mean(field: str) -> float | None:
+        if not records:
+            return None
+        return sum(float(getattr(item, field)) for item in records) / len(records)
+
+    return {
+        "episodes_with_repair": len(repaired),
+        "successful_episodes_with_repair": successful_repaired,
+        "successful_recovery_episode_rate": (
+            successful_repaired / len(repaired) if repaired else None
+        ),
+        "mean_physical_attempts": mean("physical_attempts"),
+        "mean_repair_rounds": mean("repair_rounds"),
+        "mean_total_val_calls": mean("total_val_calls"),
+        "mean_graph_installs": mean("graph_installs"),
+        "mean_steps": mean("steps"),
+        "mean_inference_requests": mean("inference_requests"),
+        "mean_wall_seconds": mean("wall_seconds"),
+    }
+
+
 def _baseline_proxy(records) -> list[SimpleNamespace]:
     return [
         SimpleNamespace(
@@ -80,6 +106,7 @@ def build_report(
                 "deviation_mode": deviation_mode,
                 "method_arm": arm,
                 "overall": _stats(arm_records),
+                "operational": _operational(arm_records),
                 "tasks": tasks,
                 "failure_taxonomy": dict(
                     sorted(Counter(item.terminal_cause for item in arm_records if not item.success).items())
@@ -185,6 +212,26 @@ def render_markdown(report: dict) -> str:
                 f"| ↳ task {task['task_id']} |  |  | {task['successes']}/{task['allocated']} | "
                 f"[{task_interval[0]:.3f}, {task_interval[1]:.3f}] |"
             )
+    lines.extend(
+        [
+            "",
+            "## Runtime and recovery metrics",
+            "",
+            "| Method | Repaired episodes | Successful repaired episodes | Mean attempts | Mean repairs | Mean VAL calls | Mean steps | Mean wall time (s) |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for setting in report["settings"]:
+        operational = setting["operational"]
+        lines.append(
+            f"| {setting['method_arm']} | {operational['episodes_with_repair']} | "
+            f"{operational['successful_episodes_with_repair']} | "
+            f"{operational['mean_physical_attempts']:.2f} | "
+            f"{operational['mean_repair_rounds']:.2f} | "
+            f"{operational['mean_total_val_calls']:.2f} | "
+            f"{operational['mean_steps']:.2f} | "
+            f"{operational['mean_wall_seconds']:.2f} |"
+        )
     lines.extend(["", "## Paired task-stratified comparisons", ""])
     if not report["paired_comparisons"]:
         lines.append("No complete paired comparison is available yet.")

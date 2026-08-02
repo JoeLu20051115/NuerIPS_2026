@@ -175,3 +175,49 @@ def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
     comparison = report["paired_comparisons"][0]
     assert comparison["comparator"] == "BASE"
     assert comparison["estimate"] == pytest.approx(1.0)
+
+
+def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
+    recovered = replace(
+        _record(episode_idx=0, success=True),
+        physical_attempts=4,
+        repair_rounds=2,
+        total_val_calls=4,
+        graph_installs=3,
+        steps=100,
+        inference_requests=20,
+        wall_seconds=5.0,
+    )
+    failed = replace(
+        _record(episode_idx=1, success=False),
+        terminal_status="TERMINAL_NO_FURTHER_DISPATCH",
+        terminal_cause="BUDGET_EXHAUSTED",
+        evaluator_status="NOT_CALLED",
+        physical_attempts=6,
+        repair_rounds=1,
+        total_val_calls=3,
+        graph_installs=2,
+        steps=200,
+        inference_requests=40,
+        wall_seconds=15.0,
+    )
+
+    report = build_report(
+        [recovered, failed],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert operational == {
+        "episodes_with_repair": 2,
+        "successful_episodes_with_repair": 1,
+        "successful_recovery_episode_rate": 0.5,
+        "mean_physical_attempts": 5.0,
+        "mean_repair_rounds": 1.5,
+        "mean_total_val_calls": 3.5,
+        "mean_graph_installs": 2.5,
+        "mean_steps": 150.0,
+        "mean_inference_requests": 30.0,
+        "mean_wall_seconds": 10.0,
+    }

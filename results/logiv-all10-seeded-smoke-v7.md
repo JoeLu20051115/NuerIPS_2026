@@ -20,6 +20,12 @@ Allocated episode records: **10**; valid executions: **10**.
 | ↳ task 8 |  |  | 1/1 | [0.207, 1.000] |
 | ↳ task 9 |  |  | 0/1 | [0.000, 0.793] |
 
+## Runtime and recovery metrics
+
+| Method | Repaired episodes | Successful repaired episodes | Mean attempts | Mean repairs | Mean VAL calls | Mean steps | Mean wall time (s) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| FULL_LOGIV | 1 | 0 | 2.20 | 0.20 | 1.30 | 288.80 | 58.26 |
+
 ## Paired task-stratified comparisons
 
 No complete paired comparison is available yet.
