@@ -28,8 +28,13 @@ from pi05_libero_repro.logiv.val import ValidationStatus, ValWrapper
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
 
 
-def certified(task_id: int):
-    package = ScriptedProposalProvider().propose(task_id, epoch_id=41)
+def certified(task_id: int, fixture_path: Path | None = None):
+    provider = (
+        ScriptedProposalProvider(fixture_path)
+        if fixture_path is not None
+        else ScriptedProposalProvider()
+    )
+    package = provider.propose(task_id, epoch_id=41)
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     sidecar = json.dumps(
         [
@@ -89,6 +94,28 @@ def test_task8_dag_has_two_unordered_action_nodes_and_width_two() -> None:
     )
     assert schema_only.action_layer_width() == 2
     assert schema_only.certificate_hash != certificate.certificate_hash
+
+
+def test_v53_task6_tie_break_preserves_a_width_two_causal_dag() -> None:
+    fixture = (
+        Path(__file__).resolve().parents[2]
+        / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    )
+    package, plan, sidecar, context, certificate = certified(6, fixture)
+
+    graph = CausalDagCompiler(REAL_VAL, timeout_seconds=5.0).compile(
+        package.problem, plan, sidecar, certificate, context
+    )
+
+    assert [action.arguments[0] for action in plan] == [
+        "chocolate_pudding_1",
+        "porcelain_mug_1",
+    ]
+    assert graph.action_layer_width() == 2
+    assert graph.ready_action_ids(frozenset()) == graph.canonical_agenda
+    first, second = graph.canonical_agenda
+    assert graph.edge(first, second) is None
+    assert graph.edge(second, first) is None
 
 
 def test_task3_support_and_open_threat_create_real_place_before_close_edge() -> None:

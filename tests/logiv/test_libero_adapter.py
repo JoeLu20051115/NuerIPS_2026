@@ -219,6 +219,20 @@ def test_task5_wrong_compartment_is_a_grounded_recovery_location() -> None:
     assert Fact("handempty") in snapshot.true_facts
 
 
+def test_v53_task6_uses_a_safe_tie_break_without_removing_dag_independence() -> None:
+    provider = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    )
+    package = provider.propose(6, epoch_id=4)
+    actions = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert [action.arguments[0] for action in actions] == [
+        "chocolate_pudding_1",
+        "porcelain_mug_1",
+    ]
+    assert all(action.preconditions <= package.problem.initial_state for action in actions)
+
+
 def test_oracle_grounder_maps_relations_holding_and_exactly_one_location() -> None:
     env = FakeEnv()
     env.env.relations.update(
@@ -2496,3 +2510,21 @@ def test_v45_closes_task3_drawer_fully_without_changing_task2() -> None:
     )
     for candidate in provider.propose(2, epoch_id=0).proposal.candidate_subtasks:
         assert renderer.render(candidate.action) == prior.render(candidate.action)
+
+
+def test_v51_keeps_task9_downstream_context_without_skipping_gates() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v51-task9-context.json"
+    )
+    actions = [
+        item.action
+        for item in ScriptedProposalProvider()
+        .propose(9, epoch_id=0)
+        .proposal.candidate_subtasks
+    ]
+    place = next(action for action in actions if action.schema == "place-in")
+    close = next(action for action in actions if action.schema == "close-access")
+    task_prompt = "Put the yellow and white mug in the microwave and close it."
+
+    assert renderer.render_phase(place, "acquire") == task_prompt
+    assert renderer.render(close) == task_prompt
