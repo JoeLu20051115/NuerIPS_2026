@@ -11,6 +11,7 @@ from typing import Any, FrozenSet, Iterable, Mapping
 
 import numpy as np
 
+from pi05_libero_repro.logiv.configuration import load_extended_json
 from pi05_libero_repro.logiv.controller import (
     DispatchStart,
     DispatchStatus,
@@ -67,10 +68,11 @@ class TaskBinding:
     symbol_bindings: Mapping[str, Mapping[str, str]]
     supported_action_schemas: FrozenSet[str]
     recovery_schemas: FrozenSet[str]
+    decompose_macro_sources: FrozenSet[str]
 
     @classmethod
     def from_manifest(cls, path: Path | str, task_id: int) -> "TaskBinding":
-        payload = json.loads(Path(path).read_text())
+        payload = load_extended_json(path)
         tasks = payload.get("tasks", [])
         task_ids = [int(item["task_id"]) for item in tasks]
         if payload.get("frozen") is not True or task_ids != list(range(10)):
@@ -79,16 +81,21 @@ class TaskBinding:
             item = next(entry for entry in tasks if int(entry["task_id"]) == task_id)
         except StopIteration as error:
             raise ValueError(f"task {task_id} is outside the frozen manifest") from error
+        registered_objects = tuple(item["registered_objects"])
+        decompose_macro_sources = frozenset(item.get("decompose_macro_sources", ()))
+        if not decompose_macro_sources <= frozenset(registered_objects):
+            raise ValueError("decompose_macro_sources must be registered objects")
         return cls(
             task_id=task_id,
             frozen=True,
-            registered_objects=tuple(item["registered_objects"]),
+            registered_objects=registered_objects,
             symbol_bindings={
                 str(key): {str(k): str(v) for k, v in value.items()}
                 for key, value in item.get("symbol_bindings", {}).items()
             },
             supported_action_schemas=frozenset(item["supported_action_schemas"]),
             recovery_schemas=frozenset(item["recovery_schemas"]),
+            decompose_macro_sources=decompose_macro_sources,
         )
 
     def resolve(self, symbol: str) -> tuple[str, str | None]:
@@ -294,6 +301,110 @@ class LiberoOracleGrounder:
         near_tabletop = abs(bottom_height - float(workspace[2])) <= 0.04
         return TruthValue.TRUE if inside_xy and near_tabletop else TruthValue.FALSE
 
+    def _settling_tolerant_region_truth(
+        self, object_name: str, location: str
+    ) -> TruthValue:
+        """Confirm a nominal init site with 5 mm of simulator-settling tolerance."""
+
+        try:
+            parsed = self.inner.parsed_problem
+            initial_state = parsed["initial_state"]
+            support_name = str(parsed["regions"][location]["target"])
+            site = self.inner.object_sites_dict[location]
+            site_position = np.asarray(
+                self.inner.sim.data.get_site_xpos(location), dtype=np.float64
+            )
+            site_matrix = np.asarray(
+                self.inner.sim.data.get_site_xmat(location), dtype=np.float64
+            )
+            size = np.asarray(site.size, dtype=np.float64)
+            object_position = np.asarray(
+                self.inner.sim.data.body_xpos[self.inner.obj_body_id[object_name]],
+                dtype=np.float64,
+            )
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return TruthValue.UNKNOWN
+        nominal = any(
+            len(state) == 3
+            and str(state[0]).lower() == "on"
+            and str(state[1]) == object_name
+            and str(state[2]) == location
+            for state in initial_state
+        )
+        if not nominal or not support_name.endswith("table"):
+            return TruthValue.UNKNOWN
+        if (
+            site_position.shape != (3,)
+            or site_matrix.shape != (3, 3)
+            or size.shape != (3,)
+            or object_position.shape != (3,)
+            or not all(
+                np.isfinite(value).all()
+                for value in (site_position, site_matrix, size, object_position)
+            )
+        ):
+            return TruthValue.UNKNOWN
+        held = self._holding(object_name)
+        if held is TruthValue.TRUE:
+            return TruthValue.FALSE
+        if held is TruthValue.UNKNOWN:
+            return TruthValue.UNKNOWN
+        tolerance = 0.005
+        total_size = np.abs(site_matrix @ size)
+        delta = site_matrix @ (object_position - site_position)
+        inside_xy = bool(
+            np.all(np.abs(delta[:2]) <= total_size[:2] + tolerance)
+        )
+        above_site = bool(
+            total_size[2] - 0.005 - tolerance
+            < delta[2]
+            < total_size[2] + 0.10 + tolerance
+        )
+        return TruthValue.TRUE if inside_xy and above_site else TruthValue.FALSE
+
+    def _direct_location_truth(
+        self, object_name: str, location: str
+    ) -> TruthValue:
+        resolved, kind = self.binding.resolve(location)
+        direct = self._predicate(
+            [self._location_predicate(location), object_name, resolved]
+        )
+        if direct is TruthValue.TRUE or kind == "support_surface_alias":
+            return direct
+        tolerant = self._settling_tolerant_region_truth(object_name, location)
+        return TruthValue.TRUE if tolerant is TruthValue.TRUE else direct
+
+    def _workspace_support_truth(
+        self,
+        object_name: str,
+        support_name: str,
+        other_locations: Iterable[str],
+    ) -> TruthValue:
+        other_values = [
+            self._direct_location_truth(object_name, other)
+            for other in other_locations
+        ]
+        if any(value is TruthValue.TRUE for value in other_values):
+            return TruthValue.FALSE
+        broad = self._predicate(["on", object_name, support_name])
+        contact = self._support_contact(object_name, support_name)
+        geometry = self._support_geometry(object_name, support_name)
+        held = self._holding(object_name)
+        supported = (
+            TruthValue.TRUE
+            if TruthValue.TRUE in {broad, contact, geometry}
+            else TruthValue.FALSE
+            if all(value is TruthValue.FALSE for value in (broad, contact, geometry))
+            else TruthValue.UNKNOWN
+        )
+        if supported is TruthValue.TRUE and held is TruthValue.FALSE and all(
+            value is TruthValue.FALSE for value in other_values
+        ):
+            return TruthValue.TRUE
+        if supported is TruthValue.FALSE or held is TruthValue.TRUE:
+            return TruthValue.FALSE
+        return TruthValue.UNKNOWN
+
     def _switch_truth(self, resolved: str, *, powered_on: bool) -> TruthValue:
         """Use the raw joint and declared fixture ranges to close LIBERO's qpos==0 gap."""
 
@@ -322,48 +433,18 @@ class LiberoOracleGrounder:
         if predicate == "at":
             object_name, location = fact.arguments
             resolved, kind = self.binding.resolve(location)
+            other_locations = sorted(
+                candidate.arguments[1]
+                for candidate in self.monitored_facts
+                if candidate.predicate == "at"
+                and candidate.arguments[0] == object_name
+                and candidate.arguments[1] != location
+            )
             if kind == "support_surface_alias":
-                other_locations = sorted(
-                    candidate.arguments[1]
-                    for candidate in self.monitored_facts
-                    if candidate.predicate == "at"
-                    and candidate.arguments[0] == object_name
-                    and candidate.arguments[1] != location
+                return self._workspace_support_truth(
+                    object_name, resolved, other_locations
                 )
-                other_values = [
-                    self._predicate(
-                        [
-                            self._location_predicate(other),
-                            object_name,
-                            self.binding.resolve(other)[0],
-                        ]
-                    )
-                    for other in other_locations
-                ]
-                if any(value is TruthValue.TRUE for value in other_values):
-                    return TruthValue.FALSE
-                broad = self._predicate(["on", object_name, resolved])
-                contact = self._support_contact(object_name, resolved)
-                geometry = self._support_geometry(object_name, resolved)
-                held = self._holding(object_name)
-                supported = (
-                    TruthValue.TRUE
-                    if TruthValue.TRUE in {broad, contact, geometry}
-                    else TruthValue.FALSE
-                    if all(
-                        value is TruthValue.FALSE
-                        for value in (broad, contact, geometry)
-                    )
-                    else TruthValue.UNKNOWN
-                )
-                if supported is TruthValue.TRUE and held is TruthValue.FALSE and all(
-                    value is TruthValue.FALSE for value in other_values
-                ):
-                    return TruthValue.TRUE
-                if supported is TruthValue.FALSE or held is TruthValue.TRUE:
-                    return TruthValue.FALSE
-                return TruthValue.UNKNOWN
-            return self._predicate([self._location_predicate(location), object_name, resolved])
+            return self._direct_location_truth(object_name, location)
         if predicate == "holding":
             return self._holding(fact.arguments[0])
         if predicate == "open" or predicate == "closed":

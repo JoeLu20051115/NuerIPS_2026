@@ -22,6 +22,7 @@ from pi05_libero_repro.logiv.controller import (
     RuntimeBudgetLimits,
     RuntimeBudgetUsage,
 )
+from pi05_libero_repro.logiv.configuration import resolved_json_sha256
 from pi05_libero_repro.logiv.dag import CausalDagCompiler, CausalGraph, SchemaOnlyCausalDagCompiler
 from pi05_libero_repro.logiv.domain import render_domain_pddl, validate_state
 from pi05_libero_repro.logiv.evaluation import (
@@ -492,6 +493,7 @@ def _execute_symbolic_arm(
                 max_val_calls=args.max_repair_val_calls,
             ),
             retry_policy=policy,
+            decompose_macro_sources=binding.decompose_macro_sources,
         )
         graph = certified.graph
         certificate = certified.certificate
@@ -553,8 +555,8 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "simulator_rng_seed_derivation": "uint32(sha256('LOGIV-simulator-seed-v1:master:task:episode')[:4])",
         "simulator_env_lifecycle": "fresh-env-per-episode-v1",
         "terminal_evaluator_protocol": "post-settling-native-check-success-v1",
-        "proposal_config_sha256": _sha256_file(Path(args.proposal_config)),
-        "coverage_manifest_sha256": _sha256_file(Path(args.coverage_manifest)),
+        "proposal_config_sha256": resolved_json_sha256(args.proposal_config),
+        "coverage_manifest_sha256": resolved_json_sha256(args.coverage_manifest),
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
@@ -640,8 +642,8 @@ def evaluate(args: argparse.Namespace) -> int:
         raise ValueError("policy server does not support LOGIV episode RNG protocol v1")
     common_hashes = {
         "prompt_config_sha256": _sha256_file(Path(args.prompt_config)),
-        "proposal_config_sha256": _sha256_file(Path(args.proposal_config)),
-        "coverage_manifest_sha256": _sha256_file(Path(args.coverage_manifest)),
+        "proposal_config_sha256": resolved_json_sha256(args.proposal_config),
+        "coverage_manifest_sha256": resolved_json_sha256(args.coverage_manifest),
         "domain_sha256": _sha256_bytes(render_domain_pddl().encode("utf-8")),
     }
 

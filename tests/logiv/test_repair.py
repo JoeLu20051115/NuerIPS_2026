@@ -34,8 +34,9 @@ TASK3_SCHEMAS = frozenset(
 )
 
 
-def nominal(task_id: int):
-    package = ScriptedProposalProvider().propose(task_id, epoch_id=50)
+def nominal(task_id: int, fixture: Path | None = None):
+    provider = ScriptedProposalProvider(fixture) if fixture else ScriptedProposalProvider()
+    package = provider.propose(task_id, epoch_id=50)
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     sidecar = json.dumps(
         [
@@ -195,6 +196,65 @@ def test_task8_repair_rebinds_failed_branch_from_registered_recovery_surface() -
         "moka_pot_1",
         "kitchen_table_moka_pot_right_init_region",
         target,
+    )
+
+
+def test_task0_repair_rebinds_dropped_object_to_observed_table_surface() -> None:
+    fixture = (
+        Path(__file__).resolve().parents[2]
+        / "configs/logiv/libero10-scripted-proposals-v38-task0-recovery.json"
+    )
+    package, plan, _, _, certificate, graph = nominal(0, fixture)
+    target = "basket_1_contain_region"
+    access = "basket_1_access"
+    alphabet_source = "living_room_table_alphabet_soup_init_region"
+    tomato_source = "living_room_table_tomato_sauce_init_region"
+    recovery = "living_room_table_recovery_surface"
+    problem = current_problem(
+        package.problem,
+        {
+            Fact("at", ("alphabet_soup_1", target)),
+            Fact("at", ("tomato_sauce_1", recovery)),
+            Fact("handempty"),
+            Fact("accessible", (target, access)),
+            Fact("open", (access,)),
+        },
+        {
+            Fact("holding", ("alphabet_soup_1",)),
+            Fact("holding", ("tomato_sauce_1",)),
+            Fact("at", ("alphabet_soup_1", alphabet_source)),
+            Fact("at", ("alphabet_soup_1", tomato_source)),
+            Fact("at", ("alphabet_soup_1", recovery)),
+            Fact("at", ("tomato_sauce_1", alphabet_source)),
+            Fact("at", ("tomato_sauce_1", tomato_source)),
+            Fact("at", ("tomato_sauce_1", target)),
+            Fact("closed", (access,)),
+        },
+    )
+    context = replace(
+        recovery_context(graph, certificate, epoch=59),
+        episode_id="episode-0",
+        goal_id=package.frozen_goal.goal_id,
+    )
+    operator = RepairOperator(
+        ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset({"place-in", "pick", "put-down", "place-held-in"}),
+        bounds=RepairBounds(max_edits=3, max_candidates=4096, max_val_calls=8),
+        decompose_macro_sources=frozenset({recovery}),
+    )
+
+    result = operator.repair(problem, plan[1:], context=context)
+
+    assert result.status is RepairStatus.CERTIFIED
+    assert [action.schema for action in result.plan] == ["pick", "place-held-in"]
+    assert result.plan[0].arguments == (
+        "tomato_sauce_1",
+        recovery,
+    )
+    assert result.plan[1].arguments == (
+        "tomato_sauce_1",
+        target,
+        access,
     )
 
 

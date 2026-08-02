@@ -147,6 +147,50 @@ def _grounder(env: FakeEnv):
     return package, store, grounder
 
 
+def test_task_binding_accepts_a_task_scoped_extended_manifest(tmp_path: Path) -> None:
+    source = "living_room_table_recovery_surface"
+    overlay = tmp_path / "coverage-overlay.json"
+    overlay.write_text(
+        json.dumps(
+            {
+                "extends": str(
+                    (ROOT / "configs/logiv/libero10-coverage.json").resolve()
+                ),
+                "tasks": [
+                    {
+                        "task_id": 0,
+                        "registered_objects": [
+                            "alphabet_soup_1",
+                            "tomato_sauce_1",
+                            source,
+                            "basket_1_contain_region",
+                            "basket_1_access",
+                        ],
+                        "symbol_bindings": {
+                            source: {
+                                "libero_id": "living_room_table",
+                                "kind": "support_surface_alias",
+                            },
+                            "basket_1_access": {
+                                "libero_id": "basket_1_contain_region",
+                                "kind": "always_open_access",
+                            },
+                        },
+                        "decompose_macro_sources": [source],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    binding = TaskBinding.from_manifest(overlay, 0)
+
+    assert binding.resolve(source) == ("living_room_table", "support_surface_alias")
+    assert binding.supported_action_schemas == frozenset({"place-in"})
+    assert binding.decompose_macro_sources == frozenset({source})
+
+
 def test_task5_wrong_compartment_is_a_grounded_recovery_location() -> None:
     env = FakeEnv()
     package = ScriptedProposalProvider().propose(5, epoch_id=4)
@@ -374,6 +418,106 @@ def test_oracle_grounder_uses_workspace_geometry_when_table_contact_is_missing()
     assert response.status is GroundingStatus.OK
     assert response.snapshot is not None
     assert Fact("at", ("moka_pot_2", "kitchen_table_recovery_surface")) in (
+        response.snapshot.true_facts
+    )
+
+
+def _task0_grounding_after_alphabet_shift(alphabet_x: float):
+    env = FakeEnv()
+    env.env.objects_dict.update(
+        {
+            "alphabet_soup_1": FakeObject("alphabet_soup_1"),
+            "tomato_sauce_1": FakeObject("tomato_sauce_1"),
+        }
+    )
+    alphabet_source = "living_room_table_alphabet_soup_init_region"
+    tomato_source = "living_room_table_tomato_sauce_init_region"
+    target = "basket_1_contain_region"
+    env.env.relations.update(
+        {
+            ("on", "alphabet_soup_1", alphabet_source): False,
+            ("on", "alphabet_soup_1", tomato_source): False,
+            ("in", "alphabet_soup_1", target): False,
+            ("on", "tomato_sauce_1", alphabet_source): False,
+            ("on", "tomato_sauce_1", tomato_source): True,
+            ("in", "tomato_sauce_1", target): False,
+        }
+    )
+    env.env.parsed_problem = {
+        "initial_state": [
+            ["on", "alphabet_soup_1", alphabet_source],
+            ["on", "tomato_sauce_1", tomato_source],
+        ],
+        "regions": {
+            alphabet_source: {"target": "living_room_table"},
+            tomato_source: {"target": "living_room_table"},
+        },
+    }
+    env.env.get_object = lambda name: env.env.objects_dict.get(name)
+    env.env.object_sites_dict = {
+        alphabet_source: SimpleNamespace(size=np.array([0.025, 0.025, 0.007])),
+        tomato_source: SimpleNamespace(size=np.array([0.025, 0.025, 0.007])),
+    }
+    env.env.obj_body_id = {"alphabet_soup_1": 0, "tomato_sauce_1": 1}
+    env.env.workspace_offset = np.array([0.0, 0.0, 0.9])
+    env.env.living_room_table_full_size = (1.0, 1.2, 0.05)
+    geom_names = ("alphabet_soup_1_geom", "tomato_sauce_1_geom")
+    env.env.sim = SimpleNamespace(
+        model=SimpleNamespace(
+            ngeom=len(geom_names),
+            geom_name2id=lambda name: geom_names.index(name),
+            geom_id2name=lambda index: geom_names[index],
+        ),
+        data=SimpleNamespace(
+            ncon=0,
+            contact=[],
+            body_xpos=np.array([[alphabet_x, 0.0, 0.95], [-0.08, 0.05, 0.95]]),
+            get_site_xpos=lambda name: np.array([0.0, 0.0, 0.9]),
+            get_site_xmat=lambda name: np.eye(3),
+        ),
+    )
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v38-task0-recovery.json"
+    ).propose(0, epoch_id=4)
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage-v38-task0-recovery.json", 0
+    )
+    grounder = LiberoOracleGrounder(
+        env,
+        LiberoObservationStore(dict(env.obs), epoch_id=4),
+        binding,
+        monitored_fact_universe(package.problem),
+    )
+
+    return grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS,
+        _context(),
+        monitored_fact_universe(package.problem),
+    )
+
+
+def test_oracle_grounder_tolerates_millimetric_init_region_settling() -> None:
+    response = _task0_grounding_after_alphabet_shift(0.026)
+
+    assert response.status is GroundingStatus.OK
+    assert response.snapshot is not None
+    assert Fact(
+        "at",
+        ("alphabet_soup_1", "living_room_table_alphabet_soup_init_region"),
+    ) in response.snapshot.true_facts
+    assert Fact(
+        "at", ("alphabet_soup_1", "living_room_table_recovery_surface")
+    ) in response.snapshot.false_facts
+
+
+def test_oracle_grounder_distinguishes_far_drop_as_recovery_surface() -> None:
+    response = _task0_grounding_after_alphabet_shift(0.2)
+
+    assert response.status is GroundingStatus.OK
+    assert response.snapshot is not None
+    assert Fact(
+        "at", ("alphabet_soup_1", "living_room_table_recovery_surface")
+    ) in (
         response.snapshot.true_facts
     )
 
@@ -2224,3 +2368,23 @@ def test_manifest_is_frozen_and_prompt_configuration_is_valid_json() -> None:
     assert binding.frozen is True
     assert prompt_payload["prompt_version"] == "pi05-subtasks-v1"
     assert set(FixedDomain().schemas) <= set(prompt_payload["templates"])
+
+
+def test_v41_switches_only_task0_tomato_after_verified_holding() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v41-task0-holding-phase.json"
+    )
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v38-task0-recovery.json"
+    ).propose(0, epoch_id=0)
+    alphabet, tomato = [
+        item.action for item in package.proposal.candidate_subtasks
+    ]
+
+    assert not renderer.has_phase(alphabet, "finish")
+    assert renderer.render_phase(tomato, "acquire") == (
+        "Pick up the tomato sauce can."
+    )
+    assert renderer.render_phase(tomato, "finish") == (
+        "Put the tomato sauce can you are holding in the basket and release it."
+    )

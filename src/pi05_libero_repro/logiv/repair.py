@@ -386,11 +386,13 @@ class RepairOperator:
         allowed_schemas: FrozenSet[str],
         bounds: RepairBounds,
         retry_policy: RetryPolicy | None = None,
+        decompose_macro_sources: FrozenSet[str] = frozenset(),
     ) -> None:
         self.val_wrapper = val_wrapper
         self.allowed_schemas = allowed_schemas
         self.bounds = bounds
         self.retry_policy = retry_policy or RetryPolicy(max_retries_per_lineage=1)
+        self.decompose_macro_sources = decompose_macro_sources
 
     def _catalog(self, problem: TaskProblem) -> Tuple[GroundAction, ...]:
         domain = FixedDomain()
@@ -403,9 +405,15 @@ class RepairOperator:
             schema = domain.schemas[schema_name]
             for arguments in product(names, repeat=len(schema.parameters)):
                 try:
-                    actions.add(domain.ground(problem, schema_name, arguments))
+                    action = domain.ground(problem, schema_name, arguments)
                 except DomainError:
                     continue
+                if (
+                    schema_name in {"place-in", "place-on", "place-relative"}
+                    and action.arguments[1] in self.decompose_macro_sources
+                ):
+                    continue
+                actions.add(action)
         return tuple(sorted(actions, key=lambda action: action.pddl()))
 
     def _sidecar(

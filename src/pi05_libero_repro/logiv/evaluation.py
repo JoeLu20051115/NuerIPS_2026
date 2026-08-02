@@ -111,6 +111,7 @@ def certify_initial_package(
     allowed_schemas: FrozenSet[str],
     repair_bounds: RepairBounds,
     retry_policy: RetryPolicy | None = None,
+    decompose_macro_sources: FrozenSet[str] = frozenset(),
 ) -> CertifiedEpisode:
     proposal = package.proposal
     if grounded_snapshot.epoch_id != proposal.epoch_id:
@@ -146,6 +147,7 @@ def certify_initial_package(
         allowed_schemas=allowed_schemas,
         bounds=repair_bounds,
         retry_policy=policy,
+        decompose_macro_sources=decompose_macro_sources,
     )
     lineage_roots = {
         item.action.retry_key: item.lineage_root for item in proposal.candidate_subtasks

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pi05_libero_repro.logiv.domain import FixedDomain, apply_action
+from pi05_libero_repro.logiv.configuration import resolved_json_sha256
 from pi05_libero_repro.logiv.model import Fact, GoalMode
 from pi05_libero_repro.logiv.proposal import (
     ProposalError,
@@ -72,6 +73,65 @@ def test_task5_macro_ablation_keeps_the_official_instruction_atomic() -> None:
     assert package.proposal.candidate_subtasks[0].instruction == (
         "Pick up the black book and place it in the back compartment of the desk caddy."
     )
+
+
+def test_extended_proposal_config_adds_distinct_task0_recovery_location(
+    tmp_path: Path,
+) -> None:
+    source = "living_room_table_recovery_surface"
+    base = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    task = base["tasks"][0]
+    task["objects"].append([source, "surface"])
+    task["initial_false"].extend(
+        ["at", object_name, source]
+        for object_name in ("alphabet_soup_1", "tomato_sauce_1")
+    )
+    overlay = tmp_path / "proposal-overlay.json"
+    overlay.write_text(
+        json.dumps(
+            {
+                "extends": str(FIXTURE.resolve()),
+                "tasks": [
+                    {
+                        key: task[key]
+                        for key in (
+                            "task_id",
+                            "objects",
+                            "initial_true",
+                            "initial_false",
+                            "candidate_subtasks",
+                        )
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    package = ScriptedProposalProvider(overlay).propose(task_id=0, epoch_id=0)
+
+    assert source in package.problem.object_types
+    assert Fact("at", ("alphabet_soup_1", source)) in package.problem.initial_false
+    assert Fact("at", ("tomato_sauce_1", source)) in package.problem.initial_false
+    assert [candidate.action.arguments[1] for candidate in package.proposal.candidate_subtasks] == [
+        "living_room_table_alphabet_soup_init_region",
+        "living_room_table_tomato_sauce_init_region",
+    ]
+
+
+def test_extended_config_fingerprint_binds_parent_content(tmp_path: Path) -> None:
+    parent = tmp_path / "parent.json"
+    overlay = tmp_path / "overlay.json"
+    parent.write_text('{"tasks":[{"task_id":0,"value":1}]}', encoding="utf-8")
+    overlay.write_text(
+        '{"extends":"parent.json","tasks":[{"task_id":0,"extra":2}]}',
+        encoding="utf-8",
+    )
+    original = resolved_json_sha256(overlay)
+
+    parent.write_text('{"tasks":[{"task_id":0,"value":3}]}', encoding="utf-8")
+
+    assert resolved_json_sha256(overlay) != original
 
 
 def test_writer_outputs_auditable_consistent_artifacts(tmp_path: Path) -> None:

@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pi05_libero_repro.logiv.dag import SchemaOnlyCausalDagCompiler
+from pi05_libero_repro.logiv.configuration import resolved_json_sha256
 from pi05_libero_repro.logiv.evaluation import (
     EvaluationContract,
     EvaluationContractError,
@@ -22,6 +23,7 @@ from scripts.eval_logiv_libero import (
     _base_physical_attempts,
     _parser,
     _replace_episode_environment,
+    _run_config,
 )
 
 
@@ -52,6 +54,44 @@ def test_evaluator_accepts_run_scoped_proposal_and_coverage_configs() -> None:
 
     assert args.proposal_config == Path("/tmp/proposals.json")
     assert args.coverage_manifest == Path("/tmp/coverage.json")
+
+
+def test_run_config_hashes_resolved_extended_configs(tmp_path: Path) -> None:
+    proposal = tmp_path / "proposal.json"
+    coverage = tmp_path / "coverage.json"
+    proposal.write_text(
+        '{"extends":"' + str(Path("configs/logiv/libero10-scripted-proposals.json").resolve()) + '"}',
+        encoding="utf-8",
+    )
+    coverage.write_text(
+        '{"extends":"' + str(Path("configs/logiv/libero10-coverage.json").resolve()) + '"}',
+        encoding="utf-8",
+    )
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "resolved-config-hash",
+            "--method-arm",
+            "BASE",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--port",
+            "8010",
+            "--output-dir",
+            str(tmp_path / "output"),
+            "--proposal-config",
+            str(proposal),
+            "--coverage-manifest",
+            str(coverage),
+        ]
+    )
+
+    config = _run_config(args, (0,), (0,))
+
+    assert config["proposal_config_sha256"] == resolved_json_sha256(proposal)
+    assert config["coverage_manifest_sha256"] == resolved_json_sha256(coverage)
 
 
 def test_base_rollout_is_one_physical_attempt_not_one_attempt_per_control_step() -> None:
@@ -123,6 +163,7 @@ def test_initial_certification_preserves_task8_parallel_graph() -> None:
         val_wrapper=wrapper,
         allowed_schemas=frozenset({"pick", "put-down", "place-on", "place-held-on"}),
         repair_bounds=bounds,
+        decompose_macro_sources=frozenset({"kitchen_table_recovery_surface"}),
     )
 
     assert certified.graph.action_layer_width() == 2
@@ -130,6 +171,9 @@ def test_initial_certification_preserves_task8_parallel_graph() -> None:
     assert certified.graph.edge(first, second) is None
     assert certified.graph.edge(second, first) is None
     assert certified.certificate.certificate_hash == certified.graph.certificate_hash
+    assert certified.repair_operator.decompose_macro_sources == frozenset(
+        {"kitchen_table_recovery_surface"}
+    )
 
 
 def test_schema_only_arm_never_reuses_full_certificate() -> None:

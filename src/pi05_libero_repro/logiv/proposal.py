@@ -12,6 +12,7 @@ from pi05_libero_repro.logiv.domain import (
     render_problem_pddl,
     validate_state,
 )
+from pi05_libero_repro.logiv.configuration import load_extended_json
 from pi05_libero_repro.logiv.model import (
     CandidateSubtask,
     Fact,
@@ -71,8 +72,8 @@ class ScriptedProposalProvider:
     def __init__(self, fixture_path: Path | str = DEFAULT_FIXTURE) -> None:
         self.fixture_path = Path(fixture_path)
         try:
-            payload = json.loads(self.fixture_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
+            payload = load_extended_json(self.fixture_path)
+        except (OSError, json.JSONDecodeError, ValueError) as error:
             raise ProposalError(f"cannot load proposal fixture: {error}") from error
         if payload.get("schema_version") != 1:
             raise ProposalError("unsupported proposal fixture schema_version")
