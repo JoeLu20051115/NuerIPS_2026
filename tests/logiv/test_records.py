@@ -243,6 +243,7 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
     )
     operational = report["settings"][0]["operational"]
 
+    assert report["schema_version"] == 2
     assert operational == {
         "episodes_with_repair": 2,
         "successful_episodes_with_repair": 1,
@@ -273,10 +274,15 @@ def test_report_marks_schema1_gate_metrics_as_unavailable() -> None:
     )
     operational = report["settings"][0]["operational"]
 
+    assert report["protocol"] == {
+        "development_only_records": 1,
+        "oracle_grounding_records": 1,
+    }
     assert operational["instrumented_records"] == 0
     assert operational["committed_receipts"] is None
     assert operational["effect_gate_rejections"] is None
     assert operational["effect_failure_per_attempt"] is None
-    assert "| FULL_LOGIV | 0 | — | — | — | — | — | — |" in render_markdown(
-        report
-    )
+    markdown = render_markdown(report)
+    assert "Development-only records: **1/1**" in markdown
+    assert "oracle-grounded records: **1/1**" in markdown
+    assert "| FULL_LOGIV | 0 | — | — | — | — | — | — |" in markdown

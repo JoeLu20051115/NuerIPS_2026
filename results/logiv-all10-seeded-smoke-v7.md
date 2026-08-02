@@ -1,8 +1,8 @@
 # LOGIV LIBERO-10 Results
 
-> **Development smoke test only.** This is one episode per task with Scripted-VLM/oracle fact grounding, not the preregistered 50-episode experiment and not evidence of a population-level improvement.
-
 Allocated episode records: **10**; valid executions: **10**.
+
+> Development-only records: **10/10**; oracle-grounded records: **10/10**. These records are not API-VLM or preregistered holdout evidence.
 
 | Goal mode | Deviation | Method | Success | 95% Wilson interval |
 | --- | --- | --- | ---: | ---: |

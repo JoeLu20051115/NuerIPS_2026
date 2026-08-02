@@ -204,9 +204,17 @@ def build_report(
                     }
                 )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "records": len(reported_records),
         "valid_records": sum(item.valid for item in reported_records),
+        "protocol": {
+            "development_only_records": sum(
+                item.development_only for item in reported_records
+            ),
+            "oracle_grounding_records": sum(
+                item.oracle_grounding for item in reported_records
+            ),
+        },
         "errors": errors,
         "settings": settings,
         "paired_comparisons": comparisons,
@@ -221,10 +229,29 @@ def render_markdown(report: dict) -> str:
         "# LOGIV LIBERO-10 Results",
         "",
         f"Allocated episode records: **{report['records']}**; valid executions: **{report['valid_records']}**.",
-        "",
-        "| Goal mode | Deviation | Method | Success | 95% Wilson interval |",
-        "| --- | --- | --- | ---: | ---: |",
     ]
+    protocol = report["protocol"]
+    if (
+        protocol["development_only_records"]
+        or protocol["oracle_grounding_records"]
+    ):
+        lines.extend(
+            [
+                "",
+                "> Development-only records: "
+                f"**{protocol['development_only_records']}/{report['records']}**; "
+                "oracle-grounded records: "
+                f"**{protocol['oracle_grounding_records']}/{report['records']}**. "
+                "These records are not API-VLM or preregistered holdout evidence.",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "| Goal mode | Deviation | Method | Success | 95% Wilson interval |",
+            "| --- | --- | --- | ---: | ---: |",
+        ]
+    )
     for setting in report["settings"]:
         stats = setting["overall"]
         interval = stats["wilson_95"]
