@@ -375,6 +375,10 @@ def paired_task_stratified_bootstrap(
         left, right = full[key], comparator[key]
         if left.init_state_sha256 != right.init_state_sha256:
             raise ValueError(f"paired initial-state hash mismatch: {key}")
+        if hasattr(left, "first_frame_sha256") and hasattr(
+            right, "first_frame_sha256"
+        ) and left.first_frame_sha256 != right.first_frame_sha256:
+            raise ValueError(f"paired first-frame hash mismatch: {key}")
         by_task.setdefault(key[0], []).append(float(left.success) - float(right.success))
     estimate = float(np.mean([np.mean(values) for values in by_task.values()]))
     generator = np.random.default_rng(seed)
