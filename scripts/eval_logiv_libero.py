@@ -378,6 +378,7 @@ def _execute_symbolic_arm(
         replan_steps=args.replan_steps,
         max_action_steps=args.max_action_steps,
         settling_steps=args.settling_steps,
+        effect_confirmation_steps=args.effect_confirmation_steps,
         stop_on_effects=arm is not MethodArm.STAGE_ONLY,
         max_total_action_steps=args.base_max_steps,
     )
@@ -488,7 +489,7 @@ def _execute_symbolic_arm(
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
     return {
-        "schema_version": 3,
+        "schema_version": 4,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -509,6 +510,7 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "max_action_steps": args.max_action_steps,
         "max_total_action_steps": args.base_max_steps,
         "settling_steps": args.settling_steps,
+        "effect_confirmation_steps": args.effect_confirmation_steps,
         "max_physical_attempts": args.max_physical_attempts,
         "max_repair_rounds": args.max_repair_rounds,
         "max_total_val_calls": args.max_total_val_calls,
@@ -907,6 +909,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-action-steps", default=260, type=int)
     parser.add_argument("--base-max-steps", default=520, type=int)
     parser.add_argument("--settling-steps", default=10, type=int)
+    parser.add_argument("--effect-confirmation-steps", default=5, type=int)
     parser.add_argument("--video-fps", default=10, type=int)
     parser.add_argument("--watchdog-seconds", default=60.0, type=float)
     parser.add_argument("--action-limit", default=1.1, type=float)

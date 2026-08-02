@@ -643,10 +643,16 @@ class Pi05MacroExecutor:
         replan_steps: int,
         max_action_steps: int,
         settling_steps: int,
+        effect_confirmation_steps: int = 1,
         stop_on_effects: bool = True,
         max_total_action_steps: int | None = None,
     ) -> None:
-        if replan_steps <= 0 or max_action_steps <= 0 or settling_steps < 0:
+        if (
+            replan_steps <= 0
+            or max_action_steps <= 0
+            or settling_steps < 0
+            or effect_confirmation_steps <= 0
+        ):
             raise ValueError("invalid executor bounds")
         self.env = env
         self.client = client
@@ -658,6 +664,7 @@ class Pi05MacroExecutor:
         self.replan_steps = replan_steps
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
+        self.effect_confirmation_steps = effect_confirmation_steps
         self.stop_on_effects = bool(stop_on_effects)
         self.max_total_action_steps = (
             max_action_steps if max_total_action_steps is None else max_total_action_steps
@@ -753,6 +760,7 @@ class Pi05MacroExecutor:
         detector_start = self.grounder.detector_calls
         phase_flushed = 0
         phase = "acquire"
+        confirmed_effect_steps = 0
         prompt = self.prompt_renderer.render_phase(queued.action, phase)
         prompt_history = [prompt]
         place_schemas = {
@@ -818,9 +826,13 @@ class Pi05MacroExecutor:
                         self.grounder.observe_action_progress(queued.action)
                     )
                     if effects_satisfied:
-                        reason = "observed declared effects"
-                        break
-                    if target_diverged:
+                        confirmed_effect_steps += 1
+                        if confirmed_effect_steps >= self.effect_confirmation_steps:
+                            reason = "observed declared effects"
+                            break
+                    else:
+                        confirmed_effect_steps = 0
+                    if not effects_satisfied and target_diverged:
                         reason = "observed target-location divergence"
                         break
                 if self.prompt_renderer.has_phase(queued.action, "finish"):

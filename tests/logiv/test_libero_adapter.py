@@ -725,6 +725,59 @@ def test_v9_recovery_pick_and_microwave_phase_prompts_are_explicit() -> None:
     )
 
 
+def test_v10_task8_recovery_prompt_targets_only_the_failed_branch() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v10.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    problem = package.problem
+    domain = FixedDomain()
+    nominal = [item.action for item in package.proposal.candidate_subtasks]
+    nearer = domain.ground(
+        problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    remaining = domain.ground(
+        problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert [renderer.render(action) for action in nominal] == [
+        "Put both moka pots on the stove.",
+        "Put both moka pots on the stove.",
+    ]
+    assert renderer.render_phase(nominal[0], "acquire") == (
+        "Put both moka pots on the stove."
+    )
+    assert renderer.render_phase(nominal[1], "acquire") == (
+        "Pick up the remaining moka pot that is not on the stove."
+    )
+    assert renderer.render_phase(nominal[1], "finish") == (
+        "Put the moka pot you are holding on the stove and release it, then stop."
+    )
+    assert renderer.render_phase(nearer, "acquire") == (
+        "Pick up the moka pot closest to the stove."
+    )
+    assert renderer.render_phase(remaining, "acquire") == (
+        "Pick up the remaining moka pot that is not on the stove."
+    )
+    for action in (nearer, remaining):
+        assert renderer.render_phase(action, "finish") == (
+            "Put the moka pot you are holding on the stove and release it, then stop."
+        )
+        assert "both" not in renderer.render_phase(action, "acquire").lower()
+
+
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
@@ -789,6 +842,66 @@ def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -
     assert outcome.reason == "observed declared effects"
     assert len(executor.results[0].actions) == 2
     assert len(executor.results[0].prompt_history) == 2
+
+
+def test_effect_gated_macro_requires_consecutive_confirmation_before_stop() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    source, target = action.arguments[1:]
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source): True,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def transition(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            env.env.relations[("on", "moka_pot_1", target)] = True
+        elif step == 2:
+            env.env.relations[("on", "moka_pot_1", target)] = False
+            env.env.held.add("moka_pot_1")
+        elif step == 3:
+            env.env.held.remove("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", target)] = True
+
+    env.step_hook = transition
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient(
+            [np.zeros((1, 7), dtype=np.float64) for _ in range(4)]
+        ),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+        effect_confirmation_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.reason == "observed declared effects"
+    assert len(executor.results[0].actions) == 4
 
 
 def test_episode_action_budget_rejects_before_creating_another_attempt() -> None:

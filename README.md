@@ -268,6 +268,15 @@ attempts, but have not yet converted those seed-0 episodes into successes under
 the matched 520-step budget. These are development diagnostics, not a claimed
 performance improvement or a replacement for the planned 10×50 evaluation.
 
+The task-8 v10 development regression adds five-step consecutive effect
+confirmation before a macro requests `STOPPED`, plus branch-specific recovery
+prompts. On five post-selected v7 failure seeds it records 1/5 external success
+versus 0/5 in v7; the recovered seed uses two certified repair rounds. This is
+stored in `results/logiv-task8-v10-stable-recovery-hard5.json`. The initial-state
+hashes match, but first-frame pixel hashes do not all match across the historical
+runs, so this is evidence that one known failure was repaired, not a valid paired
+performance estimate. The fresh post-stop effect gate remains unchanged.
+
 ## Design documents
 
 - [Reproduction design](docs/superpowers/specs/2026-08-01-pi05-libero-long-reproduction-design.md)
