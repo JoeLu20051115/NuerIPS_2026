@@ -2250,6 +2250,69 @@ def test_effect_gated_macro_requires_consecutive_confirmation_before_stop() -> N
     assert len(executor.results[0].actions) == 4
 
 
+def test_close_access_stabilization_recovers_from_rebound_before_stop() -> None:
+    env = FakeEnv()
+    package = ScriptedProposalProvider().propose(3, epoch_id=4)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.schema == "close-access"
+    )
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+
+    class ReboundingGrounder:
+        detector_calls = 0
+
+        def __init__(self) -> None:
+            self.progress = iter(
+                [
+                    (True, True, False),
+                    (False, False, False),
+                    (True, True, False),
+                    (True, True, False),
+                    (True, True, False),
+                ]
+            )
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return next(self.progress)
+
+        def peek_snapshot(self):
+            return package.proposal.initial_snapshot
+
+    grounder = ReboundingGrounder()
+    policy_action = np.full((1, 7), 0.1, dtype=np.float64)
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([policy_action, policy_action]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=5,
+        max_total_action_steps=5,
+        settling_steps=0,
+        effect_confirmation_steps=1,
+        access_effect_stabilization_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed stabilized declared effects"
+    assert len(executor.results[-1].actions) == 5
+    for index in (1, 3, 4):
+        hold = executor.results[-1].actions[index]
+        assert np.allclose(hold[:6], 0.0)
+        assert hold[-1] == pytest.approx(0.1)
+
+
 def test_episode_action_budget_rejects_before_creating_another_attempt() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)

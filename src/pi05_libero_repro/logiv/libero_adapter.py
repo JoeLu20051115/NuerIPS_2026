@@ -772,6 +772,7 @@ class Pi05MacroExecutor:
         max_action_steps: int,
         settling_steps: int,
         effect_confirmation_steps: int = 1,
+        access_effect_stabilization_steps: int = 0,
         target_divergence_confirmation_steps: int | None = None,
         frontier_followup_steps: int | None = None,
         frontier_completion_followup_steps: int | None = None,
@@ -787,6 +788,7 @@ class Pi05MacroExecutor:
             or max_action_steps <= 0
             or settling_steps < 0
             or effect_confirmation_steps <= 0
+            or access_effect_stabilization_steps < 0
             or (
                 target_divergence_confirmation_steps is not None
                 and target_divergence_confirmation_steps <= 0
@@ -822,6 +824,7 @@ class Pi05MacroExecutor:
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
         self.effect_confirmation_steps = effect_confirmation_steps
+        self.access_effect_stabilization_steps = access_effect_stabilization_steps
         self.target_divergence_confirmation_steps = (
             effect_confirmation_steps
             if target_divergence_confirmation_steps is None
@@ -996,6 +999,8 @@ class Pi05MacroExecutor:
         phase_flushed = 0
         phase = "acquire"
         confirmed_effect_steps = 0
+        stabilized_effect_steps = 0
+        effect_stabilizing = False
         confirmed_divergence_steps = 0
         primary_effect_streak = 0
         primary_effect_first_step = None
@@ -1028,7 +1033,10 @@ class Pi05MacroExecutor:
                 _, observation, _ = self.store.read()
                 element, main_image = prepare_observation(observation, prompt, self.image_tools)
                 frames.append(main_image)
-                if not action_queue:
+                if effect_stabilizing:
+                    low_level_action = np.zeros(7, dtype=np.float64)
+                    low_level_action[-1] = self._last_gripper_command
+                elif not action_queue:
                     response = self.client.infer(element)
                     inference_requests += 1
                     chunk = np.asarray(response["actions"], dtype=np.float64)
@@ -1058,7 +1066,8 @@ class Pi05MacroExecutor:
                         )
                     action_queue.extend(np.asarray(row, dtype=np.float64) for row in selected)
 
-                low_level_action = action_queue.popleft()
+                if not effect_stabilizing:
+                    low_level_action = action_queue.popleft()
                 if not self.safety.validate_action(low_level_action):
                     raise EpisodeInvalid("queued policy action failed safety recheck")
                 self._last_gripper_command = float(low_level_action[-1])
@@ -1080,9 +1089,32 @@ class Pi05MacroExecutor:
                             primary_effect_first_step = len(actions)
                     else:
                         primary_effect_streak = 0
+                    if effect_stabilizing:
+                        if effects_satisfied:
+                            stabilized_effect_steps += 1
+                            if (
+                                stabilized_effect_steps
+                                >= self.access_effect_stabilization_steps
+                            ):
+                                reason = "observed stabilized declared effects"
+                                break
+                        else:
+                            effect_stabilizing = False
+                            stabilized_effect_steps = 0
+                            confirmed_effect_steps = 0
+                        continue
                     if effects_satisfied:
                         confirmed_effect_steps += 1
                         if confirmed_effect_steps >= self.effect_confirmation_steps:
+                            if (
+                                queued.action.schema == "close-access"
+                                and self.access_effect_stabilization_steps > 0
+                            ):
+                                effect_stabilizing = True
+                                stabilized_effect_steps = 0
+                                phase_flushed += len(action_queue)
+                                action_queue.clear()
+                                continue
                             reason = (
                                 "observed frontier effects"
                                 if queued.completion_mode == "DAG_FRONTIER"

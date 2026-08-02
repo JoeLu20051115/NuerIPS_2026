@@ -412,6 +412,7 @@ def _execute_symbolic_arm(
         max_action_steps=args.max_action_steps,
         settling_steps=args.settling_steps,
         effect_confirmation_steps=args.effect_confirmation_steps,
+        access_effect_stabilization_steps=args.access_effect_stabilization_steps,
         target_divergence_confirmation_steps=(
             args.target_divergence_confirmation_steps
         ),
@@ -994,6 +995,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--base-max-steps", default=520, type=int)
     parser.add_argument("--settling-steps", default=10, type=int)
     parser.add_argument("--effect-confirmation-steps", default=5, type=int)
+    parser.add_argument("--access-effect-stabilization-steps", default=0, type=int)
     parser.add_argument("--target-divergence-confirmation-steps", default=5, type=int)
     parser.add_argument("--frontier-followup-steps", default=180, type=int)
     parser.add_argument("--frontier-completion-followup-steps", default=0, type=int)
