@@ -10,6 +10,7 @@ import pytest
 
 from pi05_libero_repro.logiv.controller import (
     DispatchStatus,
+    ExecutionCompletionHint,
     ExecutorStatus,
     GroundingStatus,
 )
@@ -519,6 +520,135 @@ def test_effect_gated_macro_stops_when_object_lands_on_recovery_surface() -> Non
     assert Fact("at", (object_name, recovery)) in (
         executor.results[0].post_snapshot.true_facts
     )
+
+
+def test_identical_prompt_dag_frontier_waits_for_union_of_ready_effects() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+    target = first.arguments[2]
+    env.env.relations.update(
+        {
+            ("on", first.arguments[0], first.arguments[1]): True,
+            ("on", first.arguments[0], target): False,
+            ("on", second.arguments[0], second.arguments[1]): True,
+            ("on", second.arguments[0], target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def complete_frontier_in_sequence(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", first.arguments[0], first.arguments[1])] = False
+            env.env.relations[("on", first.arguments[0], target)] = True
+        elif step == 3:
+            env.env.relations[("on", second.arguments[0], second.arguments[1])] = False
+            env.env.relations[("on", second.arguments[0], target)] = True
+
+    env.step_hook = complete_frontier_in_sequence
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(4)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v5.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+    )
+    hint = ExecutionCompletionHint(
+        occurrence_ids=("task08-o000", "task08-o001"),
+        actions=(first, second),
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        first,
+        _context(),
+        package.proposal.initial_snapshot,
+        completion_hint=hint,
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.reason == "observed frontier effects"
+    result = executor.results[-1]
+    assert len(result.actions) == 3
+    assert result.completion_mode == "DAG_FRONTIER"
+    assert result.completion_occurrence_ids == hint.occurrence_ids
+    assert result.completion_actions == hint.actions
+    assert result.completion_positive == first.add_effects | second.add_effects
+    assert result.completion_negative == first.del_effects | second.del_effects
+    from scripts.eval_logiv_libero import _attempt_json
+
+    artifact = _attempt_json(result)
+    assert artifact["completion_mode"] == "DAG_FRONTIER"
+    assert artifact["completion_occurrence_ids"] == list(hint.occurrence_ids)
+    assert artifact["completion_actions"] == [first.pddl(), second.pddl()]
+    assert artifact["completion_positive"] == sorted(
+        fact.pddl() for fact in first.add_effects | second.add_effects
+    )
+
+
+def test_different_frontier_prompts_fall_back_to_primary_occurrence_effects() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+    target = first.arguments[2]
+    env.env.relations.update(
+        {
+            ("on", first.arguments[0], first.arguments[1]): True,
+            ("on", first.arguments[0], target): False,
+            ("on", second.arguments[0], second.arguments[1]): True,
+            ("on", second.arguments[0], target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def complete_primary(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", first.arguments[0], first.arguments[1])] = False
+            env.env.relations[("on", first.arguments[0], target)] = True
+
+    env.step_hook = complete_primary
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=4,
+        max_total_action_steps=4,
+        settling_steps=0,
+    )
+    hint = ExecutionCompletionHint(
+        occurrence_ids=("task08-o000", "task08-o001"),
+        actions=(first, second),
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        first,
+        _context(),
+        package.proposal.initial_snapshot,
+        completion_hint=hint,
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed declared effects"
+    assert len(executor.results[-1].actions) == 1
+    assert executor.results[-1].completion_mode == "OCCURRENCE"
+    assert executor.results[-1].completion_actions == (first,)
 
 
 def test_v2_task8_prompt_uses_concise_training_style_and_explicit_release() -> None:

@@ -243,6 +243,15 @@ def _attempt_json(result) -> dict[str, Any]:
         "action": result.action.pddl(),
         "prompt": result.prompt,
         "prompt_history": list(result.prompt_history),
+        "completion_mode": result.completion_mode,
+        "completion_occurrence_ids": list(result.completion_occurrence_ids),
+        "completion_actions": [action.pddl() for action in result.completion_actions],
+        "completion_positive": sorted(
+            fact.pddl() for fact in result.completion_positive
+        ),
+        "completion_negative": sorted(
+            fact.pddl() for fact in result.completion_negative
+        ),
         "pre_epoch": result.pre_epoch,
         "post_epoch": result.post_epoch,
         "executor_status": result.executor_status.value,

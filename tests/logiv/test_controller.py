@@ -141,6 +141,7 @@ class SymbolicDispatcher:
         self.dispatches = []
         self.completion_hints = []
         self.attempts = {}
+        self.attempt_hints = {}
         self.next_id = 0
         self.fail_once_schema = None
         self.drop_once_schema = None
@@ -149,6 +150,7 @@ class SymbolicDispatcher:
         self.dispatch_status = DispatchStatus.ENQUEUED
         self.halt_ack = True
         self.halt_calls = 0
+        self.apply_frontier_hint = False
 
     def consume_permit_and_enqueue(
         self, action, context, snapshot, *, completion_hint=None
@@ -160,6 +162,7 @@ class SymbolicDispatcher:
         self.dispatches.append(action)
         self.completion_hints.append(completion_hint)
         self.attempts[attempt_id] = action
+        self.attempt_hints[attempt_id] = completion_hint
         attempt_context = replace(
             context,
             attempt_id=attempt_id,
@@ -188,7 +191,10 @@ class SymbolicDispatcher:
             self.fail_once_schema = None
             self.world.epoch += 1
         else:
-            self.world.apply(action)
+            hint = self.attempt_hints[start.attempt_id]
+            actions = hint.actions if self.apply_frontier_hint else (action,)
+            for hinted_action in actions:
+                self.world.apply(hinted_action)
         if self.close_after_schema == action.schema:
             self.close_after_schema = None
             self.world.set_access("white_cabinet_1_bottom_access", opened=False)
@@ -335,6 +341,20 @@ def test_serial_graph_dispatch_hint_never_crosses_action_precedence() -> None:
     assert result.status is ControllerStatus.EPISODE_SUCCESS
     assert all(len(hint.actions) == 1 for hint in dispatcher.completion_hints)
     assert [hint.actions[0] for hint in dispatcher.completion_hints] == dispatcher.dispatches
+
+
+def test_incidentally_completed_frontier_sibling_requires_fresh_empty_repair() -> None:
+    controller, _, _, dispatcher, _ = controller_for(8)
+    dispatcher.apply_frontier_hint = True
+
+    result = controller.run()
+
+    assert result.status is ControllerStatus.EPISODE_SUCCESS
+    assert len(dispatcher.dispatches) == 1
+    assert len(result.receipts) == 1
+    assert result.receipts[0].status is AttemptReceiptStatus.COMMITTED
+    assert result.events.count("PRECONDITION_GATE_REJECTED") == 1
+    assert result.graph_installs == 2
 
 
 def test_effect_failure_recertifies_suffix_and_retries_same_uncommitted_occurrence() -> None:

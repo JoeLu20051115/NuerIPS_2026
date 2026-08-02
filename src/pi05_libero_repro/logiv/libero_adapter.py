@@ -14,6 +14,7 @@ import numpy as np
 from pi05_libero_repro.logiv.controller import (
     DispatchStart,
     DispatchStatus,
+    ExecutionCompletionHint,
     ExecutorOutcome,
     ExecutorStatus,
     GroundingResponse,
@@ -491,7 +492,13 @@ class LiberoOracleGrounder:
     def effects_satisfied(self, action: GroundAction) -> bool:
         return self.observe_action_progress(action)[0]
 
-    def observe_action_progress(self, action: GroundAction) -> tuple[bool, bool]:
+    def observe_action_progress(
+        self,
+        action: GroundAction,
+        *,
+        completion_positive: FrozenSet[Fact] | None = None,
+        completion_negative: FrozenSet[Fact] | None = None,
+    ) -> tuple[bool, bool]:
         """Return (declared effects satisfied, object at a different known location).
 
         The second signal is intentionally limited to grounded place macros that
@@ -501,7 +508,9 @@ class LiberoOracleGrounder:
         """
 
         self.detector_calls += 1
-        required = action.add_effects | action.del_effects
+        positive = action.add_effects if completion_positive is None else completion_positive
+        negative = action.del_effects if completion_negative is None else completion_negative
+        required = positive | negative
         location_schema = action.schema in {"place-on", "place-in", "place-relative"}
         if location_schema and len(action.arguments) >= 3:
             object_name, source, target = action.arguments[:3]
@@ -517,8 +526,8 @@ class LiberoOracleGrounder:
         except GroundingError:
             return False, False
         effects_satisfied = snapshot.satisfies(
-            positive=action.add_effects,
-            negative=action.del_effects,
+            positive=positive,
+            negative=negative,
         )
         if not location_schema or len(action.arguments) < 3:
             return effects_satisfied, False
@@ -605,6 +614,11 @@ class AttemptResult:
     action: GroundAction
     prompt: str
     prompt_history: tuple[str, ...]
+    completion_mode: str
+    completion_occurrence_ids: tuple[str, ...]
+    completion_actions: tuple[GroundAction, ...]
+    completion_positive: FrozenSet[Fact]
+    completion_negative: FrozenSet[Fact]
     pre_epoch: int
     post_epoch: int | None
     executor_status: ExecutorStatus
@@ -625,6 +639,11 @@ class _QueuedAttempt:
     action: GroundAction
     context: ContextEnvelope
     pre_epoch: int
+    completion_mode: str
+    completion_occurrence_ids: tuple[str, ...]
+    completion_actions: tuple[GroundAction, ...]
+    completion_positive: FrozenSet[Fact]
+    completion_negative: FrozenSet[Fact]
 
 
 class Pi05MacroExecutor:
@@ -686,6 +705,8 @@ class Pi05MacroExecutor:
         action: GroundAction,
         context: ContextEnvelope,
         snapshot: FactSnapshot,
+        *,
+        completion_hint: ExecutionCompletionHint | None = None,
     ) -> DispatchStart:
         with self._lock:
             if self._active is not None:
@@ -704,7 +725,52 @@ class Pi05MacroExecutor:
                 attempt_id=attempt_id,
                 safety_epoch=decision.safety_epoch,
             )
-            self._queued[attempt_id] = _QueuedAttempt(action, attempt_context, snapshot.epoch_id)
+            completion_mode = "OCCURRENCE"
+            completion_occurrence_ids = (
+                (context.occurrence_id,) if context.occurrence_id is not None else ()
+            )
+            completion_actions = (action,)
+            if completion_hint is not None:
+                if (
+                    completion_hint.actions[0] != action
+                    or completion_hint.occurrence_ids[0] != context.occurrence_id
+                ):
+                    return DispatchStart(
+                        DispatchStatus.EXECUTOR_REJECTED_NOT_ENQUEUED,
+                        context=context,
+                    )
+                frontier_prompts = tuple(
+                    self.prompt_renderer.render_phase(item, "acquire")
+                    for item in completion_hint.actions
+                )
+                no_phase_switch = not any(
+                    self.prompt_renderer.has_phase(item, "finish")
+                    for item in completion_hint.actions
+                )
+                if (
+                    len(completion_hint.actions) >= 2
+                    and len(set(frontier_prompts)) == 1
+                    and no_phase_switch
+                ):
+                    completion_mode = "DAG_FRONTIER"
+                    completion_occurrence_ids = completion_hint.occurrence_ids
+                    completion_actions = completion_hint.actions
+            completion_positive = frozenset().union(
+                *(item.add_effects for item in completion_actions)
+            )
+            completion_negative = frozenset().union(
+                *(item.del_effects for item in completion_actions)
+            )
+            self._queued[attempt_id] = _QueuedAttempt(
+                action,
+                attempt_context,
+                snapshot.epoch_id,
+                completion_mode,
+                completion_occurrence_ids,
+                completion_actions,
+                completion_positive,
+                completion_negative,
+            )
             self._active = attempt_id
             return DispatchStart(
                 DispatchStatus.ENQUEUED,
@@ -823,12 +889,20 @@ class Pi05MacroExecutor:
                 self.store.update(post_observation)
                 if self.stop_on_effects:
                     effects_satisfied, target_diverged = (
-                        self.grounder.observe_action_progress(queued.action)
+                        self.grounder.observe_action_progress(
+                            queued.action,
+                            completion_positive=queued.completion_positive,
+                            completion_negative=queued.completion_negative,
+                        )
                     )
                     if effects_satisfied:
                         confirmed_effect_steps += 1
                         if confirmed_effect_steps >= self.effect_confirmation_steps:
-                            reason = "observed declared effects"
+                            reason = (
+                                "observed frontier effects"
+                                if queued.completion_mode == "DAG_FRONTIER"
+                                else "observed declared effects"
+                            )
                             break
                     else:
                         confirmed_effect_steps = 0
@@ -881,7 +955,8 @@ class Pi05MacroExecutor:
                 release_completion = (
                     self.stop_on_effects
                     and queued.action.schema in place_schemas
-                    and reason == "observed declared effects"
+                    and reason
+                    in {"observed declared effects", "observed frontier effects"}
                 )
                 hold[-1] = -1.0 if release_completion else self._last_gripper_command
                 for _ in range(self.settling_steps):
@@ -910,6 +985,11 @@ class Pi05MacroExecutor:
                 action=queued.action,
                 prompt=prompt_history[0],
                 prompt_history=tuple(prompt_history),
+                completion_mode=queued.completion_mode,
+                completion_occurrence_ids=queued.completion_occurrence_ids,
+                completion_actions=queued.completion_actions,
+                completion_positive=queued.completion_positive,
+                completion_negative=queued.completion_negative,
                 pre_epoch=queued.pre_epoch,
                 post_epoch=settled_epoch,
                 executor_status=status,
