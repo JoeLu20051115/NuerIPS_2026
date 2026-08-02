@@ -986,6 +986,46 @@ def test_v12_keeps_nominal_training_prompt_and_targets_only_recovery() -> None:
     )
 
 
+def test_v13_matches_official_task8_prompt_exactly_and_keeps_targeted_recovery() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v13.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    domain = FixedDomain()
+    nominal = [item.action for item in package.proposal.candidate_subtasks]
+    left_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.prompt_version == "pi05-subtasks-v13"
+    assert [renderer.render_phase(action, "acquire") for action in nominal] == [
+        "put both moka pots on the stove",
+        "put both moka pots on the stove",
+    ]
+    assert all(not renderer.has_phase(action, "finish") for action in nominal)
+    assert renderer.render_phase(left_recovery, "acquire") == (
+        "Pick up the left moka pot from the table, then hold it securely."
+    )
+    assert renderer.render_phase(right_recovery, "acquire") == (
+        "Pick up the right moka pot from the table, then hold it securely."
+    )
+
+
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
