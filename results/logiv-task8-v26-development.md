@@ -5,6 +5,11 @@ pots on the stove`), not an untouched holdout and not a ten-task result. The
 50 episode indices were inspected during prompt and controller development.
 The raw v26 run omitted `--development-only`; this note is the authoritative
 provenance correction and the run must not be presented as holdout evidence.
+The paired Base arm also predates the Base terminal-settling correction added
+after the v28 all-task smoke. It stopped at LIBERO's first `done` signal while
+Full LOGIV used `STOPPED -> settling -> fresh evaluation`. The `+10` point
+estimate below is therefore historical development evidence, not the final
+paired estimator; Base must be rerun under the unified terminal contract.
 
 ## Frozen checkpoint
 

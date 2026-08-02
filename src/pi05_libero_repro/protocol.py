@@ -131,9 +131,13 @@ def run_episode(
     max_steps: int = 520,
     wait_steps: int = 10,
     replan_steps: int = 5,
+    settling_steps: int = 0,
 ) -> EpisodeOutcome:
-    if max_steps <= 0 or wait_steps < 0 or replan_steps <= 0:
-        raise ValueError("max_steps and replan_steps must be positive; wait_steps must be nonnegative")
+    if max_steps <= 0 or wait_steps < 0 or replan_steps <= 0 or settling_steps < 0:
+        raise ValueError(
+            "max_steps and replan_steps must be positive; "
+            "wait_steps and settling_steps must be nonnegative"
+        )
 
     try:
         env.reset()
@@ -173,12 +177,18 @@ def run_episode(
             if done:
                 break
 
-        check_success = bool(env.check_success())
         done = bool(done)
-        if done != check_success:
+        for _ in range(settling_steps):
+            settling_observation, _, _, _ = env.step(list(LIBERO_DUMMY_ACTION))
+            _, settling_frame = prepare_observation(
+                settling_observation, prompt, image_tools
+            )
+            replay_frames.append(settling_frame)
+        check_success = bool(env.check_success())
+        if settling_steps == 0 and done != check_success:
             raise EpisodeInvalid(f"success predicate disagreement: done={done}, check_success={check_success}")
         return EpisodeOutcome(
-            success=done,
+            success=check_success,
             done=done,
             check_success=check_success,
             steps=len(executed_actions),

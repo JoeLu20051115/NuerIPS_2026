@@ -202,3 +202,36 @@ def test_success_predicate_disagreement_is_invalid() -> None:
 
     with pytest.raises(EpisodeInvalid, match="success predicate disagreement"):
         run_episode(env, FakeClient(), np.array([9.0]), "prompt", FakeImageTools())
+
+
+def test_base_success_is_rechecked_after_the_same_settling_barrier() -> None:
+    class TransientSuccessEnv(FakeEnv):
+        lost_success = False
+
+        def step(self, action: list[float]):
+            if self.done and action == [0.0] * 6 + [-1.0]:
+                self.actions.append(action)
+                self.done = False
+                self.lost_success = True
+                return observation(), 0.0, False, {}
+            if self.lost_success:
+                self.actions.append(action)
+                return observation(), 0.0, False, {}
+            return super().step(action)
+
+    env = TransientSuccessEnv(succeed_on_policy_step=1)
+    outcome = run_episode(
+        env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        settling_steps=2,
+    )
+
+    assert outcome.done
+    assert not outcome.check_success
+    assert not outcome.success
+    assert outcome.steps == 1
+    assert len(outcome.replay_frames) == 3
+    assert env.actions[-2:] == [[0.0] * 6 + [-1.0]] * 2

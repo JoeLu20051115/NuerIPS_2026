@@ -538,7 +538,7 @@ def _execute_symbolic_arm(
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
     return {
-        "schema_version": 4,
+        "schema_version": 5,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -552,6 +552,7 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "simulator_rng_protocol": "episode-seeded-v1",
         "simulator_rng_seed_derivation": "uint32(sha256('LOGIV-simulator-seed-v1:master:task:episode')[:4])",
         "simulator_env_lifecycle": "fresh-env-per-episode-v1",
+        "terminal_evaluator_protocol": "post-settling-native-check-success-v1",
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
@@ -714,19 +715,28 @@ def evaluate(args: argparse.Namespace) -> int:
                             max_steps=args.base_max_steps,
                             wait_steps=args.wait_steps,
                             replan_steps=args.replan_steps,
+                            settling_steps=args.settling_steps,
                         )
+                        evaluator = NativeLiberoTaskEvaluator()
+                        evaluated = evaluator.evaluate(env)
+                        if outcome.check_success != (
+                            evaluated.value == ControllerStatus.EPISODE_SUCCESS.value
+                        ):
+                            raise RuntimeError(
+                                "Base post-settling result/evaluator disagreement"
+                            )
                         first_frame_hash = _sha256_array(outcome.first_frame)
                         frames = list(outcome.replay_frames)
-                        status = (
-                            ControllerStatus.EPISODE_SUCCESS
-                            if outcome.success
-                            else ControllerStatus.EPISODE_FAIL
-                        )
+                        status = ControllerStatus(evaluated.value)
                         result = ControllerResult(
                             status=status,
                             terminal_cause=status.value,
                             receipts=(),
-                            events=("BASE_DIRECT_EXECUTION",),
+                            events=(
+                                "BASE_DIRECT_EXECUTION",
+                                f"BASE_DONE_SIGNAL:{outcome.done}",
+                                f"BASE_POST_SETTLING_SUCCESS:{outcome.check_success}",
+                            ),
                             budget_usage=RuntimeBudgetUsage(
                                 _base_physical_attempts(outcome.steps), 0, 0
                             ),
@@ -748,7 +758,7 @@ def evaluate(args: argparse.Namespace) -> int:
                             None,
                             None,
                         )
-                        evaluator_status = status.value
+                        evaluator_status = evaluated.value
                         steps = outcome.steps
                         inference_requests = outcome.inference_requests
                         initial_snapshot = None
