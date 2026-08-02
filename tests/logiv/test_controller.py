@@ -476,6 +476,7 @@ def test_safety_veto_creates_no_attempt_and_waits_for_halt_ack() -> None:
     assert result.receipts == ()
     assert result.active_attempt_id is None
     assert dispatcher.halt_calls == 1
+    assert result.budget_usage.physical_attempts == 0
 
 
 def test_executor_rejected_not_enqueued_is_terminal_without_halt() -> None:
@@ -487,3 +488,16 @@ def test_executor_rejected_not_enqueued_is_terminal_without_halt() -> None:
     assert result.status is ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH
     assert dispatcher.dispatches == []
     assert dispatcher.halt_calls == 0
+    assert result.budget_usage.physical_attempts == 0
+
+
+def test_executor_action_budget_rejection_creates_no_physical_attempt() -> None:
+    controller, _, _, dispatcher, _ = controller_for(8)
+    dispatcher.dispatch_status = DispatchStatus.ACTION_BUDGET_EXHAUSTED
+
+    result = controller.run()
+
+    assert result.status is ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH
+    assert result.terminal_cause == "BUDGET_EXHAUSTED"
+    assert dispatcher.dispatches == []
+    assert result.budget_usage.physical_attempts == 0

@@ -93,6 +93,7 @@ def test_evaluation_contract_requires_explicit_modes_oracle_and_locked_holdout()
 
     with pytest.raises(EvaluationContractError, match="oracle grounding acknowledgement"):
         replace(base, oracle_grounding=False).validate()
+    replace(base, method_arm=MethodArm.BASE, oracle_grounding=False).validate()
     with pytest.raises(EvaluationContractError, match="locked prompt"):
         replace(base, development_only=False, prompt_locked=False).validate()
     with pytest.raises(EvaluationContractError, match="not supported by the no-API provider"):

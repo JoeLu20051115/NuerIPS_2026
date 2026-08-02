@@ -205,6 +205,11 @@ class _BudgetCounter:
         self.physical_attempts += 1
         return True
 
+    def refund_unenqueued_physical(self) -> None:
+        if self.physical_attempts <= 0:
+            raise RuntimeError("cannot refund an unreserved physical attempt")
+        self.physical_attempts -= 1
+
     def consume_repair(self) -> bool:
         if self.repair_rounds >= self.limits.max_repair_rounds:
             return False
@@ -771,6 +776,8 @@ class LogivController:
             start = self.dispatcher.consume_permit_and_enqueue(
                 action, dispatch_context, self.snapshot
             )
+            if start.status is not DispatchStatus.ENQUEUED:
+                self.budgets.refund_unenqueued_physical()
             if start.status is DispatchStatus.EXECUTOR_REJECTED_NOT_ENQUEUED:
                 return self._result(
                     ControllerStatus.TERMINAL_NO_FURTHER_DISPATCH,

@@ -64,7 +64,7 @@ class EvaluationContract:
     episode_indices: tuple[int, ...]
 
     def validate(self) -> None:
-        if not self.oracle_grounding:
+        if self.method_arm is not MethodArm.BASE and not self.oracle_grounding:
             raise EvaluationContractError(
                 "the development implementation requires an explicit oracle grounding acknowledgement"
             )
