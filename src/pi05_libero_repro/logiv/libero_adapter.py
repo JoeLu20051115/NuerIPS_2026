@@ -684,6 +684,7 @@ class Pi05MacroExecutor:
         max_action_steps: int,
         settling_steps: int,
         effect_confirmation_steps: int = 1,
+        target_divergence_confirmation_steps: int | None = None,
         frontier_followup_steps: int | None = None,
         stop_on_effects: bool = True,
         max_total_action_steps: int | None = None,
@@ -693,6 +694,10 @@ class Pi05MacroExecutor:
             or max_action_steps <= 0
             or settling_steps < 0
             or effect_confirmation_steps <= 0
+            or (
+                target_divergence_confirmation_steps is not None
+                and target_divergence_confirmation_steps <= 0
+            )
             or (frontier_followup_steps is not None and frontier_followup_steps <= 0)
         ):
             raise ValueError("invalid executor bounds")
@@ -707,6 +712,11 @@ class Pi05MacroExecutor:
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
         self.effect_confirmation_steps = effect_confirmation_steps
+        self.target_divergence_confirmation_steps = (
+            effect_confirmation_steps
+            if target_divergence_confirmation_steps is None
+            else target_divergence_confirmation_steps
+        )
         self.frontier_followup_steps = frontier_followup_steps
         self.stop_on_effects = bool(stop_on_effects)
         self.max_total_action_steps = (
@@ -948,7 +958,10 @@ class Pi05MacroExecutor:
                         break
                     if not effects_satisfied and target_diverged:
                         confirmed_divergence_steps += 1
-                        if confirmed_divergence_steps >= self.effect_confirmation_steps:
+                        if (
+                            confirmed_divergence_steps
+                            >= self.target_divergence_confirmation_steps
+                        ):
                             reason = "observed target-location divergence"
                             break
                     else:

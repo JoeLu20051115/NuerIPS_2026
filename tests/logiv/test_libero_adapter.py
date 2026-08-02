@@ -778,6 +778,65 @@ def test_transient_target_divergence_requires_consecutive_confirmation() -> None
     assert len(executor.results[-1].actions) == 4
 
 
+def test_target_divergence_confirmation_is_independent_from_effect_confirmation() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = package.proposal.candidate_subtasks[0].action
+    object_name, source, target = action.arguments
+    recovery = "kitchen_table_recovery_surface"
+    env.env.relations.update(
+        {
+            ("on", object_name, source): True,
+            ("on", object_name, "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", object_name, target): False,
+            ("on", object_name, recovery): False,
+            ("on", object_name, "kitchen_table"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_1", "kitchen_table"): True,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def recover_after_two_divergent_steps(
+        step: int, low_level_action: np.ndarray
+    ) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", object_name, source)] = False
+            env.env.relations[("on", object_name, recovery)] = True
+        elif step == 3:
+            env.env.relations[("on", object_name, recovery)] = False
+            env.env.relations[("on", object_name, target)] = True
+
+    env.step_hook = recover_after_two_divergent_steps
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(3)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=3,
+        max_total_action_steps=3,
+        settling_steps=0,
+        effect_confirmation_steps=1,
+        target_divergence_confirmation_steps=3,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed declared effects"
+    assert len(executor.results[-1].actions) == 3
+
+
 def test_different_frontier_prompts_fall_back_to_primary_occurrence_effects() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)

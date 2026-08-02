@@ -406,6 +406,9 @@ def _execute_symbolic_arm(
         max_action_steps=args.max_action_steps,
         settling_steps=args.settling_steps,
         effect_confirmation_steps=args.effect_confirmation_steps,
+        target_divergence_confirmation_steps=(
+            args.target_divergence_confirmation_steps
+        ),
         frontier_followup_steps=args.frontier_followup_steps,
         stop_on_effects=arm is not MethodArm.STAGE_ONLY,
         max_total_action_steps=args.base_max_steps,
@@ -540,6 +543,9 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "max_total_action_steps": args.base_max_steps,
         "settling_steps": args.settling_steps,
         "effect_confirmation_steps": args.effect_confirmation_steps,
+        "target_divergence_confirmation_steps": (
+            args.target_divergence_confirmation_steps
+        ),
         "frontier_followup_steps": args.frontier_followup_steps,
         "max_physical_attempts": args.max_physical_attempts,
         "max_repair_rounds": args.max_repair_rounds,
@@ -941,6 +947,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--base-max-steps", default=520, type=int)
     parser.add_argument("--settling-steps", default=10, type=int)
     parser.add_argument("--effect-confirmation-steps", default=5, type=int)
+    parser.add_argument("--target-divergence-confirmation-steps", default=5, type=int)
     parser.add_argument("--frontier-followup-steps", default=180, type=int)
     parser.add_argument("--video-fps", default=10, type=int)
     parser.add_argument("--watchdog-seconds", default=60.0, type=float)
