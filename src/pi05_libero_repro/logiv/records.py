@@ -208,6 +208,12 @@ class LogivEpisodeRecord:
     exception: str | None
     oracle_grounding: bool
     development_only: bool
+    committed_receipts: int = 0
+    failed_receipts: int = 0
+    unknown_receipts: int = 0
+    precondition_gate_rejections: int = 0
+    effect_gate_rejections: int = 0
+    final_goal_gate_rejections: int = 0
 
     @property
     def key(self) -> tuple[str, str, str, int, int]:
@@ -275,7 +281,7 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
         if record.key in seen:
             errors.append(f"duplicate LOGIV episode: {label}")
         seen.add(record.key)
-        if record.schema_version != 1:
+        if record.schema_version not in {1, 2}:
             errors.append(f"unsupported schema version: {label}")
         if record.method_arm not in METHOD_ARMS:
             errors.append(f"unknown method arm: {label}")
@@ -323,6 +329,12 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
             record.safety_permits,
             record.receipts_count,
             record.event_count,
+            record.committed_receipts,
+            record.failed_receipts,
+            record.unknown_receipts,
+            record.precondition_gate_rejections,
+            record.effect_gate_rejections,
+            record.final_goal_gate_rejections,
         )
         if any(value < 0 for value in counters):
             errors.append(f"negative counter: {label}")
@@ -330,6 +342,13 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
             errors.append(f"invalid wall_seconds: {label}")
         if record.initial_graph_hash is None and record.initial_graph_width is not None:
             errors.append(f"width without graph: {label}")
+        if record.schema_version == 2 and (
+            record.committed_receipts
+            + record.failed_receipts
+            + record.unknown_receipts
+            != record.receipts_count
+        ):
+            errors.append(f"receipt taxonomy/count mismatch: {label}")
         if record.method_arm == "FULL_LOGIV" and record.task_id == 8:
             if record.initial_graph_hash is not None and (
                 record.initial_graph_width is None or record.initial_graph_width < 2

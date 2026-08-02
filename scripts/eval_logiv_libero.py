@@ -14,6 +14,7 @@ from typing import Any, Iterable
 import numpy as np
 
 from pi05_libero_repro.logiv.controller import (
+    AttemptReceiptStatus,
     ControllerResult,
     ControllerStatus,
     GroundingStatus,
@@ -752,8 +753,9 @@ def evaluate(args: argparse.Namespace) -> int:
                     temporary.replace(final_video)
                     video_path = str(relative)
                 success = result.status is ControllerStatus.EPISODE_SUCCESS
+                receipt_statuses = [receipt.status for receipt in result.receipts]
                 record = LogivEpisodeRecord(
-                    schema_version=1,
+                    schema_version=2,
                     run_id=args.run_id,
                     checkpoint=args.checkpoint_name,
                     method_arm=args.method_arm,
@@ -801,6 +803,27 @@ def evaluate(args: argparse.Namespace) -> int:
                     exception=exception_text,
                     oracle_grounding=MethodArm(args.method_arm) is not MethodArm.BASE,
                     development_only=args.development_only,
+                    committed_receipts=receipt_statuses.count(
+                        AttemptReceiptStatus.COMMITTED
+                    ),
+                    failed_receipts=receipt_statuses.count(AttemptReceiptStatus.FAILED),
+                    unknown_receipts=sum(
+                        status
+                        in {
+                            AttemptReceiptStatus.POST_STOP_UNKNOWN,
+                            AttemptReceiptStatus.REJECTED,
+                        }
+                        for status in receipt_statuses
+                    ),
+                    precondition_gate_rejections=result.events.count(
+                        "PRECONDITION_GATE_REJECTED"
+                    ),
+                    effect_gate_rejections=result.events.count(
+                        "EFFECT_GATE_REJECTED"
+                    ),
+                    final_goal_gate_rejections=result.events.count(
+                        "FINAL_GOAL_GATE_REJECTED"
+                    ),
                     **common_hashes,
                 )
                 append_episode_record(episodes_path, record)

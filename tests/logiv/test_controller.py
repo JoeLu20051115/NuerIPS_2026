@@ -334,6 +334,7 @@ def test_effect_failure_recertifies_suffix_and_retries_same_uncommitted_occurren
     assert retried.status is AttemptReceiptStatus.COMMITTED
     assert failed.occurrence_id == retried.occurrence_id
     assert result.budget_usage.total_val_calls == 2
+    assert result.events.count("EFFECT_GATE_REJECTED") == 1
 
 
 def test_valid_suffix_with_retry_forbidden_never_renames_and_redispatches_action() -> None:
@@ -382,6 +383,7 @@ def test_precondition_failure_repairs_directly_without_suffix_recertification() 
         "close-access",
     ]
     assert result.budget_usage.total_val_calls == 2
+    assert result.events.count("PRECONDITION_GATE_REJECTED") == 1
 
 
 def test_empty_agenda_goal_failure_repairs_close_without_empty_val_call() -> None:
@@ -395,6 +397,7 @@ def test_empty_agenda_goal_failure_repairs_close_without_empty_val_call() -> Non
     assert result.status is ControllerStatus.EPISODE_SUCCESS
     assert result.budget_usage.total_val_calls == 2
     assert result.receipts[-1].schema == "close-access"
+    assert result.events.count("FINAL_GOAL_GATE_REJECTED") == 1
 
 
 def test_stale_post_stop_callback_is_noop_then_correct_response_commits() -> None:

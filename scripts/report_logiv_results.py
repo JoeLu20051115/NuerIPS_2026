@@ -32,6 +32,8 @@ def _operational(records) -> dict:
     records = list(records)
     repaired = [item for item in records if item.repair_rounds > 0]
     successful_repaired = sum(item.success for item in repaired)
+    attempts = sum(item.physical_attempts for item in records)
+    effect_rejections = sum(item.effect_gate_rejections for item in records)
 
     def mean(field: str) -> float | None:
         if not records:
@@ -43,6 +45,19 @@ def _operational(records) -> dict:
         "successful_episodes_with_repair": successful_repaired,
         "successful_recovery_episode_rate": (
             successful_repaired / len(repaired) if repaired else None
+        ),
+        "committed_receipts": sum(item.committed_receipts for item in records),
+        "failed_receipts": sum(item.failed_receipts for item in records),
+        "unknown_receipts": sum(item.unknown_receipts for item in records),
+        "precondition_gate_rejections": sum(
+            item.precondition_gate_rejections for item in records
+        ),
+        "effect_gate_rejections": effect_rejections,
+        "effect_failure_per_attempt": (
+            effect_rejections / attempts if attempts else None
+        ),
+        "final_goal_gate_rejections": sum(
+            item.final_goal_gate_rejections for item in records
         ),
         "mean_physical_attempts": mean("physical_attempts"),
         "mean_repair_rounds": mean("repair_rounds"),
@@ -231,6 +246,22 @@ def render_markdown(report: dict) -> str:
             f"{operational['mean_total_val_calls']:.2f} | "
             f"{operational['mean_steps']:.2f} | "
             f"{operational['mean_wall_seconds']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "| Method | Committed receipts | Failed receipts | Unknown receipts | Precondition rejects | Effect rejects | Final-goal rejects |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        ]
+    )
+    for setting in report["settings"]:
+        operational = setting["operational"]
+        lines.append(
+            f"| {setting['method_arm']} | {operational['committed_receipts']} | "
+            f"{operational['failed_receipts']} | {operational['unknown_receipts']} | "
+            f"{operational['precondition_gate_rejections']} | "
+            f"{operational['effect_gate_rejections']} | "
+            f"{operational['final_goal_gate_rejections']} |"
         )
     lines.extend(["", "## Paired task-stratified comparisons", ""])
     if not report["paired_comparisons"]:

@@ -131,6 +131,18 @@ def test_record_contract_requires_task8_non_chain_width_and_failure_in_denominat
     broken = replace(successful, initial_graph_width=1)
     assert "task 8 Full LOGIV graph must have width >= 2" in validate_episode_records([broken])
 
+    enriched = replace(
+        successful,
+        schema_version=2,
+        committed_receipts=1,
+        failed_receipts=1,
+        unknown_receipts=0,
+        precondition_gate_rejections=1,
+        effect_gate_rejections=1,
+        final_goal_gate_rejections=0,
+    )
+    assert validate_episode_records([enriched]) == []
+
 
 def test_task_stratified_paired_bootstrap_uses_equal_task_weight() -> None:
     full = []
@@ -213,6 +225,13 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         "episodes_with_repair": 2,
         "successful_episodes_with_repair": 1,
         "successful_recovery_episode_rate": 0.5,
+        "committed_receipts": 0,
+        "failed_receipts": 0,
+        "unknown_receipts": 0,
+        "precondition_gate_rejections": 0,
+        "effect_gate_rejections": 0,
+        "effect_failure_per_attempt": 0.0,
+        "final_goal_gate_rejections": 0,
         "mean_physical_attempts": 5.0,
         "mean_repair_rounds": 1.5,
         "mean_total_val_calls": 3.5,

@@ -683,6 +683,7 @@ class LogivController:
                         "PLAN_GROUNDING_INCOMPLETE",
                     )
                 if not satisfied:
+                    self.events.append("FINAL_GOAL_GATE_REJECTED")
                     obligations = tuple(
                         FailureObligation("GOAL", SignedLiteral(fact, True))
                         for fact in sorted(self.problem.goal - final.snapshot.true_facts)
@@ -742,6 +743,7 @@ class LogivController:
                     "PLAN_GROUNDING_INCOMPLETE",
                 )
             if not preconditions_hold:
+                self.events.append("PRECONDITION_GATE_REJECTED")
                 obligations = tuple(
                     FailureObligation(occurrence_id, SignedLiteral(fact, True))
                     for fact in sorted(action.preconditions - self.snapshot.true_facts)
@@ -936,6 +938,11 @@ class LogivController:
                 )
 
             if outcome.status is ExecutorStatus.EXECUTOR_FAILED or not effects_hold:
+                self.events.append(
+                    "EXECUTOR_FAILED"
+                    if outcome.status is ExecutorStatus.EXECUTOR_FAILED
+                    else "EFFECT_GATE_REJECTED"
+                )
                 self.retry_ledger.record_effect_failure(action)
                 self.receipts.append(
                     AttemptReceipt(
