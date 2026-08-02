@@ -165,6 +165,11 @@ def test_task_stratified_paired_bootstrap_uses_equal_task_weight() -> None:
     with pytest.raises(ValueError, match="first-frame hash mismatch"):
         paired_task_stratified_bootstrap(full, mismatched, samples=10, seed=19)
 
+    mismatched = list(comparator)
+    mismatched[0] = replace(mismatched[0], prompt_config_sha256="e" * 64)
+    with pytest.raises(ValueError, match="prompt_config_sha256 mismatch"):
+        paired_task_stratified_bootstrap(full, mismatched, samples=10, seed=19)
+
 
 def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
     tmp_path: Path,

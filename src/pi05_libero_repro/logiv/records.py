@@ -379,6 +379,16 @@ def paired_task_stratified_bootstrap(
             right, "first_frame_sha256"
         ) and left.first_frame_sha256 != right.first_frame_sha256:
             raise ValueError(f"paired first-frame hash mismatch: {key}")
+        for field_name in (
+            "seed",
+            "checkpoint",
+            "prompt_version",
+            "prompt_config_sha256",
+        ):
+            if hasattr(left, field_name) and hasattr(right, field_name) and (
+                getattr(left, field_name) != getattr(right, field_name)
+            ):
+                raise ValueError(f"paired {field_name} mismatch: {key}")
         by_task.setdefault(key[0], []).append(float(left.success) - float(right.success))
     estimate = float(np.mean([np.mean(values) for values in by_task.values()]))
     generator = np.random.default_rng(seed)
