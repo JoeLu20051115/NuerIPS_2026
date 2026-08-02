@@ -62,6 +62,18 @@ def test_task5_separates_acquisition_from_precise_caddy_placement() -> None:
     ) in candidates[1].action.add_effects
 
 
+def test_task5_macro_ablation_keeps_the_official_instruction_atomic() -> None:
+    fixture = Path("configs/logiv/libero10-scripted-proposals-v31-task5-macro.json")
+    package = ScriptedProposalProvider(fixture).propose(task_id=5, epoch_id=0)
+
+    assert [item.action.schema for item in package.proposal.candidate_subtasks] == [
+        "place-in"
+    ]
+    assert package.proposal.candidate_subtasks[0].instruction == (
+        "Pick up the black book and place it in the back compartment of the desk caddy."
+    )
+
+
 def test_writer_outputs_auditable_consistent_artifacts(tmp_path: Path) -> None:
     package = ScriptedProposalProvider(FIXTURE).propose(task_id=3, epoch_id=31)
 

@@ -20,11 +20,38 @@ from pi05_libero_repro.logiv.val import ValWrapper
 from scripts.eval_logiv_libero import (
     _allocate_episode_artifact_dir,
     _base_physical_attempts,
+    _parser,
     _replace_episode_environment,
 )
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+
+
+def test_evaluator_accepts_run_scoped_proposal_and_coverage_configs() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "config-isolation",
+            "--method-arm",
+            "BASE",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/config-isolation",
+            "--proposal-config",
+            "/tmp/proposals.json",
+            "--coverage-manifest",
+            "/tmp/coverage.json",
+        ]
+    )
+
+    assert args.proposal_config == Path("/tmp/proposals.json")
+    assert args.coverage_manifest == Path("/tmp/coverage.json")
 
 
 def test_base_rollout_is_one_physical_attempt_not_one_attempt_per_control_step() -> None:

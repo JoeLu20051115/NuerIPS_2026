@@ -381,9 +381,9 @@ def _execute_symbolic_arm(
     episode_id: str,
     initial_observation: dict[str, Any],
 ):
-    provider = ScriptedProposalProvider()
+    provider = ScriptedProposalProvider(args.proposal_config)
     package = provider.propose(task_id, epoch_id=0, goal_mode=GoalMode(args.goal_mode))
-    binding = TaskBinding.from_manifest(COVERAGE_MANIFEST, task_id)
+    binding = TaskBinding.from_manifest(args.coverage_manifest, task_id)
     store = LiberoObservationStore(initial_observation, epoch_id=0)
     grounder = LiberoOracleGrounder(
         env,
@@ -538,7 +538,7 @@ def _execute_symbolic_arm(
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
     return {
-        "schema_version": 5,
+        "schema_version": 6,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -553,6 +553,8 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "simulator_rng_seed_derivation": "uint32(sha256('LOGIV-simulator-seed-v1:master:task:episode')[:4])",
         "simulator_env_lifecycle": "fresh-env-per-episode-v1",
         "terminal_evaluator_protocol": "post-settling-native-check-success-v1",
+        "proposal_config_sha256": _sha256_file(Path(args.proposal_config)),
+        "coverage_manifest_sha256": _sha256_file(Path(args.coverage_manifest)),
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
@@ -638,8 +640,8 @@ def evaluate(args: argparse.Namespace) -> int:
         raise ValueError("policy server does not support LOGIV episode RNG protocol v1")
     common_hashes = {
         "prompt_config_sha256": _sha256_file(Path(args.prompt_config)),
-        "proposal_config_sha256": _sha256_file(DEFAULT_FIXTURE),
-        "coverage_manifest_sha256": _sha256_file(COVERAGE_MANIFEST),
+        "proposal_config_sha256": _sha256_file(Path(args.proposal_config)),
+        "coverage_manifest_sha256": _sha256_file(Path(args.coverage_manifest)),
         "domain_sha256": _sha256_bytes(render_domain_pddl().encode("utf-8")),
     }
 
@@ -1012,6 +1014,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--prompt-config",
         default=REPOSITORY_ROOT / "configs/logiv/prompts/pi05-subtasks-v1.json",
+        type=Path,
+    )
+    parser.add_argument(
+        "--proposal-config",
+        default=DEFAULT_FIXTURE,
+        type=Path,
+    )
+    parser.add_argument(
+        "--coverage-manifest",
+        default=COVERAGE_MANIFEST,
         type=Path,
     )
     parser.add_argument("--prompt-version", default="pi05-subtasks-v1")
