@@ -1273,6 +1273,22 @@ def test_v17_adds_verified_holding_finish_phases_to_both_task8_branches() -> Non
     )
 
 
+def test_v18_protects_the_already_placed_sibling_during_second_branch() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v18.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert renderer.render_frontier(first) == (
+        "put the moka pot closest to the stove on the stove"
+    )
+    assert "without moving the other moka pot" in renderer.render_phase(
+        second, "acquire"
+    )
+    assert "beside the other moka pot" in renderer.render_phase(second, "finish")
+
+
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
