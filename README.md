@@ -251,8 +251,12 @@ The directional 5-seed result did not survive expansion: the same-server v5c
 20-seed diagnostic is recorded in `results/logiv-task8-seeded-dev20-v5c.json`
 and is 11/20 for both Full LOGIV and Base (paired difference 0.00, interval
 `[-0.25, 0.25]`). It is retained to prevent cherry-picking. A later v7 run also
-seeds the simulator independently per episode; its Full and Base arms must both
-finish before any paired claim is made.
+seeds the simulator independently per episode. Its completed paired diagnostic
+is recorded in `results/logiv-task8-episode-seeded-dev20-v7.json`: Full LOGIV is
+10/20 and Base is 12/20 (Full − Base = −0.10, paired bootstrap 95%
+`[-0.30, 0.10]`). All 20 initial-state and first-frame hashes match across arms,
+and 8 Full successes contain at least one certified repair, but this run is
+negative evidence for aggregate improvement and is reported as such.
 
 An additional one-seed-per-task interactive smoke is recorded in
 `results/logiv-all10-seeded-smoke-v7.json`. Full LOGIV receives an external

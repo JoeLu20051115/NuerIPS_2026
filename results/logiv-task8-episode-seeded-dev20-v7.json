@@ -1,0 +1,127 @@
+{
+  "errors": [],
+  "paired_comparisons": [
+    {
+      "bootstrap_samples": 10000,
+      "comparator": "BASE",
+      "deviation_mode": "NOMINAL",
+      "estimate": -0.1,
+      "goal_mode": "METADATA_ASSISTED",
+      "paired_episodes": 20,
+      "percentile_95": [
+        -0.3,
+        0.1
+      ],
+      "seed": 2026,
+      "tasks": 1
+    }
+  ],
+  "protocol": {
+    "development_only_records": 40,
+    "oracle_grounding_records": 20
+  },
+  "records": 40,
+  "schema_version": 2,
+  "settings": [
+    {
+      "deviation_mode": "NOMINAL",
+      "failure_taxonomy": {
+        "EPISODE_FAIL": 8
+      },
+      "goal_mode": "METADATA_ASSISTED",
+      "method_arm": "BASE",
+      "operational": {
+        "committed_receipts": 0,
+        "effect_failure_per_attempt": 0.0,
+        "effect_gate_rejections": 0,
+        "episodes_with_repair": 0,
+        "failed_receipts": 0,
+        "final_goal_gate_rejections": 0,
+        "instrumented_records": 20,
+        "mean_graph_installs": 0.0,
+        "mean_inference_requests": 89.9,
+        "mean_physical_attempts": 1.0,
+        "mean_repair_rounds": 0.0,
+        "mean_steps": 448.1,
+        "mean_total_val_calls": 0.0,
+        "mean_wall_seconds": 101.06506117084064,
+        "precondition_gate_rejections": 0,
+        "successful_episodes_with_repair": 0,
+        "successful_recovery_episode_rate": null,
+        "unknown_receipts": 0
+      },
+      "overall": {
+        "allocated": 20,
+        "rate": 0.6,
+        "successes": 12,
+        "wilson_95": [
+          0.3865815007622531,
+          0.781193467627183
+        ]
+      },
+      "tasks": [
+        {
+          "allocated": 20,
+          "rate": 0.6,
+          "successes": 12,
+          "task_id": 8,
+          "wilson_95": [
+            0.3865815007622531,
+            0.781193467627183
+          ]
+        }
+      ]
+    },
+    {
+      "deviation_mode": "NOMINAL",
+      "failure_taxonomy": {
+        "BUDGET_EXHAUSTED": 9,
+        "POST_STOP_GROUNDING_FAILURE": 1
+      },
+      "goal_mode": "METADATA_ASSISTED",
+      "method_arm": "FULL_LOGIV",
+      "operational": {
+        "committed_receipts": null,
+        "effect_failure_per_attempt": null,
+        "effect_gate_rejections": null,
+        "episodes_with_repair": 18,
+        "failed_receipts": null,
+        "final_goal_gate_rejections": null,
+        "instrumented_records": 0,
+        "mean_graph_installs": 3.05,
+        "mean_inference_requests": 92.8,
+        "mean_physical_attempts": 3.85,
+        "mean_repair_rounds": 2.05,
+        "mean_steps": 458.3,
+        "mean_total_val_calls": 4.7,
+        "mean_wall_seconds": 112.75086179389618,
+        "precondition_gate_rejections": null,
+        "successful_episodes_with_repair": 8,
+        "successful_recovery_episode_rate": 0.4444444444444444,
+        "unknown_receipts": null
+      },
+      "overall": {
+        "allocated": 20,
+        "rate": 0.5,
+        "successes": 10,
+        "wilson_95": [
+          0.2992980081982123,
+          0.7007019918017877
+        ]
+      },
+      "tasks": [
+        {
+          "allocated": 20,
+          "rate": 0.5,
+          "successes": 10,
+          "task_id": 8,
+          "wilson_95": [
+            0.2992980081982123,
+            0.7007019918017877
+          ]
+        }
+      ]
+    }
+  ],
+  "valid_records": 40
+}
