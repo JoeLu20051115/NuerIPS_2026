@@ -48,6 +48,20 @@ def test_task8_keeps_two_distinct_unordered_placement_occurrences() -> None:
     assert all(item.rough_rank in {0, 1} for item in candidates)
 
 
+def test_task5_separates_acquisition_from_precise_caddy_placement() -> None:
+    package = ScriptedProposalProvider(FIXTURE).propose(task_id=5, epoch_id=19)
+    candidates = package.proposal.candidate_subtasks
+
+    assert [item.action.schema for item in candidates] == ["pick", "place-held-in"]
+    assert candidates[0].action.add_effects == frozenset(
+        {Fact("holding", ("black_book_1",))}
+    )
+    assert Fact("holding", ("black_book_1",)) in candidates[1].action.preconditions
+    assert Fact(
+        "at", ("black_book_1", "desk_caddy_1_back_contain_region")
+    ) in candidates[1].action.add_effects
+
+
 def test_writer_outputs_auditable_consistent_artifacts(tmp_path: Path) -> None:
     package = ScriptedProposalProvider(FIXTURE).propose(task_id=3, epoch_id=31)
 
@@ -103,6 +117,12 @@ def test_all_ten_fixtures_ground_and_coverage_is_frozen() -> None:
     assert {
         Fact("at", ("black_book_1", location)) for location in recovery_locations
     } <= task5.problem.initial_false
+    task6 = packages[6]
+    assert "living_room_table_recovery_surface" in task6.problem.object_types
+    assert {
+        Fact("at", (object_name, "living_room_table_recovery_surface"))
+        for object_name in ("porcelain_mug_1", "chocolate_pudding_1")
+    } <= task6.problem.initial_false
     task9 = packages[9]
     assert "kitchen_table_recovery_surface" in task9.problem.object_types
     assert Fact(

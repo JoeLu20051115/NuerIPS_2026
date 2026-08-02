@@ -1421,7 +1421,17 @@ def test_v6_uses_natural_prompts_for_observed_task5_and_task9_failures() -> None
         ROOT / "configs/logiv/prompts/pi05-subtasks-v6.json"
     )
     provider = ScriptedProposalProvider()
-    book = provider.propose(5, epoch_id=0).proposal.candidate_subtasks[0].action
+    task5 = provider.propose(5, epoch_id=0)
+    book = FixedDomain().ground(
+        task5.problem,
+        "place-in",
+        (
+            "black_book_1",
+            "study_table_black_book_init_region",
+            "desk_caddy_1_back_contain_region",
+            "desk_caddy_1_access",
+        ),
+    )
     microwave = provider.propose(9, epoch_id=0).proposal.candidate_subtasks
 
     assert renderer.render(book) == (
@@ -1438,7 +1448,17 @@ def test_v7_requests_stable_book_placement_and_full_microwave_task() -> None:
         ROOT / "configs/logiv/prompts/pi05-subtasks-v7.json"
     )
     provider = ScriptedProposalProvider()
-    book = provider.propose(5, epoch_id=0).proposal.candidate_subtasks[0].action
+    task5 = provider.propose(5, epoch_id=0)
+    book = FixedDomain().ground(
+        task5.problem,
+        "place-in",
+        (
+            "black_book_1",
+            "study_table_black_book_init_region",
+            "desk_caddy_1_back_contain_region",
+            "desk_caddy_1_access",
+        ),
+    )
     microwave = provider.propose(9, epoch_id=0).proposal.candidate_subtasks[0].action
 
     assert renderer.render(book) == (
@@ -1907,6 +1927,57 @@ def test_v27_preserves_v12_non_task8_and_v26_task8_frontier_prompts() -> None:
         assert merged.render_frontier_completion(action) == (
             task8.render_frontier_completion(action)
         )
+
+
+def test_v28_adds_state_specific_task5_and_task6_recovery_prompts() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v28.json"
+    )
+    provider = ScriptedProposalProvider()
+
+    task5 = provider.propose(5, epoch_id=0)
+    acquire, place = [
+        item.action for item in task5.proposal.candidate_subtasks
+    ]
+    assert renderer.render(acquire) == (
+        "Pick up the black book from the study table and keep holding it."
+    )
+    assert renderer.render(place) == (
+        "Put the black book you are holding fully inside the back compartment "
+        "of the desk caddy, release it, and move the gripper away."
+    )
+
+    task6 = provider.propose(6, epoch_id=0)
+    mug_initial, pudding_initial = [
+        item.action for item in task6.proposal.candidate_subtasks
+    ]
+    assert renderer.render(mug_initial) == "Put the white mug upright on the plate."
+    assert renderer.render(pudding_initial) == (
+        "Put the chocolate pudding to the right of the plate without touching "
+        "the white mug."
+    )
+    mug_recovery = FixedDomain().ground(
+        task6.problem,
+        "place-on",
+        ("porcelain_mug_1", "living_room_table_recovery_surface", "plate_1"),
+    )
+    pudding_recovery = FixedDomain().ground(
+        task6.problem,
+        "place-relative",
+        (
+            "chocolate_pudding_1",
+            "living_room_table_recovery_surface",
+            "living_room_table_plate_right_region",
+        ),
+    )
+    assert renderer.render(mug_recovery) == (
+        "Put the fallen white mug upright on the plate without moving the "
+        "chocolate pudding."
+    )
+    assert renderer.render(pudding_recovery) == (
+        "Put the chocolate pudding to the right of the plate without touching "
+        "the white mug."
+    )
 
 
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
