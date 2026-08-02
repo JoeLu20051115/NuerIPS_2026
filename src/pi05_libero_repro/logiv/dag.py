@@ -5,7 +5,7 @@ from enum import Enum
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, FrozenSet, Mapping, Sequence, Tuple
+from typing import AbstractSet, Any, FrozenSet, Mapping, Sequence, Tuple
 
 from pi05_libero_repro.logiv.model import ContextEnvelope, Fact, GroundAction, TaskProblem
 from pi05_libero_repro.logiv.val import PlanCertificate, verify_certificate
@@ -107,6 +107,20 @@ class CausalGraph:
                 for target in outgoing[node_id]:
                     indegree[target] -= 1
         return maximum
+
+    def ready_action_ids(self, committed: AbstractSet[str]) -> Tuple[str, ...]:
+        """Return the uncommitted action antichain enabled by graph precedence."""
+        action_ids = set(self.canonical_agenda)
+        action_predecessors = {node_id: set() for node_id in action_ids}
+        for edge in self.edges:
+            if edge.source in action_ids and edge.target in action_ids:
+                action_predecessors[edge.target].add(edge.source)
+        return tuple(
+            node_id
+            for node_id in self.canonical_agenda
+            if node_id not in committed
+            and action_predecessors[node_id].issubset(committed)
+        )
 
 
 @dataclass

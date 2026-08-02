@@ -79,6 +79,10 @@ def test_task8_dag_has_two_unordered_action_nodes_and_width_two() -> None:
     assert graph.edge(actions[0].node_id, actions[1].node_id) is None
     assert graph.edge(actions[1].node_id, actions[0].node_id) is None
     assert all(graph.edge(node.node_id, "GOAL") is not None for node in actions)
+    assert graph.ready_action_ids(frozenset()) == graph.canonical_agenda
+    assert graph.ready_action_ids(frozenset({graph.canonical_agenda[0]})) == (
+        graph.canonical_agenda[1],
+    )
 
     schema_only = SchemaOnlyCausalDagCompiler().compile(
         package.problem, plan, sidecar, context
@@ -107,6 +111,10 @@ def test_task3_support_and_open_threat_create_real_place_before_close_edge() -> 
         for reason in protected.conflict_reasons
     )
     assert graph.canonical_agenda == (pick, place, close)
+    assert graph.ready_action_ids(frozenset()) == (pick,)
+    assert graph.ready_action_ids(frozenset({pick})) == (place,)
+    assert graph.ready_action_ids(frozenset({pick, place})) == (close,)
+    assert graph.ready_action_ids(frozenset({pick, place, close})) == ()
 
 
 def test_support_literals_between_same_nodes_are_merged_not_parallel_edges() -> None:
