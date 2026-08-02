@@ -1,8 +1,6 @@
 # LOGIV LIBERO-10 Results
 
-Development-only `scripted-vlm/oracle-grounding` smoke with one preselected
-episode per task. It verifies interactive coverage and failure accounting, not
-an improvement claim or the preregistered 10×50 experiment.
+> **Development smoke test only.** This is one episode per task with Scripted-VLM/oracle fact grounding, not the preregistered 50-episode experiment and not evidence of a population-level improvement.
 
 Allocated episode records: **10**; valid executions: **10**.
 
@@ -25,6 +23,10 @@ Allocated episode records: **10**; valid executions: **10**.
 | Method | Repaired episodes | Successful repaired episodes | Mean attempts | Mean repairs | Mean VAL calls | Mean steps | Mean wall time (s) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | FULL_LOGIV | 1 | 0 | 2.20 | 0.20 | 1.30 | 288.80 | 58.26 |
+
+| Method | Instrumented records | Committed receipts | Failed receipts | Unknown receipts | Precondition rejects | Effect rejects | Final-goal rejects |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| FULL_LOGIV | 0 | — | — | — | — | — | — |
 
 ## Paired task-stratified comparisons
 

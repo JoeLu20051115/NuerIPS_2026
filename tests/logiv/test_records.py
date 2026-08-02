@@ -16,7 +16,11 @@ from pi05_libero_repro.logiv.records import (
     validate_event_chain,
     validate_episode_records,
 )
-from scripts.report_logiv_results import build_report, load_comparator_records
+from scripts.report_logiv_results import (
+    build_report,
+    load_comparator_records,
+    render_markdown,
+)
 
 
 def _context() -> ContextEnvelope:
@@ -202,6 +206,7 @@ def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
 def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
     recovered = replace(
         _record(episode_idx=0, success=True),
+        schema_version=2,
         physical_attempts=4,
         repair_rounds=2,
         total_val_calls=4,
@@ -209,9 +214,13 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         steps=100,
         inference_requests=20,
         wall_seconds=5.0,
+        committed_receipts=1,
+        failed_receipts=1,
+        effect_gate_rejections=1,
     )
     failed = replace(
         _record(episode_idx=1, success=False),
+        schema_version=2,
         terminal_status="TERMINAL_NO_FURTHER_DISPATCH",
         terminal_cause="BUDGET_EXHAUSTED",
         evaluator_status="NOT_CALLED",
@@ -222,6 +231,9 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         steps=200,
         inference_requests=40,
         wall_seconds=15.0,
+        failed_receipts=2,
+        precondition_gate_rejections=1,
+        final_goal_gate_rejections=1,
     )
 
     report = build_report(
@@ -235,13 +247,14 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         "episodes_with_repair": 2,
         "successful_episodes_with_repair": 1,
         "successful_recovery_episode_rate": 0.5,
-        "committed_receipts": 0,
-        "failed_receipts": 0,
+        "instrumented_records": 2,
+        "committed_receipts": 1,
+        "failed_receipts": 3,
         "unknown_receipts": 0,
-        "precondition_gate_rejections": 0,
-        "effect_gate_rejections": 0,
-        "effect_failure_per_attempt": 0.0,
-        "final_goal_gate_rejections": 0,
+        "precondition_gate_rejections": 1,
+        "effect_gate_rejections": 1,
+        "effect_failure_per_attempt": 0.1,
+        "final_goal_gate_rejections": 1,
         "mean_physical_attempts": 5.0,
         "mean_repair_rounds": 1.5,
         "mean_total_val_calls": 3.5,
@@ -250,3 +263,20 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         "mean_inference_requests": 30.0,
         "mean_wall_seconds": 10.0,
     }
+
+
+def test_report_marks_schema1_gate_metrics_as_unavailable() -> None:
+    report = build_report(
+        [_record()],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert operational["instrumented_records"] == 0
+    assert operational["committed_receipts"] is None
+    assert operational["effect_gate_rejections"] is None
+    assert operational["effect_failure_per_attempt"] is None
+    assert "| FULL_LOGIV | 0 | — | — | — | — | — | — |" in render_markdown(
+        report
+    )

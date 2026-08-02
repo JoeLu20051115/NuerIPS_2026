@@ -33,7 +33,15 @@ def _operational(records) -> dict:
     repaired = [item for item in records if item.repair_rounds > 0]
     successful_repaired = sum(item.success for item in repaired)
     attempts = sum(item.physical_attempts for item in records)
-    effect_rejections = sum(item.effect_gate_rejections for item in records)
+    instrumented = [item for item in records if item.schema_version >= 2]
+    fully_instrumented = len(instrumented) == len(records)
+
+    def instrumented_sum(field: str) -> int | None:
+        if not fully_instrumented:
+            return None
+        return sum(int(getattr(item, field)) for item in instrumented)
+
+    effect_rejections = instrumented_sum("effect_gate_rejections")
 
     def mean(field: str) -> float | None:
         if not records:
@@ -46,18 +54,21 @@ def _operational(records) -> dict:
         "successful_recovery_episode_rate": (
             successful_repaired / len(repaired) if repaired else None
         ),
-        "committed_receipts": sum(item.committed_receipts for item in records),
-        "failed_receipts": sum(item.failed_receipts for item in records),
-        "unknown_receipts": sum(item.unknown_receipts for item in records),
-        "precondition_gate_rejections": sum(
-            item.precondition_gate_rejections for item in records
+        "instrumented_records": len(instrumented),
+        "committed_receipts": instrumented_sum("committed_receipts"),
+        "failed_receipts": instrumented_sum("failed_receipts"),
+        "unknown_receipts": instrumented_sum("unknown_receipts"),
+        "precondition_gate_rejections": instrumented_sum(
+            "precondition_gate_rejections"
         ),
         "effect_gate_rejections": effect_rejections,
         "effect_failure_per_attempt": (
-            effect_rejections / attempts if attempts else None
+            effect_rejections / attempts
+            if effect_rejections is not None and attempts
+            else None
         ),
-        "final_goal_gate_rejections": sum(
-            item.final_goal_gate_rejections for item in records
+        "final_goal_gate_rejections": instrumented_sum(
+            "final_goal_gate_rejections"
         ),
         "mean_physical_attempts": mean("physical_attempts"),
         "mean_repair_rounds": mean("repair_rounds"),
@@ -203,6 +214,9 @@ def build_report(
 
 
 def render_markdown(report: dict) -> str:
+    def count_or_dash(value: int | None) -> str:
+        return "—" if value is None else str(value)
+
     lines = [
         "# LOGIV LIBERO-10 Results",
         "",
@@ -250,18 +264,20 @@ def render_markdown(report: dict) -> str:
     lines.extend(
         [
             "",
-            "| Method | Committed receipts | Failed receipts | Unknown receipts | Precondition rejects | Effect rejects | Final-goal rejects |",
-            "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+            "| Method | Instrumented records | Committed receipts | Failed receipts | Unknown receipts | Precondition rejects | Effect rejects | Final-goal rejects |",
+            "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         ]
     )
     for setting in report["settings"]:
         operational = setting["operational"]
         lines.append(
-            f"| {setting['method_arm']} | {operational['committed_receipts']} | "
-            f"{operational['failed_receipts']} | {operational['unknown_receipts']} | "
-            f"{operational['precondition_gate_rejections']} | "
-            f"{operational['effect_gate_rejections']} | "
-            f"{operational['final_goal_gate_rejections']} |"
+            f"| {setting['method_arm']} | {operational['instrumented_records']} | "
+            f"{count_or_dash(operational['committed_receipts'])} | "
+            f"{count_or_dash(operational['failed_receipts'])} | "
+            f"{count_or_dash(operational['unknown_receipts'])} | "
+            f"{count_or_dash(operational['precondition_gate_rejections'])} | "
+            f"{count_or_dash(operational['effect_gate_rejections'])} | "
+            f"{count_or_dash(operational['final_goal_gate_rejections'])} |"
         )
     lines.extend(["", "## Paired task-stratified comparisons", ""])
     if not report["paired_comparisons"]:
