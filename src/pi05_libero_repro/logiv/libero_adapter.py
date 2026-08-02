@@ -953,10 +953,7 @@ class Pi05MacroExecutor:
                             break
                     else:
                         confirmed_divergence_steps = 0
-                if (
-                    queued.completion_mode == "OCCURRENCE"
-                    and self.prompt_renderer.has_phase(queued.action, "finish")
-                ):
+                if self.prompt_renderer.has_phase(queued.action, "finish"):
                     try:
                         phase_snapshot = self.grounder.peek_snapshot()
                     except GroundingError:

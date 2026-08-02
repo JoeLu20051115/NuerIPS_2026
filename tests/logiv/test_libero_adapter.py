@@ -655,6 +655,70 @@ def test_frontier_followup_deadline_reserves_budget_after_primary_completion() -
     assert result.frontier_followup_limit == 2
 
 
+def test_frontier_switches_to_primary_finish_prompt_after_verified_holding() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    first, primary = [item.action for item in package.proposal.candidate_subtasks]
+    object_name, source, target = primary.arguments
+    env.env.relations.update(
+        {
+            ("on", first.arguments[0], first.arguments[1]): True,
+            ("on", first.arguments[0], target): False,
+            ("on", object_name, source): True,
+            ("on", object_name, target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def acquire_then_finish(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", object_name, source)] = False
+            env.env.held.add(object_name)
+        elif step == 2:
+            env.env.held.remove(object_name)
+            env.env.relations[("on", object_name, target)] = True
+
+    env.step_hook = acquire_then_finish
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(2)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v10.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=2,
+        max_total_action_steps=2,
+        settling_steps=0,
+        frontier_followup_steps=1,
+    )
+    hint = ExecutionCompletionHint(
+        occurrence_ids=("task08-o001", "task08-o000"),
+        actions=(primary, first),
+    )
+    context = replace(_context(), occurrence_id="task08-o001")
+
+    dispatch = executor.consume_permit_and_enqueue(
+        primary,
+        context,
+        package.proposal.initial_snapshot,
+        completion_hint=hint,
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "frontier follow-up deadline reached"
+    assert executor.results[-1].completion_mode == "DAG_FRONTIER"
+    assert executor.results[-1].prompt_history == (
+        "Put both moka pots on the stove.",
+        "Put the moka pot you are holding on the stove and release it, then stop.",
+    )
+
+
 def test_transient_target_divergence_requires_consecutive_confirmation() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
@@ -1186,6 +1250,27 @@ def test_v16_uses_canonical_primary_prompt_then_remaining_object_prompt() -> Non
     )
     assert renderer.render_frontier(second) == renderer.render_frontier(first)
     assert renderer.render(second) == "put the remaining moka pot on the stove"
+
+
+def test_v17_adds_verified_holding_finish_phases_to_both_task8_branches() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v17.json"
+    )
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    first, second = [item.action for item in package.proposal.candidate_subtasks]
+
+    assert renderer.render_frontier(first) == (
+        "put the moka pot closest to the stove on the stove"
+    )
+    assert renderer.render_phase(first, "finish") == (
+        "put the moka pot you are holding on the stove and release it"
+    )
+    assert renderer.render_phase(second, "acquire") == (
+        "put the remaining moka pot on the stove"
+    )
+    assert renderer.render_phase(second, "finish") == renderer.render_phase(
+        first, "finish"
+    )
 
 
 def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
