@@ -84,6 +84,12 @@ def _sha256_array(value: np.ndarray) -> str:
     return _sha256_bytes(np.ascontiguousarray(value).tobytes())
 
 
+def _base_physical_attempts(steps: int) -> int:
+    if steps < 0:
+        raise ValueError("steps must be nonnegative")
+    return int(steps > 0)
+
+
 def _write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
@@ -615,7 +621,9 @@ def evaluate(args: argparse.Namespace) -> int:
                             terminal_cause=status.value,
                             receipts=(),
                             events=("BASE_DIRECT_EXECUTION",),
-                            budget_usage=RuntimeBudgetUsage(outcome.steps, 0, 0),
+                            budget_usage=RuntimeBudgetUsage(
+                                _base_physical_attempts(outcome.steps), 0, 0
+                            ),
                             graph_installs=0,
                             active_attempt_id=None,
                         )

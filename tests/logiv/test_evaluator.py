@@ -17,9 +17,17 @@ from pi05_libero_repro.logiv.model import GoalMode
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
 from pi05_libero_repro.logiv.repair import RepairBounds, RepairOperator, RetryPolicy
 from pi05_libero_repro.logiv.val import ValWrapper
+from scripts.eval_logiv_libero import _base_physical_attempts
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+
+
+def test_base_rollout_is_one_physical_attempt_not_one_attempt_per_control_step() -> None:
+    assert _base_physical_attempts(444) == 1
+    assert _base_physical_attempts(0) == 0
+    with pytest.raises(ValueError, match="steps"):
+        _base_physical_attempts(-1)
 
 
 def test_initial_certification_preserves_task8_parallel_graph() -> None:
