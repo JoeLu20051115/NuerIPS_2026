@@ -90,6 +90,22 @@ def _base_physical_attempts(steps: int) -> int:
     return int(steps > 0)
 
 
+def _replace_episode_environment(
+    current: Any | None,
+    *,
+    factory: Any,
+    bddl_file: Path | str,
+) -> Any:
+    """Create an episode-local simulator so hidden RNG state cannot cross episodes."""
+    if current is not None:
+        current.close()
+    return factory(
+        bddl_file_name=bddl_file,
+        camera_heights=256,
+        camera_widths=256,
+    )
+
+
 def _write_json(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.tmp")
@@ -514,6 +530,7 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "policy_rng_seed_derivation": "uint32(sha256('LOGIV-policy-seed-v1:master:task:episode')[:4])",
         "simulator_rng_protocol": "episode-seeded-v1",
         "simulator_rng_seed_derivation": "uint32(sha256('LOGIV-simulator-seed-v1:master:task:episode')[:4])",
+        "simulator_env_lifecycle": "fresh-env-per-episode-v1",
         "prompt_version": args.prompt_version,
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
@@ -590,12 +607,7 @@ def evaluate(args: argparse.Namespace) -> int:
         task = suite.get_task(task_id)
         initial_states = suite.get_task_init_states(task_id)
         task_bddl_file = Path(get_libero_path("bddl_files")) / task.problem_folder / task.bddl_file
-        env = OffScreenRenderEnv(
-            bddl_file_name=task_bddl_file,
-            camera_heights=256,
-            camera_widths=256,
-        )
-        env.seed(args.seed)
+        env = None
         try:
             for episode_idx in episode_indices:
                 key = (args.run_id, args.method_arm, args.goal_mode, task_id, episode_idx)
@@ -619,6 +631,11 @@ def evaluate(args: argparse.Namespace) -> int:
                     master_seed=args.seed,
                     task_id=task_id,
                     episode_idx=episode_idx,
+                )
+                env = _replace_episode_environment(
+                    env,
+                    factory=OffScreenRenderEnv,
+                    bddl_file=task_bddl_file,
                 )
                 episode_client = EpisodeSeededClient(client, episode_seed=policy_seed)
                 _write_json(
@@ -895,7 +912,8 @@ def evaluate(args: argparse.Namespace) -> int:
                     steps,
                 )
         finally:
-            env.close()
+            if env is not None:
+                env.close()
     return 0
 
 

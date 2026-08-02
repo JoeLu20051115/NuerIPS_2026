@@ -77,4 +77,6 @@
 - seed 14 在第 127 步因单帧 target-location divergence 停止，但 settling 后 pot 2 已明确处于 `holding`。随后针对 held-pot 的恢复 attempt 消耗余下 393 步仍未完成。target divergence 必须与 effect gate 一样连续确认，不能由抓取转换期的单帧位置关系触发。
 - seed 2 在 520 步结束时 pot 2 已在 stove、pot 1 仍在初始位置，但所有预算已经消耗在同一个 frontier attempt，无法进入第二分支的事实驱动执行。训练示范中 pot 2 到 pot 1 完成的观测间隔为 107--199 步，因此设置 180 个连续步骤的 primary-effect follow-up 窗口；超时只停止当前 attempt，不提交 sibling，并把保留预算交回普通 fresh-fact gate。
 
-iteration 2 仍不添加 PDDL macro 或 action edge。frontier 模式使用两个 ready actions 共同的 `render(action)` 原始任务 prompt，并禁止 phase switch；若后续只剩单一 action，则恢复该 grounded action 的 targeted phase prompt。全局 520-step budget 不变。候选只有再次在同一开发 seeds 上严格高于 Base 才允许扩大。
+iteration 2 仍不添加 PDDL macro 或 action edge。frontier 模式只使用两个 ready actions 共同的 `render_frontier(action)`；若 holding fact 已被确认，可切换为 primary action 的 finish phase，但 receipt ownership 与 effect gate 不变。若后续只剩单一 action，则恢复该 grounded action 的 targeted prompt。全局 520-step budget 不变。候选只有再次在同一开发 seeds 上严格高于 Base 才允许扩大。
+
+后续配对审计还发现，LIBERO 的同一 `init_state` 在独立进程中作为首个 episode 与作为第五个 episode 时可能产生不同的 post-wait first frame；`env.seed()`、NumPy/Python seed 与 `set_init_state()` 的组合不足以清空全部 env-local history。为使 episode seed 真正独立并保证 resume 不改变后续 episode，evaluator 从此为每个 episode 新建并关闭一个 `OffScreenRenderEnv`，并在 run manifest 写入 `simulator_env_lifecycle=fresh-env-per-episode-v1`。旧的 shared-env 结果只保留为开发诊断，不能与新协议结果混合。

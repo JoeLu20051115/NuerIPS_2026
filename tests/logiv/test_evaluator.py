@@ -20,6 +20,7 @@ from pi05_libero_repro.logiv.val import ValWrapper
 from scripts.eval_logiv_libero import (
     _allocate_episode_artifact_dir,
     _base_physical_attempts,
+    _replace_episode_environment,
 )
 
 
@@ -31,6 +32,44 @@ def test_base_rollout_is_one_physical_attempt_not_one_attempt_per_control_step()
     assert _base_physical_attempts(0) == 0
     with pytest.raises(ValueError, match="steps"):
         _base_physical_attempts(-1)
+
+
+def test_each_episode_replaces_and_closes_the_previous_simulator_environment() -> None:
+    class FakeEnv:
+        def __init__(self, marker):
+            self.marker = marker
+            self.closed = False
+
+        def close(self):
+            self.closed = True
+
+    created = []
+
+    def factory(**kwargs):
+        env = FakeEnv(kwargs)
+        created.append(env)
+        return env
+
+    old = FakeEnv("old")
+    first = _replace_episode_environment(
+        old,
+        factory=factory,
+        bddl_file="task.bddl",
+    )
+    second = _replace_episode_environment(
+        first,
+        factory=factory,
+        bddl_file="task.bddl",
+    )
+
+    assert old.closed is True
+    assert first.closed is True
+    assert second is created[1]
+    assert second.marker == {
+        "bddl_file_name": "task.bddl",
+        "camera_heights": 256,
+        "camera_widths": 256,
+    }
 
 
 def test_resume_preserves_orphan_artifacts_and_allocates_a_generation(tmp_path: Path) -> None:
