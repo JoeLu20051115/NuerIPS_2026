@@ -31,6 +31,9 @@ class SubtaskPromptRenderer:
         self.prompt_version = str(payload["prompt_version"])
         self.templates: Mapping[str, str] = payload["templates"]
         self.overrides: Mapping[str, str] = payload.get("action_overrides", {})
+        self.frontier_overrides: Mapping[str, str] = payload.get(
+            "frontier_action_overrides", {}
+        )
         self.phase_overrides: Mapping[str, Mapping[str, str]] = payload.get(
             "action_phase_overrides", {}
         )
@@ -89,6 +92,10 @@ class SubtaskPromptRenderer:
         if phase in phases:
             return str(phases[phase])
         return self.render(action)
+
+    def render_frontier(self, action: GroundAction) -> str:
+        """Render a shared policy instruction for a concurrently ready frontier."""
+        return self.frontier_overrides.get(action.pddl(), self.render(action))
 
     def has_phase(self, action: GroundAction, phase: str) -> bool:
         return phase in self.phase_overrides.get(action.pddl(), {})

@@ -764,7 +764,7 @@ class Pi05MacroExecutor:
                         context=context,
                     )
                 frontier_prompts = tuple(
-                    self.prompt_renderer.render(item)
+                    self.prompt_renderer.render_frontier(item)
                     for item in completion_hint.actions
                 )
                 if (
@@ -850,7 +850,7 @@ class Pi05MacroExecutor:
         primary_effect_streak = 0
         primary_effect_first_step = None
         prompt = (
-            self.prompt_renderer.render(queued.action)
+            self.prompt_renderer.render_frontier(queued.action)
             if queued.completion_mode == "DAG_FRONTIER"
             else self.prompt_renderer.render_phase(queued.action, phase)
         )
