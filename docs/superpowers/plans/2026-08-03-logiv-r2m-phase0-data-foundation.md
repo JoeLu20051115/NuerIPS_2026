@@ -10,7 +10,10 @@
 
 ## Global Constraints
 
-- Execute from a clean isolated worktree created from commit `8254a26b` with `superpowers:using-git-worktrees`; do not modify or copy the dirty experimental files in the original worktree.
+- Execute from the clean isolated `logiv-r2m-phase0` worktree whose implementation
+  merge base is `6cc847d6` (a documentation/workflow-only descendant of design commit
+  `8254a26b`); do not modify or copy the dirty experimental files in the original
+  worktree.
 - Add no Python runtime dependency beyond the repository's existing dependencies.
 - `BASE` must not construct a proposal provider, grounder, monitor, or recovery artifact writer.
 - `SHADOW_LOGIV` must send the same prompt, action history, policy RNG envelope, number of Base policy requests, and action count as `BASE` for the same task, episode, and seed.
