@@ -19,12 +19,15 @@
 `FULL_LOGIV`。新主线采用 **LOGIV-R2M（Repair-to-Manifold）**：
 
 1. 原始 `π_base` 使用官方完整任务文本连续执行，checkpoint 和 nominal 行为保持不变。
-2. LOGIV 在影子模式维护 Ground Facts、Goal、VAL certificate、Causal DAG、已完成目标与
+2. episode 开始时保留一次 `InitialProposal`：VLM/ScriptedProposal 只产生候选初始状态、
+   子目标与计划；输出必须通过 coverage、schema、signed-state 和 VAL gate，且不能改变
+   `π_base` 的 prompt、动作或 policy RNG。
+3. LOGIV 在影子模式维护 Ground Facts、Goal、VAL certificate、Causal DAG、已完成目标与
    剩余义务，但在没有可靠偏差时不改变 Base 动作。
-3. 只有稳定、可验证且存在已校准恢复技能的偏差才触发局部接管。
-4. 一个独立训练的 `π_recover` 连续执行与 VLA 训练粒度一致的恢复宏，不在
+4. 只有稳定、可验证且存在已校准恢复技能的偏差才触发局部接管。
+5. 一个独立训练的 `π_recover` 连续执行与 VLA 训练粒度一致的恢复宏，不在
    `holding` 等中间状态切断策略上下文。
-5. 外部状态监督器在 fresh observation 上验证目标 effect、protected invariants、Base
+6. 外部状态监督器在 fresh observation 上验证目标 effect、protected invariants、Base
    兼容性和剩余预算；四项同时成立后才能提交恢复并切回 `π_base` 或进入 native success
    检查。
 
@@ -103,28 +106,32 @@ critic 可以估计某次修复的成功率、干扰风险和耗时，却不能�
 
 ## 5. 总体架构与组件边界
 
-系统由七个可独立测试的组件组成：
+系统由八个可独立测试的组件组成：
 
 1. `NominalPolicyClient`：只向原始 checkpoint 发送官方完整任务文本；接口行为与 Base
    evaluator 相同。
-2. `ShadowLogivMonitor`：读取 observation，维护 fresh facts、已完成目标、稳定偏差与
+2. `InitialProposalProvider`：在 episode 初始 observation 上调用一次 VLM 或版本化
+   `ScriptedProposalProvider`，产生候选 Problem/actions/DAG seed；输出无效时只禁用 LOGIV
+   intervention，不影响 `NominalPolicyClient`。
+3. `ShadowLogivMonitor`：读取 observation，维护 fresh facts、已完成目标、稳定偏差与
    当前剩余义务；没有控制权限。
-3. `RecoveryPlanner`：从 handoff state 重建 Current Problem，调用原有 Repair、VAL 和
+4. `RecoveryPlanner`：从 handoff state 重建 Current Problem，调用原有 Repair、VAL 和
    DAG compiler，只产生局部、certificate-bound recovery plan。
-4. `RecoveryCapabilityRegistry`：声明哪些 grounded recovery option 有训练支持，保存
+5. `RecoveryCapabilityRegistry`：声明哪些 grounded recovery option 有训练支持，保存
    effect success、protected-invariant violation、step-cost 与数据/checkpoint provenance。
-5. `RecoveryPolicyClient`：只连接独立 `π_recover` checkpoint，每次 permit 只执行一个
+6. `RecoveryPolicyClient`：只连接独立 `π_recover` checkpoint，每次 permit 只执行一个
    有限模板定义的原子 recovery macro。
-6. `ExternalInvariantSupervisor`：独立于 recovery prompt 和 policy 输出，在执行前、执行中
+7. `ExternalInvariantSupervisor`：独立于 recovery prompt 和 policy 输出，在执行前、执行中
    和停止后验证 declared effect、已完成 Goal invariants、Base-compatible state 与 budget
    reserve；它是 recovery commit 的唯一事实来源。
-7. `OverlayController`：原子完成 Base → Recovery → Base 的切换、action-chunk flush、
+8. `OverlayController`：原子完成 Base → Recovery → Base 的切换、action-chunk flush、
    budget accounting、effect/invariant gate 和 terminal handling。
 
 ```text
 official task → π_base → action stream ───────────────────────────────┐
-                    │                                                │
-                    └→ Shadow LOGIV → stable deviation? ── no ──────┘
+initial obs → InitialProposal → validated shadow plan                 │
+                                  ↓                                  │
+                    Shadow LOGIV → stable deviation? ── no ──────────┘
                                              │ yes
                                              ↓
                             re-ground Current Problem + protected facts
@@ -148,6 +155,23 @@ official task → π_base → action stream ────────────
 实现，`RecoveryPolicyClient` 不决定任务 Goal，能力注册表不修改 PDDL 语义，prompt 中的
 `Preserve` 文本也不能替代 `ExternalInvariantSupervisor` 的物理事实验证。
 
+### 5.1 InitialProposal 合同
+
+系统层面保留 LOGIV 原始的开局 VLM 预测，但它是 proposal，不是执行 authorization：
+
+- 每个 episode 最多产生一个 accepted initial proposal；重复/迟到响应按 context generation
+  记录为 stale no-op。
+- `METADATA_ASSISTED` 主臂冻结官方 BDDL Goal；当前 `ScriptedProposalProvider` 只提出
+  candidate facts/actions，不允许改写 Goal。
+- `GOAL_PREDICTION` 扩展臂才允许真实 VLM 提出 Goal，并单独报告 Goal accuracy、请求和
+  失败率，不与 metadata-assisted 主表混合。
+- candidate 必须通过 coverage manifest、registered object/schema、signed-state、VAL 和
+  DAG lint，才能供 shadow planner 使用。
+- proposal 拒绝、超时或异常只令 `logiv_intervention_enabled=False`；`π_base` 继续使用官方
+  task prompt 原样执行，不能因为 LOGIV 初始化失败而终止 episode。
+- accepted proposal 也不能改变 Base prompt、action chunk、policy request generation 或
+  RNG。只有后续 stable deviation + capability permit 才能发生物理接管。
+
 ## 6. Nominal 非破坏合同
 
 新系统必须首先满足下列硬合同：
@@ -168,7 +192,8 @@ registered facts，在既有 replan boundary 检查结果，不等待外部 VLM/
 grounding/VAL latency、CPU/GPU time 与峰值内存。
 
 未来如果接入在线 VLM/LLM，必须使用独立 client 和 RNG、异步非阻塞请求，并把
-`base_policy_requests`、`shadow_vlm_requests`、`recovery_policy_requests` 分桶记录。此时
+`base_policy_requests`、`initial_proposal_requests`、`shadow_vlm_requests`、
+`recovery_policy_requests` 分桶记录。此时
 不能再声称“总推理请求与 Base 相同”，只能声称动作流、policy-action steps 和未接管
 episode outcome 与配对 Base 相同。外部请求结果只能在既有 observation generation
 边界被采纳，Controller 不得停住 Base 等待响应。
@@ -449,8 +474,8 @@ effect success、protected-invariant violation 和 steps。禁止根据 500-epis
   frame、policy/simulator seed、`replan_steps=5` 和 520 policy actions。
 - Base prefix 到 handoff step 的 action hash 必须与配对 Base 相同。
 - planner/VAL 的 wall time 不折算为 policy actions，但单独报告总 wall time、
-  `base_policy_requests`、`shadow_vlm_requests`、`recovery_policy_requests`、monitor calls
-  和 planner calls。
+  `base_policy_requests`、`initial_proposal_requests`、`shadow_vlm_requests`、
+  `recovery_policy_requests`、monitor calls 和 planner calls。
 - 每个方法独立启动或使用显式 episode-seeded policy wrapper，不能让方法顺序共享隐藏
   RNG 状态。
 
@@ -515,6 +540,8 @@ effect success、protected-invariant violation 和 steps。禁止根据 500-epis
 - stable trigger 的三次 TRUE、TRUE→UNKNOWN、抓取过渡态和 false-positive 去抖；
 - shadow 本地计算增加 latency 但不改变 Base action/outcome；模拟 external VLM 时额外请求
   被分桶且 Controller 不等待响应；
+- InitialProposal 通过时只安装 shadow plan；拒绝、超时、异常或 stale response 时禁用
+  intervention 并保持 Base action/outcome；
 - Base/Recovery request generation 与 stale callback no-op；
 - capability hash/state-class/remaining-budget 匹配；
 - protected facts 自动进入 repair constraints；
@@ -526,6 +553,7 @@ effect success、protected-invariant violation 和 steps。禁止根据 500-epis
 ### 16.2 集成测试
 
 - inactive monitor 与 Base action arrays、steps、`π_base` policy requests 完全相等；
+- InitialProposal 的 accepted/rejected 两条路径都不改变 Base prompt、action-prefix 或 RNG；
 - 若启用在线 shadow VLM，只要求 Base policy requests 相等，并验证额外请求与延迟独立
   记录；
 - simulator snapshot 恢复后 true/false facts 与保存时一致；
