@@ -5,7 +5,8 @@ from dataclasses import dataclass
 import hashlib
 import math
 import random
-from typing import Any, List, Tuple
+import time
+from typing import Any, Callable, List, Mapping, Tuple
 
 import numpy as np
 
@@ -80,6 +81,9 @@ class EpisodeOutcome:
     first_frame: np.ndarray
     replay_frames: List[np.ndarray]
     actions: List[np.ndarray]
+    shadow_calls: int = 0
+    shadow_errors: int = 0
+    shadow_wall_seconds: float = 0.0
 
 
 def quat2axisangle(quat: np.ndarray) -> np.ndarray:
@@ -132,6 +136,9 @@ def run_episode(
     wait_steps: int = 10,
     replan_steps: int = 5,
     settling_steps: int = 0,
+    *,
+    shadow_observer: Callable[[Mapping[str, Any], np.ndarray, int], None] | None = None,
+    clock: Callable[[], float] = time.perf_counter,
 ) -> EpisodeOutcome:
     if max_steps <= 0 or wait_steps < 0 or replan_steps <= 0 or settling_steps < 0:
         raise ValueError(
@@ -149,6 +156,9 @@ def run_episode(
         replay_frames = []
         executed_actions = []
         inference_requests = 0
+        shadow_calls = 0
+        shadow_errors = 0
+        shadow_wall_seconds = 0.0
         done = False
 
         for _ in range(max_steps):
@@ -174,6 +184,23 @@ def run_episode(
             action = np.asarray(action_plan.popleft(), dtype=np.float64)
             executed_actions.append(action)
             obs, _, done, _ = env.step(action.tolist())
+            if shadow_observer is not None:
+                shadow_started = clock()
+                shadow_calls += 1
+                copied_observation = {
+                    key: value.copy() if isinstance(value, np.ndarray) else value
+                    for key, value in obs.items()
+                }
+                try:
+                    shadow_observer(
+                        copied_observation,
+                        action.copy(),
+                        len(executed_actions),
+                    )
+                except Exception:
+                    shadow_errors += 1
+                finally:
+                    shadow_wall_seconds += clock() - shadow_started
             if done:
                 break
 
@@ -196,6 +223,9 @@ def run_episode(
             first_frame=replay_frames[0],
             replay_frames=replay_frames,
             actions=executed_actions,
+            shadow_calls=shadow_calls,
+            shadow_errors=shadow_errors,
+            shadow_wall_seconds=shadow_wall_seconds,
         )
     except EpisodeInvalid:
         raise

@@ -169,6 +169,41 @@ def test_wait_replan_reset_order_and_success() -> None:
     assert outcome.success and outcome.done and outcome.check_success
 
 
+def test_shadow_observer_cannot_change_or_abort_base_actions() -> None:
+    baseline_env = FakeEnv(succeed_on_policy_step=7)
+    shadow_env = FakeEnv(succeed_on_policy_step=7)
+    baseline = run_episode(
+        baseline_env, FakeClient(), np.array([9.0]), "prompt", FakeImageTools()
+    )
+    seen_steps = []
+
+    def hostile_observer(obs, action, policy_step):
+        seen_steps.append(policy_step)
+        obs["robot0_eef_pos"][0] = -999
+        action[:] = -999
+        if policy_step == 3:
+            raise RuntimeError("shadow failed")
+
+    ticks = iter(value * 0.01 for value in range(100))
+    shadow = run_episode(
+        shadow_env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        shadow_observer=hostile_observer,
+        clock=ticks.__next__,
+    )
+    np.testing.assert_array_equal(np.asarray(shadow.actions), np.asarray(baseline.actions))
+    assert shadow.steps == baseline.steps
+    assert shadow.inference_requests == baseline.inference_requests
+    assert (shadow.done, shadow.check_success) == (baseline.done, baseline.check_success)
+    assert seen_steps == list(range(1, baseline.steps + 1))
+    assert shadow.shadow_calls == baseline.steps
+    assert shadow.shadow_errors == 1
+    assert shadow.shadow_wall_seconds == pytest.approx(baseline.steps * 0.01)
+
+
 def test_inference_error_is_invalid() -> None:
     class BrokenClient:
         def infer(self, element: dict) -> dict:
