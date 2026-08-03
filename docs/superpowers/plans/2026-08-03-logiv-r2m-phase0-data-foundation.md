@@ -824,6 +824,13 @@ if arm in {MethodArm.BASE, MethodArm.SHADOW_LOGIV}:
 
 Construct `ShadowRuntime` only for `SHADOW_LOGIV`; pass `runtime.observer` to `run_episode`. Do not change `str(task.language)`, `initial_state`, `episode_client`, `max_steps`, `wait_steps`, `replan_steps`, or `settling_steps` between the arms. Both arms must build the same Base `ControllerResult` and native terminal evaluation.
 
+The initial proposal and VAL certification run before the shared rollout. Immediately
+after that Shadow-only setup, call `seed_episode_runtime(env, simulator_seed)` again
+before `run_episode`; `BASE` calls the same seed function at the corresponding boundary.
+This prevents proposal/provider code from perturbing Python, NumPy, or simulator reset
+RNG state. Add a unit test whose proposal provider consumes `random` and `np.random`,
+then assert the Base and Shadow post-boundary draws are identical.
+
 Write `base_execution.json` for both arms with `steps`, `base_policy_requests`, `done_signal`, `post_settling_success`, and a SHA-256 over the dtype, shape, and bytes of every executed action. For Shadow also write:
 
 ```json
