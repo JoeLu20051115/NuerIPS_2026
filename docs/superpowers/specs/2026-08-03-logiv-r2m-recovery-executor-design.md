@@ -351,17 +351,21 @@ round-trip 与 policy RNG continuation 分开验证；branch rollout 使用新�
   wrong-object grasp、partial placement/未完全释放、一个 Goal 已满足、crowded target 被
   已完成物体占用，以及适用任务中的 drawer/microwave articulation half-open。
 
-数据划分使用可机械检查的 `recovery_group_id`。该 ID 至少绑定 task、scene XML hash、
-object instance/type IDs、initial-state hash、parent nominal snapshot、perturbation family
-和 root physics-state hash。所有满足以下任一关系的 samples 必须进入同一 split：
+每个保存状态有两个不同用途的稳定 ID：`root_id` 精确绑定 task、initial-state、
+perturbation/branch seeds 与 root physics-state hash，用于复现某一个物理状态；
+`recovery_group_id` 则绑定 task、scene XML hash、object instance/type IDs、initial-state
+hash、parent nominal snapshot 和 perturbation family，但有意排除 perturbation/branch seeds、
+相机噪声与微小 object pose。后者是数据划分的最小原子单位。所有满足以下任一关系的
+samples 必须进入同一 split：
 
 - 来自同一 initial state 或同一 parent nominal snapshot；
 - 只改变 perturbation seed、branch seed、相机噪声或微小 object pose；
 - 使用相同 root snapshot 但由不同 teacher/policy 产生；
 - 是同一 partial-placement、drop、wrong-grasp 或 half-open 事件的时间邻近帧。
 
-train/dev/held-out 使用互斥的 initial-state IDs、root IDs 和 perturbation seeds；split
-validator 在训练前检查交集并计算 pose/state fingerprint 近重复。若 LIBERO 固定任务没有
+train/dev/held-out 使用互斥的 `recovery_group_id`、initial-state IDs、root IDs 和
+perturbation seeds；split validator 在训练前检查交集并计算 pose/state fingerprint
+近重复。若 LIBERO 固定任务没有
 新的 object instance 或 scene 可用于真正的 object/scene holdout，能力合同必须明确写成
 “仅在已见 object/scene class 内验证”，不得宣称跨物体或跨场景泛化。当前已查看的 50
 episodes 只用于 development；冻结代码后的确认运行使用新的 policy master seed。
