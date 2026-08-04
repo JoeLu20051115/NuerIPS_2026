@@ -369,6 +369,42 @@ def test_episode_seeded_client_only_reads_acknowledged_envelopes_and_replays_fro
     assert len(client.issued_request_envelopes) == 1
 
 
+def test_episode_seeded_client_replay_envelopes_ignore_public_identity_mutation() -> None:
+    class EchoingClient:
+        def __init__(self) -> None:
+            self.requests = []
+
+        def infer(self, element: dict) -> dict[str, object]:
+            self.requests.append(element)
+            return {
+                "actions": np.zeros((1, 7)),
+                "__logiv_rng__": {
+                    "episode_seed": element["__logiv_episode_seed__"],
+                    "inference_index": element["__logiv_inference_index__"],
+                },
+            }
+
+    base = EchoingClient()
+    client = EpisodeSeededClient(
+        base, episode_seed=7, policy_client_config_sha256="b" * 64
+    )
+    client.infer({"prompt": "test"})
+    issued = client.request_envelope_reader(0, True)
+
+    client.episode_seed = 99
+    client.policy_client_config_sha256 = "c" * 64
+
+    assert client.request_envelope_reader(0, True) == issued
+    assert json.loads(client.request_envelope_reader(1, False)) == {
+        "episode_seed": 7,
+        "inference_index": 1,
+        "policy_client_config_sha256": "b" * 64,
+        "version": "BaseRequestEnvelopeV1",
+    }
+    client.infer({"prompt": "test"})
+    assert [request["__logiv_episode_seed__"] for request in base.requests] == [7, 7]
+
+
 def test_generic_client_has_no_replay_envelope_support() -> None:
     contexts = []
     run_episode(

@@ -108,8 +108,10 @@ class EpisodeSeededClient:
         if episode_seed < 0 or episode_seed >= 2**32:
             raise ValueError("episode_seed must fit uint32")
         self._client = client
-        self.episode_seed = int(episode_seed)
+        self._episode_seed = int(episode_seed)
+        self.episode_seed = self._episode_seed
         self.inference_index = 0
+        self._policy_client_config_sha256 = policy_client_config_sha256
         self.policy_client_config_sha256 = policy_client_config_sha256
         self._issued_request_envelopes: list[str] = []
         self._acknowledged_request_indexes: set[int] = set()
@@ -119,12 +121,12 @@ class EpisodeSeededClient:
         return tuple(self._issued_request_envelopes)
 
     def _render_request_envelope(self, index: int) -> str | None:
-        if self.policy_client_config_sha256 is None:
+        if self._policy_client_config_sha256 is None:
             return None
         return BaseRequestEnvelopeV1(
-            episode_seed=self.episode_seed,
+            episode_seed=self._episode_seed,
             inference_index=index,
-            policy_client_config_sha256=self.policy_client_config_sha256,
+            policy_client_config_sha256=self._policy_client_config_sha256,
         ).canonical_json()
 
     def request_envelope_reader(self, index: int, require_issued: bool) -> str | None:
@@ -141,14 +143,14 @@ class EpisodeSeededClient:
 
     def infer(self, element: dict) -> dict:
         request = dict(element)
-        request["__logiv_episode_seed__"] = self.episode_seed
+        request["__logiv_episode_seed__"] = self._episode_seed
         request["__logiv_inference_index__"] = self.inference_index
         envelope = self._render_request_envelope(self.inference_index)
         if envelope is not None:
             self._issued_request_envelopes.append(envelope)
         result = self._client.infer(request)
         expected = {
-            "episode_seed": self.episode_seed,
+            "episode_seed": self._episode_seed,
             "inference_index": self.inference_index,
         }
         if result.get("__logiv_rng__") != expected:
