@@ -291,6 +291,24 @@ def _graph_json(
     return payload
 
 
+def _write_shadow_graph_artifact(
+    artifact_dir: Path, runtime: ShadowRuntime
+) -> CausalGraph | None:
+    proposal = runtime.initial_proposal
+    if (
+        proposal is None
+        or proposal.status.value != "ACCEPTED"
+        or proposal.validation is None
+    ):
+        return None
+    graph = proposal.validation.certified_episode.graph
+    _write_json(
+        artifact_dir / "graph.json",
+        _graph_json(graph, state_trace=runtime.state_trace),
+    )
+    return graph
+
+
 def _certificate_json(certificate) -> dict[str, Any]:
     payload = asdict(certificate)
     payload["context"] = certificate.context.payload()
@@ -590,6 +608,8 @@ def _validate_shadow_options(
     arm = MethodArm(args.method_arm)
     if args.shadow_topology_only and arm is not MethodArm.SHADOW_LOGIV:
         raise ValueError("shadow topology-only mode requires SHADOW_LOGIV")
+    if args.shadow_topology_only and args.shadow_monitor_interval_steps <= 0:
+        raise ValueError("shadow topology-only interval must be positive")
     if args.shadow_topology_only and args.collect_recovery_roots:
         raise ValueError("shadow topology-only mode cannot collect recovery roots")
     if args.collect_recovery_roots:
@@ -675,6 +695,7 @@ def _shadow_artifact_payloads(
             int(outcome.shadow_errors),
             runtime.counters.proposal_callback_errors,
             runtime.counters.provenance_errors,
+            runtime.counters.trace_errors,
             metric("snapshot_errors"),
             metric("event_tracker_errors"),
             metric("evidence_overflows"),
@@ -703,6 +724,7 @@ def _shadow_artifact_payloads(
         "failure_records": [asdict(item) for item in outcome.shadow_failure_records],
         "proposal_callback_errors": runtime.counters.proposal_callback_errors,
         "provenance_errors": runtime.counters.provenance_errors,
+        "trace_errors": runtime.counters.trace_errors,
         "snapshot_calls": metric("snapshot_calls"),
         "snapshot_errors": metric("snapshot_errors"),
         "event_tracker_errors": metric("event_tracker_errors"),
@@ -1368,13 +1390,6 @@ def evaluate(args: argparse.Namespace) -> int:
                                 graph = certified.graph
                                 final_graph = certified.graph
                                 certificate = certified.certificate
-                                _write_json(
-                                    artifact_dir / "graph.json",
-                                    _graph_json(
-                                        graph,
-                                        state_trace=shadow_runtime.state_trace,
-                                    ),
-                                )
                     else:
                         initial_observation = _reset_episode(env, initial_state, args.wait_steps)
                         _, first_frame = prepare_observation(
@@ -1478,6 +1493,9 @@ def evaluate(args: argparse.Namespace) -> int:
                         initial_context,
                         {"exception": exception_text, "traceback": traceback.format_exc()},
                     )
+
+                if shadow_runtime is not None:
+                    _write_shadow_graph_artifact(artifact_dir, shadow_runtime)
 
                 record_accounting = {
                     "base_policy_requests": inference_requests,

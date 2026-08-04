@@ -185,6 +185,20 @@ def test_topology_only_rejects_recovery_root_collection() -> None:
         _validate_shadow_options(args, tuple(range(10)))
 
 
+def test_topology_only_rejects_nonpositive_audit_interval() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id", "bad-interval", "--method-arm", "SHADOW_LOGIV",
+            "--goal-mode", "METADATA_ASSISTED", "--deviation-mode", "NOMINAL",
+            "--port", "8010", "--output-dir", "/tmp/bad-interval",
+            "--shadow-topology-only", "--shadow-monitor-interval-steps", "0",
+        ]
+    )
+
+    with pytest.raises(ValueError, match="interval"):
+        _validate_shadow_options(args, tuple(range(10)))
+
+
 def test_graph_artifact_keeps_fixed_structure_and_orders_the_state_trace() -> None:
     graph, _ = _graph()
     trace = [{"policy_step": 0, "nodes": [{"node_id": "INIT", "status": "COMPLETED"}]}]

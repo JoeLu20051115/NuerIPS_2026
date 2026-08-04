@@ -214,6 +214,8 @@ def build_shadow_runtime(
 ) -> ShadowRuntime:
     """Build a fail-open observer without touching the proposal provider."""
 
+    if topology_only and interval_steps <= 0:
+        raise ValueError("topology-only interval must be positive")
     counters = ShadowRuntimeCounters()
     action_prefix = BaseActionPrefixHasher()
     previous_context: ShadowStepContext | None = None

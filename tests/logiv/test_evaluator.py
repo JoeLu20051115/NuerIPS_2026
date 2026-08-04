@@ -38,6 +38,7 @@ from scripts.eval_logiv_libero import (
     _validate_shadow_options,
 )
 from pi05_libero_repro.protocol import EpisodeOutcome, ShadowFailureRecord
+import scripts.eval_logiv_libero as evaluator_script
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
@@ -326,6 +327,7 @@ def test_shadow_error_aggregate_sums_each_sole_owner_once() -> None:
             root_write_errors=6,
             proposal_callback_errors=7,
             provenance_errors=8,
+            trace_errors=9,
         ),
     )
     outcome = EpisodeOutcome(
@@ -342,8 +344,61 @@ def test_shadow_error_aggregate_sums_each_sole_owner_once() -> None:
 
     _, monitor, _, accounting = _shadow_artifact_payloads(outcome, runtime)
 
-    assert monitor["aggregate_errors"] == 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8
+    assert monitor["trace_errors"] == 9
+    assert monitor["aggregate_errors"] == 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9
     assert accounting["shadow_monitor_errors"] == monitor["aggregate_errors"]
+
+
+def test_shadow_graph_artifact_is_written_only_for_accepted_proposals(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    writer = getattr(evaluator_script, "_write_shadow_graph_artifact", None)
+    assert writer is not None
+    graph = object()
+    runtime = ShadowRuntime(
+        InitialProposalResult(
+            status=InitialProposalStatus.ACCEPTED,
+            provider="test-provider",
+            request_count=1,
+            elapsed_seconds=0.1,
+            package=object(),
+            validation=SimpleNamespace(
+                certified_episode=SimpleNamespace(graph=graph)
+            ),
+            reason=None,
+        ),
+        None,
+        None,
+        ShadowRuntimeCounters(),
+        state_trace=[{"policy_step": 0}],
+    )
+    writes = []
+    monkeypatch.setattr(
+        evaluator_script,
+        "_graph_json",
+        lambda value, *, state_trace: {"graph": value, "state_trace": state_trace},
+    )
+    monkeypatch.setattr(
+        evaluator_script,
+        "_write_json",
+        lambda path, payload: writes.append((path, payload)),
+    )
+
+    assert writer(tmp_path, runtime) is graph
+    assert writes == [
+        (
+            tmp_path / "graph.json",
+            {"graph": graph, "state_trace": [{"policy_step": 0}]},
+        )
+    ]
+
+    runtime.initial_proposal = replace(
+        runtime.initial_proposal,
+        status=InitialProposalStatus.REJECTED,
+        validation=None,
+    )
+    assert writer(tmp_path, runtime) is None
+    assert len(writes) == 1
 
 
 def test_shadow_compute_seconds_separate_initial_proposal_from_monitor() -> None:
