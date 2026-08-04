@@ -18,6 +18,7 @@ from pi05_libero_repro.logiv.controller import (
 )
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.libero_adapter import (
+    build_libero_transition_feature_reader,
     GroundingError,
     LiberoOracleGrounder,
     LiberoObservationStore,
@@ -31,9 +32,12 @@ from pi05_libero_repro.logiv.model import (
     ContextPhase,
     Fact,
     GoalMode,
+    TruthValue,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
+from pi05_libero_repro.logiv.shadow_monitor import load_monitor_evidence_contract
+from pi05_libero_repro.protocol import ShadowStepContext
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -2740,3 +2744,215 @@ def test_v51_keeps_task9_downstream_context_without_skipping_gates() -> None:
 
     assert renderer.render_phase(place, "acquire") == task_prompt
     assert renderer.render(close) == task_prompt
+
+
+class _ReadOnlyTransitionInner:
+    def __init__(self) -> None:
+        self.holding: dict[str, bool | None] = {}
+        self.contacts: dict[str, int | None] = {}
+        self.region_truth: dict[tuple[str, str], bool | None] = {}
+        self.region_distance: dict[tuple[str, str], float | None] = {}
+        self.object_positions: dict[str, np.ndarray | None] = {}
+
+    def _eval_predicate(self, state):
+        object_id, region = str(state[1]), str(state[2])
+        value = self.region_truth.get((object_id, region))
+        if value is None:
+            raise KeyError((object_id, region))
+        return value
+
+    def read_logiv_holding(self, object_id: str):
+        return self.holding.get(object_id)
+
+    def read_logiv_contact_count(self, object_id: str):
+        return self.contacts.get(object_id)
+
+    def read_logiv_region_truth(self, object_id: str, region: str):
+        return self.region_truth.get((object_id, region))
+
+    def read_logiv_region_distance(self, object_id: str, region: str):
+        return self.region_distance.get((object_id, region))
+
+    def read_logiv_object_position(self, object_id: str):
+        value = self.object_positions.get(object_id)
+        return None if value is None else np.array(value, copy=True)
+
+
+class _MutationTrapTransitionEnv:
+    def __init__(self) -> None:
+        self.env = _ReadOnlyTransitionInner()
+        self.step_calls = 0
+        self.reset_calls = 0
+        self.set_state_calls = 0
+
+    def step(self, action):
+        del action
+        self.step_calls += 1
+        raise AssertionError("transition reader must not step")
+
+    def reset(self):
+        self.reset_calls += 1
+        raise AssertionError("transition reader must not reset")
+
+    def set_state(self, state):
+        del state
+        self.set_state_calls += 1
+        raise AssertionError("transition reader must not mutate simulator state")
+
+
+def _transition_context(
+    step: int,
+    *,
+    gripper: float | None = 0.02,
+    eef_x: float = 0.0,
+    pixel: int = 0,
+) -> ShadowStepContext:
+    observation = {
+        "agentview_image": np.full((2, 2, 3), pixel, dtype=np.uint8),
+        "robot0_eye_in_hand_image": np.zeros((2, 2, 3), dtype=np.uint8),
+        "robot0_eef_pos": np.array([eef_x, 0.0, 0.5]),
+        "robot0_eef_quat": np.array([0.0, 0.0, 0.0, 1.0]),
+    }
+    if gripper is not None:
+        observation["robot0_gripper_qpos"] = np.array([gripper])
+    return ShadowStepContext(
+        observation=observation,
+        last_action=None if step == 0 else np.zeros(7),
+        policy_step=step,
+        base_policy_request_count=1,
+        active_base_request_index=0,
+        next_base_request_index=1,
+        active_base_request_envelope_json=None,
+        next_base_replay_envelope_json=None,
+        base_action_response_size=1,
+        base_action_chunk_size=1,
+        pending_base_action_offset=0,
+        pending_base_actions=np.empty((0, 7)),
+        base_action_prefix_sha256="1" * 64,
+    )
+
+
+def _transition_reader_fixture():
+    env = _MutationTrapTransitionEnv()
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage.json", 5
+    )
+    contract = load_monitor_evidence_contract(
+        ROOT / "configs/logiv/r2m-monitor-evidence-v1.json", task_id=5
+    )
+    for rule in contract.action_event_rules:
+        env.env.holding[rule.object_id] = False
+        env.env.contacts[rule.object_id] = 0
+        env.env.object_positions[rule.object_id] = np.array([0.0, 0.0, 0.0])
+        for region in (
+            rule.source_region,
+            rule.destination_region,
+            *contract.abnormal_support_surfaces,
+        ):
+            if region is None:
+                continue
+            env.env.region_truth[(rule.object_id, region)] = False
+            env.env.region_distance[(rule.object_id, region)] = 1.0
+    reader = build_libero_transition_feature_reader(env, binding, contract)
+    return env, contract, reader
+
+
+def test_transition_feature_reader_is_read_only_version_bound_and_complete() -> None:
+    env, contract, reader = _transition_reader_fixture()
+    rows = reader(_transition_context(0))
+
+    assert reader.monitor_contract_sha256 == contract.contract_sha256
+    assert reader.tracker_version == contract.tracker_version
+    assert reader.rule_ids == tuple(rule.rule_id for rule in contract.action_event_rules)
+    assert tuple(item.rule_id for item in rows) == reader.rule_ids
+    assert all(item.policy_step == 0 for item in rows)
+    assert all(item.gripper_qpos == 0.02 for item in rows)
+    assert all(item.transition_sha256 for item in rows)
+    assert "env" not in vars(reader)
+    assert (env.step_calls, env.reset_calls, env.set_state_calls) == (0, 0, 0)
+
+
+def test_transition_hash_ignores_pixels_but_binds_registered_values() -> None:
+    _, _, first = _transition_reader_fixture()
+    _, _, noisy = _transition_reader_fixture()
+    _, _, changed = _transition_reader_fixture()
+
+    first_hashes = tuple(
+        item.transition_sha256 for item in first(_transition_context(0, pixel=0))
+    )
+    noisy_hashes = tuple(
+        item.transition_sha256 for item in noisy(_transition_context(0, pixel=255))
+    )
+    changed_hashes = tuple(
+        item.transition_sha256
+        for item in changed(_transition_context(0, gripper=-0.02, pixel=0))
+    )
+    assert first_hashes == noisy_hashes
+    assert first_hashes != changed_hashes
+
+
+def test_transition_reader_missing_keys_return_null_unknown_without_mutation() -> None:
+    env, _, reader = _transition_reader_fixture()
+    env.env.holding.clear()
+    env.env.contacts.clear()
+    env.env.object_positions.clear()
+    env.env.region_truth.clear()
+    env.env.region_distance.clear()
+
+    rows = reader(_transition_context(0, gripper=None))
+    assert rows
+    assert all(item.gripper_qpos is None for item in rows)
+    assert all(item.contact_count is None for item in rows)
+    assert all(item.holding is TruthValue.UNKNOWN for item in rows)
+    assert all(item.source_region_truth is TruthValue.UNKNOWN for item in rows)
+    assert all(item.destination_region_truth is TruthValue.UNKNOWN for item in rows)
+    assert (env.step_calls, env.reset_calls, env.set_state_calls) == (0, 0, 0)
+
+
+def test_transition_reader_computes_registered_motion_correlation_after_step_zero() -> None:
+    env, _, reader = _transition_reader_fixture()
+    reader(_transition_context(0, eef_x=0.0))
+    for object_id in env.env.object_positions:
+        env.env.object_positions[object_id] = np.array([0.2, 0.0, 0.0])
+    rows = reader(_transition_context(1, eef_x=0.2))
+    assert all(item.object_eef_motion_correlation == pytest.approx(1.0) for item in rows)
+
+
+def test_transition_reader_grounds_support_alias_from_read_only_workspace_geometry() -> None:
+    class GeometryInner:
+        workspace_offset = np.array([0.0, 0.0, 0.8])
+        table_full_size = np.array([1.0, 1.0, 0.1])
+        obj_body_id = {"black_book_1": 0}
+        sim = SimpleNamespace(
+            data=SimpleNamespace(
+                body_xpos=np.array([[0.0, 0.0, 0.85]]),
+                get_site_xpos=lambda name: (_ for _ in ()).throw(KeyError(name)),
+            )
+        )
+        objects_dict = {"black_book_1": FakeObject("black_book_1")}
+        robots = [FakeRobot()]
+
+        def _eval_predicate(self, state):
+            raise KeyError(tuple(state))
+
+        def _check_grasp(self, gripper, geoms):
+            del gripper, geoms
+            return False
+
+        def get_object(self, object_id):
+            return self.objects_dict[object_id]
+
+    env = SimpleNamespace(env=GeometryInner())
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage.json", 5
+    )
+    contract = load_monitor_evidence_contract(
+        ROOT / "configs/logiv/r2m-monitor-evidence-v1.json", task_id=5
+    )
+    rows = build_libero_transition_feature_reader(env, binding, contract)(
+        _transition_context(0)
+    )
+
+    assert all(item.abnormal_region_truth is TruthValue.TRUE for item in rows)
+    assert all(item.abnormal_region_id == "study_table_recovery_surface" for item in rows)
+    assert all(item.abnormal_region_distance == pytest.approx(0.0) for item in rows)
