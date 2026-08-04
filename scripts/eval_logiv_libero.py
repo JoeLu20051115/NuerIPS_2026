@@ -256,8 +256,10 @@ def _ground_initial(package, grounder: LiberoOracleGrounder, context: ContextEnv
     return response.snapshot
 
 
-def _graph_json(graph: CausalGraph) -> dict[str, Any]:
-    return {
+def _graph_json(
+    graph: CausalGraph, *, state_trace: list[dict[str, Any]] | None = None
+) -> dict[str, Any]:
+    payload = {
         "graph_version": graph.graph_version,
         "graph_hash": graph.graph_hash,
         "certificate_hash": graph.certificate_hash,
@@ -284,6 +286,9 @@ def _graph_json(graph: CausalGraph) -> dict[str, Any]:
             for edge in graph.edges
         ],
     }
+    if state_trace is not None:
+        payload["state_trace"] = state_trace
+    return payload
 
 
 def _certificate_json(certificate) -> dict[str, Any]:
@@ -583,6 +588,10 @@ def _validate_shadow_options(
     task_ids: tuple[int, ...],
 ) -> dict[int, MonitorEvidenceContract]:
     arm = MethodArm(args.method_arm)
+    if args.shadow_topology_only and arm is not MethodArm.SHADOW_LOGIV:
+        raise ValueError("shadow topology-only mode requires SHADOW_LOGIV")
+    if args.shadow_topology_only and args.collect_recovery_roots:
+        raise ValueError("shadow topology-only mode cannot collect recovery roots")
     if args.collect_recovery_roots:
         if arm is not MethodArm.SHADOW_LOGIV:
             raise ValueError("Phase 0 recovery collection requires SHADOW_LOGIV")
@@ -590,7 +599,7 @@ def _validate_shadow_options(
             raise ValueError("Phase 0 recovery collection requires development-only mode")
         if args.recovery_root_split != RecoverySplit.DEV.value:
             raise ValueError("Phase 0 recovery collection is restricted to DEV")
-    if arm is not MethodArm.SHADOW_LOGIV:
+    if arm is not MethodArm.SHADOW_LOGIV or args.shadow_topology_only:
         return {}
     contracts = {
         task_id: load_monitor_evidence_contract(
@@ -792,12 +801,14 @@ def _build_evaluator_shadow_runtime(
     policy_seed: int,
     simulator_seed: int,
     artifact_dir: Path,
-    monitor_contract: MonitorEvidenceContract,
+    monitor_contract: MonitorEvidenceContract | None,
 ) -> ShadowRuntime:
     binding = TaskBinding.from_manifest(args.coverage_manifest, task_id)
     provider = ScriptedProposalProvider(args.proposal_config)
-    transition_reader = build_libero_transition_feature_reader(
-        env, binding, monitor_contract
+    transition_reader = (
+        build_libero_transition_feature_reader(env, binding, monitor_contract)
+        if monitor_contract is not None
+        else lambda context: ()
     )
     lineage_sha256 = _domain_sha256(
         b"LOGIV_PARENT_TRAJECTORY_LINEAGE_V1",
@@ -843,13 +854,14 @@ def _build_evaluator_shadow_runtime(
         if registered != binding.registered_objects:
             raise ValueError("proposal/binding registered-object mismatch")
         registered_set = frozenset(registered)
-        required_contract_ids = set(monitor_contract.object_ids) | set(
-            monitor_contract.abnormal_support_surfaces
-        )
-        for effect in monitor_contract.task_relevant_effects:
-            required_contract_ids.update(parse_pddl_fact(effect).arguments)
-        if not required_contract_ids <= registered_set:
-            raise ValueError("monitor contract references unregistered proposal IDs")
+        if monitor_contract is not None:
+            required_contract_ids = set(monitor_contract.object_ids) | set(
+                monitor_contract.abnormal_support_surfaces
+            )
+            for effect in monitor_contract.task_relevant_effects:
+                required_contract_ids.update(parse_pddl_fact(effect).arguments)
+            if not required_contract_ids <= registered_set:
+                raise ValueError("monitor contract references unregistered proposal IDs")
 
         store = LiberoObservationStore(observation, epoch_id=0)
         grounder = LiberoOracleGrounder(
@@ -991,6 +1003,7 @@ def _build_evaluator_shadow_runtime(
         root_collector=collect_root,
         interval_steps=args.shadow_monitor_interval_steps,
         confirmation_count=args.shadow_confirmations,
+        topology_only=args.shadow_topology_only,
     )
 
 
@@ -1004,6 +1017,7 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
             for task_id in task_ids
         }
         if MethodArm(args.method_arm) is MethodArm.SHADOW_LOGIV
+        and not args.shadow_topology_only
         else {}
     )
     return {
@@ -1029,12 +1043,17 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "development_only": args.development_only,
         "oracle_grounding": args.oracle_grounding,
         "collect_recovery_roots": args.collect_recovery_roots,
+        "shadow_topology_only": args.shadow_topology_only,
         "recovery_root_split": args.recovery_root_split,
         "shadow_monitor_interval_steps": args.shadow_monitor_interval_steps,
         "shadow_confirmations": args.shadow_confirmations,
-        "shadow_monitor_contract": str(args.shadow_monitor_contract),
-        "shadow_monitor_contract_registry_sha256": resolved_json_sha256(
-            args.shadow_monitor_contract
+        "shadow_monitor_contract": (
+            None if args.shadow_topology_only else str(args.shadow_monitor_contract)
+        ),
+        "shadow_monitor_contract_registry_sha256": (
+            None
+            if args.shadow_topology_only
+            else resolved_json_sha256(args.shadow_monitor_contract)
         ),
         "shadow_monitor_contract_sha256": (
             next(iter(shadow_contract_hashes.values()))
@@ -1043,6 +1062,7 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         ),
         "shadow_monitor_contract_sha256_by_task": shadow_contract_hashes,
         "replan_steps": args.replan_steps,
+        "no_video": args.no_video,
         "max_action_steps": args.max_action_steps,
         "max_total_action_steps": args.base_max_steps,
         "settling_steps": args.settling_steps,
@@ -1234,7 +1254,7 @@ def evaluate(args: argparse.Namespace) -> int:
                                 policy_seed=policy_seed,
                                 simulator_seed=simulator_seed,
                                 artifact_dir=artifact_dir,
-                                monitor_contract=shadow_contracts[task_id],
+                                monitor_contract=shadow_contracts.get(task_id),
                             )
                         outcome = run_episode(
                             env,
@@ -1254,6 +1274,7 @@ def evaluate(args: argparse.Namespace) -> int:
                             request_envelope_reader=(
                                 episode_client.request_envelope_reader
                             ),
+                            capture_replay_frames=not args.no_video,
                         )
                         evaluator = NativeLiberoTaskEvaluator()
                         evaluated = evaluator.evaluate(env)
@@ -1347,6 +1368,13 @@ def evaluate(args: argparse.Namespace) -> int:
                                 graph = certified.graph
                                 final_graph = certified.graph
                                 certificate = certified.certificate
+                                _write_json(
+                                    artifact_dir / "graph.json",
+                                    _graph_json(
+                                        graph,
+                                        state_trace=shadow_runtime.state_trace,
+                                    ),
+                                )
                     else:
                         initial_observation = _reset_episode(env, initial_state, args.wait_steps)
                         _, first_frame = prepare_observation(
@@ -1502,7 +1530,7 @@ def evaluate(args: argparse.Namespace) -> int:
                             )
 
                 video_path = None
-                if frames:
+                if frames and not args.no_video:
                     relative = Path("videos") / f"task_{task_id:02d}_episode_{episode_idx:03d}.mp4"
                     final_video = output_dir / relative
                     final_video.parent.mkdir(parents=True, exist_ok=True)
@@ -1613,6 +1641,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--oracle-grounding", action="store_true")
     parser.add_argument("--development-only", action="store_true")
     parser.add_argument("--collect-recovery-roots", action="store_true")
+    parser.add_argument("--shadow-topology-only", action="store_true")
     parser.add_argument(
         "--recovery-root-split",
         choices=("TRAIN", "DEV", "HELDOUT"),
@@ -1647,6 +1676,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--frontier-fallback-after-steps", default=0, type=int)
     parser.add_argument("--frontier-fallback-followup-steps", default=120, type=int)
     parser.add_argument("--video-fps", default=10, type=int)
+    parser.add_argument("--no-video", action="store_true")
     parser.add_argument("--watchdog-seconds", default=60.0, type=float)
     parser.add_argument("--action-limit", default=1.1, type=float)
     parser.add_argument("--max-physical-attempts", default=12, type=int)

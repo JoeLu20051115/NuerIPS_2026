@@ -269,6 +269,7 @@ def _build(
     validator_error: Exception | None = None,
     source_epoch: int = 0,
     collector=lambda trigger, context, episode_context: object(),
+    topology_only: bool = False,
 ):
     contract = _contract()
 
@@ -290,10 +291,11 @@ def _build(
         episode_context=_episode_context(contract),
         goal_mode=GoalMode.METADATA_ASSISTED,
         live_validator=live_validator,
-        monitor_contract=contract,
+        monitor_contract=None if topology_only else contract,
         root_collector=collector,
         interval_steps=1,
         confirmation_count=2,
+        topology_only=topology_only,
     )
     return runtime
 
@@ -316,6 +318,23 @@ def test_provider_is_lazy_and_acceptance_seeds_monitor_at_step_zero() -> None:
     assert runtime.monitor.action_event_tracker.attempt_record_count == 0
     assert runtime.monitor.metrics.anomaly_candidates == 0
     assert runtime.monitor.metrics.confirmed_deviations == 0
+
+
+def test_topology_only_records_fixed_graph_states_without_recovery_monitoring() -> None:
+    runtime = _build(_Provider(), topology_only=True)
+    hasher = BaseActionPrefixHasher()
+
+    runtime.observer(_context(0, hasher))
+    runtime.observer(_context(1, hasher))
+
+    assert runtime.monitor is None
+    assert runtime.counters.root_count == 0
+    assert [state["policy_step"] for state in runtime.state_trace] == [0, 1]
+    assert [state["observation_generation"] for state in runtime.state_trace] == [0, 1]
+    assert all(
+        [node["node_id"] for node in state["nodes"]] == ["INIT", "a0", "GOAL"]
+        for state in runtime.state_trace
+    )
 
 
 def test_live_validation_rejection_is_stored_and_later_callbacks_are_noops() -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 import random
 
@@ -172,6 +173,36 @@ def test_wait_replan_reset_order_and_success() -> None:
     assert [float(action[0]) for action in outcome.actions] == [1, 1, 1, 1, 1, 2, 2]
     assert outcome.steps == 7
     assert outcome.success and outcome.done and outcome.check_success
+
+
+def test_episode_can_skip_replay_frame_storage_without_changing_outcome() -> None:
+    assert "capture_replay_frames" in inspect.signature(run_episode).parameters
+    stored = run_episode(
+        FakeEnv(succeed_on_policy_step=2),
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        settling_steps=1,
+    )
+    unstored = run_episode(
+        FakeEnv(succeed_on_policy_step=2),
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        settling_steps=1,
+        capture_replay_frames=False,
+    )
+
+    assert unstored.replay_frames == []
+    assert (unstored.success, unstored.done, unstored.check_success, unstored.steps) == (
+        stored.success,
+        stored.done,
+        stored.check_success,
+        stored.steps,
+    )
+    np.testing.assert_array_equal(unstored.first_frame, stored.first_frame)
 
 
 def test_shadow_observer_cannot_change_or_abort_base_actions() -> None:

@@ -1188,6 +1188,7 @@ class StableRecoveryObserver:
         on_trigger: Callable[[ShadowTrigger], None],
         interval_steps: int,
         confirmation_count: int,
+        on_snapshot: Callable[[ShadowStepContext, FactSnapshot, CertificateReconciliation], None] | None = None,
     ) -> None:
         if interval_steps != monitor_contract.monitor_interval_steps:
             raise ValueError("monitor interval does not match the frozen contract")
@@ -1202,6 +1203,7 @@ class StableRecoveryObserver:
         self.on_trigger = on_trigger
         self.interval_steps = interval_steps
         self.confirmation_count = confirmation_count
+        self.on_snapshot = on_snapshot
         self.metrics = ShadowMonitorMetrics()
         self.reconciler = ShadowCertificateReconciler(
             plan_context, monitor_contract.grounding_rule_sha256
@@ -1544,6 +1546,8 @@ class StableRecoveryObserver:
             )
         self._previous_snapshot = snapshot
         self._reconciliation = reconciliation
+        if self.on_snapshot is not None:
+            self.on_snapshot(context, snapshot, reconciliation)
         if reconciliation.certificate_state is CertificateState.STALE:
             self.metrics.stale_certificates = 1
         try:

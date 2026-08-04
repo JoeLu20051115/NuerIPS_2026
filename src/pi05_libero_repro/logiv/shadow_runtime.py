@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol
 
 import numpy as np
 
-from pi05_libero_repro.logiv.dag import CausalGraph
+from pi05_libero_repro.logiv.dag import CausalGraph, NodeKind
 from pi05_libero_repro.logiv.initial_proposal import (
     InitialProposalResult,
     InitialProposalStatus,
@@ -18,6 +18,7 @@ from pi05_libero_repro.logiv.model import (
     GroundAction,
     ProposalPackage,
     TaskProblem,
+    TruthValue,
 )
 from pi05_libero_repro.logiv.recovery_records import (
     CollectionLabel,
@@ -25,6 +26,7 @@ from pi05_libero_repro.logiv.recovery_records import (
 )
 from pi05_libero_repro.logiv.shadow_monitor import (
     MonitorEvidenceContract,
+    ShadowCertificateReconciler,
     ShadowPlanContext,
     ShadowTrigger,
     StableRecoveryObserver,
@@ -81,6 +83,7 @@ class ShadowRuntimeCounters:
     root_write_errors: int = 0
     proposal_callback_errors: int = 0
     provenance_errors: int = 0
+    trace_errors: int = 0
 
 
 @dataclass
@@ -89,6 +92,72 @@ class ShadowRuntime:
     observer: Callable[[ShadowStepContext], None] | None
     monitor: StableRecoveryObserver | None
     counters: ShadowRuntimeCounters
+    state_trace: list[dict[str, Any]] = field(default_factory=list)
+
+
+def project_graph_state(
+    graph: CausalGraph,
+    problem: TaskProblem,
+    snapshot: FactSnapshot,
+    *,
+    policy_step: int,
+    observation_generation: int,
+    certificate_state: str,
+) -> dict[str, Any]:
+    """Project one observation-backed snapshot onto the certified graph."""
+
+    predecessors = {node.node_id: set() for node in graph.nodes}
+    for edge in graph.edges:
+        source = graph.node_map[edge.source]
+        if source.kind is NodeKind.ACTION:
+            predecessors[edge.target].add(edge.source)
+
+    statuses: dict[str, str] = {"INIT": "COMPLETED"}
+    for node in graph.nodes:
+        if node.kind is not NodeKind.ACTION or node.action is None:
+            continue
+        action = node.action
+        completed = snapshot.satisfies(
+            positive=action.add_effects, negative=action.del_effects
+        )
+        if completed:
+            statuses[node.node_id] = "COMPLETED"
+            continue
+        preconditions = action.preconditions | action.negative_preconditions
+        has_unknown = any(
+            snapshot.truth(fact) is TruthValue.UNKNOWN for fact in preconditions
+        )
+        ready = (
+            all(statuses.get(item) == "COMPLETED" for item in predecessors[node.node_id])
+            and snapshot.satisfies(
+                positive=action.preconditions, negative=action.negative_preconditions
+            )
+        )
+        statuses[node.node_id] = (
+            "READY" if ready else "PRECONDITION_UNKNOWN" if has_unknown else "BLOCKED"
+        )
+
+    goal_completed = snapshot.satisfies(
+        positive=problem.goal, negative=problem.negative_goal
+    )
+    statuses["GOAL"] = (
+        "COMPLETED"
+        if goal_completed
+        else "READY"
+        if all(statuses.get(item) == "COMPLETED" for item in predecessors["GOAL"])
+        else "BLOCKED"
+    )
+    return {
+        "policy_step": policy_step,
+        "observation_generation": observation_generation,
+        "certificate_state": certificate_state,
+        "graph_version": graph.graph_version,
+        "graph_hash": graph.graph_hash,
+        "nodes": [
+            {"node_id": node.node_id, "status": statuses[node.node_id]}
+            for node in graph.nodes
+        ],
+    }
 
 
 def _same_value(first: Any, second: Any) -> bool:
@@ -134,13 +203,14 @@ def build_shadow_runtime(
     live_validator: Callable[
         [ProposalPackage, Mapping[str, Any]], ShadowValidatedProposal
     ],
-    monitor_contract: MonitorEvidenceContract,
+    monitor_contract: MonitorEvidenceContract | None,
     root_collector: Callable[
         [ShadowTrigger, ShadowStepContext, ShadowEpisodeContext],
         RecoveryRootArtifacts | None,
     ],
     interval_steps: int,
     confirmation_count: int,
+    topology_only: bool = False,
 ) -> ShadowRuntime:
     """Build a fail-open observer without touching the proposal provider."""
 
@@ -150,6 +220,7 @@ def build_shadow_runtime(
     disabled = False
     envelopes: dict[int, str] = {}
     active_trigger_context: ShadowStepContext | None = None
+    topology_auditor: Callable[[ShadowStepContext], None] | None = None
 
     runtime = ShadowRuntime(
         initial_proposal=None,
@@ -279,7 +350,7 @@ def build_shadow_runtime(
         return validated
 
     def observe(context: ShadowStepContext) -> None:
-        nonlocal active_trigger_context, disabled
+        nonlocal active_trigger_context, disabled, topology_auditor
         if disabled:
             return
         # If Task 2 could not prepare the step-zero callback, that protocol
@@ -322,19 +393,66 @@ def build_shadow_runtime(
                     graph=certified.graph,
                     certificate_hash=certified.certificate.certificate_hash,
                 )
-                tracker = VersionedActionEventTracker(
-                    monitor_contract,
-                    episode_context.transition_feature_reader,
-                )
-                runtime.monitor = StableRecoveryObserver(
-                    plan_context=plan_context,
-                    monitor_contract=monitor_contract,
-                    snapshot_reader=result.validation.snapshot_reader,
-                    action_event_tracker=tracker,
-                    on_trigger=collect_root,
-                    interval_steps=interval_steps,
-                    confirmation_count=confirmation_count,
-                )
+                def record_state(
+                    trace_context: ShadowStepContext,
+                    snapshot: FactSnapshot,
+                    reconciliation: Any,
+                ) -> None:
+                    try:
+                        runtime.state_trace.append(
+                            project_graph_state(
+                                certified.graph,
+                                certified.problem,
+                                snapshot,
+                                policy_step=trace_context.policy_step,
+                                observation_generation=reconciliation.observation_generation,
+                                certificate_state=reconciliation.certificate_state.value,
+                            )
+                        )
+                    except Exception:
+                        counters.trace_errors += 1
+
+                if topology_only:
+                    reconciler = ShadowCertificateReconciler(plan_context)
+
+                    def audit_topology(trace_context: ShadowStepContext) -> None:
+                        if trace_context.policy_step % interval_steps:
+                            return
+                        try:
+                            snapshot = result.validation.snapshot_reader(
+                                trace_context.observation
+                            )
+                            reconciliation = (
+                                reconciler.initial(snapshot)
+                                if not runtime.state_trace
+                                else reconciler.reconcile(
+                                    previous_snapshot[0], snapshot
+                                )
+                            )
+                            previous_snapshot[0] = snapshot
+                            record_state(trace_context, snapshot, reconciliation)
+                        except Exception:
+                            counters.trace_errors += 1
+
+                    previous_snapshot: list[FactSnapshot | None] = [None]
+                    topology_auditor = audit_topology
+                else:
+                    if monitor_contract is None:
+                        raise ValueError("shadow monitor contract is required")
+                    tracker = VersionedActionEventTracker(
+                        monitor_contract,
+                        episode_context.transition_feature_reader,
+                    )
+                    runtime.monitor = StableRecoveryObserver(
+                        plan_context=plan_context,
+                        monitor_contract=monitor_contract,
+                        snapshot_reader=result.validation.snapshot_reader,
+                        action_event_tracker=tracker,
+                        on_trigger=collect_root,
+                        interval_steps=interval_steps,
+                        confirmation_count=confirmation_count,
+                        on_snapshot=record_state,
+                    )
             except Exception:
                 counters.proposal_callback_errors += 1
                 disabled = True
@@ -346,6 +464,8 @@ def build_shadow_runtime(
                 runtime.monitor(context)
             finally:
                 active_trigger_context = None
+        elif topology_auditor is not None:
+            topology_auditor(context)
 
     runtime.observer = observe
     return runtime

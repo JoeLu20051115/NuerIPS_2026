@@ -255,6 +255,7 @@ def run_episode(
     *,
     shadow_observer: Callable[[ShadowStepContext], None] | None = None,
     request_envelope_reader: Callable[[int, bool], str | None] | None = None,
+    capture_replay_frames: bool = True,
     clock: Callable[[], float] = time.perf_counter,
 ) -> EpisodeOutcome:
     if max_steps <= 0 or wait_steps < 0 or replan_steps <= 0 or settling_steps < 0:
@@ -271,6 +272,7 @@ def run_episode(
 
         action_plan = deque()
         replay_frames = []
+        first_frame: np.ndarray | None = None
         executed_actions = []
         inference_requests = 0
         shadow_calls = 0
@@ -376,7 +378,10 @@ def run_episode(
 
         for _ in range(max_steps):
             element, main_image = prepare_observation(obs, prompt, image_tools)
-            replay_frames.append(main_image)
+            if first_frame is None:
+                first_frame = main_image
+            if capture_replay_frames:
+                replay_frames.append(main_image)
 
             if not action_plan:
                 current_chunk_request_index = inference_requests
@@ -414,7 +419,8 @@ def run_episode(
             _, settling_frame = prepare_observation(
                 settling_observation, prompt, image_tools
             )
-            replay_frames.append(settling_frame)
+            if capture_replay_frames:
+                replay_frames.append(settling_frame)
         check_success = bool(env.check_success())
         if settling_steps == 0 and done != check_success:
             raise EpisodeInvalid(f"success predicate disagreement: done={done}, check_success={check_success}")
@@ -424,7 +430,7 @@ def run_episode(
             check_success=check_success,
             steps=len(executed_actions),
             inference_requests=inference_requests,
-            first_frame=replay_frames[0],
+            first_frame=first_frame,
             replay_frames=replay_frames,
             actions=executed_actions,
             shadow_calls=shadow_calls,
