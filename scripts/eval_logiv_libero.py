@@ -764,6 +764,46 @@ def _shadow_artifact_payloads(
     return proposal_payload, monitor_payload, compute_payload, record_accounting
 
 
+def _shadow_record_accounting(
+    *,
+    outcome: Any | None,
+    runtime: ShadowRuntime | None,
+    exception_text: str | None,
+    base_policy_requests: int,
+) -> dict[str, Any]:
+    if outcome is not None and runtime is not None:
+        return _shadow_artifact_payloads(outcome, runtime)[3]
+
+    proposal = runtime.initial_proposal if runtime is not None else None
+    if proposal is None:
+        exception_code = (
+            exception_text.split(":", 1)[0] if exception_text else "RuntimeError"
+        )
+        status = "NOT_ATTEMPTED"
+        request_count = 0
+        reason_code = f"ROLLOUT:{exception_code}"
+    else:
+        status = proposal.status.value
+        request_count = proposal.request_count
+        reason_code = (
+            proposal.reason.split(":", 1)[0] if proposal.reason else None
+        )
+    return {
+        "base_policy_requests": base_policy_requests,
+        "initial_proposal_requests": request_count,
+        "initial_proposal_status": status,
+        "initial_proposal_reason_code": reason_code,
+        "shadow_vlm_requests": 0,
+        "recovery_policy_requests": 0,
+        "shadow_monitor_calls": 0,
+        "shadow_monitor_errors": (
+            runtime.counters.trace_errors if runtime is not None else 0
+        ),
+        "shadow_monitor_seconds": 0.0,
+        "shadow_parity_valid": True,
+    }
+
+
 def _base_execution_payload(
     outcome: Any,
     episode_client: EpisodeSeededClient,
@@ -1514,42 +1554,12 @@ def evaluate(args: argparse.Namespace) -> int:
                     "shadow_parity_valid": True,
                 }
                 if MethodArm(args.method_arm) is MethodArm.SHADOW_LOGIV:
-                    if outcome is not None and shadow_runtime is not None:
-                        _, _, _, record_accounting = _shadow_artifact_payloads(
-                            outcome, shadow_runtime
-                        )
-                    else:
-                        proposal_result = (
-                            shadow_runtime.initial_proposal
-                            if shadow_runtime is not None
-                            else None
-                        )
-                        if proposal_result is None:
-                            exception_code = (
-                                exception_text.split(":", 1)[0]
-                                if exception_text
-                                else "RuntimeError"
-                            )
-                            record_accounting.update(
-                                initial_proposal_status="NOT_ATTEMPTED",
-                                initial_proposal_reason_code=(
-                                    f"ROLLOUT:{exception_code}"
-                                ),
-                            )
-                        else:
-                            record_accounting.update(
-                                initial_proposal_requests=(
-                                    proposal_result.request_count
-                                ),
-                                initial_proposal_status=(
-                                    proposal_result.status.value
-                                ),
-                                initial_proposal_reason_code=(
-                                    proposal_result.reason.split(":", 1)[0]
-                                    if proposal_result.reason
-                                    else None
-                                ),
-                            )
+                    record_accounting = _shadow_record_accounting(
+                        outcome=outcome,
+                        runtime=shadow_runtime,
+                        exception_text=exception_text,
+                        base_policy_requests=inference_requests,
+                    )
 
                 video_path = None
                 if frames and not args.no_video:

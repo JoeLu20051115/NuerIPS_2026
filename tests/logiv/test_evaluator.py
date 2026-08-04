@@ -455,6 +455,103 @@ def test_shadow_graph_artifact_write_failure_is_contained_and_accounted(
     assert accounting["shadow_monitor_errors"] == 1
 
 
+def test_shadow_outcome_none_fallback_counts_contained_graph_write_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    accounting_for = getattr(evaluator_script, "_shadow_record_accounting", None)
+    assert accounting_for is not None
+    runtime = ShadowRuntime(
+        InitialProposalResult(
+            status=InitialProposalStatus.ACCEPTED,
+            provider="test-provider",
+            request_count=1,
+            elapsed_seconds=0.1,
+            package=object(),
+            validation=SimpleNamespace(
+                certified_episode=SimpleNamespace(
+                    graph=SimpleNamespace(graph_hash="g" * 64),
+                    certificate=SimpleNamespace(certificate_hash="c" * 64),
+                )
+            ),
+            reason=None,
+        ),
+        None,
+        None,
+        ShadowRuntimeCounters(),
+    )
+    monkeypatch.setattr(
+        evaluator_script,
+        "_graph_json",
+        lambda value, *, state_trace: {"graph": value, "state_trace": state_trace},
+    )
+    monkeypatch.setattr(
+        evaluator_script,
+        "_write_json",
+        lambda path, payload: (_ for _ in ()).throw(OSError("disk full")),
+    )
+
+    assert evaluator_script._write_shadow_graph_artifact(tmp_path, runtime) is None
+    accounting = accounting_for(
+        outcome=None,
+        runtime=runtime,
+        exception_text="RuntimeError: Base evaluator failed",
+        base_policy_requests=0,
+    )
+
+    assert accounting["initial_proposal_status"] == "ACCEPTED"
+    assert accounting["initial_proposal_requests"] == 1
+    assert accounting["shadow_monitor_errors"] == 1
+
+
+@pytest.mark.parametrize(
+    ("runtime", "expected_status", "expected_requests", "expected_reason"),
+    [
+        (None, "NOT_ATTEMPTED", 0, "ROLLOUT:RuntimeError"),
+        (
+            ShadowRuntime(
+                InitialProposalResult(
+                    status=InitialProposalStatus.REJECTED,
+                    provider="test-provider",
+                    request_count=1,
+                    elapsed_seconds=0.1,
+                    package=None,
+                    validation=None,
+                    reason="ValueError: rejected",
+                ),
+                None,
+                None,
+                ShadowRuntimeCounters(trace_errors=2),
+            ),
+            "REJECTED",
+            1,
+            "ValueError",
+        ),
+    ],
+)
+def test_shadow_outcome_none_fallback_preserves_proposal_accounting(
+    runtime: ShadowRuntime | None,
+    expected_status: str,
+    expected_requests: int,
+    expected_reason: str,
+) -> None:
+    accounting_for = getattr(evaluator_script, "_shadow_record_accounting", None)
+    assert accounting_for is not None
+
+    accounting = accounting_for(
+        outcome=None,
+        runtime=runtime,
+        exception_text="RuntimeError: Base evaluator failed",
+        base_policy_requests=0,
+    )
+
+    assert accounting["initial_proposal_status"] == expected_status
+    assert accounting["initial_proposal_requests"] == expected_requests
+    assert accounting["initial_proposal_reason_code"] == expected_reason
+    assert accounting["shadow_monitor_errors"] == (
+        0 if runtime is None else runtime.counters.trace_errors
+    )
+
+
 def test_shadow_compute_seconds_separate_initial_proposal_from_monitor() -> None:
     runtime = ShadowRuntime(
         InitialProposalResult(
