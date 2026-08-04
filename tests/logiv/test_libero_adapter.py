@@ -549,6 +549,85 @@ def test_conflicting_locations_fail_closed() -> None:
     assert "exactly-one" in response.reason
 
 
+@pytest.mark.parametrize("partial_group", ("movable", "access", "switch"))
+def test_advisory_partial_snapshot_preserves_unknown_exactly_one_evidence(
+    partial_group: str,
+) -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    other_locations = {
+        Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_left_init_region")),
+        Fact("at", ("moka_pot_1", "flat_stove_1_cook_region")),
+    }
+    holding = Fact("holding", ("moka_pot_1",))
+    open_fact = Fact("open", ("drawer_access",))
+    closed_fact = Fact("closed", ("drawer_access",))
+    on_fact = Fact("powered-on", ("stove_power",))
+    off_fact = Fact("powered-off", ("stove_power",))
+    facts = frozenset(
+        {source, *other_locations, holding, open_fact, closed_fact, on_fact, off_fact}
+    )
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    values = {fact: TruthValue.FALSE for fact in facts}
+    values[source] = TruthValue.TRUE
+    values[open_fact] = TruthValue.TRUE
+    values[on_fact] = TruthValue.TRUE
+    if partial_group == "movable":
+        values[source] = TruthValue.UNKNOWN
+    elif partial_group == "access":
+        values[open_fact] = TruthValue.UNKNOWN
+    else:
+        values[on_fact] = TruthValue.UNKNOWN
+    grounder._truth = lambda fact: values[fact]
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+    strict = grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS, _context(), facts
+    )
+    assert strict.status is GroundingStatus.STATE_GROUNDING_FAILURE
+    assert "exactly-one" in strict.reason
+    advisory = getattr(grounder, "peek_advisory_partial_snapshot", None)
+    assert advisory is not None
+    snapshot = advisory()
+    expected = {
+        "movable": source,
+        "access": open_fact,
+        "switch": on_fact,
+    }[partial_group]
+    assert expected in snapshot.unknown(snapshot.fact_universe)
+    assert "UNKNOWN" in snapshot.evidence_payload_json
+
+
+@pytest.mark.parametrize("values", [
+    {"source": TruthValue.TRUE, "other": TruthValue.TRUE, "holding": TruthValue.FALSE},
+    {"source": TruthValue.FALSE, "other": TruthValue.FALSE, "holding": TruthValue.FALSE},
+])
+def test_advisory_partial_snapshot_rejects_exactly_one_contradictions_and_all_false(
+    values: dict[str, TruthValue],
+) -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    other = Fact("at", ("moka_pot_1", "flat_stove_1_cook_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    facts = frozenset({source, other, holding})
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    grounder._truth = lambda fact: values[
+        "source" if fact == source else "other" if fact == other else "holding"
+    ]
+
+    advisory = getattr(grounder, "peek_advisory_partial_snapshot", None)
+    assert advisory is not None
+    with pytest.raises(GroundingError, match="exactly-one"):
+        advisory()
+
+
 def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
     env = FakeEnv()
     recovery = "kitchen_table_recovery_surface"

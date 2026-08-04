@@ -852,6 +852,14 @@ def _read_simulator_state(env: Any) -> np.ndarray:
     return np.asarray(state)
 
 
+def _shadow_snapshot_peek(
+    grounder: LiberoOracleGrounder, *, topology_only: bool
+) -> FactSnapshot:
+    if topology_only:
+        return grounder.peek_advisory_partial_snapshot()
+    return grounder.peek_snapshot()
+
+
 def _build_evaluator_shadow_runtime(
     args: argparse.Namespace,
     *,
@@ -967,7 +975,9 @@ def _build_evaluator_shadow_runtime(
             if current_hash == previous_observation_sha256:
                 return previous_snapshot
             store.update(current_observation)
-            previous_snapshot = grounder.peek_snapshot()
+            previous_snapshot = _shadow_snapshot_peek(
+                grounder, topology_only=args.shadow_topology_only
+            )
             previous_observation_sha256 = current_hash
             return previous_snapshot
 

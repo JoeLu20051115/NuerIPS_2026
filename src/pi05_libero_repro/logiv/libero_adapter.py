@@ -852,6 +852,7 @@ class LiberoOracleGrounder:
         required: FrozenSet[Fact],
         *,
         expected_epoch: int | None = None,
+        advisory_partial: bool = False,
     ) -> FactSnapshot:
         unregistered = required - self.monitored_facts
         if unregistered:
@@ -862,7 +863,9 @@ class LiberoOracleGrounder:
         with self.store.capture() as (epoch_id, observation, _):
             if expected_epoch is not None and epoch_id != expected_epoch:
                 raise GroundingError("context/epoch mismatch")
-            snapshot = self._snapshot_at(required, epoch_id, observation)
+            snapshot = self._snapshot_at(
+                required, epoch_id, observation, advisory_partial=advisory_partial
+            )
             if self.store.epoch_id != epoch_id:
                 raise GroundingError("fact snapshot epoch changed during capture")
             return snapshot
@@ -872,6 +875,8 @@ class LiberoOracleGrounder:
         required: FrozenSet[Fact],
         epoch_id: int,
         observation: Mapping[str, Any],
+        *,
+        advisory_partial: bool = False,
     ) -> FactSnapshot:
         values: dict[Fact, TruthValue] = {}
         for fact in sorted(self.monitored_facts, key=fact_pddl_sort_key):
@@ -907,6 +912,19 @@ class LiberoOracleGrounder:
 
         true_facts = frozenset(fact for fact, value in values.items() if value is TruthValue.TRUE)
         false_facts = frozenset(fact for fact, value in values.items() if value is TruthValue.FALSE)
+
+        def exactly_one(candidates: set[Fact]) -> bool:
+            confirmed = candidates & true_facts
+            return len(confirmed) == 1 or (
+                advisory_partial
+                and not confirmed
+                and any(
+                    values.get(fact) is TruthValue.UNKNOWN
+                    for fact in candidates
+                    if fact in values
+                )
+            )
+
         movable = {fact.arguments[0] for fact in holding_facts}
         for object_name in movable:
             candidates = {
@@ -916,7 +934,7 @@ class LiberoOracleGrounder:
                 or (fact.predicate == "at" and fact.arguments[0] == object_name)
             }
             confirmed = candidates & true_facts
-            if len(confirmed) != 1:
+            if not exactly_one(candidates):
                 raise GroundingError(
                     f"exactly-one violation for {object_name}: "
                     f"confirmed={sorted(map(str, confirmed))}"
@@ -935,7 +953,7 @@ class LiberoOracleGrounder:
                     Fact(positive_name, (name,)),
                     Fact(negative_name, (name,)),
                 }
-                if len(pair & true_facts) != 1:
+                if not exactly_one(pair):
                     raise GroundingError(
                         f"exactly-one {predicate} violation for {name}"
                     )
@@ -1001,6 +1019,11 @@ class LiberoOracleGrounder:
 
     def peek_snapshot(self) -> FactSnapshot:
         return self._snapshot(frozenset())
+
+    def peek_advisory_partial_snapshot(self) -> FactSnapshot:
+        """Read a topology-only partial snapshot without authorizing control."""
+
+        return self._snapshot(frozenset(), advisory_partial=True)
 
     def effects_satisfied(self, action: GroundAction) -> bool:
         return self.observe_action_progress(action)[0]

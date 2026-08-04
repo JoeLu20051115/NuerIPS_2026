@@ -70,6 +70,29 @@ def test_evaluator_accepts_run_scoped_proposal_and_coverage_configs() -> None:
     assert args.coverage_manifest == Path("/tmp/coverage.json")
 
 
+def test_shadow_snapshot_reader_uses_advisory_grounding_only_for_topology_mode() -> None:
+    class Grounder:
+        def __init__(self) -> None:
+            self.strict_calls = 0
+            self.advisory_calls = 0
+
+        def peek_snapshot(self):
+            self.strict_calls += 1
+            return "strict"
+
+        def peek_advisory_partial_snapshot(self):
+            self.advisory_calls += 1
+            return "advisory"
+
+    grounder = Grounder()
+    peek = getattr(evaluator_script, "_shadow_snapshot_peek", None)
+    assert peek is not None
+
+    assert peek(grounder, topology_only=False) == "strict"
+    assert peek(grounder, topology_only=True) == "advisory"
+    assert (grounder.strict_calls, grounder.advisory_calls) == (1, 1)
+
+
 def test_evaluator_parser_accepts_shadow_data_collection_arm() -> None:
     args = _parser().parse_args(
         [
