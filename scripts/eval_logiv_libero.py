@@ -302,10 +302,14 @@ def _write_shadow_graph_artifact(
     ):
         return None
     graph = proposal.validation.certified_episode.graph
-    _write_json(
-        artifact_dir / "graph.json",
-        _graph_json(graph, state_trace=runtime.state_trace),
-    )
+    try:
+        _write_json(
+            artifact_dir / "graph.json",
+            _graph_json(graph, state_trace=runtime.state_trace),
+        )
+    except Exception:
+        runtime.counters.trace_errors += 1
+        return None
     return graph
 
 

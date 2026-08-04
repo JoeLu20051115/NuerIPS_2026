@@ -354,7 +354,7 @@ def test_shadow_graph_artifact_is_written_only_for_accepted_proposals(
 ) -> None:
     writer = getattr(evaluator_script, "_write_shadow_graph_artifact", None)
     assert writer is not None
-    graph = object()
+    graph = SimpleNamespace(graph_hash="g" * 64)
     runtime = ShadowRuntime(
         InitialProposalResult(
             status=InitialProposalStatus.ACCEPTED,
@@ -363,7 +363,10 @@ def test_shadow_graph_artifact_is_written_only_for_accepted_proposals(
             elapsed_seconds=0.1,
             package=object(),
             validation=SimpleNamespace(
-                certified_episode=SimpleNamespace(graph=graph)
+                certified_episode=SimpleNamespace(
+                    graph=graph,
+                    certificate=SimpleNamespace(certificate_hash="c" * 64),
+                )
             ),
             reason=None,
         ),
@@ -399,6 +402,57 @@ def test_shadow_graph_artifact_is_written_only_for_accepted_proposals(
     )
     assert writer(tmp_path, runtime) is None
     assert len(writes) == 1
+
+
+def test_shadow_graph_artifact_write_failure_is_contained_and_accounted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    graph = SimpleNamespace(graph_hash="g" * 64)
+    runtime = ShadowRuntime(
+        InitialProposalResult(
+            status=InitialProposalStatus.ACCEPTED,
+            provider="test-provider",
+            request_count=1,
+            elapsed_seconds=0.1,
+            package=object(),
+            validation=SimpleNamespace(
+                certified_episode=SimpleNamespace(
+                    graph=graph,
+                    certificate=SimpleNamespace(certificate_hash="c" * 64),
+                )
+            ),
+            reason=None,
+        ),
+        None,
+        None,
+        ShadowRuntimeCounters(),
+    )
+    monkeypatch.setattr(
+        evaluator_script,
+        "_graph_json",
+        lambda value, *, state_trace: {"graph": value, "state_trace": state_trace},
+    )
+    monkeypatch.setattr(
+        evaluator_script,
+        "_write_json",
+        lambda path, payload: (_ for _ in ()).throw(OSError("disk full")),
+    )
+
+    assert evaluator_script._write_shadow_graph_artifact(tmp_path, runtime) is None
+    assert runtime.counters.trace_errors == 1
+    outcome = EpisodeOutcome(
+        success=True,
+        done=True,
+        check_success=True,
+        steps=1,
+        inference_requests=1,
+        first_frame=np.zeros((1, 1, 3)),
+        replay_frames=[],
+        actions=[np.zeros(7)],
+    )
+    _, monitor, _, accounting = _shadow_artifact_payloads(outcome, runtime)
+    assert monitor["trace_errors"] == 1
+    assert accounting["shadow_monitor_errors"] == 1
 
 
 def test_shadow_compute_seconds_separate_initial_proposal_from_monitor() -> None:
