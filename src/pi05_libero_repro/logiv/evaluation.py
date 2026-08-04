@@ -38,6 +38,7 @@ from pi05_libero_repro.logiv.val import PlanCertificate, ValWrapper
 
 class MethodArm(str, Enum):
     BASE = "BASE"
+    SHADOW_LOGIV = "SHADOW_LOGIV"
     STAGE_ONLY = "STAGE_ONLY"
     GRAPH_WITHOUT_VAL = "GRAPH_WITHOUT_VAL"
     VAL_WITHOUT_LOCALIZED_REPAIR = "VAL_WITHOUT_LOCALIZED_REPAIR"

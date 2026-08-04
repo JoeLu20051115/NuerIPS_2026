@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 import time
 import traceback
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 import numpy as np
 
@@ -35,6 +35,7 @@ from pi05_libero_repro.logiv.evaluation import (
     run_stage_only,
 )
 from pi05_libero_repro.logiv.libero_adapter import (
+    build_libero_transition_feature_reader,
     LiberoObservationStore,
     LiberoOracleGrounder,
     Pi05MacroExecutor,
@@ -47,6 +48,7 @@ from pi05_libero_repro.logiv.model import (
     ContextPhase,
     FactSnapshot,
     GoalMode,
+    parse_pddl_fact,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.logiv.proposal import DEFAULT_FIXTURE, ScriptedProposalProvider
@@ -56,15 +58,36 @@ from pi05_libero_repro.logiv.records import (
     append_episode_record,
     load_episode_records,
 )
+from pi05_libero_repro.logiv.recovery_records import (
+    CollectionLabel,
+    RecoveryRootArtifacts,
+    RecoverySplit,
+    make_recovery_root_manifest,
+    observation_sha256,
+    write_recovery_root,
+)
 from pi05_libero_repro.logiv.repair import RepairBounds, RetryPolicy
+from pi05_libero_repro.logiv.shadow_monitor import (
+    MonitorEvidenceContract,
+    ShadowTrigger,
+    load_monitor_evidence_contract,
+)
+from pi05_libero_repro.logiv.shadow_runtime import (
+    ShadowEpisodeContext,
+    ShadowRuntime,
+    ShadowValidatedProposal,
+    build_shadow_runtime,
+)
 from pi05_libero_repro.logiv.val import ValWrapper
 from pi05_libero_repro.protocol import (
+    BaseActionPrefixHasher,
     LIBERO_DUMMY_ACTION,
     derive_episode_seed,
     EpisodeSeededClient,
     prepare_observation,
     run_episode,
     seed_episode_runtime,
+    ShadowStepContext,
 )
 
 
@@ -83,6 +106,22 @@ def _sha256_file(path: Path) -> str:
 
 def _sha256_array(value: np.ndarray) -> str:
     return _sha256_bytes(np.ascontiguousarray(value).tobytes())
+
+
+def _canonical_json(value: Any) -> str:
+    return json.dumps(
+        value,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def _domain_sha256(domain: bytes, value: Any) -> str:
+    return hashlib.sha256(
+        domain + b"\0" + _canonical_json(value).encode("utf-8")
+    ).hexdigest()
 
 
 def _base_physical_attempts(steps: int) -> int:
@@ -539,9 +578,436 @@ def _execute_symbolic_arm(
     )
 
 
-def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
+def _validate_shadow_options(
+    args: argparse.Namespace,
+    task_ids: tuple[int, ...],
+) -> dict[int, MonitorEvidenceContract]:
+    arm = MethodArm(args.method_arm)
+    if args.collect_recovery_roots:
+        if arm is not MethodArm.SHADOW_LOGIV:
+            raise ValueError("Phase 0 recovery collection requires SHADOW_LOGIV")
+        if not args.development_only:
+            raise ValueError("Phase 0 recovery collection requires development-only mode")
+        if args.recovery_root_split != RecoverySplit.DEV.value:
+            raise ValueError("Phase 0 recovery collection is restricted to DEV")
+    if arm is not MethodArm.SHADOW_LOGIV:
+        return {}
+    contracts = {
+        task_id: load_monitor_evidence_contract(
+            args.shadow_monitor_contract,
+            task_id=task_id,
+        )
+        for task_id in task_ids
+    }
+    for contract in contracts.values():
+        if contract.monitor_interval_steps != args.shadow_monitor_interval_steps:
+            raise ValueError("shadow monitor interval does not match frozen contract")
+        if contract.confirmation_count != args.shadow_confirmations:
+            raise ValueError("shadow confirmations do not match frozen contract")
+    return contracts
+
+
+def _shadow_artifact_payloads(
+    outcome: Any,
+    runtime: ShadowRuntime,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
+    proposal = runtime.initial_proposal
+    if proposal is None:
+        failure = next(
+            (
+                item
+                for item in outcome.shadow_failure_records
+                if item.policy_step == 0
+            ),
+            None,
+        )
+        reason = (
+            f"{failure.stage}:{failure.reason}"
+            if failure is not None
+            else "RUNTIME:NO_PROPOSAL_RESULT"
+        )
+        status = "NOT_ATTEMPTED"
+        reason_code = reason
+        provider = None
+        request_count = 0
+        elapsed_seconds = 0.0
+        certificate_hash = None
+        graph_hash = None
+    else:
+        status = proposal.status.value
+        reason = proposal.reason
+        reason_code = (
+            proposal.reason.split(":", 1)[0]
+            if status == "REJECTED" and proposal.reason
+            else None
+        )
+        provider = proposal.provider
+        request_count = proposal.request_count
+        elapsed_seconds = proposal.elapsed_seconds
+        validation = proposal.validation
+        certificate_hash = (
+            validation.certified_episode.certificate.certificate_hash
+            if validation is not None
+            else None
+        )
+        graph_hash = (
+            validation.certified_episode.graph.graph_hash
+            if validation is not None
+            else None
+        )
+
+    metrics = runtime.monitor.metrics if runtime.monitor is not None else None
+
+    def metric(name: str) -> int:
+        return int(getattr(metrics, name, 0))
+
+    aggregate_errors = sum(
+        (
+            int(outcome.shadow_errors),
+            runtime.counters.proposal_callback_errors,
+            runtime.counters.provenance_errors,
+            metric("snapshot_errors"),
+            metric("event_tracker_errors"),
+            metric("evidence_overflows"),
+            metric("trigger_callback_errors"),
+            runtime.counters.root_write_errors,
+        )
+    )
+    monitor_seconds = max(
+        0.0,
+        float(outcome.shadow_wall_seconds) - float(elapsed_seconds),
+    )
+    proposal_payload = {
+        "status": status,
+        "provider": provider,
+        "request_count": request_count,
+        "elapsed_seconds": elapsed_seconds,
+        "reason": reason,
+        "certificate_hash": certificate_hash,
+        "graph_hash": graph_hash,
+    }
+    monitor_payload = {
+        "callback_calls": outcome.shadow_calls,
+        "callback_errors": outcome.shadow_errors,
+        "callback_seconds": outcome.shadow_wall_seconds,
+        "shadow_parity_valid": outcome.shadow_parity_valid,
+        "failure_records": [asdict(item) for item in outcome.shadow_failure_records],
+        "proposal_callback_errors": runtime.counters.proposal_callback_errors,
+        "provenance_errors": runtime.counters.provenance_errors,
+        "snapshot_calls": metric("snapshot_calls"),
+        "snapshot_errors": metric("snapshot_errors"),
+        "event_tracker_errors": metric("event_tracker_errors"),
+        "evidence_overflows": metric("evidence_overflows"),
+        "trigger_callback_errors": metric("trigger_callback_errors"),
+        "root_write_errors": runtime.counters.root_write_errors,
+        "anomaly_candidates": metric("anomaly_candidates"),
+        "confirmed_deviations": metric("confirmed_deviations"),
+        "stale_certificates": metric("stale_certificates"),
+        "root_count": runtime.counters.root_count,
+        "aggregate_errors": aggregate_errors,
+    }
+    compute_payload = {
+        "base_policy_requests": outcome.inference_requests,
+        "initial_proposal_requests": request_count,
+        "shadow_vlm_requests": 0,
+        "recovery_policy_requests": 0,
+        "initial_proposal_seconds": elapsed_seconds,
+        "shadow_monitor_seconds": monitor_seconds,
+    }
+    record_accounting = {
+        "base_policy_requests": outcome.inference_requests,
+        "initial_proposal_requests": request_count,
+        "initial_proposal_status": status,
+        "initial_proposal_reason_code": reason_code,
+        "shadow_vlm_requests": 0,
+        "recovery_policy_requests": 0,
+        "shadow_monitor_calls": outcome.shadow_calls,
+        "shadow_monitor_errors": aggregate_errors,
+        "shadow_monitor_seconds": monitor_seconds,
+        "shadow_parity_valid": outcome.shadow_parity_valid,
+    }
+    return proposal_payload, monitor_payload, compute_payload, record_accounting
+
+
+def _base_execution_payload(
+    outcome: Any,
+    episode_client: EpisodeSeededClient,
+    *,
+    initial_state_sha256: str,
+    base_prompt_sha256: str,
+    base_checkpoint_sha256: str,
+    policy_client_config_sha256: str,
+) -> dict[str, Any]:
+    action_prefix = BaseActionPrefixHasher()
+    actions_sha256 = action_prefix.update_and_hexdigest(None)
+    for action in outcome.actions:
+        actions_sha256 = action_prefix.update_and_hexdigest(action)
+    request_envelope_log_sha256 = _domain_sha256(
+        b"LOGIV_BASE_REQUEST_ENVELOPE_LOG_V1",
+        list(episode_client.issued_request_envelopes),
+    )
     return {
-        "schema_version": 6,
+        "steps": outcome.steps,
+        "base_policy_requests": outcome.inference_requests,
+        "done_signal": outcome.done,
+        "post_settling_success": outcome.check_success,
+        "initial_state_sha256": initial_state_sha256,
+        "base_prompt_sha256": base_prompt_sha256,
+        "base_checkpoint_sha256": base_checkpoint_sha256,
+        "policy_client_config_sha256": policy_client_config_sha256,
+        "request_envelope_log_sha256": request_envelope_log_sha256,
+        "actions_sha256": actions_sha256,
+    }
+
+
+def _read_simulator_state(env: Any) -> np.ndarray:
+    reader = getattr(env, "get_sim_state", None)
+    if callable(reader):
+        return np.asarray(reader())
+    current = env
+    seen: set[int] = set()
+    while not hasattr(current, "sim") and hasattr(current, "env"):
+        if id(current) in seen:
+            break
+        seen.add(id(current))
+        current = current.env
+    state = current.sim.get_state()
+    if hasattr(state, "flatten"):
+        state = state.flatten()
+    return np.asarray(state)
+
+
+def _build_evaluator_shadow_runtime(
+    args: argparse.Namespace,
+    *,
+    env: Any,
+    task_id: int,
+    episode_idx: int,
+    episode_id: str,
+    initial_state_sha256: str,
+    scene_sha256: str,
+    base_prompt_sha256: str,
+    base_checkpoint_sha256: str,
+    policy_client_config_sha256: str,
+    policy_seed: int,
+    simulator_seed: int,
+    artifact_dir: Path,
+    monitor_contract: MonitorEvidenceContract,
+) -> ShadowRuntime:
+    binding = TaskBinding.from_manifest(args.coverage_manifest, task_id)
+    provider = ScriptedProposalProvider(args.proposal_config)
+    transition_reader = build_libero_transition_feature_reader(
+        env, binding, monitor_contract
+    )
+    lineage_sha256 = _domain_sha256(
+        b"LOGIV_PARENT_TRAJECTORY_LINEAGE_V1",
+        {
+            "task_id": task_id,
+            "scene_sha256": scene_sha256,
+            "initial_state_sha256": initial_state_sha256,
+            "base_prompt_sha256": base_prompt_sha256,
+            "base_checkpoint_sha256": base_checkpoint_sha256,
+            "policy_client_config_sha256": policy_client_config_sha256,
+            "master_seed": args.seed,
+            "policy_seed": policy_seed,
+            "simulator_seed": simulator_seed,
+        },
+    )
+    episode_context = ShadowEpisodeContext(
+        task_id=task_id,
+        episode_idx=episode_idx,
+        initial_epoch_id=0,
+        scene_sha256=scene_sha256,
+        object_instance_ids=tuple(sorted(binding.registered_objects)),
+        initial_state_sha256=initial_state_sha256,
+        parent_trajectory_lineage_sha256=lineage_sha256,
+        base_prompt_sha256=base_prompt_sha256,
+        base_checkpoint_sha256=base_checkpoint_sha256,
+        policy_client_config_sha256=policy_client_config_sha256,
+        policy_replay_contract_sha256=None,
+        master_seed=args.seed,
+        policy_seed=policy_seed,
+        simulator_seed=simulator_seed,
+        replan_steps=args.replan_steps,
+        collect_recovery_roots=args.collect_recovery_roots,
+        collection_label=CollectionLabel.DEV_COLLECTION,
+        root_output_dir=artifact_dir / "recovery_roots",
+        simulator_state_reader=lambda: _read_simulator_state(env),
+        transition_feature_reader=transition_reader,
+    )
+
+    def live_validator(
+        package: Any, observation: Mapping[str, Any]
+    ) -> ShadowValidatedProposal:
+        registered = tuple(item.name for item in package.proposal.registered_objects)
+        if registered != binding.registered_objects:
+            raise ValueError("proposal/binding registered-object mismatch")
+        registered_set = frozenset(registered)
+        required_contract_ids = set(monitor_contract.object_ids) | set(
+            monitor_contract.abnormal_support_surfaces
+        )
+        for effect in monitor_contract.task_relevant_effects:
+            required_contract_ids.update(parse_pddl_fact(effect).arguments)
+        if not required_contract_ids <= registered_set:
+            raise ValueError("monitor contract references unregistered proposal IDs")
+
+        store = LiberoObservationStore(observation, epoch_id=0)
+        grounder = LiberoOracleGrounder(
+            env,
+            store,
+            binding,
+            monitored_fact_universe(package.problem),
+        )
+        initial_context = _initial_context(package, episode_id)
+        initial_snapshot = _ground_initial(package, grounder, initial_context)
+        certified = certify_initial_package(
+            package,
+            initial_snapshot,
+            episode_id=episode_id,
+            val_wrapper=ValWrapper(args.val_binary, timeout_seconds=args.val_timeout),
+            allowed_schemas=(
+                binding.supported_action_schemas | binding.recovery_schemas
+            ),
+            repair_bounds=RepairBounds(
+                max_edits=args.max_edits,
+                max_candidates=args.max_candidates,
+                max_val_calls=args.max_repair_val_calls,
+            ),
+            retry_policy=RetryPolicy(
+                max_retries_per_lineage=args.max_retries_per_lineage
+            ),
+            decompose_macro_sources=binding.decompose_macro_sources,
+        )
+        previous_observation_sha256 = observation_sha256(observation)
+        previous_snapshot = initial_snapshot
+
+        def snapshot_reader(
+            current_observation: Mapping[str, Any]
+        ) -> FactSnapshot:
+            nonlocal previous_observation_sha256, previous_snapshot
+            current_hash = observation_sha256(current_observation)
+            if current_hash == previous_observation_sha256:
+                return previous_snapshot
+            store.update(current_observation)
+            previous_snapshot = grounder.peek_snapshot()
+            previous_observation_sha256 = current_hash
+            return previous_snapshot
+
+        return ShadowValidatedProposal(certified, snapshot_reader)
+
+    event_origins: dict[str, str] = {}
+
+    def collect_root(
+        trigger: ShadowTrigger,
+        context: ShadowStepContext,
+        runtime_context: ShadowEpisodeContext,
+    ) -> RecoveryRootArtifacts:
+        previous_origin = event_origins.get(trigger.deviation_event_id)
+        if (
+            previous_origin is not None
+            and previous_origin != trigger.event_origin_parent_sha256
+        ):
+            raise ValueError("deviation event origin changed across captures")
+        event_origins[trigger.deviation_event_id] = trigger.event_origin_parent_sha256
+        simulator_state = runtime_context.simulator_state_reader()
+        observation = {
+            key: np.array(value, copy=True)
+            for key, value in trigger.observation.items()
+        }
+        pending_actions = np.array(context.pending_base_actions, copy=True)
+        manifest = make_recovery_root_manifest(
+            split=RecoverySplit(args.recovery_root_split),
+            collection_label=runtime_context.collection_label,
+            task_id=runtime_context.task_id,
+            episode_idx=runtime_context.episode_idx,
+            scene_sha256=runtime_context.scene_sha256,
+            object_instance_ids=runtime_context.object_instance_ids,
+            initial_state_sha256=runtime_context.initial_state_sha256,
+            source_parent_snapshot_sha256=None,
+            event_origin_parent_sha256=trigger.event_origin_parent_sha256,
+            parent_trajectory_lineage_sha256=(
+                runtime_context.parent_trajectory_lineage_sha256
+            ),
+            base_prompt_sha256=runtime_context.base_prompt_sha256,
+            base_checkpoint_sha256=runtime_context.base_checkpoint_sha256,
+            policy_client_config_sha256=(
+                runtime_context.policy_client_config_sha256
+            ),
+            perturbation_family="observed_nominal_failure",
+            perturbation_seed=None,
+            branch_seed=None,
+            master_seed=runtime_context.master_seed,
+            policy_seed=runtime_context.policy_seed,
+            simulator_seed=runtime_context.simulator_seed,
+            trigger_class=trigger.trigger_class,
+            deviation_status=trigger.deviation_status.value,
+            deviation_event_id=trigger.deviation_event_id,
+            historical_failure_evidence=trigger.historical_failure_evidence,
+            relevant_fact_sha256=trigger.relevant_fact_sha256,
+            source_graph_version=trigger.source_graph_version,
+            source_observation_generation=trigger.observation_generation,
+            certificate_state=trigger.certificate_state.value,
+            grounding_rule_sha256=monitor_contract.grounding_rule_sha256,
+            event_detector_sha256=monitor_contract.event_detector_sha256,
+            monitor_contract_json=monitor_contract.canonical_json(),
+            policy_step=trigger.policy_step,
+            policy_request_generation=0,
+            base_policy_request_count=context.base_policy_request_count,
+            active_base_request_index=context.active_base_request_index,
+            next_base_request_index=context.next_base_request_index,
+            active_base_request_envelope_json=(
+                context.active_base_request_envelope_json
+            ),
+            next_base_replay_envelope_json=(
+                context.next_base_replay_envelope_json
+            ),
+            policy_replay_contract_sha256=(
+                runtime_context.policy_replay_contract_sha256
+            ),
+            base_action_response_size=context.base_action_response_size,
+            base_action_chunk_size=context.base_action_chunk_size,
+            pending_base_action_offset=context.pending_base_action_offset,
+            simulator_state=simulator_state,
+            observation=observation,
+            pending_base_actions=pending_actions,
+            base_action_prefix_sha256=context.base_action_prefix_sha256,
+            snapshot=trigger.snapshot,
+        )
+        return write_recovery_root(
+            runtime_context.root_output_dir,
+            manifest,
+            simulator_state,
+            observation,
+            pending_actions,
+        )
+
+    return build_shadow_runtime(
+        provider=provider,
+        provider_name=provider.provider,
+        episode_context=episode_context,
+        goal_mode=GoalMode(args.goal_mode),
+        live_validator=live_validator,
+        monitor_contract=monitor_contract,
+        root_collector=collect_root,
+        interval_steps=args.shadow_monitor_interval_steps,
+        confirmation_count=args.shadow_confirmations,
+    )
+
+
+def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
+    shadow_contract_hashes = (
+        {
+            str(task_id): load_monitor_evidence_contract(
+                args.shadow_monitor_contract,
+                task_id=task_id,
+            ).contract_sha256
+            for task_id in task_ids
+        }
+        if MethodArm(args.method_arm) is MethodArm.SHADOW_LOGIV
+        else {}
+    )
+    return {
+        "schema_version": 7,
         "run_id": args.run_id,
         "checkpoint": args.checkpoint_name,
         "method_arm": args.method_arm,
@@ -562,6 +1028,20 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
         "oracle_grounding": args.oracle_grounding,
+        "collect_recovery_roots": args.collect_recovery_roots,
+        "recovery_root_split": args.recovery_root_split,
+        "shadow_monitor_interval_steps": args.shadow_monitor_interval_steps,
+        "shadow_confirmations": args.shadow_confirmations,
+        "shadow_monitor_contract": str(args.shadow_monitor_contract),
+        "shadow_monitor_contract_registry_sha256": resolved_json_sha256(
+            args.shadow_monitor_contract
+        ),
+        "shadow_monitor_contract_sha256": (
+            next(iter(shadow_contract_hashes.values()))
+            if len(shadow_contract_hashes) == 1
+            else None
+        ),
+        "shadow_monitor_contract_sha256_by_task": shadow_contract_hashes,
         "replan_steps": args.replan_steps,
         "max_action_steps": args.max_action_steps,
         "max_total_action_steps": args.base_max_steps,
@@ -616,6 +1096,7 @@ def evaluate(args: argparse.Namespace) -> int:
         episode_indices=episode_indices,
     )
     contract.validate()
+    shadow_contracts = _validate_shadow_options(args, task_ids)
     prompt_renderer = SubtaskPromptRenderer(args.prompt_config)
     if prompt_renderer.prompt_version != args.prompt_version:
         raise ValueError("prompt version/config mismatch")
@@ -647,11 +1128,29 @@ def evaluate(args: argparse.Namespace) -> int:
         "coverage_manifest_sha256": resolved_json_sha256(args.coverage_manifest),
         "domain_sha256": _sha256_bytes(render_domain_pddl().encode("utf-8")),
     }
+    base_checkpoint_sha256 = _sha256_file(
+        REPOSITORY_ROOT
+        / "artifacts"
+        / "manifests"
+        / f"{args.checkpoint_name}-checkpoint.json"
+    )
+    policy_client_config_sha256 = _domain_sha256(
+        b"LOGIV_POLICY_CLIENT_CONFIG_V1",
+        {
+            "checkpoint_name": args.checkpoint_name,
+            "host": args.host,
+            "port": args.port,
+            "replan_steps": args.replan_steps,
+            "rng_protocol": "episode-seeded-v1",
+        },
+    )
 
     for task_id in task_ids:
         task = suite.get_task(task_id)
         initial_states = suite.get_task_init_states(task_id)
         task_bddl_file = Path(get_libero_path("bddl_files")) / task.problem_folder / task.bddl_file
+        scene_sha256 = _sha256_file(task_bddl_file)
+        base_prompt_sha256 = _sha256_bytes(str(task.language).encode("utf-8"))
         env = None
         try:
             for episode_idx in episode_indices:
@@ -682,7 +1181,11 @@ def evaluate(args: argparse.Namespace) -> int:
                     factory=OffScreenRenderEnv,
                     bddl_file=task_bddl_file,
                 )
-                episode_client = EpisodeSeededClient(client, episode_seed=policy_seed)
+                episode_client = EpisodeSeededClient(
+                    client,
+                    episode_seed=policy_seed,
+                    policy_client_config_sha256=policy_client_config_sha256,
+                )
                 _write_json(
                     artifact_dir / "policy_rng.json",
                     {
@@ -706,11 +1209,33 @@ def evaluate(args: argparse.Namespace) -> int:
                 executor = None
                 evaluator = None
                 result = None
+                outcome = None
+                shadow_runtime = None
                 exception_text = None
                 valid = True
                 frames: list[np.ndarray] = []
                 try:
-                    if MethodArm(args.method_arm) is MethodArm.BASE:
+                    arm = MethodArm(args.method_arm)
+                    if arm in {MethodArm.BASE, MethodArm.SHADOW_LOGIV}:
+                        if arm is MethodArm.SHADOW_LOGIV:
+                            shadow_runtime = _build_evaluator_shadow_runtime(
+                                args,
+                                env=env,
+                                task_id=task_id,
+                                episode_idx=episode_idx,
+                                episode_id=episode_id,
+                                initial_state_sha256=init_hash,
+                                scene_sha256=scene_sha256,
+                                base_prompt_sha256=base_prompt_sha256,
+                                base_checkpoint_sha256=base_checkpoint_sha256,
+                                policy_client_config_sha256=(
+                                    policy_client_config_sha256
+                                ),
+                                policy_seed=policy_seed,
+                                simulator_seed=simulator_seed,
+                                artifact_dir=artifact_dir,
+                                monitor_contract=shadow_contracts[task_id],
+                            )
                         outcome = run_episode(
                             env,
                             episode_client,
@@ -721,6 +1246,14 @@ def evaluate(args: argparse.Namespace) -> int:
                             wait_steps=args.wait_steps,
                             replan_steps=args.replan_steps,
                             settling_steps=args.settling_steps,
+                            shadow_observer=(
+                                shadow_runtime.observer
+                                if shadow_runtime is not None
+                                else None
+                            ),
+                            request_envelope_reader=(
+                                episode_client.request_envelope_reader
+                            ),
                         )
                         evaluator = NativeLiberoTaskEvaluator()
                         evaluated = evaluator.evaluate(env)
@@ -768,6 +1301,52 @@ def evaluate(args: argparse.Namespace) -> int:
                         inference_requests = outcome.inference_requests
                         initial_snapshot = None
                         package = None
+                        _write_json(
+                            artifact_dir / "base_execution.json",
+                            _base_execution_payload(
+                                outcome,
+                                episode_client,
+                                initial_state_sha256=init_hash,
+                                base_prompt_sha256=base_prompt_sha256,
+                                base_checkpoint_sha256=base_checkpoint_sha256,
+                                policy_client_config_sha256=(
+                                    policy_client_config_sha256
+                                ),
+                            ),
+                        )
+                        if shadow_runtime is not None:
+                            (
+                                proposal_payload,
+                                monitor_payload,
+                                compute_payload,
+                                _,
+                            ) = _shadow_artifact_payloads(
+                                outcome, shadow_runtime
+                            )
+                            _write_json(
+                                artifact_dir / "initial_proposal.json",
+                                proposal_payload,
+                            )
+                            _write_json(
+                                artifact_dir / "shadow_monitor.json",
+                                monitor_payload,
+                            )
+                            _write_json(
+                                artifact_dir / "compute_accounting.json",
+                                compute_payload,
+                            )
+                            proposal_result = shadow_runtime.initial_proposal
+                            if (
+                                proposal_result is not None
+                                and proposal_result.validation is not None
+                            ):
+                                package = proposal_result.package
+                                certified = (
+                                    proposal_result.validation.certified_episode
+                                )
+                                graph = certified.graph
+                                final_graph = certified.graph
+                                certificate = certified.certificate
                     else:
                         initial_observation = _reset_episode(env, initial_state, args.wait_steps)
                         _, first_frame = prepare_observation(
@@ -872,6 +1451,56 @@ def evaluate(args: argparse.Namespace) -> int:
                         {"exception": exception_text, "traceback": traceback.format_exc()},
                     )
 
+                record_accounting = {
+                    "base_policy_requests": inference_requests,
+                    "initial_proposal_requests": 0,
+                    "initial_proposal_status": "NOT_APPLICABLE",
+                    "initial_proposal_reason_code": None,
+                    "shadow_vlm_requests": 0,
+                    "recovery_policy_requests": 0,
+                    "shadow_monitor_calls": 0,
+                    "shadow_monitor_errors": 0,
+                    "shadow_monitor_seconds": 0.0,
+                    "shadow_parity_valid": True,
+                }
+                if MethodArm(args.method_arm) is MethodArm.SHADOW_LOGIV:
+                    if outcome is not None and shadow_runtime is not None:
+                        _, _, _, record_accounting = _shadow_artifact_payloads(
+                            outcome, shadow_runtime
+                        )
+                    else:
+                        proposal_result = (
+                            shadow_runtime.initial_proposal
+                            if shadow_runtime is not None
+                            else None
+                        )
+                        if proposal_result is None:
+                            exception_code = (
+                                exception_text.split(":", 1)[0]
+                                if exception_text
+                                else "RuntimeError"
+                            )
+                            record_accounting.update(
+                                initial_proposal_status="NOT_ATTEMPTED",
+                                initial_proposal_reason_code=(
+                                    f"ROLLOUT:{exception_code}"
+                                ),
+                            )
+                        else:
+                            record_accounting.update(
+                                initial_proposal_requests=(
+                                    proposal_result.request_count
+                                ),
+                                initial_proposal_status=(
+                                    proposal_result.status.value
+                                ),
+                                initial_proposal_reason_code=(
+                                    proposal_result.reason.split(":", 1)[0]
+                                    if proposal_result.reason
+                                    else None
+                                ),
+                            )
+
                 video_path = None
                 if frames:
                     relative = Path("videos") / f"task_{task_id:02d}_episode_{episode_idx:03d}.mp4"
@@ -884,7 +1513,7 @@ def evaluate(args: argparse.Namespace) -> int:
                 success = result.status is ControllerStatus.EPISODE_SUCCESS
                 receipt_statuses = [receipt.status for receipt in result.receipts]
                 record = LogivEpisodeRecord(
-                    schema_version=2,
+                    schema_version=3,
                     run_id=args.run_id,
                     checkpoint=args.checkpoint_name,
                     method_arm=args.method_arm,
@@ -953,6 +1582,7 @@ def evaluate(args: argparse.Namespace) -> int:
                     final_goal_gate_rejections=result.events.count(
                         "FINAL_GOAL_GATE_REJECTED"
                     ),
+                    **record_accounting,
                     **common_hashes,
                 )
                 append_episode_record(episodes_path, record)
@@ -982,6 +1612,19 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--deviation-mode", required=True)
     parser.add_argument("--oracle-grounding", action="store_true")
     parser.add_argument("--development-only", action="store_true")
+    parser.add_argument("--collect-recovery-roots", action="store_true")
+    parser.add_argument(
+        "--recovery-root-split",
+        choices=("TRAIN", "DEV", "HELDOUT"),
+        default="DEV",
+    )
+    parser.add_argument("--shadow-monitor-interval-steps", default=5, type=int)
+    parser.add_argument("--shadow-confirmations", default=3, type=int)
+    parser.add_argument(
+        "--shadow-monitor-contract",
+        default=REPOSITORY_ROOT / "configs/logiv/r2m-monitor-evidence-v1.json",
+        type=Path,
+    )
     parser.add_argument("--prompt-locked", action="store_true")
     parser.add_argument("--task-ids", default="all")
     parser.add_argument("--episode-indices", default="0:50")

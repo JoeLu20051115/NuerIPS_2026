@@ -21,6 +21,7 @@ _ZERO_HASH = "0" * 64
 METHOD_ARMS = frozenset(
     {
         "BASE",
+        "SHADOW_LOGIV",
         "STAGE_ONLY",
         "GRAPH_WITHOUT_VAL",
         "VAL_WITHOUT_LOCALIZED_REPAIR",
@@ -214,6 +215,16 @@ class LogivEpisodeRecord:
     precondition_gate_rejections: int = 0
     effect_gate_rejections: int = 0
     final_goal_gate_rejections: int = 0
+    base_policy_requests: int = 0
+    initial_proposal_requests: int = 0
+    initial_proposal_status: str = "NOT_APPLICABLE"
+    initial_proposal_reason_code: str | None = None
+    shadow_vlm_requests: int = 0
+    recovery_policy_requests: int = 0
+    shadow_monitor_calls: int = 0
+    shadow_monitor_errors: int = 0
+    shadow_monitor_seconds: float = 0.0
+    shadow_parity_valid: bool = True
 
     @property
     def key(self) -> tuple[str, str, str, int, int]:
@@ -281,7 +292,7 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
         if record.key in seen:
             errors.append(f"duplicate LOGIV episode: {label}")
         seen.add(record.key)
-        if record.schema_version not in {1, 2}:
+        if record.schema_version not in {1, 2, 3}:
             errors.append(f"unsupported schema version: {label}")
         if record.method_arm not in METHOD_ARMS:
             errors.append(f"unknown method arm: {label}")
@@ -335,20 +346,75 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
             record.precondition_gate_rejections,
             record.effect_gate_rejections,
             record.final_goal_gate_rejections,
+            record.base_policy_requests,
+            record.initial_proposal_requests,
+            record.shadow_vlm_requests,
+            record.recovery_policy_requests,
+            record.shadow_monitor_calls,
+            record.shadow_monitor_errors,
         )
         if any(value < 0 for value in counters):
             errors.append(f"negative counter: {label}")
         if not math.isfinite(record.wall_seconds) or record.wall_seconds < 0:
             errors.append(f"invalid wall_seconds: {label}")
+        if (
+            not math.isfinite(record.shadow_monitor_seconds)
+            or record.shadow_monitor_seconds < 0
+        ):
+            errors.append(f"invalid shadow_monitor_seconds: {label}")
         if record.initial_graph_hash is None and record.initial_graph_width is not None:
             errors.append(f"width without graph: {label}")
-        if record.schema_version == 2 and (
+        if record.schema_version >= 2 and (
             record.committed_receipts
             + record.failed_receipts
             + record.unknown_receipts
             != record.receipts_count
         ):
             errors.append(f"receipt taxonomy/count mismatch: {label}")
+        if record.schema_version == 3:
+            if record.inference_requests != record.base_policy_requests:
+                errors.append(f"Base policy request/count mismatch: {label}")
+            if record.shadow_vlm_requests != 0 or record.recovery_policy_requests != 0:
+                errors.append(f"nonzero Phase 0 non-Base requests: {label}")
+            reason = record.initial_proposal_reason_code
+            stable_reason = (
+                reason is not None
+                and re.fullmatch(
+                    r"[A-Za-z][A-Za-z0-9_.]*(?::[A-Za-z][A-Za-z0-9_.]*)?",
+                    reason,
+                )
+                is not None
+            )
+            if record.method_arm == "SHADOW_LOGIV":
+                valid_status = (
+                    record.initial_proposal_status == "ACCEPTED"
+                    and record.initial_proposal_requests == 1
+                    and reason is None
+                ) or (
+                    record.initial_proposal_status == "REJECTED"
+                    and record.initial_proposal_requests == 1
+                    and stable_reason
+                ) or (
+                    record.initial_proposal_status == "NOT_ATTEMPTED"
+                    and record.initial_proposal_requests == 0
+                    and stable_reason
+                )
+                if not valid_status:
+                    errors.append(f"invalid Shadow proposal accounting: {label}")
+            elif (
+                record.initial_proposal_status != "NOT_APPLICABLE"
+                or record.initial_proposal_requests != 0
+                or reason is not None
+            ):
+                errors.append(f"invalid non-Shadow proposal accounting: {label}")
+            if record.method_arm != "SHADOW_LOGIV" and (
+                record.shadow_monitor_calls != 0
+                or record.shadow_monitor_errors != 0
+                or record.shadow_monitor_seconds != 0
+            ):
+                errors.append(f"non-Shadow monitor accounting is nonzero: {label}")
+            if record.method_arm == "BASE" and not record.shadow_parity_valid:
+                errors.append(f"Base parity must remain valid: {label}")
         if record.method_arm == "FULL_LOGIV" and record.task_id == 8:
             if record.initial_graph_hash is not None and (
                 record.initial_graph_width is None or record.initial_graph_width < 2

@@ -15,15 +15,20 @@ repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 openpi_dir="$repo_root/external_repos/openpi"
 val_dir="$repo_root/artifacts/tools/val-ubuntu22"
 manifest="$repo_root/configs/logiv/val-libero-build.json"
+checkpoint_manifest="$repo_root/artifacts/manifests/full-checkpoint.json"
 image=pi05-libero-eval:650c5b0
 
 case "$method_arm" in
-  BASE|STAGE_ONLY|GRAPH_WITHOUT_VAL|VAL_WITHOUT_LOCALIZED_REPAIR|FULL_LOGIV) ;;
+  BASE|SHADOW_LOGIV|STAGE_ONLY|GRAPH_WITHOUT_VAL|VAL_WITHOUT_LOCALIZED_REPAIR|FULL_LOGIV) ;;
   *) echo "invalid method arm: $method_arm" >&2; exit 64 ;;
 esac
 [[ "$gpu" =~ ^[0-9]+$ ]] || { echo "invalid GPU: $gpu" >&2; exit 64; }
 [[ "$port" =~ ^[0-9]+$ ]] || { echo "invalid port: $port" >&2; exit 64; }
 docker image inspect "$image" >/dev/null
+[[ -f "$checkpoint_manifest" ]] || {
+  echo "missing full checkpoint manifest" >&2
+  exit 1
+}
 [[ -x "$val_dir/Validate" && -f "$val_dir/libVAL.so" ]] || {
   echo "missing compatible VAL build; run scripts/build_val_for_libero.sh" >&2
   exit 1

@@ -1,0 +1,351 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Callable, Mapping, Protocol
+
+import numpy as np
+
+from pi05_libero_repro.logiv.dag import CausalGraph
+from pi05_libero_repro.logiv.initial_proposal import (
+    InitialProposalResult,
+    InitialProposalStatus,
+    run_initial_proposal,
+)
+from pi05_libero_repro.logiv.model import (
+    FactSnapshot,
+    GoalMode,
+    GroundAction,
+    ProposalPackage,
+    TaskProblem,
+)
+from pi05_libero_repro.logiv.recovery_records import (
+    CollectionLabel,
+    RecoveryRootArtifacts,
+)
+from pi05_libero_repro.logiv.shadow_monitor import (
+    MonitorEvidenceContract,
+    ShadowPlanContext,
+    ShadowTrigger,
+    StableRecoveryObserver,
+    TransitionFeatureReader,
+    VersionedActionEventTracker,
+)
+from pi05_libero_repro.logiv.val import PlanCertificate
+from pi05_libero_repro.protocol import (
+    BaseActionPrefixHasher,
+    ShadowStepContext,
+)
+
+
+class CertifiedEpisodeLike(Protocol):
+    problem: TaskProblem
+    plan: tuple[GroundAction, ...]
+    graph: CausalGraph
+    certificate: PlanCertificate
+
+
+@dataclass(frozen=True)
+class ShadowValidatedProposal:
+    certified_episode: CertifiedEpisodeLike
+    snapshot_reader: Callable[[Mapping[str, Any]], FactSnapshot]
+
+
+@dataclass(frozen=True)
+class ShadowEpisodeContext:
+    task_id: int
+    episode_idx: int
+    initial_epoch_id: int
+    scene_sha256: str
+    object_instance_ids: tuple[str, ...]
+    initial_state_sha256: str
+    parent_trajectory_lineage_sha256: str
+    base_prompt_sha256: str
+    base_checkpoint_sha256: str
+    policy_client_config_sha256: str
+    policy_replay_contract_sha256: str | None
+    master_seed: int
+    policy_seed: int
+    simulator_seed: int
+    replan_steps: int
+    collect_recovery_roots: bool
+    collection_label: CollectionLabel
+    root_output_dir: Path
+    simulator_state_reader: Callable[[], np.ndarray]
+    transition_feature_reader: TransitionFeatureReader
+
+
+@dataclass
+class ShadowRuntimeCounters:
+    root_count: int = 0
+    root_write_errors: int = 0
+    proposal_callback_errors: int = 0
+    provenance_errors: int = 0
+
+
+@dataclass
+class ShadowRuntime:
+    initial_proposal: InitialProposalResult[ShadowValidatedProposal] | None
+    observer: Callable[[ShadowStepContext], None] | None
+    monitor: StableRecoveryObserver | None
+    counters: ShadowRuntimeCounters
+
+
+def _same_value(first: Any, second: Any) -> bool:
+    if isinstance(first, np.ndarray) or isinstance(second, np.ndarray):
+        if not isinstance(first, np.ndarray) or not isinstance(second, np.ndarray):
+            return False
+        return (
+            first.dtype == second.dtype
+            and first.shape == second.shape
+            and np.array_equal(first, second, equal_nan=True)
+        )
+    if isinstance(first, Mapping) or isinstance(second, Mapping):
+        if not isinstance(first, Mapping) or not isinstance(second, Mapping):
+            return False
+        return set(first) == set(second) and all(
+            _same_value(first[key], second[key]) for key in first
+        )
+    if isinstance(first, (tuple, list)) or isinstance(second, (tuple, list)):
+        if not isinstance(first, (tuple, list)) or not isinstance(second, (tuple, list)):
+            return False
+        return len(first) == len(second) and all(
+            _same_value(left, right) for left, right in zip(first, second)
+        )
+    try:
+        return bool(first == second)
+    except (TypeError, ValueError):
+        return False
+
+
+def _same_context(first: ShadowStepContext, second: ShadowStepContext) -> bool:
+    return all(
+        _same_value(getattr(first, name), getattr(second, name))
+        for name in first.__dataclass_fields__
+    )
+
+
+def build_shadow_runtime(
+    *,
+    provider: Any,
+    provider_name: str,
+    episode_context: ShadowEpisodeContext,
+    goal_mode: GoalMode,
+    live_validator: Callable[
+        [ProposalPackage, Mapping[str, Any]], ShadowValidatedProposal
+    ],
+    monitor_contract: MonitorEvidenceContract,
+    root_collector: Callable[
+        [ShadowTrigger, ShadowStepContext, ShadowEpisodeContext],
+        RecoveryRootArtifacts | None,
+    ],
+    interval_steps: int,
+    confirmation_count: int,
+) -> ShadowRuntime:
+    """Build a fail-open observer without touching the proposal provider."""
+
+    counters = ShadowRuntimeCounters()
+    action_prefix = BaseActionPrefixHasher()
+    previous_context: ShadowStepContext | None = None
+    disabled = False
+    envelopes: dict[int, str] = {}
+    active_trigger_context: ShadowStepContext | None = None
+
+    runtime = ShadowRuntime(
+        initial_proposal=None,
+        observer=None,
+        monitor=None,
+        counters=counters,
+    )
+
+    def disable_for_provenance() -> None:
+        nonlocal disabled
+        if not disabled:
+            counters.provenance_errors += 1
+        disabled = True
+
+    def remember_envelope(index: int, value: str | None) -> None:
+        if value is None:
+            return
+        existing = envelopes.get(index)
+        if existing is not None and existing != value:
+            raise ValueError("Base request envelope changed for one request index")
+        envelopes[index] = value
+
+    def validate_step(context: ShadowStepContext) -> bool:
+        nonlocal previous_context
+        if previous_context is not None:
+            if context.policy_step == previous_context.policy_step:
+                if _same_context(previous_context, context):
+                    return False
+                raise ValueError("duplicate policy step changed content")
+            if context.policy_step != previous_context.policy_step + 1:
+                raise ValueError("shadow policy steps are not contiguous")
+        elif context.policy_step != 0:
+            raise ValueError("first shadow callback must be policy step zero")
+
+        if context.policy_step == 0:
+            if (
+                context.last_action is not None
+                or context.pending_base_actions.size != 0
+                or context.base_policy_request_count != 0
+                or context.active_base_request_index is not None
+                or context.next_base_request_index != 0
+            ):
+                raise ValueError("step-zero Base provenance is not pristine")
+        else:
+            if context.last_action is None:
+                raise ValueError("action step is missing its executed Base action")
+            if (
+                context.base_policy_request_count <= 0
+                or context.next_base_request_index
+                != context.base_policy_request_count
+                or context.active_base_request_index
+                != context.base_policy_request_count - 1
+            ):
+                raise ValueError("Base request indices are inconsistent")
+            if previous_context is not None and (
+                context.base_policy_request_count
+                < previous_context.base_policy_request_count
+                or (
+                    previous_context.active_base_request_index is not None
+                    and context.active_base_request_index
+                    < previous_context.active_base_request_index
+                )
+            ):
+                raise ValueError("Base request indices regressed")
+            pending = context.pending_base_actions
+            if pending.ndim != 2 or pending.shape[1] != 7:
+                raise ValueError("pending Base actions must have shape Nx7")
+            if (
+                context.base_action_response_size is None
+                or context.base_action_chunk_size <= 0
+                or context.base_action_response_size < context.base_action_chunk_size
+                or context.pending_base_action_offset < 0
+                or context.pending_base_action_offset > context.base_action_chunk_size
+                or pending.shape[0]
+                != context.base_action_chunk_size
+                - context.pending_base_action_offset
+            ):
+                raise ValueError("pending Base action suffix is inconsistent")
+
+        expected_digest = action_prefix.update_and_hexdigest(context.last_action)
+        if expected_digest != context.base_action_prefix_sha256:
+            raise ValueError("Base action-prefix digest mismatch")
+
+        if context.active_base_request_index is not None:
+            remember_envelope(
+                context.active_base_request_index,
+                context.active_base_request_envelope_json,
+            )
+        remember_envelope(
+            context.next_base_request_index,
+            context.next_base_replay_envelope_json,
+        )
+        previous_context = context
+        return True
+
+    def collect_root(trigger: ShadowTrigger) -> None:
+        context = active_trigger_context
+        if context is None or not episode_context.collect_recovery_roots:
+            return
+        try:
+            artifacts = root_collector(trigger, context, episode_context)
+        except Exception:
+            counters.root_write_errors += 1
+            return
+        if artifacts is not None:
+            counters.root_count += 1
+
+    def validate_initial(
+        package: ProposalPackage,
+        observation: Mapping[str, Any],
+    ) -> ShadowValidatedProposal:
+        if episode_context.initial_epoch_id != 0:
+            raise ValueError("Phase 0 initial epoch must be zero")
+        if package.proposal.epoch_id != episode_context.initial_epoch_id:
+            raise ValueError("proposal epoch mismatch")
+        validated = live_validator(package, observation)
+        if not isinstance(validated, ShadowValidatedProposal):
+            raise ValueError("live validator returned an invalid result")
+        certified = validated.certified_episode
+        if certified.graph.source_epoch != episode_context.initial_epoch_id:
+            raise ValueError("certified graph source epoch mismatch")
+        snapshot = validated.snapshot_reader(observation)
+        if not isinstance(snapshot, FactSnapshot):
+            raise ValueError("live snapshot reader returned an invalid record")
+        if snapshot.epoch_id != episode_context.initial_epoch_id:
+            raise ValueError("live snapshot epoch mismatch")
+        return validated
+
+    def observe(context: ShadowStepContext) -> None:
+        nonlocal active_trigger_context, disabled
+        if disabled:
+            return
+        # If Task 2 could not prepare the step-zero callback, that protocol
+        # failure is its sole owner.  A later callback must not manufacture a
+        # second provenance error for the missing initial observation.
+        if previous_context is None and context.policy_step != 0:
+            disabled = True
+            return
+        try:
+            should_process = validate_step(context)
+        except Exception:
+            disable_for_provenance()
+            return
+        if not should_process:
+            return
+
+        if runtime.initial_proposal is None:
+            result = run_initial_proposal(
+                provider,
+                provider_name=provider_name,
+                task_id=episode_context.task_id,
+                epoch_id=episode_context.initial_epoch_id,
+                goal_mode=goal_mode,
+                validator=lambda package: validate_initial(
+                    package, context.observation
+                ),
+            )
+            runtime.initial_proposal = result
+            if (
+                result.status is InitialProposalStatus.REJECTED
+                or result.validation is None
+            ):
+                disabled = True
+                return
+            try:
+                certified = result.validation.certified_episode
+                plan_context = ShadowPlanContext(
+                    problem=certified.problem,
+                    plan=certified.plan,
+                    graph=certified.graph,
+                    certificate_hash=certified.certificate.certificate_hash,
+                )
+                tracker = VersionedActionEventTracker(
+                    monitor_contract,
+                    episode_context.transition_feature_reader,
+                )
+                runtime.monitor = StableRecoveryObserver(
+                    plan_context=plan_context,
+                    monitor_contract=monitor_contract,
+                    snapshot_reader=result.validation.snapshot_reader,
+                    action_event_tracker=tracker,
+                    on_trigger=collect_root,
+                    interval_steps=interval_steps,
+                    confirmation_count=confirmation_count,
+                )
+            except Exception:
+                counters.proposal_callback_errors += 1
+                disabled = True
+                return
+
+        if runtime.monitor is not None:
+            active_trigger_context = context
+            try:
+                runtime.monitor(context)
+            finally:
+                active_trigger_context = None
+
+    runtime.observer = observe
+    return runtime

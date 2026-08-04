@@ -48,7 +48,7 @@ def _operational(records) -> dict:
             return None
         return sum(float(getattr(item, field)) for item in records) / len(records)
 
-    return {
+    result = {
         "episodes_with_repair": len(repaired),
         "successful_episodes_with_repair": successful_repaired,
         "successful_recovery_episode_rate": (
@@ -78,6 +78,37 @@ def _operational(records) -> dict:
         "mean_inference_requests": mean("inference_requests"),
         "mean_wall_seconds": mean("wall_seconds"),
     }
+    schema3 = [item for item in records if item.schema_version >= 3]
+    if schema3:
+        complete = len(schema3) == len(records)
+
+        def schema3_mean(field: str) -> float | None:
+            if not complete:
+                return None
+            return sum(float(getattr(item, field)) for item in schema3) / len(schema3)
+
+        result.update(
+            {
+                "schema3_records": len(schema3),
+                "mean_base_policy_requests": schema3_mean("base_policy_requests"),
+                "mean_initial_proposal_requests": schema3_mean(
+                    "initial_proposal_requests"
+                ),
+                "mean_shadow_vlm_requests": schema3_mean("shadow_vlm_requests"),
+                "mean_recovery_policy_requests": schema3_mean(
+                    "recovery_policy_requests"
+                ),
+                "mean_shadow_monitor_calls": schema3_mean("shadow_monitor_calls"),
+                "mean_shadow_monitor_errors": schema3_mean("shadow_monitor_errors"),
+                "mean_shadow_monitor_seconds": schema3_mean("shadow_monitor_seconds"),
+                "shadow_parity_valid_rate": (
+                    sum(item.shadow_parity_valid for item in schema3) / len(schema3)
+                    if complete
+                    else None
+                ),
+            }
+        )
+    return result
 
 
 def _baseline_proxy(records) -> list[SimpleNamespace]:
