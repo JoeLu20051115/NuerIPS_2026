@@ -145,11 +145,7 @@ class LiberoObservationStore:
         return frozen
 
     def _read_locked(self) -> tuple[int, dict[str, Any], float]:
-        observation = {
-            key: value if isinstance(value, np.ndarray) else copy.deepcopy(value)
-            for key, value in self._observation.items()
-        }
-        return self._epoch_id, observation, self._updated_at
+        return self._epoch_id, self._freeze(self._observation), self._updated_at
 
     @property
     def epoch_id(self) -> int:

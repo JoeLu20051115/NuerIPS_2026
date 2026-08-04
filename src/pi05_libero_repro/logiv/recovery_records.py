@@ -598,6 +598,20 @@ def _validate_evidence_record(
             )
             if record["attempt_id"] != expected_attempt_id:
                 raise ValueError("Goal-regression attempt ID hash mismatch")
+        else:
+            expected_attempt_id = _domain_json_sha256(
+                b"LOGIV_PROGRESS_TIMEOUT_ATTEMPT_ID_V1",
+                {
+                    "attempted_effect": record["attempted_effect"],
+                    "effect_due_policy_step": due,
+                    "object_id": record["object_id"],
+                    "rule_id": record["rule_id"],
+                    "start_fact_evidence_sha256": hashes[0],
+                    "start_policy_step": start,
+                },
+            )
+            if record["attempt_id"] != expected_attempt_id:
+                raise ValueError("progress-timeout attempt ID hash mismatch")
     else:
         raise ValueError("unknown historical evidence kind")
     expected_evidence_id = _domain_json_sha256(

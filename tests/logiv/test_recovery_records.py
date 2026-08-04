@@ -225,6 +225,23 @@ def _evidence(**overrides) -> dict:
     return record
 
 
+def _progress_evidence(**overrides) -> dict:
+    values = {
+        "evidence_kind": "PROGRESS_TIMEOUT",
+        "rule_id": "__progress_timeout__",
+        "attempted_effect": "(progress book_1)",
+        "source_region": None,
+        "destination_region": None,
+        "attempt_id": "bb96aca301d4a65394fa871df547da4197449a9c6133548871a3061bdb981459",
+        "start_policy_step": 0,
+        "effect_due_policy_step": 20,
+        "emitted_policy_step": 20,
+        "evidence_expires_policy_step": 40,
+    }
+    values.update(overrides)
+    return _evidence(**values)
+
+
 def _envelope(*, inference_index: int) -> str:
     return BaseRequestEnvelopeV1(
         episode_seed=17,
@@ -449,6 +466,28 @@ def test_historical_evidence_recomputes_attempt_and_evidence_ids() -> None:
     with pytest.raises(ValueError, match="evidence.*ID|evidence.*hash"):
         _manifest(
             historical_failure_evidence=(_evidence(evidence_id="e" * 64),)
+        )
+
+
+def test_progress_timeout_accepts_its_canonical_attempt_id() -> None:
+    manifest = _manifest(
+        policy_step=20,
+        historical_failure_evidence=(_progress_evidence(),),
+    )
+
+    record = json.loads(manifest.historical_failure_evidence_json[0])
+    assert record["attempt_id"] == (
+        "bb96aca301d4a65394fa871df547da4197449a9c6133548871a3061bdb981459"
+    )
+
+
+def test_progress_timeout_rejects_an_arbitrary_attempt_id() -> None:
+    with pytest.raises(ValueError, match="progress.*attempt.*ID|attempt.*hash"):
+        _manifest(
+            policy_step=20,
+            historical_failure_evidence=(
+                _progress_evidence(attempt_id="f" * 64),
+            ),
         )
 
 
@@ -739,3 +778,33 @@ def test_manifest_constructor_rejects_list_aliases_for_tuple_fields() -> None:
 def test_audited_snapshot_validates_dominance_override_schema(dominance_overrides) -> None:
     with pytest.raises(ValueError, match="dominance|override|universe|duplicate"):
         _audited_snapshot(dominance_overrides=dominance_overrides)
+
+
+@pytest.mark.parametrize(
+    ("true", "false", "unknown"),
+    (
+        ((), (Fact("at", ("book_1", "table")),), (Fact("holding", ("book_1",)),)),
+        (
+            (
+                Fact("at", ("book_1", "table")),
+                Fact("holding", ("book_1",)),
+            ),
+            (),
+            (),
+        ),
+    ),
+)
+def test_dominance_override_requires_true_source_and_false_target(
+    true, false, unknown
+) -> None:
+    override = (
+        ("(holding book_1)", "(at book_1 table)", "reliable-holding-over-at"),
+    )
+
+    with pytest.raises(ValueError, match="dominance|override|TRUE|FALSE|partition"):
+        _audited_snapshot(
+            true=true,
+            false=false,
+            unknown=unknown,
+            dominance_overrides=override,
+        )

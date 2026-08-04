@@ -265,6 +265,13 @@ class FactSnapshot:
                 or source.arguments != target.arguments[:1]
             ):
                 raise ValueError("fact evidence dominance override facts are incompatible")
+            if (
+                parsed[source] is not TruthValue.TRUE
+                or parsed[target] is not TruthValue.FALSE
+            ):
+                raise ValueError(
+                    "fact evidence dominance override requires TRUE source and FALSE target"
+                )
             override = (source, target, kind)
             if override in seen_overrides:
                 raise ValueError("duplicate fact evidence dominance override")

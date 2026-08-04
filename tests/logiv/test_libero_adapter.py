@@ -358,6 +358,20 @@ def test_observation_store_owns_immutable_array_copies() -> None:
         stored["agentview_image"][0, 0, 0] = original_pixel + 2
 
 
+def test_observation_store_reads_cannot_mutate_owned_arrays() -> None:
+    observation = dict(FakeEnv().obs)
+    original_pixel = int(observation["agentview_image"][0, 0, 0])
+    store = LiberoObservationStore(observation, epoch_id=4)
+
+    read_epoch, returned, _ = store.read()
+    returned["agentview_image"].setflags(write=True)
+    returned["agentview_image"][0, 0, 0] = original_pixel + 1
+    later_epoch, later, _ = store.read()
+
+    assert read_epoch == later_epoch == 4
+    assert int(later["agentview_image"][0, 0, 0]) == original_pixel
+
+
 def test_snapshot_and_synchronous_simulator_advance_cannot_mix_epochs() -> None:
     env = FakeEnv()
     source = "kitchen_table_moka_pot_right_init_region"
