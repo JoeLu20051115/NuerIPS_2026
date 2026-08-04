@@ -1,8 +1,11 @@
 # LOGIV-R2M Phase 0 Failure-Root Tranche Report
 
-Date: 2026-08-04  
-Branch: `logiv-r2m-phase0`  
-Implementation commit: `95580ae2f4fe7b986889c612339cdc19b760f086`  
+Date: 2026-08-04
+
+Branch: `logiv-r2m-phase0`
+
+Implementation commit: `95580ae2f4fe7b986889c612339cdc19b760f086`
+
 Outcome: **NO_GO — evidence/data invariant failure**
 
 ## 1. Frozen Task and Stop Rule
