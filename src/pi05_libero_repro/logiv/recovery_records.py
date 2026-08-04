@@ -24,7 +24,7 @@ from pi05_libero_repro.logiv.model import (
 
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
-_OBSERVATION_KEY = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
+_OBSERVATION_KEY = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 _REQUIRED_OBSERVATION_KEYS = frozenset(
     {
         "agentview_image",

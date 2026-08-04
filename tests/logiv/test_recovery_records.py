@@ -553,6 +553,19 @@ def test_invalid_arrays_and_synthetic_parent_provenance_are_rejected() -> None:
         _manifest(policy_request_generation=1)
 
 
+def test_libero_hyphenated_observation_keys_are_audited_but_paths_are_rejected() -> None:
+    observation = _observation()
+    observation["robot0_proprio-state"] = np.zeros(8, dtype=np.float32)
+
+    manifest = _manifest(observation=observation)
+
+    assert manifest.observation_sha256 == _observation_sha256(observation)
+    invalid = dict(observation)
+    invalid["robot0/bad"] = np.zeros(1, dtype=np.float32)
+    with pytest.raises(ValueError, match="observation key"):
+        _manifest(observation=invalid)
+
+
 def test_flattened_state_and_base_chunk_shape_and_response_size_are_verified() -> None:
     with pytest.raises(ValueError, match="flat|simulator state"):
         _manifest(simulator_state=np.array([[1.0, 2.0, 3.0]], dtype=np.float64))
