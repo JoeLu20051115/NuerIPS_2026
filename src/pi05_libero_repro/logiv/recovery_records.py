@@ -17,6 +17,7 @@ import numpy as np
 
 from pi05_libero_repro.logiv.model import (
     FactSnapshot,
+    fact_pddl_sort_key,
     fact_universe_sha256,
     parse_pddl_fact,
 )
@@ -119,10 +120,16 @@ def _json_sha256(value: Any) -> str:
     return hashlib.sha256(_canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def _domain_json_sha256(domain: bytes, value: Any) -> str:
+    return hashlib.sha256(
+        domain + b"\0" + _canonical_json(value).encode("utf-8")
+    ).hexdigest()
+
+
 def _require_sha256(name: str, value: str | None, *, optional: bool = False) -> None:
     if value is None and optional:
         return
-    if not isinstance(value, str) or not _SHA256.fullmatch(value):
+    if type(value) is not str or not _SHA256.fullmatch(value):
         raise ValueError(f"{name} must be a 64-character lowercase SHA-256")
 
 
@@ -269,6 +276,77 @@ class RecoveryRootManifest:
     unknown_facts: tuple[str, ...]
 
 
+RECOVERY_ROOT_MANIFEST_V1_FIELDS = (
+    "schema_version",
+    "root_id",
+    "recovery_group_id",
+    "independence_unit_id",
+    "split",
+    "collection_label",
+    "task_id",
+    "episode_idx",
+    "scene_sha256",
+    "object_instance_ids",
+    "initial_state_sha256",
+    "source_parent_snapshot_sha256",
+    "event_origin_parent_sha256",
+    "parent_trajectory_lineage_sha256",
+    "base_prompt_sha256",
+    "base_checkpoint_sha256",
+    "policy_client_config_sha256",
+    "perturbation_family",
+    "perturbation_seed",
+    "branch_seed",
+    "master_seed",
+    "policy_seed",
+    "simulator_seed",
+    "trigger_class",
+    "deviation_status",
+    "deviation_event_id",
+    "historical_failure_evidence_json",
+    "relevant_fact_sha256",
+    "source_graph_version",
+    "source_observation_generation",
+    "certificate_state",
+    "grounding_rule_sha256",
+    "event_detector_sha256",
+    "monitor_contract_sha256",
+    "monitor_contract_json",
+    "policy_step",
+    "policy_request_generation",
+    "base_policy_request_count",
+    "active_base_request_index",
+    "next_base_request_index",
+    "active_base_request_envelope_json",
+    "active_base_request_envelope_sha256",
+    "next_base_replay_envelope_json",
+    "next_base_replay_envelope_sha256",
+    "policy_replay_contract_sha256",
+    "base_action_response_size",
+    "base_action_chunk_size",
+    "pending_base_action_offset",
+    "pending_base_action_count",
+    "pending_base_actions_sha256",
+    "live_base_continuation_eligible",
+    "live_base_continuation_ineligibility_reason",
+    "simulator_state_sha256",
+    "observation_sha256",
+    "state_fingerprint",
+    "base_action_prefix_sha256",
+    "fact_epoch_id",
+    "fact_universe_version",
+    "fact_universe_sha256",
+    "fact_evidence_hash",
+    "fact_evidence_payload_json",
+    "true_facts",
+    "false_facts",
+    "unknown_facts",
+)
+
+if tuple(field.name for field in fields(RecoveryRootManifest)) != RECOVERY_ROOT_MANIFEST_V1_FIELDS:
+    raise RuntimeError("RecoveryRootManifest no longer matches schema v1")
+
+
 @dataclass(frozen=True)
 class RecoveryRootArtifacts:
     directory: Path
@@ -290,6 +368,25 @@ def _parse_contract(contract_json: str) -> dict[str, Any]:
     contract_id = contract["contract_id"]
     if not isinstance(contract_id, str) or not contract_id:
         raise ValueError("monitor contract ID must be nonempty")
+    if type(contract["task_id"]) is not int or contract["task_id"] < 0:
+        raise ValueError("monitor contract task ID must be a nonnegative integer")
+    for key in (
+        "object_ids",
+        "nominal_source_facts",
+        "abnormal_support_surfaces",
+        "task_relevant_effects",
+    ):
+        values = contract[key]
+        if (
+            not isinstance(values, list)
+            or any(not isinstance(value, str) or not value for value in values)
+            or len(values) != len(set(values))
+        ):
+            raise ValueError(f"monitor contract {key} must be a unique string list")
+    if not contract["object_ids"]:
+        raise ValueError("monitor contract object IDs must be nonempty")
+    if not isinstance(contract["tracker_version"], str) or not contract["tracker_version"]:
+        raise ValueError("monitor contract tracker version must be nonempty")
     signed = dict(contract)
     recorded_hash = signed.pop("contract_sha256")
     _require_sha256("monitor contract hash", recorded_hash)
@@ -308,22 +405,33 @@ def _parse_contract(contract_json: str) -> dict[str, Any]:
         "max_attempt_records_per_episode",
         "max_evidence_records_per_episode",
     ):
-        if isinstance(contract[key], bool) or not isinstance(contract[key], int) or contract[key] <= 0:
+        if type(contract[key]) is not int or contract[key] <= 0:
             raise ValueError(f"monitor contract {key} must be positive")
     rules = contract["action_event_rules"]
     if not isinstance(rules, list):
         raise ValueError("monitor contract action rules must be a list")
     identities: set[tuple[Any, ...]] = set()
     rule_ids: set[str] = set()
+    contract_object_ids = set(contract["object_ids"])
     for rule in rules:
         if not isinstance(rule, dict) or set(rule) != _RULE_FIELDS:
             raise ValueError("monitor contract action rule fields mismatch")
+        for key in ("rule_id", "object_id", "attempt_kind", "attempted_effect"):
+            if not isinstance(rule[key], str) or not rule[key]:
+                raise ValueError(f"monitor contract action rule {key} must be nonempty")
+        for key in ("source_region", "destination_region"):
+            if rule[key] is not None and (
+                not isinstance(rule[key], str) or not rule[key]
+            ):
+                raise ValueError(f"monitor contract action rule {key} type mismatch")
         rule_id = rule["rule_id"]
         if not isinstance(rule_id, str) or not rule_id or rule_id.startswith("__"):
             raise ValueError("monitor contract action rule ID is invalid")
         if rule_id in rule_ids:
             raise ValueError("duplicate monitor contract action rule ID")
         rule_ids.add(rule_id)
+        if rule["object_id"] not in contract_object_ids:
+            raise ValueError("monitor contract rule object is outside contract object IDs")
         identity = (
             rule["object_id"],
             rule["attempted_effect"],
@@ -339,7 +447,7 @@ def _parse_contract(contract_json: str) -> dict[str, Any]:
             "evidence_ttl_policy_steps",
             "manipulation_attribution_ttl_policy_steps",
         ):
-            if isinstance(rule[key], bool) or not isinstance(rule[key], int) or rule[key] <= 0:
+            if type(rule[key]) is not int or rule[key] <= 0:
                 raise ValueError(f"monitor contract rule {key} must be positive")
         for key in (
             "gripper_close_threshold",
@@ -347,7 +455,7 @@ def _parse_contract(contract_json: str) -> dict[str, Any]:
             "motion_correlation_min",
             "region_distance_max",
         ):
-            if isinstance(rule[key], bool) or not isinstance(rule[key], (int, float)) or not math.isfinite(rule[key]):
+            if type(rule[key]) is not float or not math.isfinite(rule[key]):
                 raise ValueError(f"monitor contract rule {key} must be finite")
         if rule["gripper_close_threshold"] >= rule["gripper_open_threshold"]:
             raise ValueError("monitor contract gripper thresholds are unordered")
@@ -373,10 +481,31 @@ def _record_mapping(record: Any) -> dict[str, Any]:
 
 
 def _validate_evidence_record(
-    record: dict[str, Any], contract: Mapping[str, Any], detector_sha256: str
+    record: dict[str, Any],
+    contract: Mapping[str, Any],
+    detector_sha256: str,
+    *,
+    root_policy_step: int,
+    root_object_ids: frozenset[str],
 ) -> dict[str, Any]:
     if set(record) != _EVIDENCE_FIELDS:
         raise ValueError("historical evidence fields mismatch")
+    for key in (
+        "evidence_id",
+        "evidence_kind",
+        "rule_id",
+        "object_id",
+        "attempted_effect",
+        "attempt_id",
+        "detector_sha256",
+    ):
+        if not isinstance(record[key], str) or not record[key]:
+            raise ValueError(f"historical evidence {key} type mismatch")
+    for key in ("source_region", "destination_region"):
+        if record[key] is not None and (
+            not isinstance(record[key], str) or not record[key]
+        ):
+            raise ValueError(f"historical evidence {key} type mismatch")
     for key in ("evidence_id", "attempt_id", "detector_sha256"):
         _require_sha256(f"evidence {key}", record[key])
     if record["detector_sha256"] != detector_sha256:
@@ -394,6 +523,12 @@ def _validate_evidence_record(
     expires = record["evidence_expires_policy_step"]
     if not start <= due <= emitted <= expires:
         raise ValueError("historical evidence due/emission/expiry ordering is invalid")
+    if emitted > root_policy_step:
+        raise ValueError("historical evidence is from a future root policy step")
+    if not due <= root_policy_step <= expires:
+        raise ValueError("historical evidence is not active at the root policy step")
+    if record["object_id"] not in root_object_ids:
+        raise ValueError("historical evidence object is outside root object instances")
     hashes = record["supporting_transition_hashes"]
     if not isinstance(hashes, (list, tuple)) or not hashes:
         raise ValueError("historical evidence requires supporting transition hashes")
@@ -427,6 +562,17 @@ def _validate_evidence_record(
             raise ValueError("historical evidence expiry violates its rule")
         if emitted > start + rule["manipulation_attribution_ttl_policy_steps"]:
             raise ValueError("historical evidence is outside manipulation attribution window")
+        expected_attempt_id = _domain_json_sha256(
+            b"LOGIV_ACTION_ATTEMPT_ID_V1",
+            {
+                "object_id": record["object_id"],
+                "rule_id": record["rule_id"],
+                "start_policy_step": start,
+                "start_transition_sha256": hashes[0],
+            },
+        )
+        if record["attempt_id"] != expected_attempt_id:
+            raise ValueError("historical evidence attempt ID hash mismatch")
     elif kind in _FACT_EVIDENCE_RULES:
         if record["rule_id"] != _FACT_EVIDENCE_RULES[kind]:
             raise ValueError("fact evidence uses the wrong reserved rule ID")
@@ -441,8 +587,30 @@ def _validate_evidence_record(
             ttl = contract["progress_evidence_ttl_policy_steps"]
         if due != expected_due or expires != emitted + ttl:
             raise ValueError("fact evidence due/expiry violates the embedded contract")
+        if kind == "GOAL_REGRESSION":
+            expected_attempt_id = _domain_json_sha256(
+                b"LOGIV_GOAL_REGRESSION_ATTEMPT_ID_V1",
+                {
+                    "achieved_fact_evidence_sha256": hashes[0],
+                    "achieved_policy_step": start,
+                    "goal_literal": record["attempted_effect"],
+                },
+            )
+            if record["attempt_id"] != expected_attempt_id:
+                raise ValueError("Goal-regression attempt ID hash mismatch")
     else:
         raise ValueError("unknown historical evidence kind")
+    expected_evidence_id = _domain_json_sha256(
+        b"LOGIV_ACTION_EVENT_EVIDENCE_ID_V1",
+        {
+            "attempt_id": record["attempt_id"],
+            "emitted_policy_step": emitted,
+            "evidence_kind": kind,
+            "supporting_transition_hashes": list(hashes),
+        },
+    )
+    if record["evidence_id"] != expected_evidence_id:
+        raise ValueError("historical evidence ID hash mismatch")
     return record
 
 
@@ -450,13 +618,20 @@ def _evidence_json_records(
     records: tuple[Any, ...] | list[Any],
     contract: Mapping[str, Any],
     detector_sha256: str,
+    *,
+    root_policy_step: int,
+    root_object_ids: frozenset[str],
 ) -> tuple[str, ...]:
     rendered: list[str] = []
     evidence_ids: set[str] = set()
     attempt_kinds: set[tuple[str, str]] = set()
     for value in records:
         record = _validate_evidence_record(
-            _record_mapping(value), contract, detector_sha256
+            _record_mapping(value),
+            contract,
+            detector_sha256,
+            root_policy_step=root_policy_step,
+            root_object_ids=root_object_ids,
         )
         if record["evidence_id"] in evidence_ids:
             raise ValueError("duplicate historical evidence ID")
@@ -467,6 +642,15 @@ def _evidence_json_records(
         attempt_kinds.add(attempt_kind)
         rendered.append(_canonical_json(record))
     return tuple(sorted(rendered))
+
+
+def _validate_contract_root_objects(
+    contract: Mapping[str, Any], object_instance_ids: tuple[str, ...]
+) -> None:
+    root_objects = frozenset(object_instance_ids)
+    for rule in contract["action_event_rules"]:
+        if rule["object_id"] not in root_objects:
+            raise ValueError("monitor contract rule object is outside root object instances")
 
 
 def _envelope_json_and_hash(
@@ -492,6 +676,13 @@ def _envelope_json_and_hash(
         "policy_client_config_sha256",
     }:
         raise ValueError(f"{field} envelope fields mismatch")
+    if (
+        not isinstance(payload["version"], str)
+        or type(payload["episode_seed"]) is not int
+        or type(payload["inference_index"]) is not int
+        or not isinstance(payload["policy_client_config_sha256"], str)
+    ):
+        raise ValueError(f"{field} envelope scalar type mismatch")
     if payload["version"] != "BaseRequestEnvelopeV1":
         raise ValueError(f"{field} envelope version mismatch")
     if expected_index is None or payload["inference_index"] != expected_index:
@@ -612,8 +803,16 @@ def make_recovery_root_manifest(
     base_action_prefix_sha256: str,
     snapshot: FactSnapshot,
 ) -> RecoveryRootManifest:
-    split = RecoverySplit(split)
-    collection_label = CollectionLabel(collection_label)
+    if type(split) is not RecoverySplit or type(collection_label) is not CollectionLabel:
+        raise ValueError("recovery split and collection label types are exact enums")
+    if type(object_instance_ids) is not tuple or any(
+        type(value) is not str for value in object_instance_ids
+    ):
+        raise ValueError("object instance IDs must be a tuple of strings")
+    if type(historical_failure_evidence) is not tuple:
+        raise ValueError("historical failure evidence must be a tuple")
+    if type(snapshot) is not FactSnapshot:
+        raise ValueError("recovery snapshot must be an exact FactSnapshot")
     contract = _parse_contract(monitor_contract_json)
     simulator_state = _validate_array("simulator_state", simulator_state)
     pending_base_actions = _validate_array(
@@ -652,8 +851,14 @@ def make_recovery_root_manifest(
         raise ValueError("monitor contract grounding-rule hash mismatch")
     if contract["event_detector_sha256"] != event_detector_sha256:
         raise ValueError("monitor contract event-detector hash mismatch")
+    object_ids = tuple(sorted(object_instance_ids))
+    _validate_contract_root_objects(contract, object_ids)
     evidence_json = _evidence_json_records(
-        historical_failure_evidence, contract, event_detector_sha256
+        historical_failure_evidence,
+        contract,
+        event_detector_sha256,
+        root_policy_step=policy_step,
+        root_object_ids=frozenset(object_ids),
     )
     active_json, active_hash = _envelope_json_and_hash(
         active_base_request_envelope_json,
@@ -673,7 +878,6 @@ def make_recovery_root_manifest(
         active_json, next_json, policy_replay_contract_sha256
     )
     unknown = snapshot.fact_universe - snapshot.true_facts - snapshot.false_facts
-    object_ids = tuple(sorted(object_instance_ids))
     root_id, group_id, independence_id = _id_payloads(
         task_id=task_id,
         scene_sha256=scene_sha256,
@@ -751,9 +955,17 @@ def make_recovery_root_manifest(
         fact_universe_sha256=snapshot.fact_universe_sha256,
         fact_evidence_hash=snapshot.evidence_hash,
         fact_evidence_payload_json=snapshot.evidence_payload_json,
-        true_facts=tuple(fact.pddl() for fact in sorted(snapshot.true_facts)),
-        false_facts=tuple(fact.pddl() for fact in sorted(snapshot.false_facts)),
-        unknown_facts=tuple(fact.pddl() for fact in sorted(unknown)),
+        true_facts=tuple(
+            fact.pddl()
+            for fact in sorted(snapshot.true_facts, key=fact_pddl_sort_key)
+        ),
+        false_facts=tuple(
+            fact.pddl()
+            for fact in sorted(snapshot.false_facts, key=fact_pddl_sort_key)
+        ),
+        unknown_facts=tuple(
+            fact.pddl() for fact in sorted(unknown, key=fact_pddl_sort_key)
+        ),
     )
     _validate_manifest_state(
         manifest, simulator_state, observation_values, pending_base_actions
@@ -767,6 +979,7 @@ def _validate_manifest_state(
     observation: Mapping[str, np.ndarray],
     pending_base_actions: np.ndarray,
 ) -> None:
+    _validate_manifest_scalar_types(manifest)
     if manifest.schema_version != 1:
         raise ValueError("unknown recovery-root schema")
     if not isinstance(manifest.split, RecoverySplit) or not isinstance(
@@ -867,10 +1080,13 @@ def _validate_manifest_state(
         raise ValueError("monitor contract grounding-rule hash mismatch")
     if contract["event_detector_sha256"] != manifest.event_detector_sha256:
         raise ValueError("monitor contract event-detector hash mismatch")
+    _validate_contract_root_objects(contract, manifest.object_instance_ids)
     canonical_evidence = _evidence_json_records(
         list(manifest.historical_failure_evidence_json),
         contract,
         manifest.event_detector_sha256,
+        root_policy_step=manifest.policy_step,
+        root_object_ids=frozenset(manifest.object_instance_ids),
     )
     if canonical_evidence != manifest.historical_failure_evidence_json:
         raise ValueError("historical evidence order or canonical JSON mismatch")
@@ -1001,10 +1217,138 @@ def _manifest_payload(manifest: RecoveryRootManifest) -> dict[str, Any]:
     return payload
 
 
+_MANIFEST_INTEGER_FIELDS = frozenset(
+    {
+        "schema_version",
+        "task_id",
+        "episode_idx",
+        "master_seed",
+        "policy_seed",
+        "simulator_seed",
+        "source_observation_generation",
+        "policy_step",
+        "policy_request_generation",
+        "base_policy_request_count",
+        "next_base_request_index",
+        "base_action_chunk_size",
+        "pending_base_action_offset",
+        "pending_base_action_count",
+        "fact_epoch_id",
+    }
+)
+_MANIFEST_OPTIONAL_INTEGER_FIELDS = frozenset(
+    {
+        "perturbation_seed",
+        "branch_seed",
+        "active_base_request_index",
+        "base_action_response_size",
+    }
+)
+_MANIFEST_STRING_FIELDS = frozenset(
+    {
+        "root_id",
+        "recovery_group_id",
+        "independence_unit_id",
+        "scene_sha256",
+        "initial_state_sha256",
+        "event_origin_parent_sha256",
+        "parent_trajectory_lineage_sha256",
+        "base_prompt_sha256",
+        "base_checkpoint_sha256",
+        "policy_client_config_sha256",
+        "perturbation_family",
+        "trigger_class",
+        "deviation_status",
+        "deviation_event_id",
+        "relevant_fact_sha256",
+        "source_graph_version",
+        "certificate_state",
+        "grounding_rule_sha256",
+        "event_detector_sha256",
+        "monitor_contract_sha256",
+        "monitor_contract_json",
+        "pending_base_actions_sha256",
+        "simulator_state_sha256",
+        "observation_sha256",
+        "state_fingerprint",
+        "base_action_prefix_sha256",
+        "fact_universe_version",
+        "fact_universe_sha256",
+        "fact_evidence_hash",
+        "fact_evidence_payload_json",
+    }
+)
+_MANIFEST_OPTIONAL_STRING_FIELDS = frozenset(
+    {
+        "source_parent_snapshot_sha256",
+        "active_base_request_envelope_json",
+        "active_base_request_envelope_sha256",
+        "next_base_replay_envelope_json",
+        "next_base_replay_envelope_sha256",
+        "policy_replay_contract_sha256",
+        "live_base_continuation_ineligibility_reason",
+    }
+)
+_MANIFEST_STRING_TUPLE_FIELDS = frozenset(
+    {
+        "object_instance_ids",
+        "historical_failure_evidence_json",
+        "true_facts",
+        "false_facts",
+        "unknown_facts",
+    }
+)
+
+
+def _validate_manifest_scalar_types(manifest: RecoveryRootManifest) -> None:
+    for name in _MANIFEST_INTEGER_FIELDS:
+        if type(getattr(manifest, name)) is not int:
+            raise ValueError(f"recovery-root {name} scalar type mismatch")
+    for name in _MANIFEST_OPTIONAL_INTEGER_FIELDS:
+        value = getattr(manifest, name)
+        if value is not None and type(value) is not int:
+            raise ValueError(f"recovery-root {name} scalar type mismatch")
+    for name in _MANIFEST_STRING_FIELDS:
+        if type(getattr(manifest, name)) is not str:
+            raise ValueError(f"recovery-root {name} scalar type mismatch")
+    for name in _MANIFEST_OPTIONAL_STRING_FIELDS:
+        value = getattr(manifest, name)
+        if value is not None and type(value) is not str:
+            raise ValueError(f"recovery-root {name} scalar type mismatch")
+    for name in _MANIFEST_STRING_TUPLE_FIELDS:
+        values = getattr(manifest, name)
+        if type(values) is not tuple or any(type(value) is not str for value in values):
+            raise ValueError(f"recovery-root {name} container type mismatch")
+    if type(manifest.live_base_continuation_eligible) is not bool:
+        raise ValueError("recovery-root eligibility must be boolean")
+
+
+def _validate_manifest_json_types(payload: Mapping[str, Any]) -> None:
+    for name in _MANIFEST_INTEGER_FIELDS:
+        if type(payload[name]) is not int:
+            raise ValueError(f"recovery-root {name} JSON type mismatch")
+    for name in _MANIFEST_OPTIONAL_INTEGER_FIELDS:
+        if payload[name] is not None and type(payload[name]) is not int:
+            raise ValueError(f"recovery-root {name} JSON type mismatch")
+    for name in _MANIFEST_STRING_FIELDS | {"split", "collection_label"}:
+        if type(payload[name]) is not str:
+            raise ValueError(f"recovery-root {name} JSON type mismatch")
+    for name in _MANIFEST_OPTIONAL_STRING_FIELDS:
+        if payload[name] is not None and type(payload[name]) is not str:
+            raise ValueError(f"recovery-root {name} JSON type mismatch")
+    for name in _MANIFEST_STRING_TUPLE_FIELDS:
+        values = payload[name]
+        if type(values) is not list or any(type(value) is not str for value in values):
+            raise ValueError(f"recovery-root {name} JSON container type mismatch")
+    if type(payload["live_base_continuation_eligible"]) is not bool:
+        raise ValueError("recovery-root eligibility JSON type must be boolean")
+
+
 def _manifest_from_payload(payload: Any) -> RecoveryRootManifest:
-    expected = {field.name for field in fields(RecoveryRootManifest)}
+    expected = set(RECOVERY_ROOT_MANIFEST_V1_FIELDS)
     if not isinstance(payload, dict) or set(payload) != expected:
         raise ValueError("recovery-root manifest schema fields mismatch")
+    _validate_manifest_json_types(payload)
     values = dict(payload)
     values["split"] = RecoverySplit(values["split"])
     values["collection_label"] = CollectionLabel(values["collection_label"])
@@ -1015,8 +1359,6 @@ def _manifest_from_payload(payload: Any) -> RecoveryRootManifest:
         "false_facts",
         "unknown_facts",
     ):
-        if not isinstance(values[name], list):
-            raise ValueError(f"recovery-root {name} must be a JSON array")
         values[name] = tuple(values[name])
     return RecoveryRootManifest(**values)
 

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import asdict, replace
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -30,6 +32,12 @@ def _canonical_json(value) -> str:
         separators=(",", ":"),
         sort_keys=True,
     )
+
+
+def _domain_json_sha256(domain: bytes, value) -> str:
+    return hashlib.sha256(
+        domain + b"\0" + _canonical_json(value).encode("utf-8")
+    ).hexdigest()
 
 
 def _fact_universe_sha256(version: str, facts: frozenset[Fact]) -> str:
@@ -86,6 +94,7 @@ def _audited_snapshot(
     unknown: tuple[Fact, ...] = (Fact("holding", ("book_1",)),),
     epoch_id: int = 7,
     observation: dict[str, np.ndarray] | None = None,
+    dominance_overrides: tuple[tuple[str, str, str], ...] = (),
 ) -> FactSnapshot:
     observation = _observation() if observation is None else observation
     universe = frozenset(true + false + unknown)
@@ -95,7 +104,7 @@ def _audited_snapshot(
     values.extend((fact.pddl(), TruthValue.UNKNOWN.value) for fact in unknown)
     payload_json = _canonical_json(
         {
-            "dominance_overrides": [],
+            "dominance_overrides": list(dominance_overrides),
             "epoch_id": epoch_id,
             "observation_hash": _observation_sha256(observation),
             "values": sorted(values),
@@ -114,22 +123,27 @@ def _audited_snapshot(
 
 
 def _monitor_contract_json(
-    *, ttl: int = 5, contract_id: str = "r2m-monitor-evidence-v1-task-5"
+    *,
+    ttl: int = 20,
+    contract_id: str = "r2m-monitor-evidence-v1-task-5",
+    object_ids: tuple[str, ...] = ("book_1",),
+    rule_object_id: str = "book_1",
 ) -> str:
+    attempted_effect = f"(in {rule_object_id} caddy)"
     contract = {
         "contract_id": contract_id,
         "task_id": 5,
-        "object_ids": ["book_1"],
+        "object_ids": list(object_ids),
         "nominal_source_facts": ["(at book_1 table)"],
         "abnormal_support_surfaces": ["floor"],
-        "task_relevant_effects": ["(in book_1 caddy)"],
+        "task_relevant_effects": [attempted_effect],
         "tracker_version": "tracker-v1",
         "action_event_rules": [
             {
                 "rule_id": "place_book_1",
-                "object_id": "book_1",
+                "object_id": rule_object_id,
                 "attempt_kind": "PLACE",
-                "attempted_effect": "(in book_1 caddy)",
+                "attempted_effect": attempted_effect,
                 "source_region": "table",
                 "destination_region": "caddy",
                 "gripper_close_threshold": -0.5,
@@ -160,24 +174,54 @@ def _monitor_contract_json(
     return _canonical_json(contract)
 
 
+def _contract_with_override(**overrides) -> str:
+    contract = json.loads(_monitor_contract_json())
+    contract.pop("contract_sha256")
+    contract.update(overrides)
+    contract["contract_sha256"] = hashlib.sha256(
+        _canonical_json(contract).encode("utf-8")
+    ).hexdigest()
+    return _canonical_json(contract)
+
+
 def _evidence(**overrides) -> dict:
     record = {
-        "evidence_id": "e" * 64,
         "evidence_kind": "ATTEMPTED_EFFECT_TIMEOUT",
         "rule_id": "place_book_1",
         "object_id": "book_1",
         "attempted_effect": "(in book_1 caddy)",
         "source_region": "table",
         "destination_region": "caddy",
-        "attempt_id": "f" * 64,
         "start_policy_step": 2,
         "effect_due_policy_step": 5,
         "emitted_policy_step": 5,
-        "evidence_expires_policy_step": 10,
+        "evidence_expires_policy_step": 25,
         "supporting_transition_hashes": ("1" * 64, "2" * 64),
         "detector_sha256": "d" * 64,
     }
     record.update(overrides)
+    if "attempt_id" not in overrides:
+        record["attempt_id"] = _domain_json_sha256(
+            b"LOGIV_ACTION_ATTEMPT_ID_V1",
+            {
+                "object_id": record["object_id"],
+                "rule_id": record["rule_id"],
+                "start_policy_step": record["start_policy_step"],
+                "start_transition_sha256": record["supporting_transition_hashes"][0],
+            },
+        )
+    if "evidence_id" not in overrides:
+        record["evidence_id"] = _domain_json_sha256(
+            b"LOGIV_ACTION_EVENT_EVIDENCE_ID_V1",
+            {
+                "attempt_id": record["attempt_id"],
+                "emitted_policy_step": record["emitted_policy_step"],
+                "evidence_kind": record["evidence_kind"],
+                "supporting_transition_hashes": list(
+                    record["supporting_transition_hashes"]
+                ),
+            },
+        )
     return record
 
 
@@ -397,6 +441,58 @@ def test_duplicate_evidence_or_envelope_identity_mismatch_is_rejected() -> None:
         _manifest(active_base_request_envelope_json=_envelope(inference_index=1))
 
 
+def test_historical_evidence_recomputes_attempt_and_evidence_ids() -> None:
+    with pytest.raises(ValueError, match="attempt.*ID|attempt.*hash"):
+        _manifest(
+            historical_failure_evidence=(_evidence(attempt_id="f" * 64),)
+        )
+    with pytest.raises(ValueError, match="evidence.*ID|evidence.*hash"):
+        _manifest(
+            historical_failure_evidence=(_evidence(evidence_id="e" * 64),)
+        )
+
+
+def test_historical_evidence_must_be_active_at_the_root_policy_step() -> None:
+    future = _evidence(
+        start_policy_step=13,
+        effect_due_policy_step=16,
+        emitted_policy_step=16,
+        evidence_expires_policy_step=36,
+    )
+    with pytest.raises(ValueError, match="future|root|policy step|active"):
+        _manifest(policy_step=15, historical_failure_evidence=(future,))
+    with pytest.raises(ValueError, match="expired|root|policy step|active"):
+        _manifest(
+            policy_step=26,
+            historical_failure_evidence=(_evidence(),),
+        )
+
+
+def test_contract_and_evidence_objects_are_closed_over_root_instances() -> None:
+    with pytest.raises(ValueError, match="rule object|contract object"):
+        _manifest(
+            monitor_contract_json=_monitor_contract_json(
+                rule_object_id="book_2"
+            ),
+            historical_failure_evidence=(
+                _evidence(
+                    object_id="book_2", attempted_effect="(in book_2 caddy)"
+                ),
+            ),
+        )
+    cross_object_contract = _monitor_contract_json(
+        object_ids=("book_1", "book_2"), rule_object_id="book_2"
+    )
+    cross_object_evidence = _evidence(
+        object_id="book_2", attempted_effect="(in book_2 caddy)"
+    )
+    with pytest.raises(ValueError, match="root object|object instance|attribution"):
+        _manifest(
+            monitor_contract_json=cross_object_contract,
+            historical_failure_evidence=(cross_object_evidence,),
+        )
+
+
 def test_missing_replay_contract_or_envelopes_are_explicitly_ineligible() -> None:
     missing_contract = _manifest(policy_replay_contract_sha256=None)
     assert missing_contract.live_base_continuation_eligible is False
@@ -468,6 +564,50 @@ def test_crash_before_directory_publish_never_exposes_half_root(
     assert find_orphan_root_temps(tmp_path)
 
 
+def test_atomic_publish_orders_lock_fsyncs_rename_and_parent_fsync(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    events: list[str] = []
+
+    @contextmanager
+    def recording_lock(output_dir: Path):
+        assert output_dir == tmp_path
+        events.append("lock-enter")
+        try:
+            yield
+        finally:
+            events.append("lock-exit")
+
+    def recording_file_fsync(path: Path) -> None:
+        events.append(f"file-fsync:{path.name}")
+
+    def recording_directory_fsync(path: Path) -> None:
+        events.append("directory-fsync:temp" if path.name.startswith(".") else "directory-fsync:parent")
+
+    def recording_publish(source: Path, destination: Path) -> None:
+        events.append("rename")
+        os.rename(source, destination)
+
+    monkeypatch.setattr(recovery_records, "_registry_lock", recording_lock)
+    monkeypatch.setattr(recovery_records, "_fsync_file", recording_file_fsync)
+    monkeypatch.setattr(
+        recovery_records, "_fsync_directory", recording_directory_fsync
+    )
+    monkeypatch.setattr(recovery_records, "_publish_directory", recording_publish)
+
+    _write_manifest_root(tmp_path, _manifest())
+
+    assert events == [
+        "lock-enter",
+        "file-fsync:state.npz",
+        "file-fsync:recovery_root.json",
+        "directory-fsync:temp",
+        "rename",
+        "directory-fsync:parent",
+        "lock-exit",
+    ]
+
+
 def test_manifest_json_has_exact_public_fields_after_round_trip(tmp_path: Path) -> None:
     artifacts = _write_manifest_root(tmp_path, _manifest())
     payload = json.loads(artifacts.manifest_json.read_text(encoding="utf-8"))
@@ -476,3 +616,126 @@ def test_manifest_json_has_exact_public_fields_after_round_trip(tmp_path: Path) 
     _rewrite_manifest(artifacts.manifest_json, payload)
     with pytest.raises(ValueError, match="field|schema"):
         load_recovery_root(artifacts.directory)
+
+
+def test_v1_manifest_field_contract_is_explicit_and_frozen() -> None:
+    assert recovery_records.RECOVERY_ROOT_MANIFEST_V1_FIELDS == (
+        "schema_version",
+        "root_id",
+        "recovery_group_id",
+        "independence_unit_id",
+        "split",
+        "collection_label",
+        "task_id",
+        "episode_idx",
+        "scene_sha256",
+        "object_instance_ids",
+        "initial_state_sha256",
+        "source_parent_snapshot_sha256",
+        "event_origin_parent_sha256",
+        "parent_trajectory_lineage_sha256",
+        "base_prompt_sha256",
+        "base_checkpoint_sha256",
+        "policy_client_config_sha256",
+        "perturbation_family",
+        "perturbation_seed",
+        "branch_seed",
+        "master_seed",
+        "policy_seed",
+        "simulator_seed",
+        "trigger_class",
+        "deviation_status",
+        "deviation_event_id",
+        "historical_failure_evidence_json",
+        "relevant_fact_sha256",
+        "source_graph_version",
+        "source_observation_generation",
+        "certificate_state",
+        "grounding_rule_sha256",
+        "event_detector_sha256",
+        "monitor_contract_sha256",
+        "monitor_contract_json",
+        "policy_step",
+        "policy_request_generation",
+        "base_policy_request_count",
+        "active_base_request_index",
+        "next_base_request_index",
+        "active_base_request_envelope_json",
+        "active_base_request_envelope_sha256",
+        "next_base_replay_envelope_json",
+        "next_base_replay_envelope_sha256",
+        "policy_replay_contract_sha256",
+        "base_action_response_size",
+        "base_action_chunk_size",
+        "pending_base_action_offset",
+        "pending_base_action_count",
+        "pending_base_actions_sha256",
+        "live_base_continuation_eligible",
+        "live_base_continuation_ineligibility_reason",
+        "simulator_state_sha256",
+        "observation_sha256",
+        "state_fingerprint",
+        "base_action_prefix_sha256",
+        "fact_epoch_id",
+        "fact_universe_version",
+        "fact_universe_sha256",
+        "fact_evidence_hash",
+        "fact_evidence_payload_json",
+        "true_facts",
+        "false_facts",
+        "unknown_facts",
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "wrong_value"),
+    (("schema_version", True), ("live_base_continuation_eligible", 1)),
+)
+def test_loader_rejects_bool_integer_manifest_scalar_aliases(
+    tmp_path: Path, field: str, wrong_value
+) -> None:
+    artifacts = _write_manifest_root(tmp_path / field, _manifest())
+    payload = json.loads(artifacts.manifest_json.read_text(encoding="utf-8"))
+    payload[field] = wrong_value
+    _rewrite_manifest(artifacts.manifest_json, payload)
+
+    with pytest.raises(ValueError, match="type|boolean|schema"):
+        load_recovery_root(artifacts.directory)
+
+
+def test_contract_and_envelopes_reject_float_integer_aliases() -> None:
+    with pytest.raises(ValueError, match="task.*integer|contract.*type"):
+        _manifest(monitor_contract_json=_contract_with_override(task_id=5.0))
+    active = json.loads(_envelope(inference_index=0))
+    active["episode_seed"] = 17.0
+    with pytest.raises(ValueError, match="envelope.*seed|integer|type"):
+        _manifest(active_base_request_envelope_json=_canonical_json(active))
+
+
+def test_manifest_constructor_rejects_list_aliases_for_tuple_fields() -> None:
+    with pytest.raises(ValueError, match="object.*tuple|container type"):
+        _manifest(object_instance_ids=["book_1"])
+    with pytest.raises(ValueError, match="evidence.*tuple|container type"):
+        _manifest(historical_failure_evidence=[_evidence()])
+
+
+@pytest.mark.parametrize(
+    "dominance_overrides",
+    (
+        (("(holding book_1)", "(at book_1 table)", "invented-kind"),),
+        (
+            ("(holding book_1)", "(at book_1 table)", "reliable-holding-over-at"),
+            ("(holding book_1)", "(at book_1 table)", "reliable-holding-over-at"),
+        ),
+        (
+            (
+                "(holding unregistered_book)",
+                "(at book_1 table)",
+                "reliable-holding-over-at",
+            ),
+        ),
+    ),
+)
+def test_audited_snapshot_validates_dominance_override_schema(dominance_overrides) -> None:
+    with pytest.raises(ValueError, match="dominance|override|universe|duplicate"):
+        _audited_snapshot(dominance_overrides=dominance_overrides)

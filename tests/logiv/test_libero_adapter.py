@@ -4,6 +4,7 @@ from dataclasses import replace
 import hashlib
 import json
 from pathlib import Path
+import threading
 from types import SimpleNamespace
 
 import numpy as np
@@ -17,6 +18,7 @@ from pi05_libero_repro.logiv.controller import (
 )
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.libero_adapter import (
+    GroundingError,
     LiberoOracleGrounder,
     LiberoObservationStore,
     Pi05MacroExecutor,
@@ -340,6 +342,90 @@ def test_epoch_and_observation_noise_change_evidence_but_not_fact_universe() -> 
     assert second.fact_universe_sha256 == first.fact_universe_sha256
     assert second.evidence_hash != first.evidence_hash
     assert second.evidence_payload_json != first.evidence_payload_json
+
+
+def test_observation_store_owns_immutable_array_copies() -> None:
+    observation = dict(FakeEnv().obs)
+    original_pixel = int(observation["agentview_image"][0, 0, 0])
+    store = LiberoObservationStore(observation, epoch_id=4)
+
+    observation["agentview_image"][0, 0, 0] = original_pixel + 1
+    _, stored, _ = store.read()
+
+    assert int(stored["agentview_image"][0, 0, 0]) == original_pixel
+    assert stored["agentview_image"].flags.writeable is False
+    with pytest.raises(ValueError, match="read-only|writeable|assignment"):
+        stored["agentview_image"][0, 0, 0] = original_pixel + 2
+
+
+def test_snapshot_and_synchronous_simulator_advance_cannot_mix_epochs() -> None:
+    env = FakeEnv()
+    source = "kitchen_table_moka_pot_right_init_region"
+    env.env.relations[("on", "moka_pot_1", source)] = True
+    _, binding = _task8()
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+    monitored = frozenset(
+        {
+            Fact("at", ("moka_pot_1", source)),
+            Fact("holding", ("moka_pot_1",)),
+            Fact("handempty"),
+        }
+    )
+    grounder = LiberoOracleGrounder(env, store, binding, monitored)
+    original_truth = grounder._truth
+    grounding_started = threading.Event()
+    release_grounding = threading.Event()
+    first_call = True
+
+    def blocking_truth(fact):
+        nonlocal first_call
+        if first_call:
+            first_call = False
+            grounding_started.set()
+            assert release_grounding.wait(1.0)
+        return original_truth(fact)
+
+    grounder._truth = blocking_truth
+    captured: list = []
+    grounding_thread = threading.Thread(target=lambda: captured.append(grounder.peek_snapshot()))
+    grounding_thread.start()
+    assert grounding_started.wait(1.0)
+
+    advance_finished = threading.Event()
+
+    def advance() -> None:
+        def step():
+            env.env.held.add("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            observation = dict(env.obs)
+            observation["robot0_eef_pos"] = np.array([0.4, 0.0, 0.5])
+            return observation, 0.0, False, {}
+
+        store.advance(step)
+        advance_finished.set()
+
+    advance_thread = threading.Thread(target=advance)
+    advance_thread.start()
+    assert advance_finished.wait(0.05) is False
+    release_grounding.set()
+    grounding_thread.join(1.0)
+    advance_thread.join(1.0)
+
+    assert advance_finished.is_set()
+    assert captured[0].epoch_id == 4
+    assert Fact("at", ("moka_pot_1", source)) in captured[0].true_facts
+    assert Fact("holding", ("moka_pot_1",)) in captured[0].false_facts
+    current = grounder.peek_snapshot()
+    assert current.epoch_id == 5
+    assert Fact("holding", ("moka_pot_1",)) in current.true_facts
+
+
+def test_required_facts_cannot_expand_the_frozen_registered_universe() -> None:
+    _, _, grounder, _ = _audited_grounder()
+    unregistered = Fact("never-registered", ("moka_pot_1",))
+
+    with pytest.raises(GroundingError, match="registered|universe"):
+        grounder._snapshot(frozenset({unregistered}))
 
 
 def test_audited_snapshot_rejects_tampered_missing_duplicate_or_conflicting_evidence() -> None:

@@ -213,3 +213,128 @@ Both exited 0 with no output.
 ## Concerns
 
 No Task 3 correctness concern. Non-blocking integration note: Task 6 must provide the frozen replay-contract hash and acknowledged/future request envelopes for live-Base-continuation eligibility; otherwise roots are intentionally labeled for the both-arms-flush diagnostic.
+
+## Independent-review fixes
+
+An independent review found five correctness gaps and four hardening opportunities. All Critical and Important findings were addressed test-first:
+
+- Observation arrays are now owned immutable copies. Fact capture holds the observation-store lock for its full grounding transaction, while synchronous simulator advance holds the same lock across `env.step`, observation publication, and epoch increment. A grounding context is checked against the captured epoch, so a snapshot cannot mix simulator state and observation epochs.
+- The grounder now treats its registered monitored facts as a frozen universe and rejects required facts outside it.
+- Historical evidence now recomputes versioned action-attempt, Goal-regression-attempt, and evidence IDs when the embedded provenance is sufficient. Evidence must have been emitted by the root step and be active at the root step (`due <= root <= expiry`).
+- Every action-event rule object must belong to the embedded contract and root object-instance sets, and every evidence object must belong to the root object-instance set.
+- Manifest, contract, evidence, and envelope inputs now enforce exact scalar/container types, including rejecting Python `bool` as an integer and JSON floats as integer aliases.
+- Canonical fact ordering uses one PDDL sort key. Dominance overrides now validate their kind, uniqueness, universe membership, fact predicates, object identity, and canonical order.
+- Schema v1 has an explicit frozen field tuple independent of dataclass introspection.
+- Atomic publication has an explicit order-spy characterization test covering lock, both file fsyncs, temporary-directory fsync, rename, parent-directory fsync, and unlock.
+
+### Review-fix RED evidence
+
+Atomic observation ownership, simulator transaction, and frozen-universe regressions:
+
+```text
+uv run pytest -q tests/logiv/test_libero_adapter.py::test_observation_store_owns_immutable_array_copies tests/logiv/test_libero_adapter.py::test_snapshot_and_synchronous_simulator_advance_cannot_mix_epochs tests/logiv/test_libero_adapter.py::test_required_facts_cannot_expand_the_frozen_registered_universe
+FFF                                                                      [100%]
+3 failed, 1 warning in 0.17s
+```
+
+The failures respectively showed caller-owned array aliasing, the absent coordinated `advance` transaction, and silent required-fact universe expansion.
+
+Evidence identity, root-time validity, and attribution closure regressions:
+
+```text
+uv run pytest -q tests/logiv/test_recovery_records.py::test_historical_evidence_recomputes_attempt_and_evidence_ids tests/logiv/test_recovery_records.py::test_historical_evidence_must_be_active_at_the_root_policy_step tests/logiv/test_recovery_records.py::test_contract_and_evidence_objects_are_closed_over_root_instances
+FFF                                                                      [100%]
+3 failed in 0.07s
+```
+
+All three failures were `DID NOT RAISE`, confirming that arbitrary IDs, future/expired evidence, and cross-object attribution were previously accepted.
+
+Exact-type, frozen-schema, and dominance-override regressions:
+
+```text
+uv run pytest -q tests/logiv/test_recovery_records.py::test_v1_manifest_field_contract_is_explicit_and_frozen tests/logiv/test_recovery_records.py::test_loader_rejects_bool_integer_manifest_scalar_aliases tests/logiv/test_recovery_records.py::test_contract_and_envelopes_reject_float_integer_aliases tests/logiv/test_recovery_records.py::test_audited_snapshot_validates_dominance_override_schema
+FFFFFFF                                                                  [100%]
+7 failed in 0.10s
+```
+
+The failures covered the missing explicit v1 schema constant plus accepted Boolean/integer aliases, float/integer aliases, invented override kinds, duplicate overrides, and out-of-universe overrides.
+
+Direct constructor container regression:
+
+```text
+uv run pytest -q tests/logiv/test_recovery_records.py::test_manifest_constructor_rejects_list_aliases_for_tuple_fields
+F                                                                        [100%]
+1 failed in 0.06s
+```
+
+The failure was `DID NOT RAISE` for list aliases passed to tuple-only public fields.
+
+### Review-fix GREEN evidence
+
+```text
+uv run pytest -q tests/logiv/test_libero_adapter.py::test_observation_store_owns_immutable_array_copies tests/logiv/test_libero_adapter.py::test_snapshot_and_synchronous_simulator_advance_cannot_mix_epochs tests/logiv/test_libero_adapter.py::test_required_facts_cannot_expand_the_frozen_registered_universe
+...                                                                      [100%]
+3 passed in 0.19s
+
+uv run pytest -q tests/logiv/test_recovery_records.py::test_historical_evidence_recomputes_attempt_and_evidence_ids tests/logiv/test_recovery_records.py::test_historical_evidence_must_be_active_at_the_root_policy_step tests/logiv/test_recovery_records.py::test_contract_and_evidence_objects_are_closed_over_root_instances
+...                                                                      [100%]
+3 passed in 0.05s
+
+uv run pytest -q tests/logiv/test_recovery_records.py::test_v1_manifest_field_contract_is_explicit_and_frozen tests/logiv/test_recovery_records.py::test_loader_rejects_bool_integer_manifest_scalar_aliases tests/logiv/test_recovery_records.py::test_contract_and_envelopes_reject_float_integer_aliases tests/logiv/test_recovery_records.py::test_audited_snapshot_validates_dominance_override_schema
+.......                                                                  [100%]
+7 passed in 0.06s
+
+uv run pytest -q tests/logiv/test_recovery_records.py::test_manifest_constructor_rejects_list_aliases_for_tuple_fields
+.                                                                        [100%]
+1 passed in 0.05s
+```
+
+The atomic publication order test was a characterization test rather than a RED regression because the original implementation already had the required order:
+
+```text
+uv run pytest -q tests/logiv/test_recovery_records.py::test_atomic_publish_orders_lock_fsyncs_rename_and_parent_fsync
+.                                                                        [100%]
+1 passed in 0.05s
+```
+
+### Final verification after review fixes
+
+Focused Task 3 suites:
+
+```text
+uv run pytest -q tests/logiv/test_recovery_records.py tests/logiv/test_libero_adapter.py
+........................................................................ [ 72%]
+...........................                                              [100%]
+99 passed in 0.24s
+```
+
+Full repository suite:
+
+```text
+uv run pytest -q
+........................................................................ [ 30%]
+........................................................................ [ 61%]
+........................................................................ [ 91%]
+....................                                                     [100%]
+236 passed in 1.83s
+```
+
+Static sanity checks:
+
+```text
+git diff --check
+uv run python -m compileall -q src/pi05_libero_repro/logiv
+```
+
+Both exited 0 with no output.
+
+### Review-fix self-review
+
+- Rechecked each confirmed Critical and Important finding against its production path and regression test.
+- Confirmed both production synchronous `env.step` paths publish through the coordinated store transaction and no direct production `store.update` remains.
+- Confirmed historical evidence is revalidated both during construction and loading, including root-time validity, object attribution, versioned IDs, canonical JSON, and contract timing.
+- Confirmed direct construction and JSON loading share exact type rules, while JSON arrays are converted to tuples only after validation.
+- Confirmed one PDDL ordering key is used for universe hashes, emitted fact partitions, grounding values, and holding-fact processing.
+- Confirmed the final diff is limited to Task 3 production code, tests, and this report.
+
+No additional correctness concern found during review-fix self-review.

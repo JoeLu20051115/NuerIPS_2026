@@ -34,9 +34,13 @@ def parse_pddl_fact(value: str) -> Fact:
     return fact
 
 
+def fact_pddl_sort_key(fact: Fact) -> str:
+    return fact.pddl()
+
+
 def fact_universe_sha256(version: str, facts: FrozenSet[Fact]) -> str:
     payload = {
-        "facts": [fact.pddl() for fact in sorted(facts)],
+        "facts": [fact.pddl() for fact in sorted(facts, key=fact_pddl_sort_key)],
         "version": version,
     }
     return hashlib.sha256(
@@ -247,6 +251,24 @@ class FactSnapshot:
             for item in overrides
         ):
             raise ValueError("fact evidence dominance overrides are malformed")
+        seen_overrides: set[tuple[Fact, Fact, str]] = set()
+        for source_text, target_text, kind in overrides:
+            source = parse_pddl_fact(source_text)
+            target = parse_pddl_fact(target_text)
+            if source not in universe or target not in universe:
+                raise ValueError("fact evidence dominance override is outside its universe")
+            if kind != "reliable-holding-over-at":
+                raise ValueError("fact evidence dominance override kind is invalid")
+            if (
+                source.predicate != "holding"
+                or target.predicate != "at"
+                or source.arguments != target.arguments[:1]
+            ):
+                raise ValueError("fact evidence dominance override facts are incompatible")
+            override = (source, target, kind)
+            if override in seen_overrides:
+                raise ValueError("duplicate fact evidence dominance override")
+            seen_overrides.add(override)
         if overrides != sorted(overrides):
             raise ValueError("fact evidence dominance overrides are not canonical")
 

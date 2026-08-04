@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from collections import deque
+from contextlib import contextmanager
+import copy
 from dataclasses import dataclass, replace
 import hashlib
 import json
 from pathlib import Path
 import threading
 import time
-from typing import Any, FrozenSet, Iterable, Mapping
+from typing import Any, Callable, FrozenSet, Iterable, Iterator, Mapping
 
 import numpy as np
 
@@ -30,6 +32,7 @@ from pi05_libero_repro.logiv.model import (
     GroundAction,
     TaskProblem,
     TruthValue,
+    fact_pddl_sort_key,
     fact_universe_sha256,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
@@ -125,9 +128,28 @@ class LiberoObservationStore:
         if epoch_id < 0:
             raise ValueError("epoch_id must be nonnegative")
         self._lock = threading.RLock()
-        self._observation = dict(observation)
+        self._observation = self._freeze(observation)
         self._epoch_id = epoch_id
         self._updated_at = time.monotonic()
+
+    @staticmethod
+    def _freeze(observation: Mapping[str, Any]) -> dict[str, Any]:
+        frozen: dict[str, Any] = {}
+        for key, value in observation.items():
+            if isinstance(value, np.ndarray):
+                array = np.array(value, copy=True)
+                array.setflags(write=False)
+                frozen[key] = array
+            else:
+                frozen[key] = copy.deepcopy(value)
+        return frozen
+
+    def _read_locked(self) -> tuple[int, dict[str, Any], float]:
+        observation = {
+            key: value if isinstance(value, np.ndarray) else copy.deepcopy(value)
+            for key, value in self._observation.items()
+        }
+        return self._epoch_id, observation, self._updated_at
 
     @property
     def epoch_id(self) -> int:
@@ -141,14 +163,31 @@ class LiberoObservationStore:
 
     def read(self) -> tuple[int, dict[str, Any], float]:
         with self._lock:
-            return self._epoch_id, dict(self._observation), self._updated_at
+            return self._read_locked()
+
+    @contextmanager
+    def capture(self) -> Iterator[tuple[int, dict[str, Any], float]]:
+        with self._lock:
+            yield self._read_locked()
 
     def update(self, observation: Mapping[str, Any]) -> int:
         with self._lock:
-            self._observation = dict(observation)
+            self._observation = self._freeze(observation)
             self._epoch_id += 1
             self._updated_at = time.monotonic()
             return self._epoch_id
+
+    def advance(self, step: Callable[[], tuple[Any, ...]]) -> tuple[Any, ...]:
+        """Run one synchronous simulator step and publish its observation atomically."""
+
+        with self._lock:
+            result = step()
+            if not isinstance(result, tuple) or not result:
+                raise ValueError("synchronous simulator step returned no observation")
+            self._observation = self._freeze(result[0])
+            self._epoch_id += 1
+            self._updated_at = time.monotonic()
+            return result
 
 
 class GroundingError(RuntimeError):
@@ -453,15 +492,40 @@ class LiberoOracleGrounder:
             return self._accessible(*fact.arguments)
         return TruthValue.UNKNOWN
 
-    def _snapshot(self, required: FrozenSet[Fact]) -> FactSnapshot:
-        epoch_id, observation, _ = self.store.read()
+    def _snapshot(
+        self,
+        required: FrozenSet[Fact],
+        *,
+        expected_epoch: int | None = None,
+    ) -> FactSnapshot:
+        unregistered = required - self.monitored_facts
+        if unregistered:
+            raise GroundingError(
+                "required facts are outside the registered fact universe: "
+                + ", ".join(fact.pddl() for fact in sorted(unregistered))
+            )
+        with self.store.capture() as (epoch_id, observation, _):
+            if expected_epoch is not None and epoch_id != expected_epoch:
+                raise GroundingError("context/epoch mismatch")
+            snapshot = self._snapshot_at(required, epoch_id, observation)
+            if self.store.epoch_id != epoch_id:
+                raise GroundingError("fact snapshot epoch changed during capture")
+            return snapshot
+
+    def _snapshot_at(
+        self,
+        required: FrozenSet[Fact],
+        epoch_id: int,
+        observation: Mapping[str, Any],
+    ) -> FactSnapshot:
         values: dict[Fact, TruthValue] = {}
-        for fact in sorted(self.monitored_facts | required):
+        for fact in sorted(self.monitored_facts, key=fact_pddl_sort_key):
             if fact.predicate != "handempty":
                 values[fact] = self._truth(fact)
 
         holding_facts = sorted(
-            fact for fact in self.monitored_facts | required if fact.predicate == "holding"
+            (fact for fact in self.monitored_facts if fact.predicate == "holding"),
+            key=fact_pddl_sort_key,
         )
         dominance_overrides: list[tuple[str, str, str]] = []
         for holding_fact in holding_facts:
@@ -528,7 +592,10 @@ class LiberoOracleGrounder:
         evidence_payload = {
             "epoch_id": epoch_id,
             "observation_hash": _observation_hash(observation),
-            "values": [(fact.pddl(), values[fact].value) for fact in sorted(values)],
+            "values": [
+                (fact.pddl(), values[fact].value)
+                for fact in sorted(values, key=fact_pddl_sort_key)
+            ],
             "dominance_overrides": sorted(dominance_overrides),
         }
         evidence_payload_json = json.dumps(
@@ -560,10 +627,12 @@ class LiberoOracleGrounder:
             if phase is ContextPhase.POST_STOP_FACTS
             else GroundingStatus.STATE_GROUNDING_FAILURE
         )
-        if phase is not context.phase or context.epoch_id != self.store.epoch_id:
+        if phase is not context.phase:
             return GroundingResponse(status=status, context=context, reason="context/epoch mismatch")
         try:
-            snapshot = self._snapshot(required_facts)
+            snapshot = self._snapshot(
+                required_facts, expected_epoch=context.epoch_id
+            )
         except (GroundingError, TypeError, ValueError) as error:
             return GroundingResponse(status=status, context=context, reason=str(error))
         unknown = snapshot.unknown(required_facts)
@@ -1079,10 +1148,11 @@ class Pi05MacroExecutor:
                 if not self.safety.validate_action(low_level_action):
                     raise EpisodeInvalid("queued policy action failed safety recheck")
                 self._last_gripper_command = float(low_level_action[-1])
-                post_observation, _, done, _ = self.env.step(low_level_action.tolist())
+                _, _, done, _ = self.store.advance(
+                    lambda: self.env.step(low_level_action.tolist())
+                )
                 actions.append(low_level_action.copy())
                 self.total_action_steps += 1
-                self.store.update(post_observation)
                 if self.stop_on_effects:
                     effects_satisfied, primary_satisfied, target_diverged = (
                         self.grounder.observe_action_progress_details(
@@ -1256,8 +1326,7 @@ class Pi05MacroExecutor:
                 )
                 hold[-1] = -1.0 if release_completion else self._last_gripper_command
                 for _ in range(self.settling_steps):
-                    observation, _, _, _ = self.env.step(hold.tolist())
-                    self.store.update(observation)
+                    self.store.advance(lambda: self.env.step(hold.tolist()))
             except Exception as error:
                 status = ExecutorStatus.SETTLING_TIMEOUT
                 reason = f"settling failed: {error}"
