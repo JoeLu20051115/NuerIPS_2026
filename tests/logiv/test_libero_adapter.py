@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -147,6 +148,37 @@ def _grounder(env: FakeEnv):
     return package, store, grounder
 
 
+def _audited_grounder():
+    env = FakeEnv()
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", "flat_stove_1_cook_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", "flat_stove_1_cook_region"): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+    package, binding = _task8()
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+    unknown = Fact("unregistered-state", ("moka_pot_1",))
+    grounder = LiberoOracleGrounder(
+        env,
+        store,
+        binding,
+        monitored_fact_universe(package.problem) | {unknown},
+    )
+    return env, store, grounder, unknown
+
+
+def _rehash_evidence_payload(payload: dict) -> tuple[str, str]:
+    payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return payload_json, hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
+
+
 def test_task_binding_accepts_a_task_scoped_extended_manifest(tmp_path: Path) -> None:
     source = "living_room_table_recovery_surface"
     overlay = tmp_path / "coverage-overlay.json"
@@ -273,6 +305,86 @@ def test_oracle_grounder_maps_relations_holding_and_exactly_one_location() -> No
     assert response.snapshot is not None
     assert Fact("holding", ("moka_pot_1",)) in response.snapshot.true_facts
     assert Fact("handempty") in response.snapshot.false_facts
+
+
+def test_oracle_grounder_emits_a_complete_audited_true_false_unknown_partition() -> None:
+    _, _, grounder, unknown = _audited_grounder()
+
+    snapshot = grounder.peek_snapshot()
+
+    assert snapshot.fact_universe is not None
+    assert snapshot.fact_universe_version is not None
+    assert snapshot.fact_universe_sha256 is not None
+    assert snapshot.evidence_payload_json is not None
+    assert snapshot.fact_universe == (
+        snapshot.true_facts | snapshot.false_facts | snapshot.unknown(snapshot.fact_universe)
+    )
+    assert unknown in snapshot.unknown(snapshot.fact_universe)
+    payload = json.loads(snapshot.evidence_payload_json)
+    assert {value for _, value in payload["values"]} == {"TRUE", "FALSE", "UNKNOWN"}
+
+
+def test_epoch_and_observation_noise_change_evidence_but_not_fact_universe() -> None:
+    _, store, grounder, _ = _audited_grounder()
+    first = grounder.peek_snapshot()
+    noisy = dict(store.read()[1])
+    noisy["agentview_image"] = noisy["agentview_image"].copy()
+    noisy["agentview_image"][0, 0, 0] = 255
+    store.update(noisy)
+
+    second = grounder.peek_snapshot()
+
+    assert second.epoch_id == first.epoch_id + 1
+    assert second.fact_universe == first.fact_universe
+    assert second.fact_universe_version == first.fact_universe_version
+    assert second.fact_universe_sha256 == first.fact_universe_sha256
+    assert second.evidence_hash != first.evidence_hash
+    assert second.evidence_payload_json != first.evidence_payload_json
+
+
+def test_audited_snapshot_rejects_tampered_missing_duplicate_or_conflicting_evidence() -> None:
+    _, _, grounder, _ = _audited_grounder()
+    snapshot = grounder.peek_snapshot()
+    assert snapshot.evidence_payload_json is not None
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["epoch_id"] += 1
+    with pytest.raises(ValueError, match="evidence|epoch|hash"):
+        replace(snapshot, evidence_payload_json=_rehash_evidence_payload(payload)[0])
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].pop()
+    missing_json, missing_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="universe|partition|missing"):
+        replace(
+            snapshot,
+            evidence_payload_json=missing_json,
+            evidence_hash=missing_hash,
+        )
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].append(payload["values"][0])
+    duplicate_json, duplicate_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="duplicate|partition"):
+        replace(
+            snapshot,
+            evidence_payload_json=duplicate_json,
+            evidence_hash=duplicate_hash,
+        )
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].reverse()
+    reordered_json, reordered_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="canonical|sorted"):
+        replace(
+            snapshot,
+            evidence_payload_json=reordered_json,
+            evidence_hash=reordered_hash,
+        )
+
+    known = next(iter(snapshot.true_facts))
+    with pytest.raises(ValueError, match="TRUE and FALSE|conflict"):
+        replace(snapshot, false_facts=snapshot.false_facts | {known})
 
 
 def test_reliable_holding_overrides_stale_on_relation_before_exactly_one_lint() -> None:

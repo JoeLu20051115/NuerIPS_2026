@@ -30,9 +30,11 @@ from pi05_libero_repro.logiv.model import (
     GroundAction,
     TaskProblem,
     TruthValue,
+    fact_universe_sha256,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.protocol import EpisodeInvalid, prepare_observation
+from pi05_libero_repro.logiv.recovery_records import observation_sha256
 
 
 def _inner_env(env: Any) -> Any:
@@ -46,18 +48,8 @@ def _inner_env(env: Any) -> Any:
     return current
 
 
-def _observation_hash(observation: Mapping[str, Any], epoch_id: int) -> str:
-    digest = hashlib.sha256(str(epoch_id).encode("ascii"))
-    for key in sorted(observation):
-        value = observation[key]
-        digest.update(key.encode("utf-8"))
-        if isinstance(value, np.ndarray):
-            digest.update(str(value.shape).encode("ascii"))
-            digest.update(str(value.dtype).encode("ascii"))
-            digest.update(np.ascontiguousarray(value).tobytes())
-        else:
-            digest.update(repr(value).encode("utf-8"))
-    return digest.hexdigest()
+def _observation_hash(observation: Mapping[str, Any]) -> str:
+    return observation_sha256(observation)
 
 
 @dataclass(frozen=True)
@@ -529,16 +521,32 @@ class LiberoOracleGrounder:
                         f"exactly-one {predicate} violation for {name}"
                     )
 
+        fact_universe = frozenset(values)
+        fact_universe_version = (
+            f"logiv-libero-grounding-v1/task-{self.binding.task_id}"
+        )
         evidence_payload = {
             "epoch_id": epoch_id,
-            "observation_hash": _observation_hash(observation, epoch_id),
+            "observation_hash": _observation_hash(observation),
             "values": [(fact.pddl(), values[fact].value) for fact in sorted(values)],
-            "dominance_overrides": dominance_overrides,
+            "dominance_overrides": sorted(dominance_overrides),
         }
-        evidence_hash = hashlib.sha256(
-            json.dumps(evidence_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        ).hexdigest()
-        return FactSnapshot(epoch_id, true_facts, false_facts, evidence_hash)
+        evidence_payload_json = json.dumps(
+            evidence_payload, sort_keys=True, separators=(",", ":")
+        )
+        evidence_hash = hashlib.sha256(evidence_payload_json.encode("utf-8")).hexdigest()
+        return FactSnapshot(
+            epoch_id=epoch_id,
+            true_facts=true_facts,
+            false_facts=false_facts,
+            evidence_hash=evidence_hash,
+            fact_universe=fact_universe,
+            fact_universe_version=fact_universe_version,
+            fact_universe_sha256=fact_universe_sha256(
+                fact_universe_version, fact_universe
+            ),
+            evidence_payload_json=evidence_payload_json,
+        )
 
     def ground(
         self,
@@ -556,7 +564,7 @@ class LiberoOracleGrounder:
             return GroundingResponse(status=status, context=context, reason="context/epoch mismatch")
         try:
             snapshot = self._snapshot(required_facts)
-        except GroundingError as error:
+        except (GroundingError, TypeError, ValueError) as error:
             return GroundingResponse(status=status, context=context, reason=str(error))
         unknown = snapshot.unknown(required_facts)
         if unknown:
