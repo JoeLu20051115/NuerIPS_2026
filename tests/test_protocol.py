@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import json
+import random
+
 import numpy as np
 import pytest
 
 from pi05_libero_repro.protocol import (
+    BaseActionPrefixHasher,
     derive_episode_seed,
     EpisodeInvalid,
     EpisodeSeededClient,
@@ -27,7 +31,7 @@ class FakeImageTools:
         return image.astype(np.uint8)
 
 
-def observation() -> dict[str, np.ndarray]:
+def observation() -> dict[str, object]:
     image = np.arange(12, dtype=np.uint8).reshape(2, 2, 3)
     return {
         "agentview_image": image,
@@ -35,6 +39,7 @@ def observation() -> dict[str, np.ndarray]:
         "robot0_eef_pos": np.array([1.0, 2.0, 3.0]),
         "robot0_eef_quat": np.array([0.0, 0.0, 0.0, 1.0]),
         "robot0_gripper_qpos": np.array([4.0, 5.0]),
+        "nested": {"items": [{"value": 1}]},
     }
 
 
@@ -172,19 +177,37 @@ def test_wait_replan_reset_order_and_success() -> None:
 def test_shadow_observer_cannot_change_or_abort_base_actions() -> None:
     baseline_env = FakeEnv(succeed_on_policy_step=7)
     shadow_env = FakeEnv(succeed_on_policy_step=7)
+    seen_steps = []
+
+    def hostile_observer(context):
+        seen_steps.append(context.policy_step)
+        context.observation["robot0_eef_pos"][0] = -999
+        context.observation["nested"]["items"][0]["value"] = -999
+        random.random()
+        np.random.random()
+        if context.last_action is not None:
+            context.last_action[:] = -999
+        context.pending_base_actions[:] = -999
+        if context.policy_step == 3:
+            raise RuntimeError("shadow failed")
+
+    random.seed(1234)
+    np.random.seed(1234)
     baseline = run_episode(
         baseline_env, FakeClient(), np.array([9.0]), "prompt", FakeImageTools()
     )
-    seen_steps = []
+    baseline_python_draw = random.random()
+    baseline_numpy_draw = np.random.random()
 
-    def hostile_observer(obs, action, policy_step):
-        seen_steps.append(policy_step)
-        obs["robot0_eef_pos"][0] = -999
-        action[:] = -999
-        if policy_step == 3:
-            raise RuntimeError("shadow failed")
-
+    random.seed(1234)
+    np.random.seed(1234)
     ticks = iter(value * 0.01 for value in range(100))
+
+    def rng_consuming_clock() -> float:
+        random.random()
+        np.random.random()
+        return next(ticks)
+
     shadow = run_episode(
         shadow_env,
         FakeClient(),
@@ -192,16 +215,173 @@ def test_shadow_observer_cannot_change_or_abort_base_actions() -> None:
         "prompt",
         FakeImageTools(),
         shadow_observer=hostile_observer,
-        clock=ticks.__next__,
+        clock=rng_consuming_clock,
     )
     np.testing.assert_array_equal(np.asarray(shadow.actions), np.asarray(baseline.actions))
     assert shadow.steps == baseline.steps
     assert shadow.inference_requests == baseline.inference_requests
     assert (shadow.done, shadow.check_success) == (baseline.done, baseline.check_success)
-    assert seen_steps == list(range(1, baseline.steps + 1))
-    assert shadow.shadow_calls == baseline.steps
+    assert seen_steps == list(range(0, baseline.steps + 1))
+    assert shadow.shadow_calls == baseline.steps + 1
     assert shadow.shadow_errors == 1
-    assert shadow.shadow_wall_seconds == pytest.approx(baseline.steps * 0.01)
+    assert shadow.shadow_wall_seconds == pytest.approx((baseline.steps + 1) * 0.01)
+    assert shadow.shadow_parity_valid
+    assert random.random() == baseline_python_draw
+    assert np.random.random() == baseline_numpy_draw
+
+
+def test_shadow_deepcopy_failure_is_contained_at_step_zero() -> None:
+    class DeepcopyBomb:
+        def __deepcopy__(self, memo):
+            raise RuntimeError("no copying")
+
+    class InitialBombEnv(FakeEnv):
+        def step(self, action: list[float]):
+            result = super().step(action)
+            if len(self.actions) == 10:
+                obs, reward, done, info = result
+                obs["nested"] = DeepcopyBomb()
+                return obs, reward, done, info
+            return result
+
+    baseline = run_episode(
+        FakeEnv(succeed_on_policy_step=2),
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+    )
+    shadow = run_episode(
+        InitialBombEnv(succeed_on_policy_step=2),
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        shadow_observer=lambda context: None,
+    )
+
+    np.testing.assert_array_equal(np.asarray(shadow.actions), np.asarray(baseline.actions))
+    assert (shadow.steps, shadow.inference_requests, shadow.done, shadow.check_success) == (
+        baseline.steps,
+        baseline.inference_requests,
+        baseline.done,
+        baseline.check_success,
+    )
+    assert shadow.shadow_errors == 1
+    assert shadow.shadow_failure_records[0].policy_step == 0
+    assert shadow.shadow_failure_records[0].stage == "INPUT_COPY"
+    assert shadow.shadow_failure_records[0].reason == "RuntimeError"
+
+
+def test_shadow_context_tracks_prefix_pending_actions_and_request_envelopes() -> None:
+    class EchoingClient:
+        def infer(self, element: dict) -> dict[str, np.ndarray | dict[str, int]]:
+            return {
+                "actions": np.full((10, 7), element["__logiv_inference_index__"] + 1, dtype=np.float32),
+                "__logiv_rng__": {
+                    "episode_seed": element["__logiv_episode_seed__"],
+                    "inference_index": element["__logiv_inference_index__"],
+                },
+            }
+
+    client = EpisodeSeededClient(
+        EchoingClient(), episode_seed=7008002, policy_client_config_sha256="a" * 64
+    )
+    contexts = []
+    outcome = run_episode(
+        FakeEnv(succeed_on_policy_step=7),
+        client,
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        shadow_observer=contexts.append,
+        request_envelope_reader=client.request_envelope_reader,
+    )
+
+    assert len(contexts) == outcome.steps + 1
+    initial = contexts[0]
+    assert initial.pending_base_actions.shape == (0, 7)
+    assert initial.base_action_response_size is None
+    assert (initial.base_action_chunk_size, initial.pending_base_action_offset) == (0, 0)
+    assert (
+        initial.base_policy_request_count,
+        initial.active_base_request_index,
+        initial.next_base_request_index,
+    ) == (0, None, 0)
+    assert initial.base_action_prefix_sha256 == BaseActionPrefixHasher().update_and_hexdigest(None)
+    assert json.loads(initial.next_base_replay_envelope_json) == {
+        "episode_seed": 7008002,
+        "inference_index": 0,
+        "policy_client_config_sha256": "a" * 64,
+        "version": "BaseRequestEnvelopeV1",
+    }
+
+    first = contexts[1]
+    assert (
+        first.base_policy_request_count,
+        first.active_base_request_index,
+        first.next_base_request_index,
+        first.base_action_response_size,
+        first.base_action_chunk_size,
+        first.pending_base_action_offset,
+    ) == (1, 0, 1, 10, 5, 1)
+    assert first.pending_base_actions.shape == (4, 7)
+    assert np.all(first.pending_base_actions == np.float32(1))
+    assert json.loads(first.active_base_request_envelope_json)["inference_index"] == 0
+    assert json.loads(first.next_base_replay_envelope_json)["inference_index"] == 1
+
+    second_chunk = contexts[6]
+    assert (
+        second_chunk.base_policy_request_count,
+        second_chunk.active_base_request_index,
+        second_chunk.next_base_request_index,
+        second_chunk.base_action_response_size,
+        second_chunk.base_action_chunk_size,
+        second_chunk.pending_base_action_offset,
+    ) == (2, 1, 2, 10, 5, 1)
+    assert second_chunk.pending_base_actions.shape == (4, 7)
+    assert np.all(second_chunk.pending_base_actions == np.float32(2))
+
+    for context in contexts:
+        hasher = BaseActionPrefixHasher()
+        for action in outcome.actions[: context.policy_step]:
+            digest = hasher.update_and_hexdigest(action)
+        assert context.base_action_prefix_sha256 == hasher.update_and_hexdigest(None)
+        assert context.pending_base_actions.shape == (
+            context.base_action_chunk_size - context.pending_base_action_offset,
+            7,
+        )
+
+
+def test_episode_seeded_client_only_reads_acknowledged_envelopes_and_replays_from_frozen_config() -> None:
+    class RejectingClient:
+        def infer(self, element: dict) -> dict[str, object]:
+            return {"actions": np.zeros((1, 7)), "__logiv_rng__": {}}
+
+    client = EpisodeSeededClient(
+        RejectingClient(), episode_seed=7, policy_client_config_sha256="b" * 64
+    )
+    with pytest.raises(EpisodeInvalid, match="RNG envelope"):
+        client.infer({"prompt": "test"})
+
+    assert client.request_envelope_reader(0, True) is None
+    assert json.loads(client.request_envelope_reader(0, False))["inference_index"] == 0
+    assert len(client.issued_request_envelopes) == 1
+
+
+def test_generic_client_has_no_replay_envelope_support() -> None:
+    contexts = []
+    run_episode(
+        FakeEnv(succeed_on_policy_step=1),
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        shadow_observer=contexts.append,
+    )
+
+    assert contexts[0].active_base_request_envelope_json is None
+    assert contexts[0].next_base_replay_envelope_json is None
 
 
 def test_inference_error_is_invalid() -> None:
