@@ -1329,12 +1329,29 @@ def preflight_role_allocation_outputs(
     *,
     role_registry_head_sha256: str,
 ) -> None:
+    allocation_destination = Path(allocation_path)
+    run_destination = Path(run_path)
+    allocation_resolved = allocation_destination.resolve()
+    run_resolved = run_destination.resolve()
+    canonical_registry = CANONICAL_ROLE_REGISTRY_PATH.resolve()
+    if allocation_resolved == run_resolved:
+        raise RecoverySplitError("allocation and run.json output paths must differ")
+    if canonical_registry in {allocation_resolved, run_resolved}:
+        raise RecoverySplitError("derived outputs cannot replace the canonical registry")
+    if (
+        allocation_resolved.name == "recovery_root.json"
+        or run_resolved.name == "recovery_root.json"
+    ):
+        raise RecoverySplitError("derived outputs cannot replace recovery_root.json")
+    if run_destination.name != "run.json":
+        raise RecoverySplitError("run provenance output must be named run.json")
     _validate_allocation_envelope(allocation)
     _preflight_immutable_json(
-        Path(allocation_path), _canonical_json(asdict(allocation)).encode("utf-8")
+        allocation_destination,
+        _canonical_json(asdict(allocation)).encode("utf-8"),
     )
     _run_registry_provenance_payload(
-        Path(run_path),
+        run_destination,
         source_dataset_sha256=allocation.source_dataset_sha256,
         role_allocation_sha256=allocation.allocation_sha256,
         role_registry_head_sha256=role_registry_head_sha256,

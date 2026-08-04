@@ -633,6 +633,48 @@ def test_conflicting_derived_output_is_rejected_before_registry_cas(
     assert registry.read_head() == current
 
 
+@pytest.mark.parametrize(
+    "allocation_path,run_path",
+    [
+        ("same/run.json", "same/run.json"),
+        ("allocation.json", str(CANONICAL_ROLE_REGISTRY_PATH)),
+        (str(CANONICAL_ROLE_REGISTRY_PATH), "run.json"),
+        ("allocation.json", "recovery_root.json"),
+        ("recovery_root.json", "run.json"),
+    ],
+)
+def test_preflight_rejects_aliased_or_protected_output_paths(
+    tmp_path: Path, allocation_path: str, run_path: str
+):
+    source = _manifest()
+    registry = _registry(tmp_path)
+    current = registry.read_head()
+    allocation = _allocation(
+        [source],
+        {source.independence_unit_id: DatasetRole.TRAIN},
+        parent=current.head_sha256,
+    )
+    predicted = preview_role_allocation_append(
+        current, allocation, expected_head=current.head_sha256
+    )
+    allocation_output = Path(allocation_path)
+    if not allocation_output.is_absolute():
+        allocation_output = tmp_path / allocation_output
+    run_output = Path(run_path)
+    if not run_output.is_absolute():
+        run_output = tmp_path / run_output
+
+    with pytest.raises(RecoverySplitError, match="path|canonical|recovery_root|run.json"):
+        preflight_role_allocation_outputs(
+            allocation_output,
+            allocation,
+            run_output,
+            role_registry_head_sha256=predicted.head_sha256,
+        )
+
+    assert registry.read_head() == current
+
+
 def test_dataset_role_validator_requires_exact_allocation_and_registry_head(
     tmp_path: Path,
 ):
