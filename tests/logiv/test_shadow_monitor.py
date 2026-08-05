@@ -892,18 +892,30 @@ def test_certificate_reconciler_covers_binary_access_transition_gap() -> None:
         ShadowPlanContext(problem, (action,), graph, certificate), "1" * 64
     )
     initial = _snapshot(0, true={OPEN, HANDEMPTY}, false={CLOSED})
+    partial = _snapshot(4, true={HANDEMPTY}, false=set())
     transition = _snapshot(
         5,
         true={HANDEMPTY},
         false={OPEN, CLOSED},
     )
-    completed = _snapshot(10, true={CLOSED, HANDEMPTY}, false={OPEN})
+    completions = [
+        _snapshot(step, true={CLOSED, HANDEMPTY}, false={OPEN})
+        for step in (10, 11, 12, 13, 14)
+    ]
 
-    entered = reconciler.reconcile(initial, transition)
-    finished = reconciler.reconcile(transition, completed)
+    partial_result = reconciler.reconcile(initial, partial)
+    entered = reconciler.reconcile(partial, transition)
+    previous = transition
+    finished = []
+    for completed in completions:
+        finished.append(reconciler.reconcile(previous, completed))
+        previous = completed
 
+    assert partial_result.certificate_state is CertificateState.CURRENT
     assert entered.certificate_state is CertificateState.CURRENT
-    assert finished.certificate_state is CertificateState.CURRENT
+    assert all(
+        item.certificate_state is CertificateState.CURRENT for item in finished
+    )
 
 
 def test_shadow_plan_context_rejects_mixed_plan_artifacts() -> None:

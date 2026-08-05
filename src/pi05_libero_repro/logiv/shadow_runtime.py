@@ -130,6 +130,7 @@ class ShadowGraphTracker:
         self.problem = problem
         self._effect_confirmation_steps = effect_confirmation_steps
         self._effect_streaks: dict[str, int] = {}
+        self._pending_binary_nodes: set[str] = set()
         self._statuses: dict[str, str] = {"INIT": "COMPLETED"}
         self._predecessors = {node.node_id: set() for node in graph.nodes}
         self._successors = {node.node_id: set() for node in graph.nodes}
@@ -228,7 +229,7 @@ class ShadowGraphTracker:
                 "READY",
                 "ACTIVE",
                 "EFFECT_OBSERVED",
-            }
+            } or node.node_id in self._pending_binary_nodes
             effect_is_eligible = raw_effect and (
                 has_temporal_progress or self._effect_confirmation_steps == 1
             )
@@ -256,6 +257,7 @@ class ShadowGraphTracker:
             )
             if completed:
                 statuses[node.node_id] = "COMPLETED"
+                self._pending_binary_nodes.discard(node.node_id)
                 continue
             if raw_effect and has_temporal_progress:
                 statuses[node.node_id] = "EFFECT_OBSERVED"
@@ -287,8 +289,25 @@ class ShadowGraphTracker:
             binary_unresolved = bool(binary_values) and not any(
                 value is TruthValue.TRUE for value in binary_values
             ) and any(value is TruthValue.UNKNOWN for value in binary_values)
+            if previous == "READY" and binary_unresolved:
+                self._pending_binary_nodes.add(node.node_id)
+            binary_effect_progress = (
+                action.schema in self._BINARY_TRANSITION_SCHEMAS
+                and (
+                    any(
+                        snapshot.truth(fact) is TruthValue.TRUE
+                        for fact in action.add_effects
+                    )
+                    or any(
+                        snapshot.truth(fact) is TruthValue.FALSE
+                        for fact in action.del_effects
+                    )
+                )
+            )
             if has_temporal_progress and (
-                (object_name is not None and (held or unlocated)) or binary_gap
+                (object_name is not None and (held or unlocated))
+                or binary_gap
+                or binary_effect_progress
             ):
                 statuses[node.node_id] = "ACTIVE"
                 continue
@@ -314,6 +333,8 @@ class ShadowGraphTracker:
                 if has_unknown
                 else "BLOCKED"
             )
+            if statuses[node.node_id] == "READY":
+                self._pending_binary_nodes.discard(node.node_id)
 
         # A successor may enter its temporal transition on the same frame that
         # consumes the predecessor's effect.  Restore that predecessor after

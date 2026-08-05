@@ -75,6 +75,10 @@ transition gap and marks the node `ACTIVE`.  Raw effect truth after matching
 temporal progress marks it `EFFECT_OBSERVED`.  Five consecutive matching raw
 effect observations, with the normalized declared effects satisfied on the
 fifth, mark it `COMPLETED`; a shorter effect flicker resets the streak.
+If a ready binary pair first becomes UNKNOWN, the graph reports
+`PRECONDITION_UNKNOWN` but retains a pending transition.  A subsequent
+grounded partial effect or all-false pair continues that same macro instead of
+being misclassified as a deviation.
 
 The certificate reconciler maintains the matching macro as in flight.  For
 that object it accepts the schema-declared transport envelope—changes to

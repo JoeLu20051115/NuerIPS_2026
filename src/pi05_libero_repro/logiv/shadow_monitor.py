@@ -1199,12 +1199,19 @@ class ShadowCertificateReconciler:
     def _covered(
         self,
         changed: frozenset[SignedLiteral],
+        became_unknown: frozenset[Fact],
         previous: FactSnapshot,
         current: FactSnapshot,
     ) -> bool:
         for node_id in tuple(self._inflight_nodes):
             action = self.plan_context.graph.node_map[node_id].action
-            if action is None or not changed <= self._temporal_envelope(action):
+            envelope = self._temporal_envelope(action) if action is not None else ()
+            envelope_facts = frozenset(item.fact for item in envelope)
+            if (
+                action is None
+                or not changed <= envelope
+                or not became_unknown <= envelope_facts
+            ):
                 continue
             if current.satisfies(
                 positive=action.add_effects, negative=action.del_effects
@@ -1251,6 +1258,18 @@ class ShadowCertificateReconciler:
                 {SignedLiteral(fact, True) for fact in action.add_effects}
                 | {SignedLiteral(fact, False) for fact in action.del_effects}
             )
+            envelope = self._temporal_envelope(action)
+            envelope_facts = frozenset(item.fact for item in envelope)
+            if (
+                action.schema in self._BINARY_TRANSITION_SCHEMAS
+                and became_unknown
+                and changed <= envelope
+                and became_unknown <= envelope_facts
+            ):
+                self._inflight_nodes.add(node_id)
+                self._effect_streaks.pop(node_id, None)
+                self._pending_invalid_releases.pop(node_id, None)
+                return True
             if changed <= effects:
                 if action.schema in self._TEMPORAL_SCHEMAS:
                     if current.satisfies(
@@ -1260,7 +1279,7 @@ class ShadowCertificateReconciler:
                         self._inflight_nodes.add(node_id)
                         self._effect_streaks[node_id] = 1
                         self._pending_invalid_releases.pop(node_id, None)
-                    elif self._entered_temporal_transition(action, current):
+                    else:
                         self._inflight_nodes.add(node_id)
                         self._effect_streaks.pop(node_id, None)
                         self._pending_invalid_releases.pop(node_id, None)
@@ -1302,10 +1321,16 @@ class ShadowCertificateReconciler:
             if previous.truth(fact) is not current.truth(fact)
             and current.truth(fact) is not TruthValue.UNKNOWN
         )
+        became_unknown = frozenset(
+            fact
+            for fact in self.relevant_facts
+            if previous.truth(fact) is not current.truth(fact)
+            and current.truth(fact) is TruthValue.UNKNOWN
+        )
         if (
             self._state is CertificateState.CURRENT
-            and (changed or self._inflight_nodes)
-            and not self._covered(changed, previous, current)
+            and (changed or became_unknown or self._inflight_nodes)
+            and not self._covered(changed, became_unknown, previous, current)
         ):
             self._state = CertificateState.STALE
         return CertificateReconciliation(

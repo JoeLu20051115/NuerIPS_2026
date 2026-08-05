@@ -411,6 +411,10 @@ def test_temporal_shadow_graph_tracks_binary_access_transition_gap() -> None:
         _snapshot(true=frozenset({BLOCKED, handempty}), false=frozenset({CLOSED})),
         _snapshot(
             true=frozenset({handempty}),
+            false=frozenset(),
+        ),
+        _snapshot(
+            true=frozenset({handempty}),
             false=frozenset({BLOCKED, CLOSED}),
         ),
         _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
@@ -432,6 +436,7 @@ def test_temporal_shadow_graph_tracks_binary_access_transition_gap() -> None:
 
     assert [state["nodes"][1]["status"] for state in states] == [
         "READY",
+        "PRECONDITION_UNKNOWN",
         "ACTIVE",
         "EFFECT_OBSERVED",
         "EFFECT_OBSERVED",
