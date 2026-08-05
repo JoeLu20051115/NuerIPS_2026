@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -13,19 +14,78 @@ from pi05_libero_repro.logiv.model import FactSnapshot, parse_pddl_fact
 from pi05_libero_repro.logiv.task5_terminal_recovery import (
     TerminalAssessment,
     _assessment_sha256,
+    load_task5_recovery_capability,
 )
 from scripts.eval_logiv_libero import _write_json
 
 
 _FROZEN_CASES = {
-    "t05-r02": {"episode_idx": 36, "seed": 54804909},
-    "t05-r03": {"episode_idx": 18, "seed": 3546047300},
-    "t05-r04": {"episode_idx": 42, "seed": 1564298395},
+    "t05-r02": {
+        "episode_idx": 36,
+        "seed": 54804909,
+        "assessment_sha256": (
+            "c46a417c614060d7d414f84018ea8c962583e48dd1bc3a6f044286eb1b4ee8ca"
+        ),
+        "base_policy_steps": 231,
+        "base_policy_requests": 47,
+        "captured_at_utc": "2026-08-05T13:36:17.270672+00:00",
+        "graph_artifact_sha256": (
+            "72ee573a90f794245d3e07a9ef92e3152a8bfced273e752ef0b18d32a244d03d"
+        ),
+        "snapshot_artifact_sha256": (
+            "8a9194271771cbf56b00a0b4b2de20cd6fa93b996881906cfaeb76fba0df0f14"
+        ),
+        "terminal_artifact_sha256": (
+            "d27a607bb04c68fb2955598db94ff2ec2a7aa26710093aaddf80c9706792fed3"
+        ),
+    },
+    "t05-r03": {
+        "episode_idx": 18,
+        "seed": 3546047300,
+        "assessment_sha256": (
+            "a586396c886d767a5a332de91737e497542aba4a0e2447b07e31c97ec421c8bd"
+        ),
+        "base_policy_steps": 177,
+        "base_policy_requests": 36,
+        "captured_at_utc": "2026-08-05T13:37:06.718944+00:00",
+        "graph_artifact_sha256": (
+            "4bc86224b6566517f243eae9afa28098bdf3290fec47225b8e8b54d1ce349780"
+        ),
+        "snapshot_artifact_sha256": (
+            "5b86481c6ec4272614264ac623a1052932635404bfcb3f7c6a99ab8f013852b6"
+        ),
+        "terminal_artifact_sha256": (
+            "34b5dad2572cefc9309eb9d3376c039e6b2f3712c54ab0bdd4cc288db660767d"
+        ),
+    },
+    "t05-r04": {
+        "episode_idx": 42,
+        "seed": 1564298395,
+        "assessment_sha256": (
+            "b62b2fe38118157983450227842aa596062f16c435e611e4ea8182a50406c6cb"
+        ),
+        "base_policy_steps": 162,
+        "base_policy_requests": 33,
+        "captured_at_utc": "2026-08-05T13:37:46.706358+00:00",
+        "graph_artifact_sha256": (
+            "bae2a019e5963fa8e98c7406fb18e6884b4f52b24a3cc1e9d2e46774867bfad9"
+        ),
+        "snapshot_artifact_sha256": (
+            "eb332fecf95c8e5f8943f43041b44095bd17afb9f5e46eecbb3523754567293e"
+        ),
+        "terminal_artifact_sha256": (
+            "d88f5edbd55c70944dea66b67f05906b9dcd58be9571044c803b3a1092185515"
+        ),
+    },
 }
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _MAX_CAPTURE_AGE = timedelta(hours=24)
 _MAX_FUTURE_SKEW = timedelta(minutes=5)
 _ASSESSMENT_FIELDS = frozenset(TerminalAssessment.__dataclass_fields__)
+_CAPABILITY_PATH = (
+    Path(__file__).parents[1]
+    / "configs/logiv/task5-terminal-pi-recover-v1.json"
+)
 
 
 @dataclass(frozen=True)
@@ -52,6 +112,18 @@ def _load_object(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"preflight artifact is not an object: {path}")
     return value
+
+
+def _verify_artifact_custody(
+    path: Path, expected_sha256: object, *, label: str
+) -> None:
+    expected = _require_sha256(expected_sha256, f"frozen {label} artifact hash")
+    try:
+        observed = hashlib.sha256(path.read_bytes()).hexdigest()
+    except OSError as error:
+        raise ValueError(f"cannot load frozen {label} artifact {path}: {error}") from error
+    if observed != expected:
+        raise ValueError(f"frozen artifact custody mismatch: {label}")
 
 
 def _require_sha256(value: object, label: str) -> str:
@@ -195,6 +267,184 @@ def _strict_snapshot(payload: dict[str, Any]) -> FactSnapshot:
         raise ValueError(f"strict terminal snapshot audit failed: {error}") from error
 
 
+def _replay_eligible_assessment(
+    *,
+    case_id: str,
+    artifact_dir: Path,
+    episode_id: str,
+    snapshot: FactSnapshot,
+    terminal: dict[str, Any],
+    assessment: TerminalAssessment,
+    observed_steps: int,
+    hashes: dict[str, str],
+    expected_graph_artifact_sha256: str,
+) -> None:
+    def reject(reason: str) -> None:
+        raise ValueError(f"{case_id} eligibility replay failed: {reason}")
+
+    try:
+        capability = load_task5_recovery_capability(_CAPABILITY_PATH)
+    except ValueError as error:
+        reject(f"frozen capability is invalid: {error}")
+
+    if hashes["capability_sha256"] != capability.capability_sha256:
+        reject("capability digest mismatch")
+
+    graph_path = artifact_dir / "graph.json"
+    try:
+        graph_artifact_sha256 = hashlib.sha256(graph_path.read_bytes()).hexdigest()
+        graph = _load_object(graph_path)
+    except (OSError, ValueError) as error:
+        reject(str(error))
+    if graph_artifact_sha256 != expected_graph_artifact_sha256:
+        reject("serialized graph capture digest mismatch")
+    graph_hash = graph.get("graph_hash")
+    certificate_hash = graph.get("certificate_hash")
+    graph_version = graph.get("graph_version")
+    source_epoch = graph.get("source_epoch")
+    if (
+        graph_hash != hashes["graph_hash"]
+        or certificate_hash != hashes["certificate_hash"]
+        or graph_version != f"graph-{hashes['graph_hash'][:16]}"
+        or type(source_epoch) is not int
+        or source_epoch < 0
+        or snapshot.epoch_id < source_epoch
+    ):
+        reject("graph, certificate, version, or source-epoch anchor mismatch")
+
+    nodes = graph.get("nodes")
+    agenda = graph.get("canonical_agenda")
+    if not isinstance(nodes, list) or not nodes:
+        reject("graph nodes are missing")
+    parsed_nodes: list[tuple[str, str, int, str | None]] = []
+    for node in nodes:
+        if not isinstance(node, dict):
+            reject("graph node is malformed")
+        node_id = node.get("node_id")
+        kind = node.get("kind")
+        rank = node.get("canonical_rank")
+        action = node.get("action")
+        if (
+            not isinstance(node_id, str)
+            or not node_id
+            or not isinstance(kind, str)
+            or type(rank) is not int
+            or (action is not None and not isinstance(action, str))
+        ):
+            reject("graph node fields are malformed")
+        parsed_nodes.append((node_id, kind, rank, action))
+    node_ids = [node_id for node_id, _, _, _ in parsed_nodes]
+    if len(node_ids) != len(set(node_ids)):
+        reject("graph node IDs are not unique")
+    action_nodes = [node for node in parsed_nodes if node[1] == "ACTION"]
+    if (
+        not action_nodes
+        or any(rank < 0 or action is None for _, _, rank, action in action_nodes)
+        or len({rank for _, _, rank, _ in action_nodes}) != len(action_nodes)
+    ):
+        reject("graph ACTION nodes are malformed")
+    expected_agenda = [
+        node_id
+        for node_id, _, _, _ in sorted(action_nodes, key=lambda node: node[2])
+    ]
+    if agenda != expected_agenda:
+        reject("graph canonical agenda mismatch")
+    matching_nodes = [node for node in action_nodes if node[3] == capability.action]
+    if len(matching_nodes) != 1:
+        reject("place action graph membership is not exactly one")
+    place_node_id = matching_nodes[0][0]
+    if assessment.place_node_id != place_node_id:
+        reject("assessment place node ID mismatch")
+
+    state_trace = graph.get("state_trace")
+    if not isinstance(state_trace, list) or not state_trace:
+        reject("terminal graph state trace is missing")
+    terminal_state = state_trace[-1]
+    if not isinstance(terminal_state, dict):
+        reject("terminal graph state is malformed")
+    state_nodes = terminal_state.get("nodes")
+    if not isinstance(state_nodes, list):
+        reject("terminal graph node statuses are missing")
+    node_statuses: dict[str, str] = {}
+    for item in state_nodes:
+        if not isinstance(item, dict):
+            reject("terminal graph node status is malformed")
+        node_id = item.get("node_id")
+        status = item.get("status")
+        if (
+            not isinstance(node_id, str)
+            or not node_id
+            or not isinstance(status, str)
+            or not status
+            or node_id in node_statuses
+        ):
+            reject("terminal graph node status is malformed")
+        node_statuses[node_id] = status
+    if set(node_statuses) != set(node_ids):
+        reject("terminal graph node status coverage mismatch")
+    if (
+        terminal_state.get("graph_hash") != hashes["graph_hash"]
+        or terminal_state.get("graph_version") != graph_version
+        or terminal_state.get("certificate_state") != "CURRENT"
+        or terminal.get("certificate_state") != "CURRENT"
+    ):
+        reject("terminal graph or certificate state is not current")
+    place_status = node_statuses[place_node_id]
+    if (
+        terminal.get("place_node_action") != capability.action
+        or terminal.get("place_node_status") != place_status
+        or place_status not in capability.active_node_statuses
+    ):
+        reject("terminal place action or active status mismatch")
+
+    location_facts = frozenset(
+        fact
+        for fact in snapshot.fact_universe or ()
+        if (
+            fact.predicate == "holding"
+            and fact.arguments == ("black_book_1",)
+        )
+        or (
+            fact.predicate == "at"
+            and fact.arguments[:1] == ("black_book_1",)
+        )
+    )
+    if (
+        snapshot.unknown(location_facts)
+        or len(snapshot.true_facts & location_facts) != 1
+    ):
+        reject("exactly-one book location is not proven")
+    if capability.holding_fact not in snapshot.true_facts:
+        reject("held-book fact is not explicitly true")
+    if capability.target_fact not in snapshot.false_facts:
+        reject("target fact is not explicitly false")
+    if not capability.protected_invariants <= snapshot.true_facts:
+        reject("protected invariant is not explicitly true")
+    # The frozen Task 5 goal is exactly capability.target_fact, which was just
+    # required false, so Task 1's protected handoff set is exactly the invariants.
+    if assessment.protected_true_facts != capability.protected_invariants:
+        reject("assessment protected set mismatch")
+
+    if assessment.event_type != capability.event_type:
+        reject("terminal event type mismatch")
+    event_payload = (
+        f"{episode_id}:{snapshot.evidence_hash}:{hashes['graph_hash']}:"
+        f"{hashes['certificate_hash']}:{hashes['monitor_contract_sha256']}:"
+        f"{capability.event_type}"
+    )
+    expected_event_id = hashlib.sha256(
+        b"LOGIV_TERMINAL_DEVIATION_V1\0"
+        + event_payload.encode("utf-8")
+    ).hexdigest()
+    if assessment.event_id != expected_event_id:
+        reject("terminal event ID mismatch")
+
+    remaining = capability.max_combined_actions - observed_steps
+    expected_cap = min(capability.max_recovery_actions, remaining)
+    if remaining <= 0 or assessment.option_action_cap != expected_cap:
+        reject("terminal action budget mismatch")
+
+
 def load_case(case_dir: Path) -> PreflightCase:
     case_dir = Path(case_dir)
     case_id = case_dir.name
@@ -256,6 +506,22 @@ def load_case(case_dir: Path) -> PreflightCase:
     if not artifact_dir.is_relative_to(case_dir.resolve()):
         raise ValueError(f"{case_id} artifact directory escapes the run")
 
+    _verify_artifact_custody(
+        artifact_dir / "graph.json",
+        frozen["graph_artifact_sha256"],
+        label=f"{case_id} graph",
+    )
+    _verify_artifact_custody(
+        artifact_dir / "current_snapshot.json",
+        frozen["snapshot_artifact_sha256"],
+        label=f"{case_id} snapshot",
+    )
+    _verify_artifact_custody(
+        artifact_dir / "terminal_deviation.json",
+        frozen["terminal_artifact_sha256"],
+        label=f"{case_id} terminal",
+    )
+
     base = _load_object(artifact_dir / "base_execution.json")
     compute = _load_object(artifact_dir / "compute_accounting.json")
     snapshot_payload = _load_object(artifact_dir / "current_snapshot.json")
@@ -264,6 +530,8 @@ def load_case(case_dir: Path) -> PreflightCase:
     timestamp = _parse_fresh_timestamp(terminal.get("captured_at_utc"), now=now)
     if _parse_fresh_timestamp(snapshot_payload.get("captured_at_utc"), now=now) != timestamp:
         raise ValueError(f"{case_id} terminal artifact timestamps disagree")
+    if timestamp != frozen["captured_at_utc"]:
+        raise ValueError(f"{case_id} frozen capture timestamp mismatch")
     expected_episode_id = (
         f"{expected_run_id}/SHADOW_LOGIV/METADATA_ASSISTED/"
         f"task-5/episode-{frozen['episode_idx']}"
@@ -333,6 +601,11 @@ def load_case(case_dir: Path) -> PreflightCase:
     ):
         raise ValueError(f"{case_id} Base accounting anchor mismatch")
     if (
+        observed_steps != frozen["base_policy_steps"]
+        or observed_requests != frozen["base_policy_requests"]
+    ):
+        raise ValueError(f"{case_id} frozen Base capture anchor mismatch")
+    if (
         record.get("recovery_policy_requests") != 0
         or compute.get("recovery_policy_requests") != 0
         or terminal.get("recovery_policy_requests") != 0
@@ -349,6 +622,8 @@ def load_case(case_dir: Path) -> PreflightCase:
         or assessment.base_policy_steps != observed_steps
     ):
         raise ValueError(f"{case_id} assessment anchor mismatch")
+    if assessment_sha256 != frozen["assessment_sha256"]:
+        raise ValueError(f"{case_id} frozen assessment capture anchor mismatch")
     hashes = {}
     for field in (
         "graph_hash",
@@ -385,6 +660,19 @@ def load_case(case_dir: Path) -> PreflightCase:
         or terminal.get("grounding_error") is not None
     ):
         raise ValueError(f"{case_id} terminal assessment semantics mismatch")
+    if assessment.eligible:
+        assert snapshot is not None
+        _replay_eligible_assessment(
+            case_id=case_id,
+            artifact_dir=artifact_dir,
+            episode_id=expected_episode_id,
+            snapshot=snapshot,
+            terminal=terminal,
+            assessment=assessment,
+            observed_steps=observed_steps,
+            hashes=hashes,
+            expected_graph_artifact_sha256=frozen["graph_artifact_sha256"],
+        )
 
     return PreflightCase(
         case_id=case_id,
