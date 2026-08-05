@@ -33,6 +33,8 @@ from pi05_libero_repro.logiv.recovery_records import CollectionLabel
 from pi05_libero_repro.logiv.shadow_monitor import MonitorEvidenceContract
 from pi05_libero_repro.logiv.shadow_runtime import (
     ShadowEpisodeContext,
+    ShadowRuntime,
+    ShadowRuntimeCounters,
     ShadowValidatedProposal,
     build_shadow_runtime,
 )
@@ -277,6 +279,7 @@ def _build(
     source_epoch: int = 0,
     collector=lambda trigger, context, episode_context: object(),
     topology_only: bool = False,
+    interval_steps: int = 1,
 ):
     contract = _contract()
 
@@ -301,7 +304,7 @@ def _build(
         live_validator=live_validator,
         monitor_contract=None if topology_only else contract,
         root_collector=collector,
-        interval_steps=1,
+        interval_steps=interval_steps,
         confirmation_count=2,
         topology_only=topology_only,
     )
@@ -343,6 +346,32 @@ def test_topology_only_records_fixed_graph_states_without_recovery_monitoring() 
         [node["node_id"] for node in state["nodes"]] == ["INIT", "a0", "GOAL"]
         for state in runtime.state_trace
     )
+
+
+def test_topology_only_records_every_callback_even_with_sparse_monitor_interval() -> None:
+    runtime = _build(_Provider(), topology_only=True, interval_steps=5)
+    hasher = BaseActionPrefixHasher()
+
+    for step in range(4):
+        runtime.observer(_context(step, hasher))
+
+    assert [state["policy_step"] for state in runtime.state_trace] == [0, 1, 2, 3]
+    assert [state["observation_generation"] for state in runtime.state_trace] == [
+        0,
+        1,
+        2,
+        3,
+    ]
+
+
+def test_shadow_runtime_fifth_positional_argument_remains_state_trace() -> None:
+    counters = ShadowRuntimeCounters()
+    trace = [{"policy_step": 0}]
+
+    runtime = ShadowRuntime(None, None, None, counters, trace)
+
+    assert runtime.state_trace is trace
+    assert runtime.settling_observer is None
 
 
 def test_topology_only_settling_regresses_a_transient_goal_in_the_same_graph() -> None:

@@ -94,8 +94,8 @@ class ShadowRuntime:
     observer: Callable[[ShadowStepContext], None] | None
     monitor: StableRecoveryObserver | None
     counters: ShadowRuntimeCounters
-    settling_observer: Callable[[ShadowSettlingContext], None] | None = None
     state_trace: list[dict[str, Any]] = field(default_factory=list)
+    settling_observer: Callable[[ShadowSettlingContext], None] | None = None
 
 
 class ShadowGraphTracker:
@@ -193,7 +193,12 @@ class ShadowGraphTracker:
                 positive=action.add_effects,
                 negative=action.del_effects,
             )
-            if raw_effect:
+            has_temporal_progress = previous in {
+                "READY",
+                "ACTIVE",
+                "EFFECT_OBSERVED",
+            }
+            if raw_effect and has_temporal_progress:
                 statuses[node.node_id] = "EFFECT_OBSERVED"
                 continue
 
@@ -209,12 +214,8 @@ class ShadowGraphTracker:
                 held = snapshot.truth(
                     Fact("holding", (object_name,))
                 ) is TruthValue.TRUE
-            if object_name is not None and previous in {
-                "READY",
-                "ACTIVE",
-                "EFFECT_OBSERVED",
-            } and (
-                held or unlocated or unresolved
+            if object_name is not None and has_temporal_progress and (
+                held or unlocated
             ):
                 statuses[node.node_id] = "ACTIVE"
                 continue
@@ -583,8 +584,6 @@ def build_shadow_runtime(
                         )
 
                     def audit_topology(trace_context: ShadowStepContext) -> None:
-                        if trace_context.policy_step % interval_steps:
-                            return
                         try:
                             audit_observation(
                                 trace_context.observation,

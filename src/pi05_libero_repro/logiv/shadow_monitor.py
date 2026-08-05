@@ -1123,8 +1123,11 @@ class ShadowCertificateReconciler:
         self, action: GroundAction, current: FactSnapshot
     ) -> bool:
         object_name = action.arguments[0]
-        if current.truth(Fact("holding", (object_name,))) is TruthValue.TRUE:
+        holding = current.truth(Fact("holding", (object_name,)))
+        if holding is TruthValue.TRUE:
             return True
+        if holding is not TruthValue.FALSE:
+            return False
         locations = tuple(
             fact
             for fact in self.relevant_facts
@@ -1150,7 +1153,17 @@ class ShadowCertificateReconciler:
                 positive=action.add_effects, negative=action.del_effects
             ):
                 self._inflight_nodes.remove(node_id)
-            return True
+                return True
+            if self._entered_transport(action, current):
+                return True
+            if current.satisfies(
+                positive=action.preconditions,
+                negative=action.negative_preconditions,
+            ):
+                self._inflight_nodes.remove(node_id)
+                return True
+            self._inflight_nodes.remove(node_id)
+            return False
         for node_id in self.plan_context.graph.canonical_agenda:
             node = self.plan_context.graph.node_map[node_id]
             action = node.action

@@ -146,10 +146,11 @@ def _audited_temporal_snapshot(
     epoch: int,
     *,
     true: frozenset[Fact],
+    unknown: frozenset[Fact] = frozenset(),
     raw_target_while_held: bool = False,
 ) -> FactSnapshot:
     universe = frozenset({AT_SOURCE, AT_TARGET, HELD, Fact("handempty")})
-    false = universe - true
+    false = universe - true - unknown
     overrides = (
         [[HELD.pddl(), AT_TARGET.pddl(), "reliable-holding-over-at"]]
         if raw_target_while_held
@@ -162,7 +163,13 @@ def _audited_temporal_snapshot(
         "values": [
             [
                 fact.pddl(),
-                (TruthValue.TRUE if fact in true else TruthValue.FALSE).value,
+                (
+                    TruthValue.TRUE
+                    if fact in true
+                    else TruthValue.UNKNOWN
+                    if fact in unknown
+                    else TruthValue.FALSE
+                ).value,
             ]
             for fact in sorted(universe, key=lambda item: item.pddl())
         ],
@@ -297,6 +304,59 @@ def test_temporal_shadow_graph_treats_unlocated_ready_object_as_active() -> None
     )
 
     assert state["nodes"][1] == {"node_id": "place", "status": "ACTIVE"}
+
+
+def test_temporal_shadow_graph_does_not_treat_unknown_holding_as_transport() -> None:
+    tracker_type = getattr(shadow_runtime, "ShadowGraphTracker", None)
+    assert tracker_type is not None
+    graph, problem = _temporal_graph()
+    tracker = tracker_type(graph, problem)
+    handempty = Fact("handempty")
+    tracker.project(
+        _audited_temporal_snapshot(0, true=frozenset({AT_SOURCE, handempty})),
+        policy_step=0,
+        observation_generation=0,
+        certificate_state="CURRENT",
+        phase="POLICY",
+    )
+
+    state = tracker.project(
+        _audited_temporal_snapshot(
+            1,
+            true=frozenset({handempty}),
+            unknown=frozenset({HELD}),
+        ),
+        policy_step=1,
+        observation_generation=1,
+        certificate_state="CURRENT",
+        phase="POLICY",
+    )
+
+    assert state["nodes"][1] == {
+        "node_id": "place",
+        "status": "PRECONDITION_UNKNOWN",
+    }
+
+
+def test_temporal_shadow_graph_rejects_incidental_raw_effect_without_progress() -> None:
+    tracker_type = getattr(shadow_runtime, "ShadowGraphTracker", None)
+    assert tracker_type is not None
+    graph, problem = _temporal_graph()
+    tracker = tracker_type(graph, problem)
+
+    state = tracker.project(
+        _audited_temporal_snapshot(
+            0,
+            true=frozenset({HELD}),
+            raw_target_while_held=True,
+        ),
+        policy_step=0,
+        observation_generation=0,
+        certificate_state="CURRENT",
+        phase="POLICY",
+    )
+
+    assert state["nodes"][1] == {"node_id": "place", "status": "BLOCKED"}
 
 
 def test_parser_exposes_topology_only_and_no_video_batch_flags() -> None:

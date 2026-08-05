@@ -703,6 +703,35 @@ def test_certificate_reconciler_covers_nominal_macro_transport_then_stales_on_re
     assert lost.certificate_state is CertificateState.STALE
 
 
+def test_certificate_reconciler_does_not_enter_transport_on_unknown_holding() -> None:
+    reconciler = ShadowCertificateReconciler(_shadow_plan_context(), "1" * 64)
+    ambiguous = _snapshot(
+        5,
+        true={OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+
+    result = reconciler.reconcile(_initial_snapshot(0), ambiguous)
+
+    assert ambiguous.truth(HOLDING_1) is TruthValue.UNKNOWN
+    assert result.certificate_state is CertificateState.STALE
+
+
+def test_certificate_reconciler_stales_on_inflight_wrong_location_release() -> None:
+    reconciler = ShadowCertificateReconciler(_shadow_plan_context(), "1" * 64)
+    held = _snapshot(
+        5,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+
+    entered = reconciler.reconcile(_initial_snapshot(0), held)
+    wrong_release = reconciler.reconcile(held, _dropped_snapshot(10))
+
+    assert entered.certificate_state is CertificateState.CURRENT
+    assert wrong_release.certificate_state is CertificateState.STALE
+
+
 def test_shadow_plan_context_rejects_mixed_plan_artifacts() -> None:
     context = _shadow_plan_context()
     with pytest.raises(ValueError, match="certificate"):
