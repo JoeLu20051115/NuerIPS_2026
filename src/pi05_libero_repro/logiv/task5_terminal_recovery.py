@@ -79,6 +79,14 @@ def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and _SHA256.fullmatch(value) is not None
 
 
+def _safe_sha256(value: object) -> str:
+    return value if _valid_sha256(value) else ""
+
+
+def _safe_optional_sha256(value: object) -> str | None:
+    return value if _valid_sha256(value) else None
+
+
 def _strict_audited_snapshot(snapshot: FactSnapshot) -> bool:
     audit_fields = (
         snapshot.fact_universe,
@@ -290,14 +298,26 @@ def assess_task5_terminal(
             event_id=None,
             event_type=None,
             option_action_cap=0,
-            snapshot_sha256=None if snapshot is None else snapshot.evidence_hash,
-            graph_hash=None if graph is None else graph.graph_hash,
-            certificate_hash=None if certificate is None else certificate.certificate_hash,
-            monitor_contract_sha256=monitor_contract_sha256,
+            snapshot_sha256=_safe_optional_sha256(
+                getattr(snapshot, "evidence_hash", None)
+            ),
+            graph_hash=_safe_optional_sha256(
+                getattr(graph, "graph_hash", None)
+            ),
+            certificate_hash=_safe_optional_sha256(
+                getattr(certificate, "certificate_hash", None)
+            ),
+            monitor_contract_sha256=_safe_optional_sha256(
+                monitor_contract_sha256
+            ),
             protected_true_facts=frozenset(),
-            capability_sha256=capability.capability_sha256,
+            capability_sha256=_safe_sha256(
+                getattr(capability, "capability_sha256", None)
+            ),
             base_policy_steps=(
-                base_policy_steps if type(base_policy_steps) is int else 0
+                base_policy_steps
+                if type(base_policy_steps) is int and base_policy_steps > 0
+                else 0
             ),
             place_node_id=None,
             assessment_sha256="",
@@ -452,21 +472,30 @@ def certify_task5_recovery(
     candidate_plan: Sequence[GroundAction],
     val_wrapper: ValWrapper,
     recovery_checkpoint_sha256: str,
+    expected_assessment_sha256: str | None = None,
+    expected_base_policy_steps: int | None = None,
 ) -> RecoveryPermit:
-    plan = tuple(candidate_plan)
+    try:
+        plan = tuple(candidate_plan)
+    except TypeError:
+        plan = ()
 
     def denied(reason: str) -> RecoveryPermit:
         provisional = RecoveryPermit(
             granted=False,
             reason=reason,
             permit_sha256="",
-            event_id=assessment.event_id or "",
+            event_id=_safe_sha256(getattr(assessment, "event_id", None)),
             action_cap=0,
-            plan=plan,
-            plan_sha256=None if not plan else _plan_sha256(plan),
+            plan=(),
+            plan_sha256=None,
             certificate=None,
-            capability_sha256=capability.capability_sha256,
-            recovery_checkpoint_sha256=recovery_checkpoint_sha256,
+            capability_sha256=_safe_sha256(
+                getattr(capability, "capability_sha256", None)
+            ),
+            recovery_checkpoint_sha256=_safe_sha256(
+                recovery_checkpoint_sha256
+            ),
             protected_true_facts=frozenset(),
             assessment_sha256="",
         )
@@ -474,13 +503,23 @@ def certify_task5_recovery(
 
     if not _require_frozen_capability(capability):
         return denied("CAPABILITY_NOT_FROZEN")
+    if not _valid_sha256(expected_assessment_sha256):
+        return denied("EXPECTED_ASSESSMENT_SHA256_INVALID")
+    if (
+        type(expected_base_policy_steps) is not int
+        or expected_base_policy_steps <= 0
+        or expected_base_policy_steps >= capability.max_combined_actions
+    ):
+        return denied("EXPECTED_BASE_POLICY_STEPS_INVALID")
     if not assessment.eligible or assessment.event_id is None:
         return denied("ASSESSMENT_NOT_ELIGIBLE")
+    if assessment.assessment_sha256 != expected_assessment_sha256:
+        return denied("ASSESSMENT_PROVENANCE_MISMATCH")
     try:
-        expected_assessment_sha256 = _assessment_sha256(assessment)
+        recomputed_assessment_sha256 = _assessment_sha256(assessment)
     except (AttributeError, TypeError, ValueError):
         return denied("ASSESSMENT_HASH_MISMATCH")
-    if assessment.assessment_sha256 != expected_assessment_sha256:
+    if assessment.assessment_sha256 != recomputed_assessment_sha256:
         return denied("ASSESSMENT_HASH_MISMATCH")
     if assessment.reason != "ELIGIBLE":
         return denied("ASSESSMENT_STATE_INVALID")
@@ -502,11 +541,13 @@ def certify_task5_recovery(
         return denied("CERTIFICATE_HASH_CHANGED")
     if graph.certificate_hash != certificate.certificate_hash:
         return denied("GRAPH_CERTIFICATE_HASH_MISMATCH")
+    if assessment.base_policy_steps != expected_base_policy_steps:
+        return denied("BASE_POLICY_STEPS_PROVENANCE_MISMATCH")
     if type(assessment.base_policy_steps) is not int or assessment.base_policy_steps <= 0:
         return denied("ASSESSMENT_ACTION_CAP_MISMATCH")
     expected_cap = min(
         capability.max_recovery_actions,
-        capability.max_combined_actions - assessment.base_policy_steps,
+        capability.max_combined_actions - expected_base_policy_steps,
     )
     if assessment.option_action_cap != expected_cap or expected_cap <= 0:
         return denied("ASSESSMENT_ACTION_CAP_MISMATCH")
@@ -631,16 +672,20 @@ def verify_task5_recovery_commit(
         payload = {
             "committed": False,
             "reason": reason,
-            "event_id": event_id,
-            "permit_sha256": permit_sha256,
-            "plan_sha256": plan_sha256,
-            "recovery_checkpoint_sha256": recovery_checkpoint_sha256,
-            "capability_sha256": capability_sha256,
-            "post_snapshot_sha256": post_snapshot.evidence_hash,
+            "event_id": _safe_sha256(event_id),
+            "permit_sha256": _safe_sha256(permit_sha256),
+            "plan_sha256": _safe_optional_sha256(plan_sha256),
+            "recovery_checkpoint_sha256": _safe_sha256(
+                recovery_checkpoint_sha256
+            ),
+            "capability_sha256": _safe_sha256(capability_sha256),
+            "post_snapshot_sha256": _safe_sha256(
+                getattr(post_snapshot, "evidence_hash", None)
+            ),
             "base_actions": safe_base_actions,
             "recovery_actions": safe_recovery_actions,
             "combined_actions": combined_actions,
-            "native_evaluator_success": native_evaluator_success,
+            "native_evaluator_success": native_evaluator_success is True,
         }
         return RecoveryCommit(
             committed=False,

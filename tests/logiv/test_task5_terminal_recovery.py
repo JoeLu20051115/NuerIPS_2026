@@ -237,6 +237,8 @@ def permit_inputs(task5_state, eligible_assessment, val_binary):
         "candidate_plan": (task5_state["action"],),
         "val_wrapper": ValWrapper(val_binary, timeout_seconds=5.0),
         "recovery_checkpoint_sha256": "f" * 64,
+        "expected_assessment_sha256": eligible_assessment.assessment_sha256,
+        "expected_base_policy_steps": eligible_assessment.base_policy_steps,
     }
 
 
@@ -418,6 +420,23 @@ def test_public_boundaries_reject_unhashable_capability(
     assert result.reason == "CAPABILITY_NOT_FROZEN"
 
 
+def test_assessment_denial_sanitizes_nonjson_capability_digest(eligible_inputs):
+    capability = replace(
+        eligible_inputs["capability"], capability_sha256=object()
+    )
+    first = assess_task5_terminal(
+        **(eligible_inputs | {"capability": capability})
+    )
+    second = assess_task5_terminal(
+        **(eligible_inputs | {"capability": capability})
+    )
+    assert first.eligible is False
+    assert first.reason == "CAPABILITY_NOT_FROZEN"
+    assert first.capability_sha256 == ""
+    assert first.assessment_sha256 == second.assessment_sha256
+    assert len(first.assessment_sha256) == 64
+
+
 @pytest.mark.parametrize(
     ("args", "reason"),
     [
@@ -569,6 +588,82 @@ def _resign_assessment(assessment, **changes):
     )
 
 
+def test_recovery_certification_requires_expected_terminal_provenance(permit_inputs):
+    without_expected = {
+        key: value
+        for key, value in permit_inputs.items()
+        if key not in {"expected_assessment_sha256", "expected_base_policy_steps"}
+    }
+    result = certify_task5_recovery(**without_expected)
+    assert result.granted is False
+    assert result.reason == "EXPECTED_ASSESSMENT_SHA256_INVALID"
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("expected_assessment_sha256", "", "EXPECTED_ASSESSMENT_SHA256_INVALID"),
+        ("expected_assessment_sha256", object(), "EXPECTED_ASSESSMENT_SHA256_INVALID"),
+        ("expected_base_policy_steps", None, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+        ("expected_base_policy_steps", 0, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+        ("expected_base_policy_steps", -1, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+        ("expected_base_policy_steps", 520, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+        ("expected_base_policy_steps", True, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+        ("expected_base_policy_steps", 1.5, "EXPECTED_BASE_POLICY_STEPS_INVALID"),
+    ],
+)
+def test_recovery_certification_rejects_invalid_expected_provenance(
+    permit_inputs, field, value, reason
+):
+    result = certify_task5_recovery(**(permit_inputs | {field: value}))
+    assert result.granted is False
+    assert result.reason == reason
+
+
+@pytest.mark.parametrize("mutation", ["base_and_cap", "event", "monitor"])
+def test_recovery_certification_rejects_coordinated_resigning(
+    permit_inputs, mutation
+):
+    assessment = permit_inputs["assessment"]
+    if mutation == "base_and_cap":
+        forged = _resign_assessment(
+            assessment,
+            base_policy_steps=1,
+            option_action_cap=180,
+        )
+    elif mutation == "event":
+        forged = _resign_assessment(assessment, event_id="1" * 64)
+    else:
+        forged = _resign_assessment(
+            assessment, monitor_contract_sha256="2" * 64
+        )
+    result = certify_task5_recovery(
+        **(permit_inputs | {"assessment": forged})
+    )
+    assert result.granted is False
+    assert result.reason == "ASSESSMENT_PROVENANCE_MISMATCH"
+
+
+def test_recovery_certification_requires_both_external_anchors(permit_inputs):
+    assessment = permit_inputs["assessment"]
+    forged = _resign_assessment(
+        assessment,
+        base_policy_steps=1,
+        option_action_cap=180,
+    )
+    result = certify_task5_recovery(
+        **(
+            permit_inputs
+            | {
+                "assessment": forged,
+                "expected_assessment_sha256": forged.assessment_sha256,
+            }
+        )
+    )
+    assert result.granted is False
+    assert result.reason == "BASE_POLICY_STEPS_PROVENANCE_MISMATCH"
+
+
 @pytest.mark.parametrize(
     ("mutation", "reason"),
     [
@@ -622,9 +717,13 @@ def test_recovery_certification_rejects_forged_assessment(
         forged = _resign_assessment(assessment, monitor_contract_sha256="changed")
     else:
         forged = replace(assessment, assessment_sha256="0" * 64)
-    result = certify_task5_recovery(
-        **(permit_inputs | {"assessment": forged})
-    )
+    changed = permit_inputs | {
+        "assessment": forged,
+        "expected_assessment_sha256": forged.assessment_sha256,
+    }
+    if mutation == "base_steps":
+        changed["expected_base_policy_steps"] = forged.base_policy_steps
+    result = certify_task5_recovery(**changed)
     assert result.granted is False
     assert result.reason == reason
 
@@ -643,6 +742,37 @@ def test_recovery_certification_rejects_unhashable_assessment_fields(
     )
     assert result.granted is False
     assert result.reason == "ASSESSMENT_HASH_MISMATCH"
+
+
+def test_recovery_certification_denial_sanitizes_nonjson_event_id(permit_inputs):
+    assessment = replace(permit_inputs["assessment"], event_id=object())
+    first = certify_task5_recovery(
+        **(permit_inputs | {"assessment": assessment})
+    )
+    second = certify_task5_recovery(
+        **(permit_inputs | {"assessment": assessment})
+    )
+    assert first.granted is False
+    assert first.reason == "ASSESSMENT_HASH_MISMATCH"
+    assert first.event_id == ""
+    assert first.permit_sha256 == second.permit_sha256
+    assert len(first.permit_sha256) == 64
+
+
+def test_recovery_certification_denial_discards_nonjson_plan(permit_inputs):
+    result = certify_task5_recovery(
+        **(
+            permit_inputs
+            | {
+                "candidate_plan": (object(),),
+                "expected_assessment_sha256": None,
+            }
+        )
+    )
+    assert result.granted is False
+    assert result.reason == "EXPECTED_ASSESSMENT_SHA256_INVALID"
+    assert result.plan == ()
+    assert len(result.permit_sha256) == 64
 
 
 @pytest.mark.parametrize(
@@ -858,6 +988,34 @@ def test_recovery_commit_rejects_unhashable_permit_fields(commit_inputs, mutatio
     )
     assert result.committed is False
     assert result.reason == "PERMIT_HASH_CHANGED"
+
+
+def test_recovery_commit_denial_sanitizes_nonjson_event_id(commit_inputs):
+    first = verify_task5_recovery_commit(
+        **(commit_inputs | {"event_id": object()})
+    )
+    second = verify_task5_recovery_commit(
+        **(commit_inputs | {"event_id": object()})
+    )
+    assert first.committed is False
+    assert first.reason == "EVENT_ID_CHANGED"
+    assert first.commit_sha256 == second.commit_sha256
+    assert len(first.commit_sha256) == 64
+
+
+def test_recovery_commit_audit_denial_sanitizes_nonjson_digest(commit_inputs):
+    snapshot = replace(commit_inputs["post_snapshot"])
+    object.__setattr__(snapshot, "evidence_hash", object())
+    first = verify_task5_recovery_commit(
+        **(commit_inputs | {"post_snapshot": snapshot})
+    )
+    second = verify_task5_recovery_commit(
+        **(commit_inputs | {"post_snapshot": snapshot})
+    )
+    assert first.committed is False
+    assert first.reason == "STRICT_AUDITED_POST_SNAPSHOT_REQUIRED"
+    assert first.commit_sha256 == second.commit_sha256
+    assert len(first.commit_sha256) == 64
 
 
 @pytest.mark.parametrize(
