@@ -286,6 +286,21 @@ class FactSnapshot:
             return TruthValue.FALSE
         return TruthValue.UNKNOWN
 
+    def raw_truth(self, fact: Fact) -> TruthValue:
+        """Return sensor truth before an audited holding-over-location override."""
+
+        normalized = self.truth(fact)
+        if self.evidence_payload_json is None or normalized is not TruthValue.FALSE:
+            return normalized
+        payload = json.loads(self.evidence_payload_json)
+        fact_text = fact.pddl()
+        if any(
+            target_text == fact_text and kind == "reliable-holding-over-at"
+            for _, target_text, kind in payload["dominance_overrides"]
+        ):
+            return TruthValue.TRUE
+        return normalized
+
     def satisfies(
         self,
         *,

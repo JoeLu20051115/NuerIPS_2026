@@ -934,7 +934,8 @@ class LiberoOracleGrounder:
                 or (fact.predicate == "at" and fact.arguments[0] == object_name)
             }
             confirmed = candidates & true_facts
-            if not exactly_one(candidates):
+            valid = len(confirmed) <= 1 if advisory_partial else len(confirmed) == 1
+            if not valid:
                 raise GroundingError(
                     f"exactly-one violation for {object_name}: "
                     f"confirmed={sorted(map(str, confirmed))}"

@@ -521,6 +521,9 @@ def test_reliable_holding_overrides_stale_on_relation_before_exactly_one_lint() 
     assert response.snapshot is not None
     assert Fact("holding", ("moka_pot_2",)) in response.snapshot.true_facts
     assert Fact("at", ("moka_pot_2", source)) in response.snapshot.false_facts
+    assert response.snapshot.raw_truth(
+        Fact("at", ("moka_pot_2", source))
+    ) is TruthValue.TRUE
     assert Fact("handempty") in response.snapshot.false_facts
 
 
@@ -602,13 +605,7 @@ def test_advisory_partial_snapshot_preserves_unknown_exactly_one_evidence(
     assert "UNKNOWN" in snapshot.evidence_payload_json
 
 
-@pytest.mark.parametrize("values", [
-    {"source": TruthValue.TRUE, "other": TruthValue.TRUE, "holding": TruthValue.FALSE},
-    {"source": TruthValue.FALSE, "other": TruthValue.FALSE, "holding": TruthValue.FALSE},
-])
-def test_advisory_partial_snapshot_rejects_exactly_one_contradictions_and_all_false(
-    values: dict[str, TruthValue],
-) -> None:
+def test_advisory_partial_snapshot_rejects_conflicting_locations() -> None:
     env = FakeEnv()
     _, binding = _task8()
     source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
@@ -618,6 +615,11 @@ def test_advisory_partial_snapshot_rejects_exactly_one_contradictions_and_all_fa
     grounder = LiberoOracleGrounder(
         env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
     )
+    values = {
+        "source": TruthValue.TRUE,
+        "other": TruthValue.TRUE,
+        "holding": TruthValue.FALSE,
+    }
     grounder._truth = lambda fact: values[
         "source" if fact == source else "other" if fact == other else "holding"
     ]
@@ -626,6 +628,27 @@ def test_advisory_partial_snapshot_rejects_exactly_one_contradictions_and_all_fa
     assert advisory is not None
     with pytest.raises(GroundingError, match="exactly-one"):
         advisory()
+
+
+def test_advisory_partial_snapshot_preserves_all_false_unlocated_transport() -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    target = Fact("at", ("moka_pot_1", "flat_stove_1_cook_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    facts = frozenset({source, target, holding})
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    grounder._truth = lambda fact: TruthValue.FALSE
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+
+    snapshot = grounder.peek_advisory_partial_snapshot()
+
+    assert snapshot.true_facts == frozenset({Fact("handempty")})
+    assert facts <= snapshot.false_facts
 
 
 def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
