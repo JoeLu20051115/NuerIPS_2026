@@ -92,9 +92,9 @@ class ShadowRuntimeCounters:
 class ShadowRuntime:
     initial_proposal: InitialProposalResult[ShadowValidatedProposal] | None
     observer: Callable[[ShadowStepContext], None] | None
-    settling_observer: Callable[[ShadowSettlingContext], None] | None
     monitor: StableRecoveryObserver | None
     counters: ShadowRuntimeCounters
+    settling_observer: Callable[[ShadowSettlingContext], None] | None = None
     state_trace: list[dict[str, Any]] = field(default_factory=list)
 
 
