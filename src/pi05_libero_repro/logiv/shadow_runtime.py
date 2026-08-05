@@ -230,7 +230,7 @@ class ShadowGraphTracker:
                 "ACTIVE",
                 "EFFECT_OBSERVED",
             } or node.node_id in self._pending_binary_nodes
-            effect_is_eligible = raw_effect and (
+            effect_is_eligible = completed_now[node.node_id] and (
                 has_temporal_progress or self._effect_confirmation_steps == 1
             )
             if effect_is_eligible:

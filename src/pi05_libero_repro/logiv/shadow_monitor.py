@@ -1207,10 +1207,16 @@ class ShadowCertificateReconciler:
             action = self.plan_context.graph.node_map[node_id].action
             envelope = self._temporal_envelope(action) if action is not None else ()
             envelope_facts = frozenset(item.fact for item in envelope)
+            unknown_envelope_facts = (
+                action.add_effects | action.del_effects
+                if action is not None
+                and action.schema in self._BINARY_TRANSITION_SCHEMAS
+                else envelope_facts
+            )
             if (
                 action is None
                 or not changed <= envelope
-                or not became_unknown <= envelope_facts
+                or not became_unknown <= unknown_envelope_facts
             ):
                 continue
             if current.satisfies(
@@ -1259,18 +1265,18 @@ class ShadowCertificateReconciler:
                 | {SignedLiteral(fact, False) for fact in action.del_effects}
             )
             envelope = self._temporal_envelope(action)
-            envelope_facts = frozenset(item.fact for item in envelope)
+            binary_facts = action.add_effects | action.del_effects
             if (
                 action.schema in self._BINARY_TRANSITION_SCHEMAS
                 and became_unknown
                 and changed <= envelope
-                and became_unknown <= envelope_facts
+                and became_unknown <= binary_facts
             ):
                 self._inflight_nodes.add(node_id)
                 self._effect_streaks.pop(node_id, None)
                 self._pending_invalid_releases.pop(node_id, None)
                 return True
-            if changed <= effects:
+            if changed and changed <= effects:
                 if action.schema in self._TEMPORAL_SCHEMAS:
                     if current.satisfies(
                         positive=action.add_effects,

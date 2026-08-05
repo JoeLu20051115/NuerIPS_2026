@@ -279,7 +279,7 @@ def test_temporal_shadow_graph_tracks_macro_transport_and_raw_goal_truth() -> No
         "EFFECT_OBSERVED",
         "EFFECT_OBSERVED",
         "EFFECT_OBSERVED",
-        "COMPLETED",
+        "EFFECT_OBSERVED",
         "COMPLETED",
     ]
     assert [state["nodes"][-1]["status"] for state in states] == [

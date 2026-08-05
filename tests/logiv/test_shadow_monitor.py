@@ -888,9 +888,8 @@ def test_certificate_reconciler_covers_binary_access_transition_gap() -> None:
         causal_links=(),
         canonical_agenda=("close",),
     )
-    reconciler = ShadowCertificateReconciler(
-        ShadowPlanContext(problem, (action,), graph, certificate), "1" * 64
-    )
+    context = ShadowPlanContext(problem, (action,), graph, certificate)
+    reconciler = ShadowCertificateReconciler(context, "1" * 64)
     initial = _snapshot(0, true={OPEN, HANDEMPTY}, false={CLOSED})
     partial = _snapshot(4, true={HANDEMPTY}, false=set())
     transition = _snapshot(
@@ -916,6 +915,13 @@ def test_certificate_reconciler_covers_binary_access_transition_gap() -> None:
     assert all(
         item.certificate_state is CertificateState.CURRENT for item in finished
     )
+
+    unrelated_reconciler = ShadowCertificateReconciler(context, "1" * 64)
+    unrelated_unknown = unrelated_reconciler.reconcile(
+        initial,
+        _snapshot(20, true={OPEN}, false={CLOSED}),
+    )
+    assert unrelated_unknown.certificate_state is CertificateState.STALE
 
 
 def test_shadow_plan_context_rejects_mixed_plan_artifacts() -> None:
