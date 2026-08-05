@@ -72,13 +72,15 @@ case is transport only when `holding(object)` is explicitly FALSE; UNKNOWN
 exclusive evidence remains `PRECONDITION_UNKNOWN`.  For binary access and
 power schemas, the all-false add/delete pair is likewise an observed
 transition gap and marks the node `ACTIVE`.  Raw effect truth after matching
-temporal progress marks it `EFFECT_OBSERVED`.  Five consecutive matching raw
-effect observations, with the normalized declared effects satisfied on the
-fifth, mark it `COMPLETED`; a shorter effect flicker resets the streak.
+temporal progress marks it `EFFECT_OBSERVED` but does not advance the completion
+streak until the normalized effects hold.  Five consecutive observations of
+the normalized declared effects mark it `COMPLETED`; a shorter normalized
+effect flicker resets the streak.
 If a ready binary pair first becomes UNKNOWN, the graph reports
 `PRECONDITION_UNKNOWN` but retains a pending transition.  A subsequent
 grounded partial effect or all-false pair continues that same macro instead of
-being misclassified as a deviation.
+being misclassified as a deviation.  UNKNOWN evidence outside that binary
+add/delete pair, such as `handempty`, cannot open or extend this bridge.
 
 The certificate reconciler maintains the matching macro as in flight.  For
 that object it accepts the schema-declared transport envelope—changes to
@@ -189,6 +191,27 @@ Focused unit tests must demonstrate:
    Base actions or the native terminal result.
 
 The fixed random-100 manifest is then rerun for `SHADOW_LOGIV` only.  The gate
-is 100 valid paired executions, exact action/outcome parity with the saved Base
+is 100 valid paired executions, exact action/outcome parity with the paired Base
 records, zero Shadow/trace errors, full topology trace coverage, and final
 `GOAL` agreement with post-settling native success for all 100 cases.
+
+## Measured Result
+
+The final simulator run used the frozen 100-case manifest and a fresh paired
+Base run on the same live policy servers:
+
+- paired Base and read-only Shadow both succeeded on 90/100 cases;
+- all ten Base-execution fields, including `actions_sha256`, matched on
+  100/100 pairs;
+- the fixed graph and full settling trace were present on 100/100 cases;
+- 28,484 callbacks produced 28,484 graph snapshots with zero monitor or trace
+  errors;
+- final raw `GOAL` versus simulator-native success was TP=90, TN=10, FN=0,
+  FP=0, for 100/100 terminal agreement.
+
+Both the topology-judgment gate and the prerequisite gate for beginning R2M
+takeover evaluation therefore pass.  This does not report an R2M gain: Shadow
+was read-only and no recovery policy ran.  Seventeen traces entered sticky
+`STALE`; those grounded candidate deviations are retained for the next phase,
+where takeover timing and independent `pi_recover` behavior must be evaluated
+rather than inferred from terminal success.
