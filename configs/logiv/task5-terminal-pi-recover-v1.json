@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "capability_id": "task5-held-book-place-v1",
+  "task_id": 5,
+  "event_type": "TERMINAL_GOAL_UNSATISFIED",
+  "prompt_version": "task5-held-book-v1",
+  "prompt": "place the held book in the back compartment of the caddy",
+  "holding_fact": "(holding black_book_1)",
+  "target_fact": "(at black_book_1 desk_caddy_1_back_contain_region)",
+  "action": "(place-held-in black_book_1 desk_caddy_1_back_contain_region desk_caddy_1_access)",
+  "active_node_statuses": ["ACTIVE"],
+  "protected_invariants": [
+    "(accessible desk_caddy_1_back_contain_region desk_caddy_1_access)",
+    "(open desk_caddy_1_access)"
+  ],
+  "effect_confirmation_observations": 3,
+  "settling_steps": 10,
+  "max_recovery_actions": 180,
+  "max_combined_actions": 520,
+  "capability_required_successes": 8,
+  "capability_total": 10,
+  "capability_sha256": "fe307bb9fd88f1d807464e41a0e17cb127d56a990b4a5179eea259e86ba2e651"
+}
