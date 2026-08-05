@@ -245,10 +245,13 @@ class ShadowGraphTracker:
             )
             completed = confirmed_effect or (
                 previous == "COMPLETED"
-                and any(
-                    successor in self._advanced_nodes
-                    or completed_now.get(successor, False)
-                    for successor in self._successors[node.node_id]
+                and (
+                    completed_now[node.node_id]
+                    or any(
+                        successor in self._advanced_nodes
+                        or completed_now.get(successor, False)
+                        for successor in self._successors[node.node_id]
+                    )
                 )
             )
             if completed:

@@ -258,6 +258,7 @@ def test_temporal_shadow_graph_tracks_macro_transport_and_raw_goal_truth() -> No
         _audited_temporal_snapshot(4, true=frozenset({AT_TARGET, handempty})),
         _audited_temporal_snapshot(5, true=frozenset({AT_TARGET, handempty})),
         _audited_temporal_snapshot(6, true=frozenset({AT_TARGET, handempty})),
+        _audited_temporal_snapshot(7, true=frozenset({AT_TARGET, handempty})),
     )
 
     states = [
@@ -279,10 +280,12 @@ def test_temporal_shadow_graph_tracks_macro_transport_and_raw_goal_truth() -> No
         "EFFECT_OBSERVED",
         "EFFECT_OBSERVED",
         "COMPLETED",
+        "COMPLETED",
     ]
     assert [state["nodes"][-1]["status"] for state in states] == [
         "BLOCKED",
         "BLOCKED",
+        "COMPLETED",
         "COMPLETED",
         "COMPLETED",
         "COMPLETED",
