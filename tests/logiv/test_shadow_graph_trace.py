@@ -26,6 +26,7 @@ BLOCKED = Fact("open", ("drawer",))
 UNKNOWN = Fact("clear", ("caddy",))
 INSPECTED = Fact("inspected", ("caddy",))
 BLOCKED_EFFECT = Fact("blocked-effect", ("drawer",))
+CLOSED = Fact("closed", ("drawer",))
 UNIVERSE = frozenset({AT_SOURCE, AT_TARGET, HELD, BLOCKED, UNKNOWN, INSPECTED, BLOCKED_EFFECT})
 
 
@@ -254,6 +255,9 @@ def test_temporal_shadow_graph_tracks_macro_transport_and_raw_goal_truth() -> No
             raw_target_while_held=True,
         ),
         _audited_temporal_snapshot(3, true=frozenset({AT_TARGET, handempty})),
+        _audited_temporal_snapshot(4, true=frozenset({AT_TARGET, handempty})),
+        _audited_temporal_snapshot(5, true=frozenset({AT_TARGET, handempty})),
+        _audited_temporal_snapshot(6, true=frozenset({AT_TARGET, handempty})),
     )
 
     states = [
@@ -271,11 +275,17 @@ def test_temporal_shadow_graph_tracks_macro_transport_and_raw_goal_truth() -> No
         "READY",
         "ACTIVE",
         "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
         "COMPLETED",
     ]
     assert [state["nodes"][-1]["status"] for state in states] == [
         "BLOCKED",
         "BLOCKED",
+        "COMPLETED",
+        "COMPLETED",
+        "COMPLETED",
         "COMPLETED",
         "COMPLETED",
     ]
@@ -357,6 +367,200 @@ def test_temporal_shadow_graph_rejects_incidental_raw_effect_without_progress() 
     )
 
     assert state["nodes"][1] == {"node_id": "place", "status": "BLOCKED"}
+
+
+def test_temporal_shadow_graph_tracks_binary_access_transition_gap() -> None:
+    handempty = Fact("handempty")
+    action = GroundAction(
+        schema="close-access",
+        arguments=("drawer",),
+        preconditions=frozenset({BLOCKED, handempty}),
+        add_effects=frozenset({CLOSED}),
+        del_effects=frozenset({BLOCKED}),
+        repeatable=False,
+    )
+    graph = CausalGraph(
+        graph_version="binary-v1",
+        graph_hash="b" * 64,
+        source_epoch=0,
+        certificate_hash="c" * 64,
+        nodes=(
+            GraphNode("INIT", NodeKind.INIT, 0),
+            GraphNode("close", NodeKind.ACTION, 1, action=action),
+            GraphNode("GOAL", NodeKind.GOAL, 2),
+        ),
+        edges=(
+            GraphEdge("INIT", "close", frozenset({SignedLiteral(BLOCKED, True)})),
+            GraphEdge("close", "GOAL", frozenset({SignedLiteral(CLOSED, True)})),
+        ),
+        causal_links=(),
+        canonical_agenda=("close",),
+    )
+    problem = TaskProblem(
+        name="binary",
+        objects=(ObjectDecl("drawer", "access"),),
+        initial_state=frozenset({BLOCKED, handempty}),
+        initial_false=frozenset({CLOSED}),
+        goal=frozenset({CLOSED}),
+    )
+    tracker = shadow_runtime.ShadowGraphTracker(graph, problem)
+    snapshots = (
+        _snapshot(true=frozenset({BLOCKED, handempty}), false=frozenset({CLOSED})),
+        _snapshot(
+            true=frozenset({handempty}),
+            false=frozenset({BLOCKED, CLOSED}),
+        ),
+        _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
+        _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
+        _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
+        _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
+        _snapshot(true=frozenset({CLOSED, handempty}), false=frozenset({BLOCKED})),
+    )
+
+    states = [
+        tracker.project(
+            snapshot,
+            policy_step=index,
+            observation_generation=index,
+            certificate_state="CURRENT",
+        )
+        for index, snapshot in enumerate(snapshots)
+    ]
+
+    assert [state["nodes"][1]["status"] for state in states] == [
+        "READY",
+        "ACTIVE",
+        "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
+        "EFFECT_OBSERVED",
+        "COMPLETED",
+    ]
+
+
+def test_temporal_shadow_graph_keeps_consumed_pick_completion() -> None:
+    handempty = Fact("handempty")
+    pick = GroundAction(
+        schema="pick",
+        arguments=("book", "table"),
+        preconditions=frozenset({AT_SOURCE, handempty}),
+        add_effects=frozenset({HELD}),
+        del_effects=frozenset({AT_SOURCE, handempty}),
+        repeatable=False,
+    )
+    place = GroundAction(
+        schema="place-held-in",
+        arguments=("book", "caddy", "drawer"),
+        preconditions=frozenset({HELD}),
+        add_effects=frozenset({AT_TARGET, handempty}),
+        del_effects=frozenset({HELD}),
+        repeatable=False,
+    )
+    graph = CausalGraph(
+        graph_version="consumed-v1",
+        graph_hash="a" * 64,
+        source_epoch=0,
+        certificate_hash="c" * 64,
+        nodes=(
+            GraphNode("INIT", NodeKind.INIT, 0),
+            GraphNode("pick", NodeKind.ACTION, 1, action=pick),
+            GraphNode("place", NodeKind.ACTION, 2, action=place),
+            GraphNode("GOAL", NodeKind.GOAL, 3),
+        ),
+        edges=(
+            GraphEdge("INIT", "pick", frozenset({SignedLiteral(AT_SOURCE, True)})),
+            GraphEdge("pick", "place", frozenset({SignedLiteral(HELD, True)})),
+            GraphEdge("place", "GOAL", frozenset({SignedLiteral(AT_TARGET, True)})),
+        ),
+        causal_links=(),
+        canonical_agenda=("pick", "place"),
+    )
+    problem = TaskProblem(
+        name="consumed",
+        objects=(
+            ObjectDecl("book", "movable"),
+            ObjectDecl("table", "surface"),
+            ObjectDecl("caddy", "container-region"),
+            ObjectDecl("drawer", "access"),
+        ),
+        initial_state=frozenset({AT_SOURCE, handempty}),
+        initial_false=frozenset({AT_TARGET, HELD}),
+        goal=frozenset({AT_TARGET}),
+    )
+    tracker = shadow_runtime.ShadowGraphTracker(graph, problem)
+    snapshots = (
+        _snapshot(
+            true=frozenset({AT_SOURCE, handempty}),
+            false=frozenset({AT_TARGET, HELD}),
+        ),
+        _snapshot(
+            true=frozenset({HELD}),
+            false=frozenset({AT_SOURCE, AT_TARGET, handempty}),
+        ),
+        _snapshot(
+            true=frozenset({HELD}),
+            false=frozenset({AT_SOURCE, AT_TARGET, handempty}),
+        ),
+        _snapshot(
+            true=frozenset({HELD}),
+            false=frozenset({AT_SOURCE, AT_TARGET, handempty}),
+        ),
+        _snapshot(
+            true=frozenset({HELD}),
+            false=frozenset({AT_SOURCE, AT_TARGET, handempty}),
+        ),
+        _snapshot(
+            true=frozenset({HELD}),
+            false=frozenset({AT_SOURCE, AT_TARGET, handempty}),
+        ),
+        _snapshot(
+            true=frozenset(),
+            false=frozenset({AT_SOURCE, AT_TARGET, HELD, handempty}),
+        ),
+        _snapshot(
+            true=frozenset({AT_TARGET, handempty}),
+            false=frozenset({AT_SOURCE, HELD}),
+        ),
+        _snapshot(
+            true=frozenset({AT_TARGET, handempty}),
+            false=frozenset({AT_SOURCE, HELD}),
+        ),
+        _snapshot(
+            true=frozenset({AT_TARGET, handempty}),
+            false=frozenset({AT_SOURCE, HELD}),
+        ),
+        _snapshot(
+            true=frozenset({AT_TARGET, handempty}),
+            false=frozenset({AT_SOURCE, HELD}),
+        ),
+        _snapshot(
+            true=frozenset({AT_TARGET, handempty}),
+            false=frozenset({AT_SOURCE, HELD}),
+        ),
+    )
+
+    states = [
+        tracker.project(
+            snapshot,
+            policy_step=index,
+            observation_generation=index,
+            certificate_state="CURRENT",
+        )
+        for index, snapshot in enumerate(snapshots)
+    ]
+
+    assert states[0]["nodes"][1]["status"] == "READY"
+    assert all(
+        state["nodes"][1]["status"] == "EFFECT_OBSERVED"
+        for state in states[1:5]
+    )
+    assert all(
+        state["nodes"][1]["status"] == "COMPLETED" for state in states[5:]
+    )
+    assert states[-1]["nodes"][2] == {
+        "node_id": "place",
+        "status": "COMPLETED",
+    }
 
 
 def test_parser_exposes_topology_only_and_no_video_batch_flags() -> None:

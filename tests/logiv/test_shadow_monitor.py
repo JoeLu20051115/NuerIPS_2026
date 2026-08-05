@@ -666,9 +666,15 @@ def test_fact_universe_drift_is_a_snapshot_error() -> None:
 def test_certificate_reconciler_ignores_noise_and_is_sticky_stale() -> None:
     reconciler = ShadowCertificateReconciler(_shadow_plan_context(), "1" * 64)
     same = reconciler.reconcile(_initial_snapshot(0), _initial_snapshot(5, noise="pixels"))
-    uncovered = reconciler.reconcile(_initial_snapshot(5), _dropped_snapshot(10))
-    sticky = reconciler.reconcile(_dropped_snapshot(10), _dropped_snapshot(15, noise="more"))
+    pending = reconciler.reconcile(_initial_snapshot(5), _dropped_snapshot(10))
+    uncovered = reconciler.reconcile(
+        _dropped_snapshot(10), _dropped_snapshot(15, noise="more")
+    )
+    sticky = reconciler.reconcile(
+        _dropped_snapshot(15), _dropped_snapshot(20, noise="still")
+    )
     assert same.certificate_state is CertificateState.CURRENT
+    assert pending.certificate_state is CertificateState.CURRENT
     assert uncovered.certificate_state is CertificateState.STALE
     assert sticky.certificate_state is CertificateState.STALE
     assert same.relevant_fact_sha256 != ""
@@ -687,7 +693,7 @@ def test_certificate_reconciler_covers_nominal_macro_transport_then_stales_on_re
         true={HOLDING_1, OPEN},
         false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
     )
-    released = _goal_snapshot(True, 10)
+    released = [_goal_snapshot(True, step) for step in (10, 11, 12, 13, 14)]
     regressed = _snapshot(
         15,
         true={HANDEMPTY, OPEN},
@@ -695,12 +701,41 @@ def test_certificate_reconciler_covers_nominal_macro_transport_then_stales_on_re
     )
 
     entered = reconciler.reconcile(_initial_snapshot(0), held)
-    completed = reconciler.reconcile(held, released)
-    lost = reconciler.reconcile(released, regressed)
+    previous = held
+    completions = []
+    for snapshot in released:
+        completions.append(reconciler.reconcile(previous, snapshot))
+        previous = snapshot
+    lost = reconciler.reconcile(released[-1], regressed)
 
     assert entered.certificate_state is CertificateState.CURRENT
-    assert completed.certificate_state is CertificateState.CURRENT
+    assert all(
+        item.certificate_state is CertificateState.CURRENT for item in completions
+    )
     assert lost.certificate_state is CertificateState.STALE
+
+
+def test_certificate_reconciler_does_not_commit_transient_effect_completion() -> None:
+    reconciler = ShadowCertificateReconciler(_shadow_plan_context(), "1" * 64)
+    held = _snapshot(
+        5,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+    transient_target = _goal_snapshot(True, 10)
+    resumed_holding = _snapshot(
+        15,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+
+    entered = reconciler.reconcile(_initial_snapshot(0), held)
+    observed = reconciler.reconcile(held, transient_target)
+    resumed = reconciler.reconcile(transient_target, resumed_holding)
+
+    assert entered.certificate_state is CertificateState.CURRENT
+    assert observed.certificate_state is CertificateState.CURRENT
+    assert resumed.certificate_state is CertificateState.CURRENT
 
 
 def test_certificate_reconciler_does_not_enter_transport_on_unknown_holding() -> None:
@@ -726,10 +761,149 @@ def test_certificate_reconciler_stales_on_inflight_wrong_location_release() -> N
     )
 
     entered = reconciler.reconcile(_initial_snapshot(0), held)
-    wrong_release = reconciler.reconcile(held, _dropped_snapshot(10))
+    dropped = _dropped_snapshot(10)
+    first_release = reconciler.reconcile(held, dropped)
+    confirmed_release = reconciler.reconcile(dropped, _dropped_snapshot(15))
 
     assert entered.certificate_state is CertificateState.CURRENT
-    assert wrong_release.certificate_state is CertificateState.STALE
+    assert first_release.certificate_state is CertificateState.CURRENT
+    assert confirmed_release.certificate_state is CertificateState.STALE
+
+
+def test_certificate_reconciler_ignores_one_frame_wrong_release_flicker() -> None:
+    reconciler = ShadowCertificateReconciler(_shadow_plan_context(), "1" * 64)
+    held = _snapshot(
+        5,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+    recovered_holding = _snapshot(
+        15,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+
+    entered = reconciler.reconcile(_initial_snapshot(0), held)
+    flicker = reconciler.reconcile(held, _dropped_snapshot(10))
+    recovered = reconciler.reconcile(_dropped_snapshot(10), recovered_holding)
+
+    assert entered.certificate_state is CertificateState.CURRENT
+    assert flicker.certificate_state is CertificateState.CURRENT
+    assert recovered.certificate_state is CertificateState.CURRENT
+
+
+def test_certificate_reconciler_buffers_ready_held_macro_release_flicker() -> None:
+    action = GroundAction(
+        schema="place-held-in",
+        arguments=(BOOK_1, TARGET, ACCESS),
+        preconditions=frozenset({HOLDING_1, OPEN}),
+        add_effects=frozenset({AT_TARGET, HANDEMPTY}),
+        del_effects=frozenset({HOLDING_1}),
+        repeatable=False,
+    )
+    problem = TaskProblem(
+        name="held_release",
+        objects=(
+            ObjectDecl(BOOK_1, "movable"),
+            ObjectDecl(SOURCE, "relative-region"),
+            ObjectDecl(TARGET, "container-region"),
+            ObjectDecl(ABNORMAL, "surface"),
+            ObjectDecl(ACCESS, "access"),
+        ),
+        initial_state=frozenset({HOLDING_1, OPEN}),
+        initial_false=frozenset({AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY}),
+        goal=frozenset({AT_TARGET}),
+    )
+    certificate = "c" * 64
+    graph = CausalGraph(
+        graph_version="held-release-v1",
+        graph_hash="f" * 64,
+        source_epoch=0,
+        certificate_hash=certificate,
+        nodes=(
+            GraphNode("INIT", NodeKind.INIT, 0),
+            GraphNode("place", NodeKind.ACTION, 1, action=action),
+            GraphNode("GOAL", NodeKind.GOAL, 2),
+        ),
+        edges=(
+            GraphEdge("INIT", "place", frozenset({SignedLiteral(HOLDING_1, True)})),
+            GraphEdge("place", "GOAL", frozenset({SignedLiteral(AT_TARGET, True)})),
+        ),
+        causal_links=(),
+        canonical_agenda=("place",),
+    )
+    reconciler = ShadowCertificateReconciler(
+        ShadowPlanContext(problem, (action,), graph, certificate), "1" * 64
+    )
+    held = _snapshot(
+        0,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+    dropped = _dropped_snapshot(5)
+    recovered_holding = _snapshot(
+        10,
+        true={HOLDING_1, OPEN},
+        false={AT_SOURCE, AT_TARGET, AT_ABNORMAL, HANDEMPTY},
+    )
+
+    flicker = reconciler.reconcile(held, dropped)
+    recovered = reconciler.reconcile(dropped, recovered_holding)
+
+    assert flicker.certificate_state is CertificateState.CURRENT
+    assert recovered.certificate_state is CertificateState.CURRENT
+
+
+def test_certificate_reconciler_covers_binary_access_transition_gap() -> None:
+    action = GroundAction(
+        schema="close-access",
+        arguments=(ACCESS,),
+        preconditions=frozenset({OPEN, HANDEMPTY}),
+        add_effects=frozenset({CLOSED}),
+        del_effects=frozenset({OPEN}),
+        repeatable=False,
+    )
+    problem = TaskProblem(
+        name="access_transition",
+        objects=(ObjectDecl(ACCESS, "access"),),
+        initial_state=frozenset({OPEN, HANDEMPTY}),
+        initial_false=frozenset({CLOSED}),
+        goal=frozenset({CLOSED}),
+    )
+    certificate = "c" * 64
+    graph = CausalGraph(
+        graph_version="access-graph-v1",
+        graph_hash="e" * 64,
+        source_epoch=0,
+        certificate_hash=certificate,
+        nodes=(
+            GraphNode("INIT", NodeKind.INIT, 0),
+            GraphNode("close", NodeKind.ACTION, 1, action=action),
+            GraphNode("GOAL", NodeKind.GOAL, 2),
+        ),
+        edges=(
+            GraphEdge("INIT", "close", frozenset({SignedLiteral(OPEN, True)})),
+            GraphEdge("close", "GOAL", frozenset({SignedLiteral(CLOSED, True)})),
+        ),
+        causal_links=(),
+        canonical_agenda=("close",),
+    )
+    reconciler = ShadowCertificateReconciler(
+        ShadowPlanContext(problem, (action,), graph, certificate), "1" * 64
+    )
+    initial = _snapshot(0, true={OPEN, HANDEMPTY}, false={CLOSED})
+    transition = _snapshot(
+        5,
+        true={HANDEMPTY},
+        false={OPEN, CLOSED},
+    )
+    completed = _snapshot(10, true={CLOSED, HANDEMPTY}, false={OPEN})
+
+    entered = reconciler.reconcile(initial, transition)
+    finished = reconciler.reconcile(transition, completed)
+
+    assert entered.certificate_state is CertificateState.CURRENT
+    assert finished.certificate_state is CertificateState.CURRENT
 
 
 def test_shadow_plan_context_rejects_mixed_plan_artifacts() -> None:

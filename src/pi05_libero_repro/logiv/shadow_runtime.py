@@ -101,17 +101,46 @@ class ShadowRuntime:
 class ShadowGraphTracker:
     """Stateful projection of physical macro progress onto one fixed graph."""
 
-    _TRANSPORT_SCHEMAS = frozenset({"place-on", "place-in", "place-relative"})
+    _MANIPULATION_SCHEMAS = frozenset(
+        {
+            "pick",
+            "place-on",
+            "place-in",
+            "place-relative",
+            "put-down",
+            "place-held-on",
+            "place-held-in",
+            "place-held-relative",
+        }
+    )
+    _BINARY_TRANSITION_SCHEMAS = frozenset(
+        {"open-access", "close-access", "turn-on", "turn-off"}
+    )
 
-    def __init__(self, graph: CausalGraph, problem: TaskProblem) -> None:
+    def __init__(
+        self,
+        graph: CausalGraph,
+        problem: TaskProblem,
+        *,
+        effect_confirmation_steps: int = 5,
+    ) -> None:
+        if effect_confirmation_steps <= 0:
+            raise ValueError("effect confirmation steps must be positive")
         self.graph = graph
         self.problem = problem
+        self._effect_confirmation_steps = effect_confirmation_steps
+        self._effect_streaks: dict[str, int] = {}
         self._statuses: dict[str, str] = {"INIT": "COMPLETED"}
         self._predecessors = {node.node_id: set() for node in graph.nodes}
+        self._successors = {node.node_id: set() for node in graph.nodes}
         for edge in graph.edges:
             source = graph.node_map[edge.source]
             if source.kind is NodeKind.ACTION:
                 self._predecessors[edge.target].add(edge.source)
+                target = graph.node_map[edge.target]
+                if target.kind is NodeKind.ACTION:
+                    self._successors[edge.source].add(edge.target)
+        self._advanced_nodes: set[str] = set()
         relevant = set(problem.initial_state | problem.initial_false)
         relevant.update(problem.goal | problem.negative_goal)
         for node in graph.nodes:
@@ -177,17 +206,19 @@ class ShadowGraphTracker:
         settling_step: int | None = None,
     ) -> dict[str, Any]:
         statuses: dict[str, str] = {"INIT": "COMPLETED"}
+        completed_now = {
+            node.node_id: snapshot.satisfies(
+                positive=node.action.add_effects,
+                negative=node.action.del_effects,
+            )
+            for node in self.graph.nodes
+            if node.kind is NodeKind.ACTION and node.action is not None
+        }
         for node in self.graph.nodes:
             if node.kind is not NodeKind.ACTION or node.action is None:
                 continue
             action = node.action
             previous = self._statuses.get(node.node_id)
-            completed = snapshot.satisfies(
-                positive=action.add_effects, negative=action.del_effects
-            )
-            if completed:
-                statuses[node.node_id] = "COMPLETED"
-                continue
             raw_effect = self._raw_satisfies(
                 snapshot,
                 positive=action.add_effects,
@@ -198,13 +229,38 @@ class ShadowGraphTracker:
                 "ACTIVE",
                 "EFFECT_OBSERVED",
             }
+            effect_is_eligible = raw_effect and (
+                has_temporal_progress or self._effect_confirmation_steps == 1
+            )
+            if effect_is_eligible:
+                self._effect_streaks[node.node_id] = (
+                    self._effect_streaks.get(node.node_id, 0) + 1
+                )
+            else:
+                self._effect_streaks.pop(node.node_id, None)
+            confirmed_effect = (
+                completed_now[node.node_id]
+                and self._effect_streaks.get(node.node_id, 0)
+                >= self._effect_confirmation_steps
+            )
+            completed = confirmed_effect or (
+                previous == "COMPLETED"
+                and any(
+                    successor in self._advanced_nodes
+                    or completed_now.get(successor, False)
+                    for successor in self._successors[node.node_id]
+                )
+            )
+            if completed:
+                statuses[node.node_id] = "COMPLETED"
+                continue
             if raw_effect and has_temporal_progress:
                 statuses[node.node_id] = "EFFECT_OBSERVED"
                 continue
 
             object_name = (
                 action.arguments[0]
-                if action.schema in self._TRANSPORT_SCHEMAS and action.arguments
+                if action.schema in self._MANIPULATION_SCHEMAS and action.arguments
                 else None
             )
             unlocated = unresolved = False
@@ -214,14 +270,28 @@ class ShadowGraphTracker:
                 held = snapshot.truth(
                     Fact("holding", (object_name,))
                 ) is TruthValue.TRUE
-            if object_name is not None and has_temporal_progress and (
-                held or unlocated
+            binary_values = (
+                tuple(
+                    snapshot.truth(fact)
+                    for fact in action.add_effects | action.del_effects
+                )
+                if action.schema in self._BINARY_TRANSITION_SCHEMAS
+                else ()
+            )
+            binary_gap = bool(binary_values) and all(
+                value is TruthValue.FALSE for value in binary_values
+            )
+            binary_unresolved = bool(binary_values) and not any(
+                value is TruthValue.TRUE for value in binary_values
+            ) and any(value is TruthValue.UNKNOWN for value in binary_values)
+            if has_temporal_progress and (
+                (object_name is not None and (held or unlocated)) or binary_gap
             ):
                 statuses[node.node_id] = "ACTIVE"
                 continue
 
             preconditions = action.preconditions | action.negative_preconditions
-            has_unknown = unresolved or any(
+            has_unknown = unresolved or binary_unresolved or any(
                 snapshot.truth(fact) is TruthValue.UNKNOWN for fact in preconditions
             )
             ready = (
@@ -242,6 +312,20 @@ class ShadowGraphTracker:
                 else "BLOCKED"
             )
 
+        # A successor may enter its temporal transition on the same frame that
+        # consumes the predecessor's effect.  Restore that predecessor after
+        # every action has been projected so graph order cannot hide the
+        # causal hand-off.
+        for node_id, successors in self._successors.items():
+            if self._statuses.get(node_id) != "COMPLETED":
+                continue
+            if any(
+                statuses.get(successor)
+                in {"ACTIVE", "EFFECT_OBSERVED", "COMPLETED"}
+                for successor in successors
+            ):
+                statuses[node_id] = "COMPLETED"
+
         goal_completed = self._raw_satisfies(
             snapshot,
             positive=self.problem.goal,
@@ -256,6 +340,11 @@ class ShadowGraphTracker:
                 for item in self._predecessors["GOAL"]
             )
             else "BLOCKED"
+        )
+        self._advanced_nodes.update(
+            node_id
+            for node_id, status in statuses.items()
+            if status in {"READY", "ACTIVE", "EFFECT_OBSERVED", "COMPLETED"}
         )
         self._statuses = statuses
         state: dict[str, Any] = {
@@ -287,7 +376,9 @@ def project_graph_state(
 ) -> dict[str, Any]:
     """Project one snapshot without retaining temporal action progress."""
 
-    return ShadowGraphTracker(graph, problem).project(
+    return ShadowGraphTracker(
+        graph, problem, effect_confirmation_steps=1
+    ).project(
         snapshot,
         policy_step=policy_step,
         observation_generation=observation_generation,

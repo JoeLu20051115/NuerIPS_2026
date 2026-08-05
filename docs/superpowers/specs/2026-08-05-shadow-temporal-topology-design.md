@@ -55,7 +55,8 @@ Action nodes use these states:
   transport state such as holding or unlocated transport.
 - `EFFECT_OBSERVED`: the raw destination relation is true while stricter
   operational completion, such as release, is not yet established.
-- `COMPLETED`: normalized declared effects are satisfied.
+- `COMPLETED`: normalized declared effects are satisfied after five
+  consecutive matching effect observations.
 
 `GOAL` is evaluated directly from raw official signed goal predicates.  This
 allows benchmark goal completion while an action remains `EFFECT_OBSERVED`.
@@ -64,13 +65,16 @@ effects and protected invariants.
 
 ## Temporal Rules
 
-For `place-on`, `place-in`, and `place-relative`, a transition from a ready
-state into `holding(object)` or an all-false registered location group marks
-the matching node `ACTIVE`.  The all-false case is transport only when
-`holding(object)` is explicitly FALSE; UNKNOWN exclusive evidence remains
-`PRECONDITION_UNKNOWN`.  Raw destination truth while holding marks it
-`EFFECT_OBSERVED` only after matching temporal progress.  A normalized
-destination effect marks it `COMPLETED`.
+For manipulation schemas (`pick`, placement, put-down, and held-placement), a
+transition from a ready state into `holding(object)` or an all-false
+registered location group marks the matching node `ACTIVE`.  The all-false
+case is transport only when `holding(object)` is explicitly FALSE; UNKNOWN
+exclusive evidence remains `PRECONDITION_UNKNOWN`.  For binary access and
+power schemas, the all-false add/delete pair is likewise an observed
+transition gap and marks the node `ACTIVE`.  Raw effect truth after matching
+temporal progress marks it `EFFECT_OBSERVED`.  Five consecutive matching raw
+effect observations, with the normalized declared effects satisfied on the
+fifth, mark it `COMPLETED`; a shorter effect flicker resets the streak.
 
 The certificate reconciler maintains the matching macro as in flight.  For
 that object it accepts the schema-declared transport envelope—changes to
@@ -78,7 +82,16 @@ that object it accepts the schema-declared transport envelope—changes to
 complete.  A grounded release at a non-target location exits the envelope and
 makes the certificate stale; returning to the declared starting state is the
 only non-completing release that returns the node to ready.  A completed effect
-that later regresses is not covered and may make the certificate stale.
+that later regresses is not covered and may make the certificate stale.  The
+certificate uses the same five-observation commitment barrier.  A grounded
+non-target release must persist for two samples before it becomes an invalid
+release, so one-frame exclusive-predicate flicker cannot stale the graph.
+
+Once a predecessor is confirmed complete, reaching `READY` or a later state
+on its successor records the causal hand-off.  The predecessor remains
+historically complete after the successor consumes its effect; this changes
+node history only and does not change raw `GOAL` evaluation or certificate
+regression checks.
 
 Topology snapshots may preserve an all-false movable location group.  They
 must still reject two simultaneous normalized locations.  Strict controller
@@ -138,6 +151,9 @@ The intended mapping is:
 
 This borrows HiMe's frequency separation and active memory management without
 replacing R2M's certificate, invariant, and hand-back safety boundaries.
+HiMe's fixed-interval Planner fallback for missed Sentry completions may be
+used later as a read-only memory audit, but it must not become a physical R2M
+takeover trigger: recovery authorization still requires confirmed deviation.
 
 ## Safety Boundaries
 
@@ -155,14 +171,17 @@ Focused unit tests must demonstrate:
 
 1. raw target truth survives a holding-dominance override;
 2. normal macro transport is `ACTIVE`, raw target overlap is
-   `EFFECT_OBSERVED`, and release is `COMPLETED`;
+   `EFFECT_OBSERVED`, and five stable effect observations commit
+   `COMPLETED`;
 3. raw official goal truth can complete `GOAL` while the action is not yet
    operationally complete;
 4. topology snapshots retain all-false movable groups but strict grounding
    rejects them;
-5. nominal macro transitions do not stale the certificate, while a later
-   effect regression does;
-6. settling observations are isolated, ordered, and included without changing
+5. transient effects and one-frame release flicker do not commit or stale the
+   certificate, while a confirmed effect followed by regression does;
+6. consumed predecessors remain complete after a successor accepts the causal
+   hand-off;
+7. settling observations are isolated, ordered, and included without changing
    Base actions or the native terminal result.
 
 The fixed random-100 manifest is then rerun for `SHADOW_LOGIV` only.  The gate

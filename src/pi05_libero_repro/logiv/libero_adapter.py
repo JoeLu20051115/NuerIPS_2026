@@ -915,15 +915,7 @@ class LiberoOracleGrounder:
 
         def exactly_one(candidates: set[Fact]) -> bool:
             confirmed = candidates & true_facts
-            return len(confirmed) == 1 or (
-                advisory_partial
-                and not confirmed
-                and any(
-                    values.get(fact) is TruthValue.UNKNOWN
-                    for fact in candidates
-                    if fact in values
-                )
-            )
+            return len(confirmed) == 1 or (advisory_partial and not confirmed)
 
         movable = {fact.arguments[0] for fact in holding_facts}
         for object_name in movable:

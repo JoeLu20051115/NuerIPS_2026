@@ -1057,13 +1057,32 @@ def _relevant_fact_hash(
 
 
 class ShadowCertificateReconciler:
-    _TRANSPORT_SCHEMAS = frozenset({"place-on", "place-in", "place-relative"})
+    _MANIPULATION_SCHEMAS = frozenset(
+        {
+            "pick",
+            "place-on",
+            "place-in",
+            "place-relative",
+            "put-down",
+            "place-held-on",
+            "place-held-in",
+            "place-held-relative",
+        }
+    )
+    _BINARY_TRANSITION_SCHEMAS = frozenset(
+        {"open-access", "close-access", "turn-on", "turn-off"}
+    )
+    _TEMPORAL_SCHEMAS = _MANIPULATION_SCHEMAS | _BINARY_TRANSITION_SCHEMAS
 
     def __init__(
         self,
         plan_context: ShadowPlanContext,
         grounding_rule_sha256: str | None = None,
+        *,
+        effect_confirmation_steps: int = 5,
     ) -> None:
+        if effect_confirmation_steps <= 0:
+            raise ValueError("effect confirmation steps must be positive")
         self.plan_context = plan_context
         self.grounding_rule_sha256 = grounding_rule_sha256 or "0" * 64
         _require_sha256("grounding rule hash", self.grounding_rule_sha256)
@@ -1071,6 +1090,9 @@ class ShadowCertificateReconciler:
         self._state = CertificateState.CURRENT
         self._generation = 0
         self._inflight_nodes: set[str] = set()
+        self._effect_confirmation_steps = effect_confirmation_steps
+        self._effect_streaks: dict[str, int] = {}
+        self._pending_invalid_releases: dict[str, int] = {}
 
     def initial(self, snapshot: FactSnapshot) -> CertificateReconciliation:
         return CertificateReconciliation(
@@ -1099,29 +1121,45 @@ class ShadowCertificateReconciler:
                 return False
         return True
 
-    def _transport_envelope(self, action: GroundAction) -> frozenset[SignedLiteral]:
-        object_name = action.arguments[0]
-        facts = {
-            fact
-            for fact in self.relevant_facts
-            if (
-                fact.predicate == "holding"
-                and fact.arguments == (object_name,)
+    def _temporal_envelope(self, action: GroundAction) -> frozenset[SignedLiteral]:
+        if action.schema in self._MANIPULATION_SCHEMAS:
+            object_name = action.arguments[0]
+            facts = {
+                fact
+                for fact in self.relevant_facts
+                if (
+                    fact.predicate == "holding"
+                    and fact.arguments == (object_name,)
+                )
+                or (
+                    fact.predicate == "at"
+                    and fact.arguments
+                    and fact.arguments[0] == object_name
+                )
+                or fact == Fact("handempty")
+            }
+        else:
+            facts = set(
+                action.preconditions
+                | action.negative_preconditions
+                | action.add_effects
+                | action.del_effects
             )
-            or (
-                fact.predicate == "at"
-                and fact.arguments
-                and fact.arguments[0] == object_name
-            )
-            or fact == Fact("handempty")
-        }
         return frozenset(
             SignedLiteral(fact, truth) for fact in facts for truth in (False, True)
         )
 
-    def _entered_transport(
+    def _entered_temporal_transition(
         self, action: GroundAction, current: FactSnapshot
     ) -> bool:
+        if action.schema in self._BINARY_TRANSITION_SCHEMAS:
+            values = tuple(
+                current.truth(fact)
+                for fact in action.add_effects | action.del_effects
+            )
+            return bool(values) and all(
+                value is TruthValue.FALSE for value in values
+            )
         object_name = action.arguments[0]
         holding = current.truth(Fact("holding", (object_name,)))
         if holding is TruthValue.TRUE:
@@ -1139,6 +1177,25 @@ class ShadowCertificateReconciler:
             current.truth(fact) is TruthValue.FALSE for fact in locations
         )
 
+    def _grounded_non_target_release(
+        self, action: GroundAction, current: FactSnapshot
+    ) -> bool:
+        if action.schema not in self._MANIPULATION_SCHEMAS:
+            return False
+        object_name = action.arguments[0]
+        if current.truth(Fact("holding", (object_name,))) is not TruthValue.FALSE:
+            return False
+        target_locations = {
+            fact
+            for fact in action.add_effects
+            if fact.predicate == "at" and fact.arguments[:1] == (object_name,)
+        }
+        return any(
+            fact not in target_locations and current.truth(fact) is TruthValue.TRUE
+            for fact in self.relevant_facts
+            if fact.predicate == "at" and fact.arguments[:1] == (object_name,)
+        )
+
     def _covered(
         self,
         changed: frozenset[SignedLiteral],
@@ -1147,23 +1204,41 @@ class ShadowCertificateReconciler:
     ) -> bool:
         for node_id in tuple(self._inflight_nodes):
             action = self.plan_context.graph.node_map[node_id].action
-            if action is None or not changed <= self._transport_envelope(action):
+            if action is None or not changed <= self._temporal_envelope(action):
                 continue
             if current.satisfies(
                 positive=action.add_effects, negative=action.del_effects
             ):
-                self._inflight_nodes.remove(node_id)
+                confirmations = self._effect_streaks.get(node_id, 0) + 1
+                self._effect_streaks[node_id] = confirmations
+                self._pending_invalid_releases.pop(node_id, None)
+                if confirmations >= self._effect_confirmation_steps:
+                    self._inflight_nodes.remove(node_id)
+                    self._effect_streaks.pop(node_id, None)
                 return True
-            if self._entered_transport(action, current):
+            self._effect_streaks.pop(node_id, None)
+            if self._entered_temporal_transition(action, current):
+                self._pending_invalid_releases.pop(node_id, None)
                 return True
             if current.satisfies(
                 positive=action.preconditions,
                 negative=action.negative_preconditions,
             ):
                 self._inflight_nodes.remove(node_id)
+                self._effect_streaks.pop(node_id, None)
+                self._pending_invalid_releases.pop(node_id, None)
                 return True
-            self._inflight_nodes.remove(node_id)
-            return False
+            if self._grounded_non_target_release(action, current):
+                confirmations = self._pending_invalid_releases.get(node_id, 0) + 1
+                self._pending_invalid_releases[node_id] = confirmations
+                if confirmations < 2:
+                    return True
+                self._inflight_nodes.remove(node_id)
+                self._effect_streaks.pop(node_id, None)
+                self._pending_invalid_releases.pop(node_id, None)
+                return False
+            self._pending_invalid_releases.pop(node_id, None)
+            return True
         for node_id in self.plan_context.graph.canonical_agenda:
             node = self.plan_context.graph.node_map[node_id]
             action = node.action
@@ -1177,17 +1252,44 @@ class ShadowCertificateReconciler:
                 | {SignedLiteral(fact, False) for fact in action.del_effects}
             )
             if changed <= effects:
+                if action.schema in self._TEMPORAL_SCHEMAS:
+                    if current.satisfies(
+                        positive=action.add_effects,
+                        negative=action.del_effects,
+                    ):
+                        self._inflight_nodes.add(node_id)
+                        self._effect_streaks[node_id] = 1
+                        self._pending_invalid_releases.pop(node_id, None)
+                    elif self._entered_temporal_transition(action, current):
+                        self._inflight_nodes.add(node_id)
+                        self._effect_streaks.pop(node_id, None)
+                        self._pending_invalid_releases.pop(node_id, None)
                 return True
             if (
-                action.schema in self._TRANSPORT_SCHEMAS
-                and changed <= self._transport_envelope(action)
-                and self._entered_transport(action, current)
+                action.schema in self._MANIPULATION_SCHEMAS
+                and changed <= self._temporal_envelope(action)
+                and self._grounded_non_target_release(action, current)
             ):
-                if not current.satisfies(
-                    positive=action.add_effects, negative=action.del_effects
+                self._inflight_nodes.add(node_id)
+                self._pending_invalid_releases[node_id] = 1
+                return True
+            if (
+                action.schema in self._TEMPORAL_SCHEMAS
+                and changed <= self._temporal_envelope(action)
+            ):
+                if current.satisfies(
+                    positive=action.add_effects,
+                    negative=action.del_effects,
                 ):
                     self._inflight_nodes.add(node_id)
-                return True
+                    self._effect_streaks[node_id] = 1
+                    self._pending_invalid_releases.pop(node_id, None)
+                    return True
+                if self._entered_temporal_transition(action, current):
+                    self._inflight_nodes.add(node_id)
+                    self._effect_streaks.pop(node_id, None)
+                    self._pending_invalid_releases.pop(node_id, None)
+                    return True
         return False
 
     def reconcile(
@@ -1200,8 +1302,10 @@ class ShadowCertificateReconciler:
             if previous.truth(fact) is not current.truth(fact)
             and current.truth(fact) is not TruthValue.UNKNOWN
         )
-        if self._state is CertificateState.CURRENT and changed and not self._covered(
-            changed, previous, current
+        if (
+            self._state is CertificateState.CURRENT
+            and (changed or self._inflight_nodes)
+            and not self._covered(changed, previous, current)
         ):
             self._state = CertificateState.STALE
         return CertificateReconciliation(

@@ -651,6 +651,45 @@ def test_advisory_partial_snapshot_preserves_all_false_unlocated_transport() -> 
     assert facts <= snapshot.false_facts
 
 
+@pytest.mark.parametrize("partial_group", ("access", "switch"))
+def test_advisory_partial_snapshot_preserves_all_false_binary_transition(
+    partial_group: str,
+) -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    open_fact = Fact("open", ("drawer_access",))
+    closed_fact = Fact("closed", ("drawer_access",))
+    on_fact = Fact("powered-on", ("stove_power",))
+    off_fact = Fact("powered-off", ("stove_power",))
+    facts = frozenset(
+        {source, holding, open_fact, closed_fact, on_fact, off_fact}
+    )
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    values = {fact: TruthValue.FALSE for fact in facts}
+    values[source] = TruthValue.TRUE
+    if partial_group != "access":
+        values[open_fact] = TruthValue.TRUE
+    if partial_group != "switch":
+        values[on_fact] = TruthValue.TRUE
+    grounder._truth = lambda fact: values[fact]
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+
+    snapshot = grounder.peek_advisory_partial_snapshot()
+
+    pair = (
+        {open_fact, closed_fact}
+        if partial_group == "access"
+        else {on_fact, off_fact}
+    )
+    assert pair <= snapshot.false_facts
+
+
 def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
     env = FakeEnv()
     recovery = "kitchen_table_recovery_surface"
