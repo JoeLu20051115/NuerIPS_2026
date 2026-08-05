@@ -28,6 +28,9 @@ from pi05_libero_repro.logiv.val import (
 
 RECOVERY_SEED_DOMAIN = "LOGIV-recovery-policy-seed-v1"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
+_FROZEN_CAPABILITY_SHA256 = (
+    "fe307bb9fd88f1d807464e41a0e17cb127d56a990b4a5179eea259e86ba2e651"
+)
 _FROZEN_CAPABILITY_BODY = {
     "schema_version": 1,
     "capability_id": "task5-held-book-place-v1",
@@ -142,6 +145,17 @@ class Task5RecoveryCapability:
         ).hexdigest()
 
 
+def _require_frozen_capability(capability: Task5RecoveryCapability) -> bool:
+    try:
+        return (
+            capability._payload() == _FROZEN_CAPABILITY_BODY
+            and capability.capability_sha256 == _FROZEN_CAPABILITY_SHA256
+            and capability.recompute_sha256() == _FROZEN_CAPABILITY_SHA256
+        )
+    except (AttributeError, TypeError, ValueError):
+        return False
+
+
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -223,6 +237,33 @@ class TerminalAssessment:
     certificate_hash: str | None
     monitor_contract_sha256: str | None
     protected_true_facts: frozenset[Fact]
+    capability_sha256: str
+    base_policy_steps: int
+    place_node_id: str | None
+    assessment_sha256: str
+
+
+def _assessment_sha256(assessment: TerminalAssessment) -> str:
+    return _domain_hash(
+        b"LOGIV_TASK5_TERMINAL_ASSESSMENT_V1\0",
+        {
+            "eligible": assessment.eligible,
+            "reason": assessment.reason,
+            "event_id": assessment.event_id,
+            "event_type": assessment.event_type,
+            "option_action_cap": assessment.option_action_cap,
+            "snapshot_sha256": assessment.snapshot_sha256,
+            "graph_hash": assessment.graph_hash,
+            "certificate_hash": assessment.certificate_hash,
+            "monitor_contract_sha256": assessment.monitor_contract_sha256,
+            "protected_true_facts": [
+                fact.pddl() for fact in sorted(assessment.protected_true_facts)
+            ],
+            "capability_sha256": assessment.capability_sha256,
+            "base_policy_steps": assessment.base_policy_steps,
+            "place_node_id": assessment.place_node_id,
+        },
+    )
 
 
 def assess_task5_terminal(
@@ -243,7 +284,7 @@ def assess_task5_terminal(
     place_node_status: str | None,
 ) -> TerminalAssessment:
     def denied(reason: str) -> TerminalAssessment:
-        return TerminalAssessment(
+        provisional = TerminalAssessment(
             eligible=False,
             reason=reason,
             event_id=None,
@@ -254,8 +295,19 @@ def assess_task5_terminal(
             certificate_hash=None if certificate is None else certificate.certificate_hash,
             monitor_contract_sha256=monitor_contract_sha256,
             protected_true_facts=frozenset(),
+            capability_sha256=capability.capability_sha256,
+            base_policy_steps=(
+                base_policy_steps if type(base_policy_steps) is int else 0
+            ),
+            place_node_id=None,
+            assessment_sha256="",
+        )
+        return replace(
+            provisional, assessment_sha256=_assessment_sha256(provisional)
         )
 
+    if not _require_frozen_capability(capability):
+        return denied("CAPABILITY_NOT_FROZEN")
     if base_success:
         return denied("BASE_SUCCEEDED")
     if task_id != capability.task_id:
@@ -324,7 +376,7 @@ def assess_task5_terminal(
     event_id = hashlib.sha256(
         b"LOGIV_TERMINAL_DEVIATION_V1\0" + event_payload.encode("utf-8")
     ).hexdigest()
-    return TerminalAssessment(
+    provisional = TerminalAssessment(
         eligible=True,
         reason="ELIGIBLE",
         event_id=event_id,
@@ -337,7 +389,12 @@ def assess_task5_terminal(
         protected_true_facts=frozenset(
             capability.protected_invariants | (problem.goal & snapshot.true_facts)
         ),
+        capability_sha256=capability.capability_sha256,
+        base_policy_steps=base_policy_steps,
+        place_node_id=matching_nodes[0].node_id,
+        assessment_sha256="",
     )
+    return replace(provisional, assessment_sha256=_assessment_sha256(provisional))
 
 
 def _plan_sha256(plan: Sequence[GroundAction]) -> str:
@@ -359,6 +416,7 @@ class RecoveryPermit:
     capability_sha256: str
     recovery_checkpoint_sha256: str
     protected_true_facts: frozenset[Fact]
+    assessment_sha256: str
 
     def recompute_sha256(self) -> str:
         return _domain_hash(
@@ -378,6 +436,7 @@ class RecoveryPermit:
                 "protected_true_facts": [
                     fact.pddl() for fact in sorted(self.protected_true_facts)
                 ],
+                "assessment_sha256": self.assessment_sha256,
             },
         )
 
@@ -408,14 +467,31 @@ def certify_task5_recovery(
             certificate=None,
             capability_sha256=capability.capability_sha256,
             recovery_checkpoint_sha256=recovery_checkpoint_sha256,
-            protected_true_facts=assessment.protected_true_facts,
+            protected_true_facts=frozenset(),
+            assessment_sha256="",
         )
         return replace(provisional, permit_sha256=provisional.recompute_sha256())
 
+    if not _require_frozen_capability(capability):
+        return denied("CAPABILITY_NOT_FROZEN")
     if not assessment.eligible or assessment.event_id is None:
         return denied("ASSESSMENT_NOT_ELIGIBLE")
-    if capability.capability_sha256 != capability.recompute_sha256():
-        return denied("CAPABILITY_HASH_MISMATCH")
+    try:
+        expected_assessment_sha256 = _assessment_sha256(assessment)
+    except (AttributeError, TypeError, ValueError):
+        return denied("ASSESSMENT_HASH_MISMATCH")
+    if assessment.assessment_sha256 != expected_assessment_sha256:
+        return denied("ASSESSMENT_HASH_MISMATCH")
+    if assessment.reason != "ELIGIBLE":
+        return denied("ASSESSMENT_STATE_INVALID")
+    if assessment.capability_sha256 != capability.capability_sha256:
+        return denied("ASSESSMENT_CAPABILITY_MISMATCH")
+    if assessment.event_type != capability.event_type:
+        return denied("ASSESSMENT_EVENT_TYPE_MISMATCH")
+    if not _valid_sha256(assessment.event_id):
+        return denied("ASSESSMENT_EVENT_ID_INVALID")
+    if not _valid_sha256(assessment.monitor_contract_sha256):
+        return denied("ASSESSMENT_MONITOR_HASH_INVALID")
     if not _strict_audited_snapshot(snapshot):
         return denied("STRICT_AUDITED_SNAPSHOT_REQUIRED")
     if snapshot.evidence_hash != assessment.snapshot_sha256:
@@ -426,10 +502,21 @@ def certify_task5_recovery(
         return denied("CERTIFICATE_HASH_CHANGED")
     if graph.certificate_hash != certificate.certificate_hash:
         return denied("GRAPH_CERTIFICATE_HASH_MISMATCH")
+    if type(assessment.base_policy_steps) is not int or assessment.base_policy_steps <= 0:
+        return denied("ASSESSMENT_ACTION_CAP_MISMATCH")
+    expected_cap = min(
+        capability.max_recovery_actions,
+        capability.max_combined_actions - assessment.base_policy_steps,
+    )
+    if assessment.option_action_cap != expected_cap or expected_cap <= 0:
+        return denied("ASSESSMENT_ACTION_CAP_MISMATCH")
+    expected_protected = frozenset(
+        capability.protected_invariants | (problem.goal & snapshot.true_facts)
+    )
+    if assessment.protected_true_facts != expected_protected:
+        return denied("ASSESSMENT_PROTECTED_FACTS_MISMATCH")
     if not _valid_sha256(recovery_checkpoint_sha256):
         return denied("RECOVERY_CHECKPOINT_HASH_INVALID")
-    if len(plan) != 1:
-        return denied("PLAN_ACTION_COUNT_NOT_ONE")
     try:
         expected_action = FixedDomain().ground(
             problem,
@@ -442,6 +529,18 @@ def certify_task5_recovery(
         )
     except DomainError:
         return denied("PLAN_ACTION_MISMATCH")
+    matching_nodes = tuple(
+        node
+        for node in graph.nodes
+        if node.kind is NodeKind.ACTION and node.action == expected_action
+    )
+    if (
+        len(matching_nodes) != 1
+        or assessment.place_node_id != matching_nodes[0].node_id
+    ):
+        return denied("ASSESSMENT_PLACE_NODE_MISMATCH")
+    if len(plan) != 1:
+        return denied("PLAN_ACTION_COUNT_NOT_ONE")
     if plan[0] != expected_action:
         return denied("PLAN_ACTION_MISMATCH")
     current_problem = replace(
@@ -489,6 +588,7 @@ def certify_task5_recovery(
         capability_sha256=capability.capability_sha256,
         recovery_checkpoint_sha256=recovery_checkpoint_sha256,
         protected_true_facts=assessment.protected_true_facts,
+        assessment_sha256=assessment.assessment_sha256,
     )
     return replace(provisional, permit_sha256=provisional.recompute_sha256())
 
@@ -551,13 +651,22 @@ def verify_task5_recovery_commit(
             combined_actions=combined_actions,
         )
 
+    if not _require_frozen_capability(capability):
+        return denied("CAPABILITY_NOT_FROZEN")
     if not counts_valid:
         return denied("ACTION_COUNT_INVALID")
     if not permit.granted:
         return denied("PERMIT_NOT_GRANTED")
     if event_id != permit.event_id:
         return denied("EVENT_ID_CHANGED")
-    if permit_sha256 != permit.permit_sha256 or permit.recompute_sha256() != permit.permit_sha256:
+    try:
+        expected_permit_sha256 = permit.recompute_sha256()
+    except (AttributeError, TypeError, ValueError):
+        return denied("PERMIT_HASH_CHANGED")
+    if (
+        permit_sha256 != permit.permit_sha256
+        or expected_permit_sha256 != permit.permit_sha256
+    ):
         return denied("PERMIT_HASH_CHANGED")
     if (
         plan_sha256 is None

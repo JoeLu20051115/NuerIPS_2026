@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from pi05_libero_repro.logiv import task5_terminal_recovery as recovery_module
 from pi05_libero_repro.logiv.dag import CausalGraph, GraphNode, NodeKind
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.model import (
@@ -358,6 +359,66 @@ def test_recovery_seed_uses_independent_domain():
 
 
 @pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("task_id", 4),
+        ("event_type", "CHANGED"),
+        ("holding_fact", Fact("holding", ("changed_book",))),
+        ("target_fact", Fact("at", ("black_book_1", "changed_region"))),
+        ("action", "(changed-action)"),
+        ("active_node_statuses", frozenset({"READY"})),
+        ("protected_invariants", frozenset({Fact("open", ("desk_caddy_1_access",))})),
+        ("effect_confirmation_observations", 4),
+        ("settling_steps", 11),
+        ("max_recovery_actions", 181),
+        ("max_combined_actions", 521),
+        ("capability_required_successes", 9),
+        ("capability_total", 11),
+    ],
+)
+@pytest.mark.parametrize("boundary", ["assess", "certify", "commit"])
+def test_public_boundaries_reject_rehashed_nonfrozen_capability(
+    eligible_inputs, permit_inputs, commit_inputs, field, value, boundary
+):
+    changed = replace(eligible_inputs["capability"], **{field: value})
+    changed = replace(changed, capability_sha256=changed.recompute_sha256())
+    if boundary == "assess":
+        result = assess_task5_terminal(**(eligible_inputs | {"capability": changed}))
+    elif boundary == "certify":
+        result = certify_task5_recovery(**(permit_inputs | {"capability": changed}))
+    else:
+        result = verify_task5_recovery_commit(
+            **(
+                commit_inputs
+                | {
+                    "capability": changed,
+                    "capability_sha256": changed.capability_sha256,
+                }
+            )
+        )
+    assert result.reason == "CAPABILITY_NOT_FROZEN"
+
+
+@pytest.mark.parametrize("boundary", ["assess", "certify", "commit"])
+def test_public_boundaries_reject_unhashable_capability(
+    eligible_inputs, permit_inputs, commit_inputs, boundary
+):
+    changed = replace(
+        eligible_inputs["capability"],
+        protected_invariants=frozenset({"not-a-fact"}),
+    )
+    if boundary == "assess":
+        result = assess_task5_terminal(**(eligible_inputs | {"capability": changed}))
+    elif boundary == "certify":
+        result = certify_task5_recovery(**(permit_inputs | {"capability": changed}))
+    else:
+        result = verify_task5_recovery_commit(
+            **(commit_inputs | {"capability": changed})
+        )
+    assert result.reason == "CAPABILITY_NOT_FROZEN"
+
+
+@pytest.mark.parametrize(
     ("args", "reason"),
     [
         ({"base_success": True}, "BASE_SUCCEEDED"),
@@ -488,6 +549,102 @@ def test_terminal_assessment_grants_only_remaining_budget(eligible_inputs):
     assert result.protected_true_facts
 
 
+def test_terminal_assessment_authenticates_all_permit_inputs(
+    eligible_inputs, capability
+):
+    result = assess_task5_terminal(**eligible_inputs)
+    assert hasattr(result, "assessment_sha256")
+    assert len(result.assessment_sha256) == 64
+    assert result.capability_sha256 == capability.capability_sha256
+    assert result.base_policy_steps == eligible_inputs["base_policy_steps"]
+    assert result.place_node_id == eligible_inputs["graph"].nodes[0].node_id
+    assert result.assessment_sha256 == recovery_module._assessment_sha256(result)
+
+
+def _resign_assessment(assessment, **changes):
+    changed = replace(assessment, **changes, assessment_sha256="")
+    return replace(
+        changed,
+        assessment_sha256=recovery_module._assessment_sha256(changed),
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason"),
+    [
+        ("cap", "ASSESSMENT_ACTION_CAP_MISMATCH"),
+        ("base_steps", "ASSESSMENT_ACTION_CAP_MISMATCH"),
+        ("protected_empty", "ASSESSMENT_PROTECTED_FACTS_MISMATCH"),
+        ("protected_reduced", "ASSESSMENT_PROTECTED_FACTS_MISMATCH"),
+        ("protected_substituted", "ASSESSMENT_PROTECTED_FACTS_MISMATCH"),
+        ("capability", "ASSESSMENT_CAPABILITY_MISMATCH"),
+        ("place_node", "ASSESSMENT_PLACE_NODE_MISMATCH"),
+        ("reason", "ASSESSMENT_STATE_INVALID"),
+        ("event_type", "ASSESSMENT_EVENT_TYPE_MISMATCH"),
+        ("event_id", "ASSESSMENT_EVENT_ID_INVALID"),
+        ("monitor", "ASSESSMENT_MONITOR_HASH_INVALID"),
+        ("digest", "ASSESSMENT_HASH_MISMATCH"),
+    ],
+)
+def test_recovery_certification_rejects_forged_assessment(
+    permit_inputs, mutation, reason
+):
+    assessment = permit_inputs["assessment"]
+    if mutation == "cap":
+        forged = _resign_assessment(
+            assessment, option_action_cap=assessment.option_action_cap + 1
+        )
+    elif mutation == "base_steps":
+        forged = _resign_assessment(
+            assessment, base_policy_steps=assessment.base_policy_steps + 1
+        )
+    elif mutation == "protected_empty":
+        forged = _resign_assessment(assessment, protected_true_facts=frozenset())
+    elif mutation == "protected_reduced":
+        forged = _resign_assessment(
+            assessment, protected_true_facts=frozenset({HANDOFF_GOAL})
+        )
+    elif mutation == "protected_substituted":
+        forged = _resign_assessment(
+            assessment, protected_true_facts=frozenset({Fact("handempty")})
+        )
+    elif mutation == "capability":
+        forged = _resign_assessment(assessment, capability_sha256="0" * 64)
+    elif mutation == "place_node":
+        forged = _resign_assessment(assessment, place_node_id="changed-node")
+    elif mutation == "reason":
+        forged = _resign_assessment(assessment, reason="CHANGED")
+    elif mutation == "event_type":
+        forged = _resign_assessment(assessment, event_type="CHANGED")
+    elif mutation == "event_id":
+        forged = _resign_assessment(assessment, event_id="changed")
+    elif mutation == "monitor":
+        forged = _resign_assessment(assessment, monitor_contract_sha256="changed")
+    else:
+        forged = replace(assessment, assessment_sha256="0" * 64)
+    result = certify_task5_recovery(
+        **(permit_inputs | {"assessment": forged})
+    )
+    assert result.granted is False
+    assert result.reason == reason
+
+
+@pytest.mark.parametrize("mutation", ["nonfinite_base", "malformed_protected"])
+def test_recovery_certification_rejects_unhashable_assessment_fields(
+    permit_inputs, mutation
+):
+    assessment = permit_inputs["assessment"]
+    if mutation == "nonfinite_base":
+        forged = replace(assessment, base_policy_steps=float("nan"))
+    else:
+        forged = replace(assessment, protected_true_facts=frozenset({"not-a-fact"}))
+    result = certify_task5_recovery(
+        **(permit_inputs | {"assessment": forged})
+    )
+    assert result.granted is False
+    assert result.reason == "ASSESSMENT_HASH_MISMATCH"
+
+
 @pytest.mark.parametrize(
     ("mutation", "reason"),
     [
@@ -497,7 +654,7 @@ def test_terminal_assessment_grants_only_remaining_budget(eligible_inputs):
         ("signed_state", "SIGNED_STATE_INVALID"),
         ("val_error", "VAL_VALIDATION_ERROR"),
         ("graph_hash", "GRAPH_HASH_CHANGED"),
-        ("capability_hash", "CAPABILITY_HASH_MISMATCH"),
+        ("capability_hash", "CAPABILITY_NOT_FROZEN"),
         ("checkpoint_hash", "RECOVERY_CHECKPOINT_HASH_INVALID"),
         ("snapshot_audit", "STRICT_AUDITED_SNAPSHOT_REQUIRED"),
     ],
@@ -549,6 +706,7 @@ def test_recovery_certification_binds_exactly_one_val_certificate(
     assert granted_permit.certificate is not None
     assert granted_permit.certificate.context.phase is ContextPhase.RECOVERY_VAL
     assert granted_permit.protected_true_facts == eligible_assessment.protected_true_facts
+    assert granted_permit.assessment_sha256 == eligible_assessment.assessment_sha256
 
 
 @pytest.mark.parametrize(
@@ -653,6 +811,52 @@ def test_recovery_commit_rejects_forged_handoff_fact_sets(
     result = verify_task5_recovery_commit(
         **(commit_inputs | {"permit": forged})
     )
+    assert result.reason == "PERMIT_HASH_CHANGED"
+
+
+def _resign_permit(permit, **changes):
+    changed = replace(permit, **changes, permit_sha256="")
+    return replace(changed, permit_sha256=changed.recompute_sha256())
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["cap", "protected", "plan", "checkpoint", "capability", "assessment"],
+)
+def test_recovery_commit_rejects_resigned_permit_mutations(
+    commit_inputs, mutation
+):
+    permit = commit_inputs["permit"]
+    if mutation == "cap":
+        forged = _resign_permit(permit, action_cap=permit.action_cap + 1)
+    elif mutation == "protected":
+        forged = _resign_permit(permit, protected_true_facts=frozenset())
+    elif mutation == "plan":
+        forged = _resign_permit(permit, plan=(), plan_sha256=None)
+    elif mutation == "checkpoint":
+        forged = _resign_permit(permit, recovery_checkpoint_sha256="0" * 64)
+    elif mutation == "capability":
+        forged = _resign_permit(permit, capability_sha256="0" * 64)
+    else:
+        forged = _resign_permit(permit, assessment_sha256="0" * 64)
+    result = verify_task5_recovery_commit(
+        **(commit_inputs | {"permit": forged})
+    )
+    assert result.committed is False
+    assert result.reason == "PERMIT_HASH_CHANGED"
+
+
+@pytest.mark.parametrize("mutation", ["malformed_protected", "malformed_plan"])
+def test_recovery_commit_rejects_unhashable_permit_fields(commit_inputs, mutation):
+    permit = commit_inputs["permit"]
+    if mutation == "malformed_protected":
+        forged = replace(permit, protected_true_facts=frozenset({"not-a-fact"}))
+    else:
+        forged = replace(permit, plan=("not-an-action",))
+    result = verify_task5_recovery_commit(
+        **(commit_inputs | {"permit": forged})
+    )
+    assert result.committed is False
     assert result.reason == "PERMIT_HASH_CHANGED"
 
 
