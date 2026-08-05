@@ -517,3 +517,55 @@ def test_base_success_is_rechecked_after_the_same_settling_barrier() -> None:
     assert outcome.steps == 1
     assert len(outcome.replay_frames) == 3
     assert env.actions[-2:] == [[0.0] * 6 + [-1.0]] * 2
+
+
+def test_settling_observer_is_ordered_isolated_and_rng_neutral() -> None:
+    baseline_env = FakeEnv(succeed_on_policy_step=1)
+    shadow_env = FakeEnv(succeed_on_policy_step=1)
+    random.seed(717)
+    np.random.seed(717)
+    baseline = run_episode(
+        baseline_env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        settling_steps=2,
+    )
+    baseline_draws = (random.random(), np.random.random())
+    seen = []
+
+    def observe_settling(context) -> None:
+        seen.append(context)
+        context.observation["robot0_eef_pos"][0] = -999
+        random.random()
+        np.random.random()
+        if context.settling_step == 1:
+            raise RuntimeError("contained settling observer failure")
+
+    random.seed(717)
+    np.random.seed(717)
+    shadow = run_episode(
+        shadow_env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        settling_steps=2,
+        shadow_settling_observer=observe_settling,
+    )
+    shadow_draws = (random.random(), np.random.random())
+
+    assert [(item.policy_step, item.settling_step, item.settling_steps) for item in seen] == [
+        (1, 1, 2),
+        (1, 2, 2),
+    ]
+    assert shadow_draws == baseline_draws
+    np.testing.assert_array_equal(np.asarray(shadow.actions), np.asarray(baseline.actions))
+    assert (shadow.done, shadow.check_success) == (
+        baseline.done,
+        baseline.check_success,
+    )
+    assert shadow.shadow_calls == 2
+    assert shadow.shadow_errors == 1
+    assert shadow.shadow_failure_records[0].stage == "SETTLING_OBSERVER_ESCAPE"

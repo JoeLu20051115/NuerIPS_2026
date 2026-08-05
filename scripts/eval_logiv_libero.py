@@ -1347,6 +1347,11 @@ def evaluate(args: argparse.Namespace) -> int:
                                 if shadow_runtime is not None
                                 else None
                             ),
+                            shadow_settling_observer=(
+                                shadow_runtime.settling_observer
+                                if shadow_runtime is not None
+                                else None
+                            ),
                             request_envelope_reader=(
                                 episode_client.request_envelope_reader
                             ),

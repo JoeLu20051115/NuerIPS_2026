@@ -179,6 +179,14 @@ class ShadowStepContext:
 
 
 @dataclass(frozen=True)
+class ShadowSettlingContext:
+    observation: Mapping[str, Any]
+    policy_step: int
+    settling_step: int
+    settling_steps: int
+
+
+@dataclass(frozen=True)
 class ShadowFailureRecord:
     policy_step: int
     stage: str
@@ -254,6 +262,7 @@ def run_episode(
     settling_steps: int = 0,
     *,
     shadow_observer: Callable[[ShadowStepContext], None] | None = None,
+    shadow_settling_observer: Callable[[ShadowSettlingContext], None] | None = None,
     request_envelope_reader: Callable[[int, bool], str | None] | None = None,
     capture_replay_frames: bool = True,
     clock: Callable[[], float] = time.perf_counter,
@@ -288,6 +297,19 @@ def run_episode(
         shadow_action_prefix = BaseActionPrefixHasher()
         done = False
 
+        def record_shadow_failure(
+            policy_step: int, failure_stage: str, error: Exception
+        ) -> None:
+            nonlocal shadow_errors
+            shadow_errors += 1
+            shadow_failure_records.append(
+                ShadowFailureRecord(
+                    policy_step=policy_step,
+                    stage=failure_stage,
+                    reason=type(error).__name__[:128],
+                )
+            )
+
         def call_shadow(observation: Mapping[str, Any], action: np.ndarray | None, policy_step: int) -> None:
             nonlocal shadow_calls, shadow_errors, shadow_wall_seconds, shadow_parity_valid
             if shadow_observer is None:
@@ -297,17 +319,6 @@ def run_episode(
             python_rng_state = None
             numpy_rng_state = None
             stage = "RNG_CAPTURE"
-
-            def record_failure(failure_stage: str, error: Exception) -> None:
-                nonlocal shadow_errors
-                shadow_errors += 1
-                shadow_failure_records.append(
-                    ShadowFailureRecord(
-                        policy_step=policy_step,
-                        stage=failure_stage,
-                        reason=type(error).__name__[:128],
-                    )
-                )
 
             try:
                 python_rng_state = random.getstate()
@@ -354,24 +365,79 @@ def run_episode(
                     )
                 )
             except Exception as error:
-                record_failure(stage, error)
+                record_shadow_failure(policy_step, stage, error)
             finally:
                 try:
                     if shadow_started is not None:
                         shadow_wall_seconds += clock() - shadow_started
                 except Exception as error:
-                    record_failure("CLOCK_END", error)
+                    record_shadow_failure(policy_step, "CLOCK_END", error)
                 try:
                     if python_rng_state is not None:
                         random.setstate(python_rng_state)
                 except Exception as error:
-                    record_failure("PYTHON_RNG_RESTORE", error)
+                    record_shadow_failure(policy_step, "PYTHON_RNG_RESTORE", error)
                     shadow_parity_valid = False
                 try:
                     if numpy_rng_state is not None:
                         np.random.set_state(numpy_rng_state)
                 except Exception as error:
-                    record_failure("NUMPY_RNG_RESTORE", error)
+                    record_shadow_failure(policy_step, "NUMPY_RNG_RESTORE", error)
+                    shadow_parity_valid = False
+
+        def call_settling_shadow(
+            observation: Mapping[str, Any],
+            *,
+            policy_step: int,
+            settling_step: int,
+        ) -> None:
+            nonlocal shadow_calls, shadow_wall_seconds, shadow_parity_valid
+            if shadow_settling_observer is None:
+                return
+            shadow_calls += 1
+            shadow_started = None
+            python_rng_state = None
+            numpy_rng_state = None
+            stage = "SETTLING_RNG_CAPTURE"
+            try:
+                python_rng_state = random.getstate()
+                numpy_rng_state = np.random.get_state()
+                stage = "SETTLING_CLOCK_START"
+                shadow_started = clock()
+                stage = "SETTLING_INPUT_COPY"
+                copied_observation = copy.deepcopy(observation)
+                stage = "SETTLING_OBSERVER_ESCAPE"
+                shadow_settling_observer(
+                    ShadowSettlingContext(
+                        observation=copied_observation,
+                        policy_step=policy_step,
+                        settling_step=settling_step,
+                        settling_steps=settling_steps,
+                    )
+                )
+            except Exception as error:
+                record_shadow_failure(policy_step, stage, error)
+            finally:
+                try:
+                    if shadow_started is not None:
+                        shadow_wall_seconds += clock() - shadow_started
+                except Exception as error:
+                    record_shadow_failure(policy_step, "SETTLING_CLOCK_END", error)
+                try:
+                    if python_rng_state is not None:
+                        random.setstate(python_rng_state)
+                except Exception as error:
+                    record_shadow_failure(
+                        policy_step, "SETTLING_PYTHON_RNG_RESTORE", error
+                    )
+                    shadow_parity_valid = False
+                try:
+                    if numpy_rng_state is not None:
+                        np.random.set_state(numpy_rng_state)
+                except Exception as error:
+                    record_shadow_failure(
+                        policy_step, "SETTLING_NUMPY_RNG_RESTORE", error
+                    )
                     shadow_parity_valid = False
 
         call_shadow(obs, None, 0)
@@ -414,13 +480,18 @@ def run_episode(
                 break
 
         done = bool(done)
-        for _ in range(settling_steps):
+        for settling_index in range(settling_steps):
             settling_observation, _, _, _ = env.step(list(LIBERO_DUMMY_ACTION))
             _, settling_frame = prepare_observation(
                 settling_observation, prompt, image_tools
             )
             if capture_replay_frames:
                 replay_frames.append(settling_frame)
+            call_settling_shadow(
+                settling_observation,
+                policy_step=len(executed_actions),
+                settling_step=settling_index + 1,
+            )
         check_success = bool(env.check_success())
         if settling_steps == 0 and done != check_success:
             raise EpisodeInvalid(f"success predicate disagreement: done={done}, check_success={check_success}")

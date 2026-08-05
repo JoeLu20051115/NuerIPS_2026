@@ -38,6 +38,7 @@ from pi05_libero_repro.logiv.shadow_runtime import (
 )
 from pi05_libero_repro.protocol import (
     BaseActionPrefixHasher,
+    ShadowSettlingContext,
     ShadowStepContext,
     run_episode,
 )
@@ -63,9 +64,15 @@ def _sha256(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
-def _snapshot(step: int, *, abnormal: bool = False) -> FactSnapshot:
+def _snapshot(
+    step: int, *, abnormal: bool = False, goal: bool = False
+) -> FactSnapshot:
     true_facts = frozenset(
-        {AT_ABNORMAL, HANDEMPTY} if abnormal else {AT_SOURCE, HANDEMPTY}
+        {AT_TARGET, HANDEMPTY}
+        if goal
+        else {AT_ABNORMAL, HANDEMPTY}
+        if abnormal
+        else {AT_SOURCE, HANDEMPTY}
     )
     false_facts = UNIVERSE - true_facts
     values = [
@@ -83,7 +90,7 @@ def _snapshot(step: int, *, abnormal: bool = False) -> FactSnapshot:
         {
             "dominance_overrides": [],
             "epoch_id": step,
-            "observation_hash": _sha256(f"observation:{step}:{abnormal}"),
+            "observation_hash": _sha256(f"observation:{step}:{abnormal}:{goal}"),
             "values": values,
         }
     )
@@ -277,6 +284,7 @@ def _build(
         return _snapshot(
             int(observation["policy_step"]),
             abnormal=bool(observation["abnormal"]),
+            goal=bool(observation.get("goal", False)),
         )
 
     def live_validator(package: Any, observation: Mapping[str, Any]) -> ShadowValidatedProposal:
@@ -335,6 +343,32 @@ def test_topology_only_records_fixed_graph_states_without_recovery_monitoring() 
         [node["node_id"] for node in state["nodes"]] == ["INIT", "a0", "GOAL"]
         for state in runtime.state_trace
     )
+
+
+def test_topology_only_settling_regresses_a_transient_goal_in_the_same_graph() -> None:
+    runtime = _build(_Provider(), topology_only=True)
+    hasher = BaseActionPrefixHasher()
+    initial = _context(0, hasher)
+    goal = _context(1, hasher)
+    goal.observation["goal"] = True
+
+    runtime.observer(initial)
+    runtime.observer(goal)
+    assert runtime.state_trace[-1]["nodes"][-1]["status"] == "COMPLETED"
+
+    assert runtime.settling_observer is not None
+    runtime.settling_observer(
+        ShadowSettlingContext(
+            observation={"policy_step": 1, "abnormal": False, "goal": False},
+            policy_step=1,
+            settling_step=1,
+            settling_steps=1,
+        )
+    )
+
+    assert runtime.state_trace[-1]["phase"] == "SETTLING"
+    assert runtime.state_trace[-1]["settling_step"] == 1
+    assert runtime.state_trace[-1]["nodes"][-1]["status"] == "BLOCKED"
 
 
 def test_live_validation_rejection_is_stored_and_later_callbacks_are_noops() -> None:

@@ -37,6 +37,7 @@ from pi05_libero_repro.logiv.shadow_monitor import (
 from pi05_libero_repro.logiv.val import PlanCertificate
 from pi05_libero_repro.protocol import (
     BaseActionPrefixHasher,
+    ShadowSettlingContext,
     ShadowStepContext,
 )
 
@@ -91,6 +92,7 @@ class ShadowRuntimeCounters:
 class ShadowRuntime:
     initial_proposal: InitialProposalResult[ShadowValidatedProposal] | None
     observer: Callable[[ShadowStepContext], None] | None
+    settling_observer: Callable[[ShadowSettlingContext], None] | None
     monitor: StableRecoveryObserver | None
     counters: ShadowRuntimeCounters
     state_trace: list[dict[str, Any]] = field(default_factory=list)
@@ -355,10 +357,12 @@ def build_shadow_runtime(
     envelopes: dict[int, str] = {}
     active_trigger_context: ShadowStepContext | None = None
     topology_auditor: Callable[[ShadowStepContext], None] | None = None
+    settling_auditor: Callable[[ShadowSettlingContext], None] | None = None
 
     runtime = ShadowRuntime(
         initial_proposal=None,
         observer=None,
+        settling_observer=None,
         monitor=None,
         counters=counters,
     )
@@ -484,7 +488,7 @@ def build_shadow_runtime(
         return validated
 
     def observe(context: ShadowStepContext) -> None:
-        nonlocal active_trigger_context, disabled, topology_auditor
+        nonlocal active_trigger_context, disabled, topology_auditor, settling_auditor
         if disabled:
             return
         # If Task 2 could not prepare the step-zero callback, that protocol
@@ -531,18 +535,22 @@ def build_shadow_runtime(
                     certified.graph, certified.problem
                 )
                 def record_state(
-                    trace_context: ShadowStepContext,
+                    policy_step: int,
                     snapshot: FactSnapshot,
                     reconciliation: Any,
+                    *,
+                    phase: str = "POLICY",
+                    settling_step: int | None = None,
                 ) -> None:
                     try:
                         runtime.state_trace.append(
                             graph_tracker.project(
                                 snapshot,
-                                policy_step=trace_context.policy_step,
+                                policy_step=policy_step,
                                 observation_generation=reconciliation.observation_generation,
                                 certificate_state=reconciliation.certificate_state.value,
-                                phase="POLICY",
+                                phase=phase,
+                                settling_step=settling_step,
                             )
                         )
                     except Exception:
@@ -550,28 +558,57 @@ def build_shadow_runtime(
 
                 if topology_only:
                     reconciler = ShadowCertificateReconciler(plan_context)
+                    previous_snapshot: list[FactSnapshot | None] = [None]
+
+                    def audit_observation(
+                        observation: Mapping[str, Any],
+                        *,
+                        policy_step: int,
+                        phase: str,
+                        settling_step: int | None = None,
+                    ) -> None:
+                        snapshot = result.validation.snapshot_reader(observation)
+                        reconciliation = (
+                            reconciler.initial(snapshot)
+                            if previous_snapshot[0] is None
+                            else reconciler.reconcile(previous_snapshot[0], snapshot)
+                        )
+                        previous_snapshot[0] = snapshot
+                        record_state(
+                            policy_step,
+                            snapshot,
+                            reconciliation,
+                            phase=phase,
+                            settling_step=settling_step,
+                        )
 
                     def audit_topology(trace_context: ShadowStepContext) -> None:
                         if trace_context.policy_step % interval_steps:
                             return
                         try:
-                            snapshot = result.validation.snapshot_reader(
-                                trace_context.observation
+                            audit_observation(
+                                trace_context.observation,
+                                policy_step=trace_context.policy_step,
+                                phase="POLICY",
                             )
-                            reconciliation = (
-                                reconciler.initial(snapshot)
-                                if not runtime.state_trace
-                                else reconciler.reconcile(
-                                    previous_snapshot[0], snapshot
-                                )
-                            )
-                            previous_snapshot[0] = snapshot
-                            record_state(trace_context, snapshot, reconciliation)
                         except Exception:
                             counters.trace_errors += 1
 
-                    previous_snapshot: list[FactSnapshot | None] = [None]
+                    def audit_settling(
+                        settling_context: ShadowSettlingContext,
+                    ) -> None:
+                        try:
+                            audit_observation(
+                                settling_context.observation,
+                                policy_step=settling_context.policy_step,
+                                phase="SETTLING",
+                                settling_step=settling_context.settling_step,
+                            )
+                        except Exception:
+                            counters.trace_errors += 1
+
                     topology_auditor = audit_topology
+                    settling_auditor = audit_settling
                 else:
                     if monitor_contract is None:
                         raise ValueError("shadow monitor contract is required")
@@ -587,7 +624,9 @@ def build_shadow_runtime(
                         on_trigger=collect_root,
                         interval_steps=interval_steps,
                         confirmation_count=confirmation_count,
-                        on_snapshot=record_state,
+                        on_snapshot=lambda context, snapshot, reconciliation: record_state(
+                            context.policy_step, snapshot, reconciliation
+                        ),
                     )
             except Exception:
                 counters.proposal_callback_errors += 1
@@ -604,4 +643,11 @@ def build_shadow_runtime(
             topology_auditor(context)
 
     runtime.observer = observe
+
+    def observe_settling(context: ShadowSettlingContext) -> None:
+        if disabled or settling_auditor is None:
+            return
+        settling_auditor(context)
+
+    runtime.settling_observer = observe_settling if topology_only else None
     return runtime
