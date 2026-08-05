@@ -148,6 +148,119 @@ def test_record_contract_requires_task8_non_chain_width_and_failure_in_denominat
     assert validate_episode_records([enriched]) == []
 
 
+def _schema3_record(
+    *,
+    arm: str,
+    status: str,
+    requests: int,
+    reason: str | None,
+) -> LogivEpisodeRecord:
+    return replace(
+        _record(arm=arm),
+        schema_version=3,
+        base_policy_requests=8,
+        initial_proposal_requests=requests,
+        initial_proposal_status=status,
+        initial_proposal_reason_code=reason,
+        shadow_vlm_requests=0,
+        recovery_policy_requests=0,
+        shadow_monitor_calls=21 if arm == "SHADOW_LOGIV" else 0,
+        shadow_monitor_errors=0,
+        shadow_monitor_seconds=0.25 if arm == "SHADOW_LOGIV" else 0.0,
+        shadow_parity_valid=True,
+        committed_receipts=2,
+    )
+
+
+@pytest.mark.parametrize(
+    "arm,status,requests,reason",
+    [
+        ("BASE", "NOT_APPLICABLE", 0, None),
+        ("SHADOW_LOGIV", "ACCEPTED", 1, None),
+        ("SHADOW_LOGIV", "REJECTED", 1, "ValueError"),
+        ("SHADOW_LOGIV", "NOT_ATTEMPTED", 0, "INPUT_COPY:RuntimeError"),
+    ],
+)
+def test_schema3_compute_accounting_status_contract(
+    arm: str, status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm=arm, status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record]) == []
+    assert record.inference_requests == record.base_policy_requests
+    assert record.shadow_vlm_requests == 0
+    assert record.recovery_policy_requests == 0
+
+
+@pytest.mark.parametrize(
+    "status,requests,reason",
+    [
+        (status, requests, reason)
+        for status in ("ACCEPTED", "REJECTED", "NOT_ATTEMPTED", "UNKNOWN")
+        for requests in (0, 1, 2)
+        for reason in (None, "ValueError")
+        if (status, requests, reason)
+        not in {
+            ("ACCEPTED", 1, None),
+            ("REJECTED", 1, "ValueError"),
+            ("NOT_ATTEMPTED", 0, "ValueError"),
+        }
+    ],
+)
+def test_schema3_rejects_invalid_shadow_status_request_reason_cross_product(
+    status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm="SHADOW_LOGIV", status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record])
+
+
+def test_schema3_rejects_unstable_shadow_reason_code() -> None:
+    record = _schema3_record(
+        arm="SHADOW_LOGIV",
+        status="NOT_ATTEMPTED",
+        requests=0,
+        reason="INPUT COPY:runtime error",
+    )
+    assert validate_episode_records([record])
+
+
+@pytest.mark.parametrize(
+    "status,requests,reason",
+    [
+        (status, requests, reason)
+        for status in ("NOT_APPLICABLE", "ACCEPTED", "REJECTED", "UNKNOWN")
+        for requests in (0, 1, 2)
+        for reason in (None, "ValueError")
+        if (status, requests, reason) != ("NOT_APPLICABLE", 0, None)
+    ],
+)
+def test_schema3_rejects_every_invalid_base_status_request_reason_cross_product(
+    status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm="BASE", status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record])
+
+
+def test_schema3_rejects_mixed_or_non_phase0_compute_buckets() -> None:
+    accepted = _schema3_record(
+        arm="SHADOW_LOGIV", status="ACCEPTED", requests=1, reason=None
+    )
+    invalid = (
+        replace(accepted, base_policy_requests=7),
+        replace(accepted, shadow_vlm_requests=1),
+        replace(accepted, recovery_policy_requests=1),
+        replace(accepted, shadow_monitor_seconds=float("nan")),
+        replace(accepted, shadow_monitor_errors=-1),
+        replace(accepted, shadow_parity_valid=False, method_arm="BASE", initial_proposal_status="NOT_APPLICABLE", initial_proposal_requests=0),
+    )
+    assert all(validate_episode_records([record]) for record in invalid)
+
+
 def test_task_stratified_paired_bootstrap_uses_equal_task_weight() -> None:
     full = []
     comparator = []
@@ -264,6 +377,44 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         "mean_inference_requests": 30.0,
         "mean_wall_seconds": 10.0,
     }
+
+
+def test_report_includes_schema3_compute_buckets_and_parity_rate() -> None:
+    accepted = _schema3_record(
+        arm="SHADOW_LOGIV", status="ACCEPTED", requests=1, reason=None
+    )
+    rejected = replace(
+        _schema3_record(
+            arm="SHADOW_LOGIV",
+            status="REJECTED",
+            requests=1,
+            reason="ValueError",
+        ),
+        episode_idx=1,
+        base_policy_requests=10,
+        inference_requests=10,
+        shadow_monitor_calls=25,
+        shadow_monitor_errors=2,
+        shadow_monitor_seconds=0.75,
+        shadow_parity_valid=False,
+    )
+
+    report = build_report(
+        [accepted, rejected],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert operational["schema3_records"] == 2
+    assert operational["mean_base_policy_requests"] == 9.0
+    assert operational["mean_initial_proposal_requests"] == 1.0
+    assert operational["mean_shadow_vlm_requests"] == 0.0
+    assert operational["mean_recovery_policy_requests"] == 0.0
+    assert operational["mean_shadow_monitor_calls"] == 23.0
+    assert operational["mean_shadow_monitor_errors"] == 1.0
+    assert operational["mean_shadow_monitor_seconds"] == 0.5
+    assert operational["shadow_parity_valid_rate"] == 0.5
 
 
 def test_report_marks_schema1_gate_metrics_as_unavailable() -> None:

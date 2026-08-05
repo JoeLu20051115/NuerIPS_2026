@@ -1,0 +1,158 @@
+{
+  "contracts": [
+    {
+      "abnormal_support_surfaces": ["study_table_recovery_surface"],
+      "action_event_rules": [
+        {
+          "attempt_kind": "grasp",
+          "attempted_effect": "(holding black_book_1)",
+          "contact_min_count": 1,
+          "destination_region": null,
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "black_book_1",
+          "region_distance_max": 0.08,
+          "rule_id": "grasp_black_book_1",
+          "source_region": "study_table_black_book_init_region"
+        },
+        {
+          "attempt_kind": "place",
+          "attempted_effect": "(at black_book_1 desk_caddy_1_back_contain_region)",
+          "contact_min_count": 1,
+          "destination_region": "desk_caddy_1_back_contain_region",
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "black_book_1",
+          "region_distance_max": 0.08,
+          "rule_id": "place_black_book_1_desk_caddy_1_back_contain_region",
+          "source_region": "study_table_black_book_init_region"
+        }
+      ],
+      "confirmation_count": 3,
+      "contract_id": "logiv-r2m-monitor-task5-v1",
+      "contract_sha256": "ad2f90576c680d3f51ea3be2ebeb9191b3842eee17feb0da8afda26b3d813d76",
+      "event_detector_sha256": "2ea0333f68a0b9b19fda7b9990549ca9bfd098dcbe4dbeec8ea8aab2c67f7399",
+      "goal_regression_evidence_ttl_policy_steps": 20,
+      "grounding_rule_sha256": "7256d4eae5ba0aadc9fc7cd0af384fb9545adfdc2a0e66c891d1b440bddd937f",
+      "max_active_attempts_per_object": 8,
+      "max_attempt_records_per_episode": 128,
+      "max_evidence_records_per_episode": 128,
+      "monitor_interval_steps": 5,
+      "nominal_source_facts": ["(at black_book_1 study_table_black_book_init_region)"],
+      "object_ids": ["black_book_1"],
+      "progress_evidence_ttl_policy_steps": 20,
+      "progress_window_observations": 4,
+      "settling_grace_observations": 2,
+      "task_id": 5,
+      "task_relevant_effects": [
+        "(at black_book_1 desk_caddy_1_back_contain_region)",
+        "(holding black_book_1)"
+      ],
+      "tracker_version": "logiv-action-event-tracker-v1"
+    },
+    {
+      "abnormal_support_surfaces": ["kitchen_table_recovery_surface"],
+      "action_event_rules": [
+        {
+          "attempt_kind": "grasp",
+          "attempted_effect": "(holding moka_pot_1)",
+          "contact_min_count": 1,
+          "destination_region": null,
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "moka_pot_1",
+          "region_distance_max": 0.08,
+          "rule_id": "grasp_moka_pot_1",
+          "source_region": "kitchen_table_moka_pot_right_init_region"
+        },
+        {
+          "attempt_kind": "place",
+          "attempted_effect": "(at moka_pot_1 flat_stove_1_cook_region)",
+          "contact_min_count": 1,
+          "destination_region": "flat_stove_1_cook_region",
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "moka_pot_1",
+          "region_distance_max": 0.08,
+          "rule_id": "place_moka_pot_1_flat_stove_1_cook_region",
+          "source_region": "kitchen_table_moka_pot_right_init_region"
+        },
+        {
+          "attempt_kind": "grasp",
+          "attempted_effect": "(holding moka_pot_2)",
+          "contact_min_count": 1,
+          "destination_region": null,
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "moka_pot_2",
+          "region_distance_max": 0.08,
+          "rule_id": "grasp_moka_pot_2",
+          "source_region": "kitchen_table_moka_pot_left_init_region"
+        },
+        {
+          "attempt_kind": "place",
+          "attempted_effect": "(at moka_pot_2 flat_stove_1_cook_region)",
+          "contact_min_count": 1,
+          "destination_region": "flat_stove_1_cook_region",
+          "effect_due_after_policy_steps": 15,
+          "evidence_ttl_policy_steps": 20,
+          "gripper_close_threshold": 0.005,
+          "gripper_open_threshold": 0.015,
+          "manipulation_attribution_ttl_policy_steps": 30,
+          "motion_correlation_min": 0.5,
+          "object_id": "moka_pot_2",
+          "region_distance_max": 0.08,
+          "rule_id": "place_moka_pot_2_flat_stove_1_cook_region",
+          "source_region": "kitchen_table_moka_pot_left_init_region"
+        }
+      ],
+      "confirmation_count": 3,
+      "contract_id": "logiv-r2m-monitor-task8-v1",
+      "contract_sha256": "05e5da5e028134c9df93e8ec5333f9268fdb0a2617ce375750df4bf23da9c140",
+      "event_detector_sha256": "2ea0333f68a0b9b19fda7b9990549ca9bfd098dcbe4dbeec8ea8aab2c67f7399",
+      "goal_regression_evidence_ttl_policy_steps": 20,
+      "grounding_rule_sha256": "7256d4eae5ba0aadc9fc7cd0af384fb9545adfdc2a0e66c891d1b440bddd937f",
+      "max_active_attempts_per_object": 8,
+      "max_attempt_records_per_episode": 128,
+      "max_evidence_records_per_episode": 128,
+      "monitor_interval_steps": 5,
+      "nominal_source_facts": [
+        "(at moka_pot_1 kitchen_table_moka_pot_right_init_region)",
+        "(at moka_pot_2 kitchen_table_moka_pot_left_init_region)"
+      ],
+      "object_ids": ["moka_pot_1", "moka_pot_2"],
+      "progress_evidence_ttl_policy_steps": 20,
+      "progress_window_observations": 4,
+      "settling_grace_observations": 2,
+      "task_id": 8,
+      "task_relevant_effects": [
+        "(at moka_pot_1 flat_stove_1_cook_region)",
+        "(at moka_pot_2 flat_stove_1_cook_region)",
+        "(holding moka_pot_1)",
+        "(holding moka_pot_2)"
+      ],
+      "tracker_version": "logiv-action-event-tracker-v1"
+    }
+  ],
+  "schema_version": 1
+}

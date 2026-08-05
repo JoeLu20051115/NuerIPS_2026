@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 from collections import deque
+from contextlib import contextmanager
+import copy
 from dataclasses import dataclass, replace
 import hashlib
 import json
 from pathlib import Path
 import threading
 import time
-from typing import Any, FrozenSet, Iterable, Mapping
+from typing import Any, Callable, FrozenSet, Iterable, Iterator, Mapping
 
 import numpy as np
 
@@ -30,9 +32,16 @@ from pi05_libero_repro.logiv.model import (
     GroundAction,
     TaskProblem,
     TruthValue,
+    fact_pddl_sort_key,
+    fact_universe_sha256,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.protocol import EpisodeInvalid, prepare_observation
+from pi05_libero_repro.logiv.recovery_records import observation_sha256
+from pi05_libero_repro.logiv.shadow_monitor import (
+    ActionTransitionFeatures,
+    MonitorEvidenceContract,
+)
 
 
 def _inner_env(env: Any) -> Any:
@@ -46,18 +55,8 @@ def _inner_env(env: Any) -> Any:
     return current
 
 
-def _observation_hash(observation: Mapping[str, Any], epoch_id: int) -> str:
-    digest = hashlib.sha256(str(epoch_id).encode("ascii"))
-    for key in sorted(observation):
-        value = observation[key]
-        digest.update(key.encode("utf-8"))
-        if isinstance(value, np.ndarray):
-            digest.update(str(value.shape).encode("ascii"))
-            digest.update(str(value.dtype).encode("ascii"))
-            digest.update(np.ascontiguousarray(value).tobytes())
-        else:
-            digest.update(repr(value).encode("utf-8"))
-    return digest.hexdigest()
+def _observation_hash(observation: Mapping[str, Any]) -> str:
+    return observation_sha256(observation)
 
 
 @dataclass(frozen=True)
@@ -126,6 +125,361 @@ def monitored_fact_universe(problem: TaskProblem) -> FrozenSet[Fact]:
     return frozenset(facts)
 
 
+@dataclass(frozen=True)
+class ReadOnlyLiberoStateView:
+    """Narrow, read-only simulator access frozen for transition monitoring."""
+
+    holding_reader: Callable[[str], TruthValue]
+    contact_count_reader: Callable[[str], int | None]
+    region_truth_reader: Callable[[str, str], TruthValue]
+    region_distance_reader: Callable[[str, str], float | None]
+    object_position_reader: Callable[[str], np.ndarray | None]
+
+
+def _truth_from_optional_bool(value: Any) -> TruthValue:
+    if isinstance(value, TruthValue):
+        return value
+    if isinstance(value, (bool, np.bool_)):
+        return TruthValue.TRUE if bool(value) else TruthValue.FALSE
+    return TruthValue.UNKNOWN
+
+
+def _finite_scalar(value: Any, *, nonnegative: bool = False) -> float | None:
+    try:
+        result = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if not np.isfinite(result) or (nonnegative and result < 0):
+        return None
+    return result
+
+
+def _finite_position(value: Any) -> np.ndarray | None:
+    try:
+        result = np.asarray(value, dtype=np.float64)
+    except (TypeError, ValueError):
+        return None
+    if result.shape != (3,) or not np.isfinite(result).all():
+        return None
+    return np.array(result, copy=True)
+
+
+def _build_read_only_transition_view(
+    env: Any,
+    binding: TaskBinding,
+) -> ReadOnlyLiberoStateView:
+    inner = _inner_env(env)
+    custom_holding = getattr(inner, "read_logiv_holding", None)
+    custom_contacts = getattr(inner, "read_logiv_contact_count", None)
+    custom_region_truth = getattr(inner, "read_logiv_region_truth", None)
+    custom_region_distance = getattr(inner, "read_logiv_region_distance", None)
+    custom_object_position = getattr(inner, "read_logiv_object_position", None)
+
+    def holding(object_id: str) -> TruthValue:
+        try:
+            if callable(custom_holding):
+                return _truth_from_optional_bool(custom_holding(object_id))
+            object_model = inner.objects_dict[object_id]
+            robot = inner.robots[0]
+            return _truth_from_optional_bool(
+                inner._check_grasp(robot.gripper, object_model.contact_geoms)
+            )
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return TruthValue.UNKNOWN
+
+    def contact_count(object_id: str) -> int | None:
+        try:
+            if callable(custom_contacts):
+                value = custom_contacts(object_id)
+                if isinstance(value, bool) or not isinstance(value, (int, np.integer)):
+                    return None
+                return int(value) if int(value) >= 0 else None
+            value = holding(object_id)
+            return 1 if value is TruthValue.TRUE else 0 if value is TruthValue.FALSE else None
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return None
+
+    def support_distance(object_id: str, support_name: str) -> float | None:
+        try:
+            workspace = _finite_position(inner.workspace_offset)
+            size_value = getattr(inner, f"{support_name}_full_size", None)
+            if size_value is None:
+                size_value = inner.table_full_size
+            full_size = np.asarray(size_value, dtype=np.float64).reshape(-1)
+            position = _finite_position(
+                inner.sim.data.body_xpos[inner.obj_body_id[object_id]]
+            )
+            bottom_offset = _finite_position(
+                inner.get_object(object_id).bottom_offset
+            )
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return None
+        if (
+            workspace is None
+            or position is None
+            or bottom_offset is None
+            or full_size.size < 2
+            or not np.isfinite(full_size).all()
+            or np.any(full_size[:2] <= 0)
+        ):
+            return None
+        bottom = position + bottom_offset
+        horizontal = np.maximum(
+            np.abs(bottom[:2] - workspace[:2]) - full_size[:2] / 2.0,
+            0.0,
+        )
+        vertical = abs(float(bottom[2] - workspace[2]))
+        return float(np.linalg.norm(np.r_[horizontal, vertical]))
+
+    def region_truth(object_id: str, region: str) -> TruthValue:
+        try:
+            if callable(custom_region_truth):
+                return _truth_from_optional_bool(custom_region_truth(object_id, region))
+            resolved, kind = binding.resolve(region)
+            if kind == "support_surface_alias":
+                distance = support_distance(object_id, resolved)
+                if distance is None:
+                    return TruthValue.UNKNOWN
+                return (
+                    TruthValue.TRUE
+                    if distance <= 0.04
+                    else TruthValue.FALSE
+                )
+            predicate = (
+                "in"
+                if any(
+                    token in region
+                    for token in ("contain_region", "heating_region", "bottom_region")
+                )
+                else "on"
+            )
+            return _truth_from_optional_bool(
+                inner._eval_predicate([predicate, object_id, resolved])
+            )
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return TruthValue.UNKNOWN
+
+    def object_position(object_id: str) -> np.ndarray | None:
+        try:
+            if callable(custom_object_position):
+                return _finite_position(custom_object_position(object_id))
+            return _finite_position(
+                inner.sim.data.body_xpos[inner.obj_body_id[object_id]]
+            )
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return None
+
+    def region_distance(object_id: str, region: str) -> float | None:
+        try:
+            if callable(custom_region_distance):
+                return _finite_scalar(
+                    custom_region_distance(object_id, region), nonnegative=True
+                )
+            position = object_position(object_id)
+            resolved, kind = binding.resolve(region)
+            if kind == "support_surface_alias":
+                return support_distance(object_id, resolved)
+            target = _finite_position(inner.sim.data.get_site_xpos(resolved))
+            if position is None or target is None:
+                return None
+            return float(np.linalg.norm(position - target))
+        except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+            return None
+
+    return ReadOnlyLiberoStateView(
+        holding_reader=holding,
+        contact_count_reader=contact_count,
+        region_truth_reader=region_truth,
+        region_distance_reader=region_distance,
+        object_position_reader=object_position,
+    )
+
+
+class _LiberoTransitionFeatureReader:
+    def __init__(
+        self,
+        view: ReadOnlyLiberoStateView,
+        monitor_contract: MonitorEvidenceContract,
+    ) -> None:
+        self._view = view
+        self._rules = monitor_contract.action_event_rules
+        self._abnormal_surfaces = monitor_contract.abnormal_support_surfaces
+        self.monitor_contract_sha256 = monitor_contract.contract_sha256
+        self.tracker_version = monitor_contract.tracker_version
+        self.rule_ids = tuple(rule.rule_id for rule in self._rules)
+        self._previous_object_positions: dict[str, np.ndarray] = {}
+        self._previous_eef_position: np.ndarray | None = None
+        self._previous_policy_step: int | None = None
+
+    @staticmethod
+    def _observation_scalar(
+        observation: Mapping[str, Any], key: str
+    ) -> float | None:
+        try:
+            value = np.asarray(observation[key], dtype=np.float64).reshape(-1)
+        except (KeyError, TypeError, ValueError):
+            return None
+        if not value.size or not np.isfinite(value).all():
+            return None
+        return float(value[0])
+
+    @staticmethod
+    def _motion_correlation(
+        previous_object: np.ndarray | None,
+        current_object: np.ndarray | None,
+        previous_eef: np.ndarray | None,
+        current_eef: np.ndarray | None,
+    ) -> float | None:
+        if any(
+            value is None
+            for value in (previous_object, current_object, previous_eef, current_eef)
+        ):
+            return None
+        assert previous_object is not None
+        assert current_object is not None
+        assert previous_eef is not None
+        assert current_eef is not None
+        object_delta = current_object - previous_object
+        eef_delta = current_eef - previous_eef
+        denominator = float(np.linalg.norm(object_delta) * np.linalg.norm(eef_delta))
+        if denominator <= 0 or not np.isfinite(denominator):
+            return None
+        value = float(np.dot(object_delta, eef_delta) / denominator)
+        return float(np.clip(value, -1.0, 1.0)) if np.isfinite(value) else None
+
+    def __call__(
+        self, context: ShadowStepContext
+    ) -> tuple[ActionTransitionFeatures, ...]:
+        observation = context.observation
+        gripper = self._observation_scalar(observation, "robot0_gripper_qpos")
+        current_eef = _finite_position(observation.get("robot0_eef_pos"))
+        consecutive = (
+            self._previous_policy_step is not None
+            and context.policy_step == self._previous_policy_step + 1
+        )
+        object_positions = {
+            object_id: self._view.object_position_reader(object_id)
+            for object_id in {rule.object_id for rule in self._rules}
+        }
+        correlations = {
+            object_id: self._motion_correlation(
+                self._previous_object_positions.get(object_id) if consecutive else None,
+                position,
+                self._previous_eef_position if consecutive else None,
+                current_eef,
+            )
+            for object_id, position in object_positions.items()
+        }
+        rows = []
+        for rule in self._rules:
+            abnormal_values = [
+                (
+                    surface,
+                    self._view.region_truth_reader(rule.object_id, surface),
+                    self._view.region_distance_reader(rule.object_id, surface),
+                )
+                for surface in self._abnormal_surfaces
+            ]
+            confirmed = [item for item in abnormal_values if item[1] is TruthValue.TRUE]
+            if confirmed:
+                surface, abnormal_truth, abnormal_distance = min(
+                    confirmed,
+                    key=lambda item: (
+                        float("inf") if item[2] is None else item[2], item[0]
+                    ),
+                )
+                abnormal_region_id = surface
+            else:
+                abnormal_truth = (
+                    TruthValue.FALSE
+                    if abnormal_values
+                    and all(item[1] is TruthValue.FALSE for item in abnormal_values)
+                    else TruthValue.UNKNOWN
+                )
+                abnormal_region_id = None
+                abnormal_distance = None
+            rows.append(
+                ActionTransitionFeatures.create(
+                    policy_step=context.policy_step,
+                    monitor_contract_sha256=self.monitor_contract_sha256,
+                    tracker_version=self.tracker_version,
+                    rule_id=rule.rule_id,
+                    object_id=rule.object_id,
+                    source_region=rule.source_region,
+                    destination_region=rule.destination_region,
+                    gripper_qpos=gripper,
+                    contact_count=self._view.contact_count_reader(rule.object_id),
+                    holding=self._view.holding_reader(rule.object_id),
+                    source_region_truth=(
+                        self._view.region_truth_reader(rule.object_id, rule.source_region)
+                        if rule.source_region is not None
+                        else TruthValue.UNKNOWN
+                    ),
+                    destination_region_truth=(
+                        self._view.region_truth_reader(
+                            rule.object_id, rule.destination_region
+                        )
+                        if rule.destination_region is not None
+                        else TruthValue.UNKNOWN
+                    ),
+                    abnormal_region_truth=abnormal_truth,
+                    source_region_distance=(
+                        self._view.region_distance_reader(
+                            rule.object_id, rule.source_region
+                        )
+                        if rule.source_region is not None
+                        else None
+                    ),
+                    destination_region_distance=(
+                        self._view.region_distance_reader(
+                            rule.object_id, rule.destination_region
+                        )
+                        if rule.destination_region is not None
+                        else None
+                    ),
+                    abnormal_region_id=abnormal_region_id,
+                    abnormal_region_distance=abnormal_distance,
+                    object_eef_motion_correlation=correlations[rule.object_id],
+                )
+            )
+        self._previous_object_positions = {
+            object_id: position
+            for object_id, position in object_positions.items()
+            if position is not None
+        }
+        self._previous_eef_position = current_eef
+        self._previous_policy_step = context.policy_step
+        return tuple(rows)
+
+
+def build_libero_transition_feature_reader(
+    env: Any,
+    binding: TaskBinding,
+    monitor_contract: MonitorEvidenceContract,
+) -> _LiberoTransitionFeatureReader:
+    if binding.task_id != monitor_contract.task_id:
+        raise ValueError("transition reader binding/monitor task mismatch")
+    registered = frozenset(binding.registered_objects)
+    required = set(monitor_contract.object_ids) | set(
+        monitor_contract.abnormal_support_surfaces
+    )
+    for rule in monitor_contract.action_event_rules:
+        required.update(
+            value
+            for value in (rule.source_region, rule.destination_region)
+            if value is not None
+        )
+    missing = required - registered
+    if missing:
+        raise ValueError(
+            "transition reader contract uses unregistered IDs: "
+            + ", ".join(sorted(missing))
+        )
+    return _LiberoTransitionFeatureReader(
+        _build_read_only_transition_view(env, binding), monitor_contract
+    )
+
+
 class LiberoObservationStore:
     """Thread-safe latest synchronous simulator observation and physical epoch."""
 
@@ -133,9 +487,24 @@ class LiberoObservationStore:
         if epoch_id < 0:
             raise ValueError("epoch_id must be nonnegative")
         self._lock = threading.RLock()
-        self._observation = dict(observation)
+        self._observation = self._freeze(observation)
         self._epoch_id = epoch_id
         self._updated_at = time.monotonic()
+
+    @staticmethod
+    def _freeze(observation: Mapping[str, Any]) -> dict[str, Any]:
+        frozen: dict[str, Any] = {}
+        for key, value in observation.items():
+            if isinstance(value, np.ndarray):
+                array = np.array(value, copy=True)
+                array.setflags(write=False)
+                frozen[key] = array
+            else:
+                frozen[key] = copy.deepcopy(value)
+        return frozen
+
+    def _read_locked(self) -> tuple[int, dict[str, Any], float]:
+        return self._epoch_id, self._freeze(self._observation), self._updated_at
 
     @property
     def epoch_id(self) -> int:
@@ -149,14 +518,31 @@ class LiberoObservationStore:
 
     def read(self) -> tuple[int, dict[str, Any], float]:
         with self._lock:
-            return self._epoch_id, dict(self._observation), self._updated_at
+            return self._read_locked()
+
+    @contextmanager
+    def capture(self) -> Iterator[tuple[int, dict[str, Any], float]]:
+        with self._lock:
+            yield self._read_locked()
 
     def update(self, observation: Mapping[str, Any]) -> int:
         with self._lock:
-            self._observation = dict(observation)
+            self._observation = self._freeze(observation)
             self._epoch_id += 1
             self._updated_at = time.monotonic()
             return self._epoch_id
+
+    def advance(self, step: Callable[[], tuple[Any, ...]]) -> tuple[Any, ...]:
+        """Run one synchronous simulator step and publish its observation atomically."""
+
+        with self._lock:
+            result = step()
+            if not isinstance(result, tuple) or not result:
+                raise ValueError("synchronous simulator step returned no observation")
+            self._observation = self._freeze(result[0])
+            self._epoch_id += 1
+            self._updated_at = time.monotonic()
+            return result
 
 
 class GroundingError(RuntimeError):
@@ -461,15 +847,45 @@ class LiberoOracleGrounder:
             return self._accessible(*fact.arguments)
         return TruthValue.UNKNOWN
 
-    def _snapshot(self, required: FrozenSet[Fact]) -> FactSnapshot:
-        epoch_id, observation, _ = self.store.read()
+    def _snapshot(
+        self,
+        required: FrozenSet[Fact],
+        *,
+        expected_epoch: int | None = None,
+        advisory_partial: bool = False,
+    ) -> FactSnapshot:
+        unregistered = required - self.monitored_facts
+        if unregistered:
+            raise GroundingError(
+                "required facts are outside the registered fact universe: "
+                + ", ".join(fact.pddl() for fact in sorted(unregistered))
+            )
+        with self.store.capture() as (epoch_id, observation, _):
+            if expected_epoch is not None and epoch_id != expected_epoch:
+                raise GroundingError("context/epoch mismatch")
+            snapshot = self._snapshot_at(
+                required, epoch_id, observation, advisory_partial=advisory_partial
+            )
+            if self.store.epoch_id != epoch_id:
+                raise GroundingError("fact snapshot epoch changed during capture")
+            return snapshot
+
+    def _snapshot_at(
+        self,
+        required: FrozenSet[Fact],
+        epoch_id: int,
+        observation: Mapping[str, Any],
+        *,
+        advisory_partial: bool = False,
+    ) -> FactSnapshot:
         values: dict[Fact, TruthValue] = {}
-        for fact in sorted(self.monitored_facts | required):
+        for fact in sorted(self.monitored_facts, key=fact_pddl_sort_key):
             if fact.predicate != "handempty":
                 values[fact] = self._truth(fact)
 
         holding_facts = sorted(
-            fact for fact in self.monitored_facts | required if fact.predicate == "holding"
+            (fact for fact in self.monitored_facts if fact.predicate == "holding"),
+            key=fact_pddl_sort_key,
         )
         dominance_overrides: list[tuple[str, str, str]] = []
         for holding_fact in holding_facts:
@@ -496,6 +912,11 @@ class LiberoOracleGrounder:
 
         true_facts = frozenset(fact for fact, value in values.items() if value is TruthValue.TRUE)
         false_facts = frozenset(fact for fact, value in values.items() if value is TruthValue.FALSE)
+
+        def exactly_one(candidates: set[Fact]) -> bool:
+            confirmed = candidates & true_facts
+            return len(confirmed) == 1 or (advisory_partial and not confirmed)
+
         movable = {fact.arguments[0] for fact in holding_facts}
         for object_name in movable:
             candidates = {
@@ -505,7 +926,8 @@ class LiberoOracleGrounder:
                 or (fact.predicate == "at" and fact.arguments[0] == object_name)
             }
             confirmed = candidates & true_facts
-            if len(confirmed) != 1:
+            valid = len(confirmed) <= 1 if advisory_partial else len(confirmed) == 1
+            if not valid:
                 raise GroundingError(
                     f"exactly-one violation for {object_name}: "
                     f"confirmed={sorted(map(str, confirmed))}"
@@ -524,21 +946,40 @@ class LiberoOracleGrounder:
                     Fact(positive_name, (name,)),
                     Fact(negative_name, (name,)),
                 }
-                if len(pair & true_facts) != 1:
+                if not exactly_one(pair):
                     raise GroundingError(
                         f"exactly-one {predicate} violation for {name}"
                     )
 
+        fact_universe = frozenset(values)
+        fact_universe_version = (
+            f"logiv-libero-grounding-v1/task-{self.binding.task_id}"
+        )
         evidence_payload = {
             "epoch_id": epoch_id,
-            "observation_hash": _observation_hash(observation, epoch_id),
-            "values": [(fact.pddl(), values[fact].value) for fact in sorted(values)],
-            "dominance_overrides": dominance_overrides,
+            "observation_hash": _observation_hash(observation),
+            "values": [
+                (fact.pddl(), values[fact].value)
+                for fact in sorted(values, key=fact_pddl_sort_key)
+            ],
+            "dominance_overrides": sorted(dominance_overrides),
         }
-        evidence_hash = hashlib.sha256(
-            json.dumps(evidence_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        ).hexdigest()
-        return FactSnapshot(epoch_id, true_facts, false_facts, evidence_hash)
+        evidence_payload_json = json.dumps(
+            evidence_payload, sort_keys=True, separators=(",", ":")
+        )
+        evidence_hash = hashlib.sha256(evidence_payload_json.encode("utf-8")).hexdigest()
+        return FactSnapshot(
+            epoch_id=epoch_id,
+            true_facts=true_facts,
+            false_facts=false_facts,
+            evidence_hash=evidence_hash,
+            fact_universe=fact_universe,
+            fact_universe_version=fact_universe_version,
+            fact_universe_sha256=fact_universe_sha256(
+                fact_universe_version, fact_universe
+            ),
+            evidence_payload_json=evidence_payload_json,
+        )
 
     def ground(
         self,
@@ -552,11 +993,13 @@ class LiberoOracleGrounder:
             if phase is ContextPhase.POST_STOP_FACTS
             else GroundingStatus.STATE_GROUNDING_FAILURE
         )
-        if phase is not context.phase or context.epoch_id != self.store.epoch_id:
+        if phase is not context.phase:
             return GroundingResponse(status=status, context=context, reason="context/epoch mismatch")
         try:
-            snapshot = self._snapshot(required_facts)
-        except GroundingError as error:
+            snapshot = self._snapshot(
+                required_facts, expected_epoch=context.epoch_id
+            )
+        except (GroundingError, TypeError, ValueError) as error:
             return GroundingResponse(status=status, context=context, reason=str(error))
         unknown = snapshot.unknown(required_facts)
         if unknown:
@@ -569,6 +1012,11 @@ class LiberoOracleGrounder:
 
     def peek_snapshot(self) -> FactSnapshot:
         return self._snapshot(frozenset())
+
+    def peek_advisory_partial_snapshot(self) -> FactSnapshot:
+        """Read a topology-only partial snapshot without authorizing control."""
+
+        return self._snapshot(frozenset(), advisory_partial=True)
 
     def effects_satisfied(self, action: GroundAction) -> bool:
         return self.observe_action_progress(action)[0]
@@ -1071,10 +1519,11 @@ class Pi05MacroExecutor:
                 if not self.safety.validate_action(low_level_action):
                     raise EpisodeInvalid("queued policy action failed safety recheck")
                 self._last_gripper_command = float(low_level_action[-1])
-                post_observation, _, done, _ = self.env.step(low_level_action.tolist())
+                _, _, done, _ = self.store.advance(
+                    lambda: self.env.step(low_level_action.tolist())
+                )
                 actions.append(low_level_action.copy())
                 self.total_action_steps += 1
-                self.store.update(post_observation)
                 if self.stop_on_effects:
                     effects_satisfied, primary_satisfied, target_diverged = (
                         self.grounder.observe_action_progress_details(
@@ -1248,8 +1697,7 @@ class Pi05MacroExecutor:
                 )
                 hold[-1] = -1.0 if release_completion else self._last_gripper_command
                 for _ in range(self.settling_steps):
-                    observation, _, _, _ = self.env.step(hold.tolist())
-                    self.store.update(observation)
+                    self.store.advance(lambda: self.env.step(hold.tolist()))
             except Exception as error:
                 status = ExecutorStatus.SETTLING_TIMEOUT
                 reason = f"settling failed: {error}"

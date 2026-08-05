@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import hashlib
 import json
 from pathlib import Path
+import threading
 from types import SimpleNamespace
 
 import numpy as np
@@ -16,6 +18,8 @@ from pi05_libero_repro.logiv.controller import (
 )
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.libero_adapter import (
+    build_libero_transition_feature_reader,
+    GroundingError,
     LiberoOracleGrounder,
     LiberoObservationStore,
     Pi05MacroExecutor,
@@ -28,9 +32,12 @@ from pi05_libero_repro.logiv.model import (
     ContextPhase,
     Fact,
     GoalMode,
+    TruthValue,
 )
 from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
+from pi05_libero_repro.logiv.shadow_monitor import load_monitor_evidence_contract
+from pi05_libero_repro.protocol import ShadowStepContext
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -145,6 +152,37 @@ def _grounder(env: FakeEnv):
     facts = monitored_fact_universe(package.problem)
     grounder = LiberoOracleGrounder(env, store, binding, facts)
     return package, store, grounder
+
+
+def _audited_grounder():
+    env = FakeEnv()
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_right_init_region"): True,
+            ("on", "moka_pot_1", "kitchen_table_moka_pot_left_init_region"): False,
+            ("on", "moka_pot_1", "flat_stove_1_cook_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", "flat_stove_1_cook_region"): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+    package, binding = _task8()
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+    unknown = Fact("unregistered-state", ("moka_pot_1",))
+    grounder = LiberoOracleGrounder(
+        env,
+        store,
+        binding,
+        monitored_fact_universe(package.problem) | {unknown},
+    )
+    return env, store, grounder, unknown
+
+
+def _rehash_evidence_payload(payload: dict) -> tuple[str, str]:
+    payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return payload_json, hashlib.sha256(payload_json.encode("utf-8")).hexdigest()
 
 
 def test_task_binding_accepts_a_task_scoped_extended_manifest(tmp_path: Path) -> None:
@@ -275,6 +313,184 @@ def test_oracle_grounder_maps_relations_holding_and_exactly_one_location() -> No
     assert Fact("handempty") in response.snapshot.false_facts
 
 
+def test_oracle_grounder_emits_a_complete_audited_true_false_unknown_partition() -> None:
+    _, _, grounder, unknown = _audited_grounder()
+
+    snapshot = grounder.peek_snapshot()
+
+    assert snapshot.fact_universe is not None
+    assert snapshot.fact_universe_version is not None
+    assert snapshot.fact_universe_sha256 is not None
+    assert snapshot.evidence_payload_json is not None
+    assert snapshot.fact_universe == (
+        snapshot.true_facts | snapshot.false_facts | snapshot.unknown(snapshot.fact_universe)
+    )
+    assert unknown in snapshot.unknown(snapshot.fact_universe)
+    payload = json.loads(snapshot.evidence_payload_json)
+    assert {value for _, value in payload["values"]} == {"TRUE", "FALSE", "UNKNOWN"}
+
+
+def test_epoch_and_observation_noise_change_evidence_but_not_fact_universe() -> None:
+    _, store, grounder, _ = _audited_grounder()
+    first = grounder.peek_snapshot()
+    noisy = dict(store.read()[1])
+    noisy["agentview_image"] = noisy["agentview_image"].copy()
+    noisy["agentview_image"][0, 0, 0] = 255
+    store.update(noisy)
+
+    second = grounder.peek_snapshot()
+
+    assert second.epoch_id == first.epoch_id + 1
+    assert second.fact_universe == first.fact_universe
+    assert second.fact_universe_version == first.fact_universe_version
+    assert second.fact_universe_sha256 == first.fact_universe_sha256
+    assert second.evidence_hash != first.evidence_hash
+    assert second.evidence_payload_json != first.evidence_payload_json
+
+
+def test_observation_store_owns_immutable_array_copies() -> None:
+    observation = dict(FakeEnv().obs)
+    original_pixel = int(observation["agentview_image"][0, 0, 0])
+    store = LiberoObservationStore(observation, epoch_id=4)
+
+    observation["agentview_image"][0, 0, 0] = original_pixel + 1
+    _, stored, _ = store.read()
+
+    assert int(stored["agentview_image"][0, 0, 0]) == original_pixel
+    assert stored["agentview_image"].flags.writeable is False
+    with pytest.raises(ValueError, match="read-only|writeable|assignment"):
+        stored["agentview_image"][0, 0, 0] = original_pixel + 2
+
+
+def test_observation_store_reads_cannot_mutate_owned_arrays() -> None:
+    observation = dict(FakeEnv().obs)
+    original_pixel = int(observation["agentview_image"][0, 0, 0])
+    store = LiberoObservationStore(observation, epoch_id=4)
+
+    read_epoch, returned, _ = store.read()
+    returned["agentview_image"].setflags(write=True)
+    returned["agentview_image"][0, 0, 0] = original_pixel + 1
+    later_epoch, later, _ = store.read()
+
+    assert read_epoch == later_epoch == 4
+    assert int(later["agentview_image"][0, 0, 0]) == original_pixel
+
+
+def test_snapshot_and_synchronous_simulator_advance_cannot_mix_epochs() -> None:
+    env = FakeEnv()
+    source = "kitchen_table_moka_pot_right_init_region"
+    env.env.relations[("on", "moka_pot_1", source)] = True
+    _, binding = _task8()
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+    monitored = frozenset(
+        {
+            Fact("at", ("moka_pot_1", source)),
+            Fact("holding", ("moka_pot_1",)),
+            Fact("handempty"),
+        }
+    )
+    grounder = LiberoOracleGrounder(env, store, binding, monitored)
+    original_truth = grounder._truth
+    grounding_started = threading.Event()
+    release_grounding = threading.Event()
+    first_call = True
+
+    def blocking_truth(fact):
+        nonlocal first_call
+        if first_call:
+            first_call = False
+            grounding_started.set()
+            assert release_grounding.wait(1.0)
+        return original_truth(fact)
+
+    grounder._truth = blocking_truth
+    captured: list = []
+    grounding_thread = threading.Thread(target=lambda: captured.append(grounder.peek_snapshot()))
+    grounding_thread.start()
+    assert grounding_started.wait(1.0)
+
+    advance_finished = threading.Event()
+
+    def advance() -> None:
+        def step():
+            env.env.held.add("moka_pot_1")
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            observation = dict(env.obs)
+            observation["robot0_eef_pos"] = np.array([0.4, 0.0, 0.5])
+            return observation, 0.0, False, {}
+
+        store.advance(step)
+        advance_finished.set()
+
+    advance_thread = threading.Thread(target=advance)
+    advance_thread.start()
+    assert advance_finished.wait(0.05) is False
+    release_grounding.set()
+    grounding_thread.join(1.0)
+    advance_thread.join(1.0)
+
+    assert advance_finished.is_set()
+    assert captured[0].epoch_id == 4
+    assert Fact("at", ("moka_pot_1", source)) in captured[0].true_facts
+    assert Fact("holding", ("moka_pot_1",)) in captured[0].false_facts
+    current = grounder.peek_snapshot()
+    assert current.epoch_id == 5
+    assert Fact("holding", ("moka_pot_1",)) in current.true_facts
+
+
+def test_required_facts_cannot_expand_the_frozen_registered_universe() -> None:
+    _, _, grounder, _ = _audited_grounder()
+    unregistered = Fact("never-registered", ("moka_pot_1",))
+
+    with pytest.raises(GroundingError, match="registered|universe"):
+        grounder._snapshot(frozenset({unregistered}))
+
+
+def test_audited_snapshot_rejects_tampered_missing_duplicate_or_conflicting_evidence() -> None:
+    _, _, grounder, _ = _audited_grounder()
+    snapshot = grounder.peek_snapshot()
+    assert snapshot.evidence_payload_json is not None
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["epoch_id"] += 1
+    with pytest.raises(ValueError, match="evidence|epoch|hash"):
+        replace(snapshot, evidence_payload_json=_rehash_evidence_payload(payload)[0])
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].pop()
+    missing_json, missing_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="universe|partition|missing"):
+        replace(
+            snapshot,
+            evidence_payload_json=missing_json,
+            evidence_hash=missing_hash,
+        )
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].append(payload["values"][0])
+    duplicate_json, duplicate_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="duplicate|partition"):
+        replace(
+            snapshot,
+            evidence_payload_json=duplicate_json,
+            evidence_hash=duplicate_hash,
+        )
+
+    payload = json.loads(snapshot.evidence_payload_json)
+    payload["values"].reverse()
+    reordered_json, reordered_hash = _rehash_evidence_payload(payload)
+    with pytest.raises(ValueError, match="canonical|sorted"):
+        replace(
+            snapshot,
+            evidence_payload_json=reordered_json,
+            evidence_hash=reordered_hash,
+        )
+
+    known = next(iter(snapshot.true_facts))
+    with pytest.raises(ValueError, match="TRUE and FALSE|conflict"):
+        replace(snapshot, false_facts=snapshot.false_facts | {known})
+
+
 def test_reliable_holding_overrides_stale_on_relation_before_exactly_one_lint() -> None:
     env = FakeEnv()
     source = "kitchen_table_moka_pot_left_init_region"
@@ -305,6 +521,9 @@ def test_reliable_holding_overrides_stale_on_relation_before_exactly_one_lint() 
     assert response.snapshot is not None
     assert Fact("holding", ("moka_pot_2",)) in response.snapshot.true_facts
     assert Fact("at", ("moka_pot_2", source)) in response.snapshot.false_facts
+    assert response.snapshot.raw_truth(
+        Fact("at", ("moka_pot_2", source))
+    ) is TruthValue.TRUE
     assert Fact("handempty") in response.snapshot.false_facts
 
 
@@ -331,6 +550,144 @@ def test_conflicting_locations_fail_closed() -> None:
     )
     assert response.status is GroundingStatus.STATE_GROUNDING_FAILURE
     assert "exactly-one" in response.reason
+
+
+@pytest.mark.parametrize("partial_group", ("movable", "access", "switch"))
+def test_advisory_partial_snapshot_preserves_unknown_exactly_one_evidence(
+    partial_group: str,
+) -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    other_locations = {
+        Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_left_init_region")),
+        Fact("at", ("moka_pot_1", "flat_stove_1_cook_region")),
+    }
+    holding = Fact("holding", ("moka_pot_1",))
+    open_fact = Fact("open", ("drawer_access",))
+    closed_fact = Fact("closed", ("drawer_access",))
+    on_fact = Fact("powered-on", ("stove_power",))
+    off_fact = Fact("powered-off", ("stove_power",))
+    facts = frozenset(
+        {source, *other_locations, holding, open_fact, closed_fact, on_fact, off_fact}
+    )
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    values = {fact: TruthValue.FALSE for fact in facts}
+    values[source] = TruthValue.TRUE
+    values[open_fact] = TruthValue.TRUE
+    values[on_fact] = TruthValue.TRUE
+    if partial_group == "movable":
+        values[source] = TruthValue.UNKNOWN
+    elif partial_group == "access":
+        values[open_fact] = TruthValue.UNKNOWN
+    else:
+        values[on_fact] = TruthValue.UNKNOWN
+    grounder._truth = lambda fact: values[fact]
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+    strict = grounder.ground(
+        ContextPhase.PRE_DISPATCH_FACTS, _context(), facts
+    )
+    assert strict.status is GroundingStatus.STATE_GROUNDING_FAILURE
+    assert "exactly-one" in strict.reason
+    advisory = getattr(grounder, "peek_advisory_partial_snapshot", None)
+    assert advisory is not None
+    snapshot = advisory()
+    expected = {
+        "movable": source,
+        "access": open_fact,
+        "switch": on_fact,
+    }[partial_group]
+    assert expected in snapshot.unknown(snapshot.fact_universe)
+    assert "UNKNOWN" in snapshot.evidence_payload_json
+
+
+def test_advisory_partial_snapshot_rejects_conflicting_locations() -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    other = Fact("at", ("moka_pot_1", "flat_stove_1_cook_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    facts = frozenset({source, other, holding})
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    values = {
+        "source": TruthValue.TRUE,
+        "other": TruthValue.TRUE,
+        "holding": TruthValue.FALSE,
+    }
+    grounder._truth = lambda fact: values[
+        "source" if fact == source else "other" if fact == other else "holding"
+    ]
+
+    advisory = getattr(grounder, "peek_advisory_partial_snapshot", None)
+    assert advisory is not None
+    with pytest.raises(GroundingError, match="exactly-one"):
+        advisory()
+
+
+def test_advisory_partial_snapshot_preserves_all_false_unlocated_transport() -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    target = Fact("at", ("moka_pot_1", "flat_stove_1_cook_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    facts = frozenset({source, target, holding})
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    grounder._truth = lambda fact: TruthValue.FALSE
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+
+    snapshot = grounder.peek_advisory_partial_snapshot()
+
+    assert snapshot.true_facts == frozenset({Fact("handempty")})
+    assert facts <= snapshot.false_facts
+
+
+@pytest.mark.parametrize("partial_group", ("access", "switch"))
+def test_advisory_partial_snapshot_preserves_all_false_binary_transition(
+    partial_group: str,
+) -> None:
+    env = FakeEnv()
+    _, binding = _task8()
+    source = Fact("at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region"))
+    holding = Fact("holding", ("moka_pot_1",))
+    open_fact = Fact("open", ("drawer_access",))
+    closed_fact = Fact("closed", ("drawer_access",))
+    on_fact = Fact("powered-on", ("stove_power",))
+    off_fact = Fact("powered-off", ("stove_power",))
+    facts = frozenset(
+        {source, holding, open_fact, closed_fact, on_fact, off_fact}
+    )
+    grounder = LiberoOracleGrounder(
+        env, LiberoObservationStore(dict(env.obs), epoch_id=4), binding, facts
+    )
+    values = {fact: TruthValue.FALSE for fact in facts}
+    values[source] = TruthValue.TRUE
+    if partial_group != "access":
+        values[open_fact] = TruthValue.TRUE
+    if partial_group != "switch":
+        values[on_fact] = TruthValue.TRUE
+    grounder._truth = lambda fact: values[fact]
+
+    with pytest.raises(GroundingError, match="exactly-one"):
+        grounder.peek_snapshot()
+
+    snapshot = grounder.peek_advisory_partial_snapshot()
+
+    pair = (
+        {open_fact, closed_fact}
+        if partial_group == "access"
+        else {on_fact, off_fact}
+    )
+    assert pair <= snapshot.false_facts
 
 
 def test_oracle_grounder_recovers_object_on_registered_table_surface() -> None:
@@ -2528,3 +2885,215 @@ def test_v51_keeps_task9_downstream_context_without_skipping_gates() -> None:
 
     assert renderer.render_phase(place, "acquire") == task_prompt
     assert renderer.render(close) == task_prompt
+
+
+class _ReadOnlyTransitionInner:
+    def __init__(self) -> None:
+        self.holding: dict[str, bool | None] = {}
+        self.contacts: dict[str, int | None] = {}
+        self.region_truth: dict[tuple[str, str], bool | None] = {}
+        self.region_distance: dict[tuple[str, str], float | None] = {}
+        self.object_positions: dict[str, np.ndarray | None] = {}
+
+    def _eval_predicate(self, state):
+        object_id, region = str(state[1]), str(state[2])
+        value = self.region_truth.get((object_id, region))
+        if value is None:
+            raise KeyError((object_id, region))
+        return value
+
+    def read_logiv_holding(self, object_id: str):
+        return self.holding.get(object_id)
+
+    def read_logiv_contact_count(self, object_id: str):
+        return self.contacts.get(object_id)
+
+    def read_logiv_region_truth(self, object_id: str, region: str):
+        return self.region_truth.get((object_id, region))
+
+    def read_logiv_region_distance(self, object_id: str, region: str):
+        return self.region_distance.get((object_id, region))
+
+    def read_logiv_object_position(self, object_id: str):
+        value = self.object_positions.get(object_id)
+        return None if value is None else np.array(value, copy=True)
+
+
+class _MutationTrapTransitionEnv:
+    def __init__(self) -> None:
+        self.env = _ReadOnlyTransitionInner()
+        self.step_calls = 0
+        self.reset_calls = 0
+        self.set_state_calls = 0
+
+    def step(self, action):
+        del action
+        self.step_calls += 1
+        raise AssertionError("transition reader must not step")
+
+    def reset(self):
+        self.reset_calls += 1
+        raise AssertionError("transition reader must not reset")
+
+    def set_state(self, state):
+        del state
+        self.set_state_calls += 1
+        raise AssertionError("transition reader must not mutate simulator state")
+
+
+def _transition_context(
+    step: int,
+    *,
+    gripper: float | None = 0.02,
+    eef_x: float = 0.0,
+    pixel: int = 0,
+) -> ShadowStepContext:
+    observation = {
+        "agentview_image": np.full((2, 2, 3), pixel, dtype=np.uint8),
+        "robot0_eye_in_hand_image": np.zeros((2, 2, 3), dtype=np.uint8),
+        "robot0_eef_pos": np.array([eef_x, 0.0, 0.5]),
+        "robot0_eef_quat": np.array([0.0, 0.0, 0.0, 1.0]),
+    }
+    if gripper is not None:
+        observation["robot0_gripper_qpos"] = np.array([gripper])
+    return ShadowStepContext(
+        observation=observation,
+        last_action=None if step == 0 else np.zeros(7),
+        policy_step=step,
+        base_policy_request_count=1,
+        active_base_request_index=0,
+        next_base_request_index=1,
+        active_base_request_envelope_json=None,
+        next_base_replay_envelope_json=None,
+        base_action_response_size=1,
+        base_action_chunk_size=1,
+        pending_base_action_offset=0,
+        pending_base_actions=np.empty((0, 7)),
+        base_action_prefix_sha256="1" * 64,
+    )
+
+
+def _transition_reader_fixture():
+    env = _MutationTrapTransitionEnv()
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage.json", 5
+    )
+    contract = load_monitor_evidence_contract(
+        ROOT / "configs/logiv/r2m-monitor-evidence-v1.json", task_id=5
+    )
+    for rule in contract.action_event_rules:
+        env.env.holding[rule.object_id] = False
+        env.env.contacts[rule.object_id] = 0
+        env.env.object_positions[rule.object_id] = np.array([0.0, 0.0, 0.0])
+        for region in (
+            rule.source_region,
+            rule.destination_region,
+            *contract.abnormal_support_surfaces,
+        ):
+            if region is None:
+                continue
+            env.env.region_truth[(rule.object_id, region)] = False
+            env.env.region_distance[(rule.object_id, region)] = 1.0
+    reader = build_libero_transition_feature_reader(env, binding, contract)
+    return env, contract, reader
+
+
+def test_transition_feature_reader_is_read_only_version_bound_and_complete() -> None:
+    env, contract, reader = _transition_reader_fixture()
+    rows = reader(_transition_context(0))
+
+    assert reader.monitor_contract_sha256 == contract.contract_sha256
+    assert reader.tracker_version == contract.tracker_version
+    assert reader.rule_ids == tuple(rule.rule_id for rule in contract.action_event_rules)
+    assert tuple(item.rule_id for item in rows) == reader.rule_ids
+    assert all(item.policy_step == 0 for item in rows)
+    assert all(item.gripper_qpos == 0.02 for item in rows)
+    assert all(item.transition_sha256 for item in rows)
+    assert "env" not in vars(reader)
+    assert (env.step_calls, env.reset_calls, env.set_state_calls) == (0, 0, 0)
+
+
+def test_transition_hash_ignores_pixels_but_binds_registered_values() -> None:
+    _, _, first = _transition_reader_fixture()
+    _, _, noisy = _transition_reader_fixture()
+    _, _, changed = _transition_reader_fixture()
+
+    first_hashes = tuple(
+        item.transition_sha256 for item in first(_transition_context(0, pixel=0))
+    )
+    noisy_hashes = tuple(
+        item.transition_sha256 for item in noisy(_transition_context(0, pixel=255))
+    )
+    changed_hashes = tuple(
+        item.transition_sha256
+        for item in changed(_transition_context(0, gripper=-0.02, pixel=0))
+    )
+    assert first_hashes == noisy_hashes
+    assert first_hashes != changed_hashes
+
+
+def test_transition_reader_missing_keys_return_null_unknown_without_mutation() -> None:
+    env, _, reader = _transition_reader_fixture()
+    env.env.holding.clear()
+    env.env.contacts.clear()
+    env.env.object_positions.clear()
+    env.env.region_truth.clear()
+    env.env.region_distance.clear()
+
+    rows = reader(_transition_context(0, gripper=None))
+    assert rows
+    assert all(item.gripper_qpos is None for item in rows)
+    assert all(item.contact_count is None for item in rows)
+    assert all(item.holding is TruthValue.UNKNOWN for item in rows)
+    assert all(item.source_region_truth is TruthValue.UNKNOWN for item in rows)
+    assert all(item.destination_region_truth is TruthValue.UNKNOWN for item in rows)
+    assert (env.step_calls, env.reset_calls, env.set_state_calls) == (0, 0, 0)
+
+
+def test_transition_reader_computes_registered_motion_correlation_after_step_zero() -> None:
+    env, _, reader = _transition_reader_fixture()
+    reader(_transition_context(0, eef_x=0.0))
+    for object_id in env.env.object_positions:
+        env.env.object_positions[object_id] = np.array([0.2, 0.0, 0.0])
+    rows = reader(_transition_context(1, eef_x=0.2))
+    assert all(item.object_eef_motion_correlation == pytest.approx(1.0) for item in rows)
+
+
+def test_transition_reader_grounds_support_alias_from_read_only_workspace_geometry() -> None:
+    class GeometryInner:
+        workspace_offset = np.array([0.0, 0.0, 0.8])
+        table_full_size = np.array([1.0, 1.0, 0.1])
+        obj_body_id = {"black_book_1": 0}
+        sim = SimpleNamespace(
+            data=SimpleNamespace(
+                body_xpos=np.array([[0.0, 0.0, 0.85]]),
+                get_site_xpos=lambda name: (_ for _ in ()).throw(KeyError(name)),
+            )
+        )
+        objects_dict = {"black_book_1": FakeObject("black_book_1")}
+        robots = [FakeRobot()]
+
+        def _eval_predicate(self, state):
+            raise KeyError(tuple(state))
+
+        def _check_grasp(self, gripper, geoms):
+            del gripper, geoms
+            return False
+
+        def get_object(self, object_id):
+            return self.objects_dict[object_id]
+
+    env = SimpleNamespace(env=GeometryInner())
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage.json", 5
+    )
+    contract = load_monitor_evidence_contract(
+        ROOT / "configs/logiv/r2m-monitor-evidence-v1.json", task_id=5
+    )
+    rows = build_libero_transition_feature_reader(env, binding, contract)(
+        _transition_context(0)
+    )
+
+    assert all(item.abnormal_region_truth is TruthValue.TRUE for item in rows)
+    assert all(item.abnormal_region_id == "study_table_recovery_surface" for item in rows)
+    assert all(item.abnormal_region_distance == pytest.approx(0.0) for item in rows)

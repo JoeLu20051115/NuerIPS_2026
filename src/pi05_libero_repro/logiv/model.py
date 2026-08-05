@@ -2,11 +2,50 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+import hashlib
+import json
 import re
 from typing import AbstractSet, FrozenSet, Tuple
 
 
 _SYMBOL = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
+_SHA256 = re.compile(r"^[0-9a-f]{64}$")
+
+
+def _canonical_json(value: object) -> str:
+    return json.dumps(
+        value,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+
+
+def parse_pddl_fact(value: str) -> Fact:
+    if not isinstance(value, str) or not value.startswith("(") or not value.endswith(")"):
+        raise ValueError(f"non-canonical PDDL fact: {value!r}")
+    tokens = value[1:-1].split()
+    if not tokens:
+        raise ValueError(f"non-canonical PDDL fact: {value!r}")
+    fact = Fact(tokens[0], tuple(tokens[1:]))
+    if fact.pddl() != value:
+        raise ValueError(f"non-canonical PDDL fact: {value!r}")
+    return fact
+
+
+def fact_pddl_sort_key(fact: Fact) -> str:
+    return fact.pddl()
+
+
+def fact_universe_sha256(version: str, facts: FrozenSet[Fact]) -> str:
+    payload = {
+        "facts": [fact.pddl() for fact in sorted(facts, key=fact_pddl_sort_key)],
+        "version": version,
+    }
+    return hashlib.sha256(
+        b"LOGIV_FACT_UNIVERSE_V1\0" + _canonical_json(payload).encode("utf-8")
+    ).hexdigest()
 
 
 @dataclass(frozen=True, order=True)
@@ -109,12 +148,136 @@ class FactSnapshot:
     true_facts: FrozenSet[Fact]
     false_facts: FrozenSet[Fact]
     evidence_hash: str
+    fact_universe: FrozenSet[Fact] | None = None
+    fact_universe_version: str | None = None
+    fact_universe_sha256: str | None = None
+    evidence_payload_json: str | None = None
 
     def __post_init__(self) -> None:
         conflict = self.true_facts & self.false_facts
         if conflict:
             rendered = ", ".join(str(fact) for fact in sorted(conflict))
             raise ValueError(f"facts cannot be both TRUE and FALSE: {rendered}")
+        audit_fields = (
+            self.fact_universe,
+            self.fact_universe_version,
+            self.fact_universe_sha256,
+            self.evidence_payload_json,
+        )
+        if all(value is None for value in audit_fields):
+            return
+        if any(value is None for value in audit_fields):
+            raise ValueError("FactSnapshot audit fields must be all present or all null")
+        if self.epoch_id < 0:
+            raise ValueError("audited fact epoch must be nonnegative")
+        if not isinstance(self.true_facts, frozenset) or not isinstance(
+            self.false_facts, frozenset
+        ):
+            raise ValueError("audited fact partitions must be frozensets")
+        universe = self.fact_universe
+        if not isinstance(universe, frozenset) or not all(
+            isinstance(fact, Fact) for fact in universe
+        ):
+            raise ValueError("audited fact universe must be a frozenset of canonical facts")
+        if not all(isinstance(fact, Fact) for fact in self.true_facts | self.false_facts):
+            raise ValueError("audited fact partitions contain a non-canonical fact")
+        known = self.true_facts | self.false_facts
+        if not known <= universe:
+            raise ValueError("known fact partition contains members outside the fact universe")
+        version = self.fact_universe_version
+        if not isinstance(version, str) or not version:
+            raise ValueError("fact universe version must be nonempty")
+        expected_universe_hash = fact_universe_sha256(version, universe)
+        if self.fact_universe_sha256 != expected_universe_hash:
+            raise ValueError("fact universe hash mismatch")
+        if not _SHA256.fullmatch(self.evidence_hash):
+            raise ValueError("audited fact evidence hash must be lowercase SHA-256")
+        payload_json = self.evidence_payload_json
+        if not isinstance(payload_json, str):
+            raise ValueError("fact evidence payload must be canonical JSON")
+        try:
+            payload = json.loads(payload_json)
+        except (TypeError, json.JSONDecodeError) as error:
+            raise ValueError("fact evidence payload is not valid JSON") from error
+        if _canonical_json(payload) != payload_json:
+            raise ValueError("fact evidence payload is not canonical JSON")
+        if hashlib.sha256(payload_json.encode("utf-8")).hexdigest() != self.evidence_hash:
+            raise ValueError("fact evidence payload hash mismatch")
+        expected_keys = {
+            "epoch_id",
+            "observation_hash",
+            "values",
+            "dominance_overrides",
+        }
+        if not isinstance(payload, dict) or set(payload) != expected_keys:
+            raise ValueError("fact evidence payload fields mismatch")
+        if payload["epoch_id"] != self.epoch_id:
+            raise ValueError("fact evidence epoch mismatch")
+        if not isinstance(payload["observation_hash"], str) or not _SHA256.fullmatch(
+            payload["observation_hash"]
+        ):
+            raise ValueError("fact evidence observation hash is invalid")
+        values = payload["values"]
+        if not isinstance(values, list):
+            raise ValueError("fact evidence values must be a complete partition")
+        parsed: dict[Fact, TruthValue] = {}
+        for item in values:
+            if not isinstance(item, list) or len(item) != 2:
+                raise ValueError("fact evidence value record is malformed")
+            fact = parse_pddl_fact(item[0])
+            if fact in parsed:
+                raise ValueError("duplicate fact in evidence partition")
+            try:
+                parsed[fact] = TruthValue(item[1])
+            except (TypeError, ValueError) as error:
+                raise ValueError("fact evidence contains an invalid truth value") from error
+        if values != sorted(values, key=lambda item: item[0]):
+            raise ValueError("fact evidence values are not in canonical sorted order")
+        if frozenset(parsed) != universe:
+            raise ValueError("fact evidence partition does not cover its universe")
+        expected_true = frozenset(
+            fact for fact, value in parsed.items() if value is TruthValue.TRUE
+        )
+        expected_false = frozenset(
+            fact for fact, value in parsed.items() if value is TruthValue.FALSE
+        )
+        if expected_true != self.true_facts or expected_false != self.false_facts:
+            raise ValueError("fact evidence partition conflicts with saved facts")
+        overrides = payload["dominance_overrides"]
+        if not isinstance(overrides, list) or any(
+            not isinstance(item, list)
+            or len(item) != 3
+            or not all(isinstance(value, str) and value for value in item)
+            for item in overrides
+        ):
+            raise ValueError("fact evidence dominance overrides are malformed")
+        seen_overrides: set[tuple[Fact, Fact, str]] = set()
+        for source_text, target_text, kind in overrides:
+            source = parse_pddl_fact(source_text)
+            target = parse_pddl_fact(target_text)
+            if source not in universe or target not in universe:
+                raise ValueError("fact evidence dominance override is outside its universe")
+            if kind != "reliable-holding-over-at":
+                raise ValueError("fact evidence dominance override kind is invalid")
+            if (
+                source.predicate != "holding"
+                or target.predicate != "at"
+                or source.arguments != target.arguments[:1]
+            ):
+                raise ValueError("fact evidence dominance override facts are incompatible")
+            if (
+                parsed[source] is not TruthValue.TRUE
+                or parsed[target] is not TruthValue.FALSE
+            ):
+                raise ValueError(
+                    "fact evidence dominance override requires TRUE source and FALSE target"
+                )
+            override = (source, target, kind)
+            if override in seen_overrides:
+                raise ValueError("duplicate fact evidence dominance override")
+            seen_overrides.add(override)
+        if overrides != sorted(overrides):
+            raise ValueError("fact evidence dominance overrides are not canonical")
 
     def truth(self, fact: Fact) -> TruthValue:
         if fact in self.true_facts:
@@ -122,6 +285,21 @@ class FactSnapshot:
         if fact in self.false_facts:
             return TruthValue.FALSE
         return TruthValue.UNKNOWN
+
+    def raw_truth(self, fact: Fact) -> TruthValue:
+        """Return sensor truth before an audited holding-over-location override."""
+
+        normalized = self.truth(fact)
+        if self.evidence_payload_json is None or normalized is not TruthValue.FALSE:
+            return normalized
+        payload = json.loads(self.evidence_payload_json)
+        fact_text = fact.pddl()
+        if any(
+            target_text == fact_text and kind == "reliable-holding-over-at"
+            for _, target_text, kind in payload["dominance_overrides"]
+        ):
+            return TruthValue.TRUE
+        return normalized
 
     def satisfies(
         self,
