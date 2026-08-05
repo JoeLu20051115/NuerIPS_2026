@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 from typing import Any, Sequence
 
-from pi05_libero_repro.logiv.dag import CausalGraph
+from pi05_libero_repro.logiv.dag import CausalGraph, NodeKind
 from pi05_libero_repro.logiv.domain import DomainError, FixedDomain
 from pi05_libero_repro.logiv.model import (
     ContextPhase,
@@ -28,27 +28,33 @@ from pi05_libero_repro.logiv.val import (
 
 RECOVERY_SEED_DOMAIN = "LOGIV-recovery-policy-seed-v1"
 _SHA256 = re.compile(r"[0-9a-f]{64}")
+_FROZEN_CAPABILITY_BODY = {
+    "schema_version": 1,
+    "capability_id": "task5-held-book-place-v1",
+    "task_id": 5,
+    "event_type": "TERMINAL_GOAL_UNSATISFIED",
+    "prompt_version": "task5-held-book-v1",
+    "prompt": "place the held book in the back compartment of the caddy",
+    "holding_fact": "(holding black_book_1)",
+    "target_fact": "(at black_book_1 desk_caddy_1_back_contain_region)",
+    "action": (
+        "(place-held-in black_book_1 desk_caddy_1_back_contain_region "
+        "desk_caddy_1_access)"
+    ),
+    "active_node_statuses": ["ACTIVE"],
+    "protected_invariants": [
+        "(accessible desk_caddy_1_back_contain_region desk_caddy_1_access)",
+        "(open desk_caddy_1_access)",
+    ],
+    "effect_confirmation_observations": 3,
+    "settling_steps": 10,
+    "max_recovery_actions": 180,
+    "max_combined_actions": 520,
+    "capability_required_successes": 8,
+    "capability_total": 10,
+}
 _CAPABILITY_FIELDS = frozenset(
-    {
-        "schema_version",
-        "capability_id",
-        "task_id",
-        "event_type",
-        "prompt_version",
-        "prompt",
-        "holding_fact",
-        "target_fact",
-        "action",
-        "active_node_statuses",
-        "protected_invariants",
-        "effect_confirmation_observations",
-        "settling_steps",
-        "max_recovery_actions",
-        "max_combined_actions",
-        "capability_required_successes",
-        "capability_total",
-        "capability_sha256",
-    }
+    {*_FROZEN_CAPABILITY_BODY, "capability_sha256"}
 )
 
 
@@ -68,6 +74,22 @@ def _domain_hash(domain: bytes, value: object) -> str:
 
 def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and _SHA256.fullmatch(value) is not None
+
+
+def _strict_audited_snapshot(snapshot: FactSnapshot) -> bool:
+    audit_fields = (
+        snapshot.fact_universe,
+        snapshot.fact_universe_version,
+        snapshot.fact_universe_sha256,
+        snapshot.evidence_payload_json,
+    )
+    if any(value is None for value in audit_fields):
+        return False
+    try:
+        replace(snapshot)
+    except (TypeError, ValueError):
+        return False
+    return True
 
 
 @dataclass(frozen=True)
@@ -136,55 +158,19 @@ def load_task5_recovery_capability(path: Path) -> Task5RecoveryCapability:
         raise ValueError(f"cannot load recovery capability: {error}") from error
     if not isinstance(payload, dict) or frozenset(payload) != _CAPABILITY_FIELDS:
         raise ValueError("recovery capability fields mismatch")
-
-    integer_fields = (
-        "schema_version",
-        "task_id",
-        "effect_confirmation_observations",
-        "settling_steps",
-        "max_recovery_actions",
-        "max_combined_actions",
-        "capability_required_successes",
-        "capability_total",
-    )
-    string_fields = (
-        "capability_id",
-        "event_type",
-        "prompt_version",
-        "prompt",
-        "holding_fact",
-        "target_fact",
-        "action",
-        "capability_sha256",
-    )
-    if any(type(payload[name]) is not int for name in integer_fields):
-        raise ValueError("recovery capability integer field is invalid")
-    if any(not isinstance(payload[name], str) or not payload[name] for name in string_fields):
-        raise ValueError("recovery capability string field is invalid")
-    if payload["schema_version"] != 1 or any(
-        payload[name] <= 0 for name in integer_fields if name not in {"schema_version", "task_id"}
-    ):
-        raise ValueError("recovery capability numeric domain is invalid")
-    if payload["task_id"] != 5:
-        raise ValueError("recovery capability task_id must be 5")
-    statuses = payload["active_node_statuses"]
-    invariants = payload["protected_invariants"]
-    if (
-        not isinstance(statuses, list)
-        or not statuses
-        or any(not isinstance(item, str) or not item for item in statuses)
-        or len(statuses) != len(set(statuses))
-    ):
-        raise ValueError("recovery capability active node statuses are invalid")
-    if (
-        not isinstance(invariants, list)
-        or not invariants
-        or any(not isinstance(item, str) for item in invariants)
-        or len(invariants) != len(set(invariants))
-    ):
-        raise ValueError("recovery capability protected invariants are invalid")
     if not _valid_sha256(payload["capability_sha256"]):
         raise ValueError("recovery capability SHA-256 is invalid")
+    body = dict(payload)
+    recorded_sha256 = body.pop("capability_sha256")
+    raw_sha256 = hashlib.sha256(
+        _canonical_json(body).encode("utf-8")
+    ).hexdigest()
+    if recorded_sha256 != raw_sha256:
+        raise ValueError("recovery capability self-hash mismatch")
+    if body != _FROZEN_CAPABILITY_BODY:
+        raise ValueError("recovery capability frozen semantic values mismatch")
+    statuses = payload["active_node_statuses"]
+    invariants = payload["protected_invariants"]
     try:
         holding_fact = parse_pddl_fact(payload["holding_fact"])
         target_fact = parse_pddl_fact(payload["target_fact"])
@@ -211,8 +197,6 @@ def load_task5_recovery_capability(path: Path) -> Task5RecoveryCapability:
         capability_total=payload["capability_total"],
         capability_sha256=payload["capability_sha256"],
     )
-    if capability.capability_sha256 != capability.recompute_sha256():
-        raise ValueError("recovery capability self-hash mismatch")
     return capability
 
 
@@ -286,8 +270,10 @@ def assess_task5_terminal(
         return denied("GRAPH_CERTIFICATE_HASH_MISMATCH")
     if not _valid_sha256(monitor_contract_sha256):
         return denied("MONITOR_CONTRACT_HASH_INVALID")
-    if snapshot is None or snapshot.fact_universe is None:
+    if snapshot is None or not _strict_audited_snapshot(snapshot):
         return denied("STRICT_AUDITED_SNAPSHOT_REQUIRED")
+    if snapshot.epoch_id < graph.source_epoch:
+        return denied("SNAPSHOT_EPOCH_STALE")
     location_facts = frozenset(
         fact
         for fact in snapshot.fact_universe
@@ -312,12 +298,21 @@ def assess_task5_terminal(
         )
     except DomainError:
         return denied("PLACE_NODE_ACTION_MISMATCH")
-    if place_node_action != expected_action:
+    matching_nodes = tuple(
+        node
+        for node in graph.nodes
+        if node.kind is NodeKind.ACTION and node.action == expected_action
+    )
+    if len(matching_nodes) != 1:
+        return denied("PLACE_NODE_GRAPH_MEMBERSHIP_INVALID")
+    if place_node_action != matching_nodes[0].action:
         return denied("PLACE_NODE_ACTION_MISMATCH")
     if place_node_status not in capability.active_node_statuses:
         return denied("PLACE_NODE_NOT_ACTIVE")
     if not capability.protected_invariants <= snapshot.true_facts:
         return denied("PROTECTED_INVARIANT_NOT_TRUE")
+    if type(base_policy_steps) is not int or base_policy_steps <= 0:
+        return denied("BASE_POLICY_STEPS_INVALID")
     remaining = capability.max_combined_actions - base_policy_steps
     if remaining <= 0:
         return denied("ACTION_BUDGET_EXHAUSTED")
@@ -363,6 +358,7 @@ class RecoveryPermit:
     certificate: PlanCertificate | None
     capability_sha256: str
     recovery_checkpoint_sha256: str
+    protected_true_facts: frozenset[Fact]
 
     def recompute_sha256(self) -> str:
         return _domain_hash(
@@ -379,6 +375,9 @@ class RecoveryPermit:
                 else self.certificate.certificate_hash,
                 "capability_sha256": self.capability_sha256,
                 "recovery_checkpoint_sha256": self.recovery_checkpoint_sha256,
+                "protected_true_facts": [
+                    fact.pddl() for fact in sorted(self.protected_true_facts)
+                ],
             },
         )
 
@@ -409,6 +408,7 @@ def certify_task5_recovery(
             certificate=None,
             capability_sha256=capability.capability_sha256,
             recovery_checkpoint_sha256=recovery_checkpoint_sha256,
+            protected_true_facts=assessment.protected_true_facts,
         )
         return replace(provisional, permit_sha256=provisional.recompute_sha256())
 
@@ -416,6 +416,8 @@ def certify_task5_recovery(
         return denied("ASSESSMENT_NOT_ELIGIBLE")
     if capability.capability_sha256 != capability.recompute_sha256():
         return denied("CAPABILITY_HASH_MISMATCH")
+    if not _strict_audited_snapshot(snapshot):
+        return denied("STRICT_AUDITED_SNAPSHOT_REQUIRED")
     if snapshot.evidence_hash != assessment.snapshot_sha256:
         return denied("SNAPSHOT_HASH_CHANGED")
     if graph.graph_hash != assessment.graph_hash:
@@ -486,6 +488,7 @@ def certify_task5_recovery(
         certificate=validation.certificate,
         capability_sha256=capability.capability_sha256,
         recovery_checkpoint_sha256=recovery_checkpoint_sha256,
+        protected_true_facts=assessment.protected_true_facts,
     )
     return replace(provisional, permit_sha256=provisional.recompute_sha256())
 
@@ -505,7 +508,6 @@ def verify_task5_recovery_commit(
     *,
     permit: RecoveryPermit,
     post_snapshot: FactSnapshot,
-    handoff_goal_facts: frozenset[Fact],
     event_id: str,
     permit_sha256: str,
     plan_sha256: str | None,
@@ -515,7 +517,15 @@ def verify_task5_recovery_commit(
     recovery_actions: int,
     native_evaluator_success: bool,
 ) -> RecoveryCommit:
-    combined_actions = base_actions + recovery_actions
+    counts_valid = (
+        type(base_actions) is int
+        and type(recovery_actions) is int
+        and base_actions >= 0
+        and recovery_actions >= 0
+    )
+    safe_base_actions = base_actions if counts_valid else 0
+    safe_recovery_actions = recovery_actions if counts_valid else 0
+    combined_actions = safe_base_actions + safe_recovery_actions
 
     def denied(reason: str) -> RecoveryCommit:
         payload = {
@@ -527,8 +537,8 @@ def verify_task5_recovery_commit(
             "recovery_checkpoint_sha256": recovery_checkpoint_sha256,
             "capability_sha256": capability_sha256,
             "post_snapshot_sha256": post_snapshot.evidence_hash,
-            "base_actions": base_actions,
-            "recovery_actions": recovery_actions,
+            "base_actions": safe_base_actions,
+            "recovery_actions": safe_recovery_actions,
             "combined_actions": combined_actions,
             "native_evaluator_success": native_evaluator_success,
         }
@@ -536,11 +546,13 @@ def verify_task5_recovery_commit(
             committed=False,
             reason=reason,
             commit_sha256=_domain_hash(b"LOGIV_TASK5_RECOVERY_COMMIT_V1\0", payload),
-            base_actions=base_actions,
-            recovery_actions=recovery_actions,
+            base_actions=safe_base_actions,
+            recovery_actions=safe_recovery_actions,
             combined_actions=combined_actions,
         )
 
+    if not counts_valid:
+        return denied("ACTION_COUNT_INVALID")
     if not permit.granted:
         return denied("PERMIT_NOT_GRANTED")
     if event_id != permit.event_id:
@@ -561,21 +573,21 @@ def verify_task5_recovery_commit(
         or capability.recompute_sha256() != capability.capability_sha256
     ):
         return denied("CAPABILITY_HASH_CHANGED")
-    if post_snapshot.fact_universe is None:
+    if not _strict_audited_snapshot(post_snapshot):
         return denied("STRICT_AUDITED_POST_SNAPSHOT_REQUIRED")
     required = frozenset(
-        {capability.target_fact} | handoff_goal_facts | capability.protected_invariants
+        {capability.target_fact}
+        | permit.protected_true_facts
+        | capability.protected_invariants
     )
     if post_snapshot.unknown(required):
         return denied("REQUIRED_LITERAL_UNKNOWN")
     if capability.target_fact not in post_snapshot.true_facts:
         return denied("TARGET_NOT_EXPLICITLY_TRUE")
-    if not handoff_goal_facts <= post_snapshot.true_facts:
-        return denied("HANDOFF_GOAL_NOT_TRUE")
     if not capability.protected_invariants <= post_snapshot.true_facts:
         return denied("PROTECTED_INVARIANT_NOT_TRUE")
-    if base_actions < 0 or recovery_actions < 0:
-        return denied("ACTION_COUNT_INVALID")
+    if not permit.protected_true_facts <= post_snapshot.true_facts:
+        return denied("HANDOFF_GOAL_NOT_TRUE")
     if recovery_actions > permit.action_cap:
         return denied("RECOVERY_ACTION_CAP_EXCEEDED")
     if combined_actions > capability.max_combined_actions:

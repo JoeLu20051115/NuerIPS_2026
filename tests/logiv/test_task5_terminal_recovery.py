@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from pi05_libero_repro.logiv.dag import CausalGraph
+from pi05_libero_repro.logiv.dag import CausalGraph, GraphNode, NodeKind
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.model import (
     ContextEnvelope,
@@ -32,9 +32,12 @@ from pi05_libero_repro.logiv.val import PlanCertificate, ValWrapper
 
 ROOT = Path(__file__).parents[2]
 CONTRACT = ROOT / "configs/logiv/task5-terminal-pi-recover-v1.json"
-REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
 TARGET = Fact("at", ("black_book_1", "desk_caddy_1_back_contain_region"))
 HOLDING = Fact("holding", ("black_book_1",))
+HANDOFF_GOAL = Fact(
+    "accessible",
+    ("desk_caddy_1_front_contain_region", "desk_caddy_1_access"),
+)
 
 
 def _audited_snapshot(
@@ -99,9 +102,25 @@ def capability():
 
 
 @pytest.fixture(scope="module")
-def task5_state(capability):
+def val_binary(tmp_path_factory):
+    path = tmp_path_factory.mktemp("task5-val") / "Validate"
+    path.write_text(
+        "#!/bin/sh\n"
+        'if [ "$1" = "-h" ]; then\n'
+        '  echo "Version task5-portable-test"\n'
+        "  exit 0\n"
+        "fi\n"
+        'echo "Plan valid"\n',
+        encoding="utf-8",
+    )
+    path.chmod(0o755)
+    return path
+
+
+@pytest.fixture(scope="module")
+def task5_state(capability, val_binary):
     package = ScriptedProposalProvider().propose(task_id=5, epoch_id=7)
-    problem = package.problem
+    problem = replace(package.problem, goal=package.problem.goal | {HANDOFF_GOAL})
     universe = frozenset(problem.initial_state | problem.initial_false)
     true_facts = frozenset(
         fact
@@ -135,23 +154,13 @@ def task5_state(capability):
         certificate_hash="b" * 64,
         component_hashes=(),
         context=parent_context,
-        val_binary=str(REAL_VAL),
+        val_binary=str(val_binary),
         val_binary_sha256="d" * 64,
         val_version="test-parent",
         wrapper_version="logiv-val-wrapper-v1",
         timeout_seconds=5.0,
         forbidden_retry_keys=(),
         retry_ledger_version=0,
-    )
-    graph = CausalGraph(
-        graph_version="task5-graph-v1",
-        graph_hash="a" * 64,
-        source_epoch=7,
-        certificate_hash=certificate.certificate_hash,
-        nodes=(),
-        edges=(),
-        causal_links=(),
-        canonical_agenda=(),
     )
     action = FixedDomain().ground(
         problem,
@@ -161,6 +170,22 @@ def task5_state(capability):
             "desk_caddy_1_back_contain_region",
             "desk_caddy_1_access",
         ),
+    )
+    place_node = GraphNode(
+        node_id="task5-place-held-in",
+        kind=NodeKind.ACTION,
+        canonical_rank=0,
+        action=action,
+    )
+    graph = CausalGraph(
+        graph_version="task5-graph-v1",
+        graph_hash="a" * 64,
+        source_epoch=7,
+        certificate_hash=certificate.certificate_hash,
+        nodes=(place_node,),
+        edges=(),
+        causal_links=(),
+        canonical_agenda=(place_node.node_id,),
     )
     return {
         "capability": capability,
@@ -200,7 +225,7 @@ def eligible_assessment(eligible_inputs):
 
 
 @pytest.fixture(scope="module")
-def permit_inputs(task5_state, eligible_assessment):
+def permit_inputs(task5_state, eligible_assessment, val_binary):
     return {
         "capability": task5_state["capability"],
         "assessment": eligible_assessment,
@@ -209,7 +234,7 @@ def permit_inputs(task5_state, eligible_assessment):
         "graph": task5_state["graph"],
         "certificate": task5_state["certificate"],
         "candidate_plan": (task5_state["action"],),
-        "val_wrapper": ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        "val_wrapper": ValWrapper(val_binary, timeout_seconds=5.0),
         "recovery_checkpoint_sha256": "f" * 64,
     }
 
@@ -234,15 +259,10 @@ def post_snapshot(task5_state):
 
 @pytest.fixture(scope="module")
 def commit_inputs(task5_state, granted_permit, post_snapshot):
-    handoff_goal = Fact(
-        "accessible",
-        ("desk_caddy_1_front_contain_region", "desk_caddy_1_access"),
-    )
     return {
         "capability": task5_state["capability"],
         "permit": granted_permit,
         "post_snapshot": post_snapshot,
-        "handoff_goal_facts": frozenset({handoff_goal}),
         "event_id": granted_permit.event_id,
         "permit_sha256": granted_permit.permit_sha256,
         "plan_sha256": granted_permit.plan_sha256,
@@ -285,6 +305,49 @@ def test_contract_rejects_changed_content_without_new_hash(tmp_path):
         load_task5_recovery_capability(path)
 
 
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("schema_version", 2),
+        ("capability_id", "changed"),
+        ("task_id", 4),
+        ("event_type", "CHANGED"),
+        ("prompt_version", "changed"),
+        ("prompt", "changed"),
+        ("holding_fact", "(holding changed_book)"),
+        ("target_fact", "(at black_book_1 changed_region)"),
+        ("action", "(changed-action)"),
+        ("active_node_statuses", ["READY"]),
+        ("protected_invariants", ["(open desk_caddy_1_access)"]),
+        ("effect_confirmation_observations", 4),
+        ("settling_steps", 11),
+        ("max_recovery_actions", 181),
+        ("max_combined_actions", 521),
+        ("capability_required_successes", 9),
+        ("capability_total", 11),
+    ],
+)
+def test_contract_rejects_changed_semantics_even_when_rehashed(
+    tmp_path, field, value
+):
+    payload = json.loads(CONTRACT.read_text(encoding="utf-8"))
+    payload[field] = value
+    body = dict(payload)
+    body.pop("capability_sha256")
+    raw = json.dumps(
+        body,
+        allow_nan=False,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    payload["capability_sha256"] = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    path = tmp_path / "contract.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(ValueError, match="frozen semantic values mismatch"):
+        load_task5_recovery_capability(path)
+
+
 def test_recovery_seed_uses_independent_domain():
     first = derive_recovery_policy_seed(54804909, 5, 36, "terminal-event-1")
     second = derive_recovery_policy_seed(54804909, 5, 36, "terminal-event-2")
@@ -308,6 +371,10 @@ def test_recovery_seed_uses_independent_domain():
         ({"snapshot": None}, "STRICT_AUDITED_SNAPSHOT_REQUIRED"),
         ({"place_node_action": None}, "PLACE_NODE_ACTION_MISMATCH"),
         ({"place_node_status": "READY"}, "PLACE_NODE_NOT_ACTIVE"),
+        ({"base_policy_steps": 0}, "BASE_POLICY_STEPS_INVALID"),
+        ({"base_policy_steps": -1}, "BASE_POLICY_STEPS_INVALID"),
+        ({"base_policy_steps": True}, "BASE_POLICY_STEPS_INVALID"),
+        ({"base_policy_steps": 1.5}, "BASE_POLICY_STEPS_INVALID"),
         ({"base_policy_steps": 520}, "ACTION_BUDGET_EXHAUSTED"),
     ],
 )
@@ -322,6 +389,47 @@ def test_terminal_assessment_rejects_changed_graph_certificate_hash(eligible_inp
     graph = replace(eligible_inputs["graph"], certificate_hash="0" * 64)
     result = assess_task5_terminal(**(eligible_inputs | {"graph": graph}))
     assert result.reason == "GRAPH_CERTIFICATE_HASH_MISMATCH"
+
+
+@pytest.mark.parametrize("mutation", ["missing", "duplicate", "mismatched"])
+def test_terminal_assessment_requires_exactly_one_matching_place_node(
+    eligible_inputs, mutation
+):
+    graph = eligible_inputs["graph"]
+    node = graph.nodes[0]
+    if mutation == "missing":
+        nodes = ()
+    elif mutation == "duplicate":
+        nodes = (node, replace(node, node_id="duplicate", canonical_rank=1))
+    else:
+        nodes = (replace(node, action=replace(node.action, arguments=("black_book_1",))),)
+    result = assess_task5_terminal(
+        **(eligible_inputs | {"graph": replace(graph, nodes=nodes)})
+    )
+    assert result.reason == "PLACE_NODE_GRAPH_MEMBERSHIP_INVALID"
+
+
+@pytest.mark.parametrize("mutation", ["missing_field", "tampered_payload"])
+def test_terminal_assessment_revalidates_snapshot_audit(eligible_inputs, mutation):
+    snapshot = replace(eligible_inputs["snapshot"])
+    if mutation == "missing_field":
+        object.__setattr__(snapshot, "fact_universe_version", None)
+    else:
+        object.__setattr__(snapshot, "evidence_payload_json", "{}")
+    result = assess_task5_terminal(**(eligible_inputs | {"snapshot": snapshot}))
+    assert result.reason == "STRICT_AUDITED_SNAPSHOT_REQUIRED"
+
+
+def test_terminal_assessment_rejects_snapshot_older_than_graph(eligible_inputs):
+    snapshot = eligible_inputs["snapshot"]
+    stale = _audited_snapshot(
+        epoch_id=eligible_inputs["graph"].source_epoch - 1,
+        universe=snapshot.fact_universe,
+        true_facts=snapshot.true_facts,
+        false_facts=snapshot.false_facts,
+    )
+    result = assess_task5_terminal(**(eligible_inputs | {"snapshot": stale}))
+    assert result.reason == "SNAPSHOT_EPOCH_STALE"
 
 
 @pytest.mark.parametrize(
@@ -391,6 +499,7 @@ def test_terminal_assessment_grants_only_remaining_budget(eligible_inputs):
         ("graph_hash", "GRAPH_HASH_CHANGED"),
         ("capability_hash", "CAPABILITY_HASH_MISMATCH"),
         ("checkpoint_hash", "RECOVERY_CHECKPOINT_HASH_INVALID"),
+        ("snapshot_audit", "STRICT_AUDITED_SNAPSHOT_REQUIRED"),
     ],
 )
 def test_recovery_certification_fails_closed(permit_inputs, mutation, reason):
@@ -414,15 +523,21 @@ def test_recovery_certification_fails_closed(permit_inputs, mutation, reason):
         changed["graph"] = replace(changed["graph"], graph_hash="0" * 64)
     elif mutation == "capability_hash":
         changed["capability"] = replace(changed["capability"], capability_sha256="0" * 64)
-    else:
+    elif mutation == "checkpoint_hash":
         changed["recovery_checkpoint_sha256"] = "not-a-hash"
+    else:
+        snapshot = replace(changed["snapshot"])
+        object.__setattr__(snapshot, "evidence_payload_json", "{}")
+        changed["snapshot"] = snapshot
     result = certify_task5_recovery(**changed)
     assert result.granted is False
     assert result.reason == reason
     assert len(result.permit_sha256) == 64
 
 
-def test_recovery_certification_binds_exactly_one_val_certificate(granted_permit):
+def test_recovery_certification_binds_exactly_one_val_certificate(
+    granted_permit, eligible_assessment
+):
     assert granted_permit.granted is True
     assert granted_permit.reason == "GRANTED"
     assert len(granted_permit.plan) == 1
@@ -433,6 +548,7 @@ def test_recovery_certification_binds_exactly_one_val_certificate(granted_permit
     assert granted_permit.plan_sha256 is not None
     assert granted_permit.certificate is not None
     assert granted_permit.certificate.context.phase is ContextPhase.RECOVERY_VAL
+    assert granted_permit.protected_true_facts == eligible_assessment.protected_true_facts
 
 
 @pytest.mark.parametrize(
@@ -445,6 +561,7 @@ def test_recovery_certification_binds_exactly_one_val_certificate(granted_permit
         ("checkpoint_hash", "RECOVERY_CHECKPOINT_HASH_CHANGED"),
         ("capability_hash", "CAPABILITY_HASH_CHANGED"),
         ("snapshot", "STRICT_AUDITED_POST_SNAPSHOT_REQUIRED"),
+        ("snapshot_tampered", "STRICT_AUDITED_POST_SNAPSHOT_REQUIRED"),
         ("unknown", "REQUIRED_LITERAL_UNKNOWN"),
         ("target", "TARGET_NOT_EXPLICITLY_TRUE"),
         ("handoff", "HANDOFF_GOAL_NOT_TRUE"),
@@ -477,9 +594,13 @@ def test_recovery_commit_fails_closed(commit_inputs, mutation, reason):
             false_facts=snapshot.false_facts,
             evidence_hash="legacy",
         )
+    elif mutation == "snapshot_tampered":
+        tampered = replace(snapshot)
+        object.__setattr__(tampered, "evidence_payload_json", "{}")
+        changed["post_snapshot"] = tampered
     elif mutation in {"unknown", "target", "handoff", "invariant"}:
         if mutation == "unknown":
-            fact = next(iter(changed["handoff_goal_facts"]))
+            fact = HANDOFF_GOAL
             true_facts = snapshot.true_facts - {fact}
             false_facts = snapshot.false_facts - {fact}
         elif mutation == "target":
@@ -487,7 +608,7 @@ def test_recovery_commit_fails_closed(commit_inputs, mutation, reason):
             true_facts = snapshot.true_facts - {fact}
             false_facts = snapshot.false_facts | {fact}
         elif mutation == "handoff":
-            fact = next(iter(changed["handoff_goal_facts"]))
+            fact = HANDOFF_GOAL
             true_facts = snapshot.true_facts - {fact}
             false_facts = snapshot.false_facts | {fact}
         else:
@@ -512,6 +633,44 @@ def test_recovery_commit_fails_closed(commit_inputs, mutation, reason):
     result = verify_task5_recovery_commit(**changed)
     assert result.committed is False
     assert result.reason == reason
+    assert len(result.commit_sha256) == 64
+
+
+@pytest.mark.parametrize(
+    "protected_true_facts",
+    [
+        frozenset(),
+        frozenset({HANDOFF_GOAL}),
+        frozenset({Fact("handempty")}),
+    ],
+)
+def test_recovery_commit_rejects_forged_handoff_fact_sets(
+    commit_inputs, protected_true_facts
+):
+    forged = replace(
+        commit_inputs["permit"], protected_true_facts=protected_true_facts
+    )
+    result = verify_task5_recovery_commit(
+        **(commit_inputs | {"permit": forged})
+    )
+    assert result.reason == "PERMIT_HASH_CHANGED"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("base_actions", True),
+        ("recovery_actions", 1.5),
+        ("base_actions", float("inf")),
+        ("recovery_actions", float("nan")),
+    ],
+)
+def test_recovery_commit_rejects_non_integer_action_counts(
+    commit_inputs, field, value
+):
+    result = verify_task5_recovery_commit(**(commit_inputs | {field: value}))
+    assert result.committed is False
+    assert result.reason == "ACTION_COUNT_INVALID"
     assert len(result.commit_sha256) == 64
 
 
