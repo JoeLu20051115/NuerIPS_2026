@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -25,12 +26,14 @@ from pi05_libero_repro.logiv.shadow_runtime import (
     ShadowRuntime,
     ShadowRuntimeCounters,
 )
+from pi05_libero_repro.logiv.task5_terminal_recovery import TerminalAssessment
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
 from pi05_libero_repro.logiv.repair import RepairBounds, RepairOperator, RetryPolicy
 from pi05_libero_repro.logiv.val import ValWrapper
 from scripts.eval_logiv_libero import (
     _allocate_episode_artifact_dir,
     _base_physical_attempts,
+    _capture_task5_terminal_preflight,
     _parser,
     _replace_episode_environment,
     _run_config,
@@ -91,6 +94,174 @@ def test_shadow_snapshot_reader_uses_advisory_grounding_only_for_topology_mode()
     assert peek(grounder, topology_only=False) == "strict"
     assert peek(grounder, topology_only=True) == "advisory"
     assert (grounder.strict_calls, grounder.advisory_calls) == (1, 1)
+
+
+def test_terminal_snapshot_reader_always_updates_and_uses_strict_grounding() -> None:
+    updates = []
+
+    class Store:
+        def update(self, observation):
+            updates.append(observation)
+
+    class Grounder:
+        def __init__(self) -> None:
+            self.strict_calls = 0
+
+        def peek_snapshot(self):
+            self.strict_calls += 1
+            return "strict"
+
+    reader = getattr(evaluator_script, "_strict_terminal_snapshot_reader", None)
+    assert reader is not None
+    observation = {"frame": 2}
+    grounder = Grounder()
+
+    assert reader(Store(), grounder, observation) == "strict"
+    assert updates == [observation]
+    assert grounder.strict_calls == 1
+
+
+def _terminal_preflight_args(*extra: str):
+    return _parser().parse_args(
+        [
+            "--run-id",
+            "terminal-preflight",
+            "--method-arm",
+            "SHADOW_LOGIV",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--oracle-grounding",
+            "--development-only",
+            "--task-ids",
+            "5",
+            "--episode-indices",
+            "36",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/terminal-preflight",
+            "--capture-task5-terminal-preflight",
+            *extra,
+        ]
+    )
+
+
+def test_terminal_preflight_flag_is_frozen_into_run_config() -> None:
+    args = _terminal_preflight_args()
+
+    contracts = _validate_shadow_options(args, (5,))
+    config = _run_config(args, (5,), (36,))
+
+    assert contracts[5].task_id == 5
+    assert config["capture_task5_terminal_preflight"] is True
+
+
+@pytest.mark.parametrize(
+    ("argv", "task_ids", "message"),
+    [
+        (("--method-arm", "BASE"), (5,), "requires SHADOW_LOGIV"),
+        (("--development-only",), (5,), "requires development-only"),
+        ((), (4,), "exactly Task 5"),
+        ((), (5, 6), "exactly Task 5"),
+        (("--collect-recovery-roots",), (5,), "cannot collect recovery roots"),
+        (
+            ("--shadow-topology-only",),
+            (5,),
+            "cannot enable recovery",
+        ),
+    ],
+)
+def test_terminal_preflight_rejects_every_nonfrozen_scope(
+    argv, task_ids, message
+) -> None:
+    args = _terminal_preflight_args(*argv)
+    if argv == ("--development-only",):
+        args.development_only = False
+    if argv[:1] == ("--method-arm",):
+        args.method_arm = argv[1]
+
+    with pytest.raises(ValueError, match=message):
+        _validate_shadow_options(args, task_ids)
+
+
+def test_terminal_preflight_grounding_error_is_fail_closed_and_anchors_base(
+    tmp_path: Path, monkeypatch
+) -> None:
+    assessment = TerminalAssessment(
+        eligible=False,
+        reason="STRICT_AUDITED_SNAPSHOT_REQUIRED",
+        event_id=None,
+        event_type=None,
+        option_action_cap=0,
+        snapshot_sha256=None,
+        graph_hash="a" * 64,
+        certificate_hash="b" * 64,
+        monitor_contract_sha256="c" * 64,
+        protected_true_facts=frozenset(),
+        capability_sha256="d" * 64,
+        base_policy_steps=340,
+        place_node_id=None,
+        assessment_sha256="e" * 64,
+    )
+    received = {}
+
+    def assess(*args, **kwargs):
+        received.update(kwargs)
+        return assessment
+
+    def strict_reader(observation):
+        assert observation == {"frame": 2}
+        raise ValueError("ambiguous final location")
+
+    certified = SimpleNamespace(
+        problem=object(),
+        graph=SimpleNamespace(nodes=(), graph_hash="a" * 64),
+        certificate=SimpleNamespace(certificate_hash="b" * 64),
+    )
+    runtime = SimpleNamespace(
+        initial_proposal=SimpleNamespace(
+            validation=SimpleNamespace(
+                certified_episode=certified,
+                strict_terminal_snapshot_reader=strict_reader,
+            )
+        ),
+        state_trace=[],
+    )
+    outcome = SimpleNamespace(
+        check_success=False,
+        final_observation={"frame": 2},
+        inference_requests=68,
+        steps=340,
+    )
+    monkeypatch.setattr(evaluator_script, "assess_task5_terminal", assess)
+
+    _capture_task5_terminal_preflight(
+        artifact_dir=tmp_path,
+        case_id="t05-r02",
+        task_id=5,
+        episode_idx=36,
+        episode_id="task5-terminal-preflight-t05-r02",
+        outcome=outcome,
+        native_terminal_status="EPISODE_FAIL",
+        runtime=runtime,
+        monitor_contract=SimpleNamespace(contract_sha256="c" * 64),
+        capability=SimpleNamespace(action="(place-held-in x y z)", capability_sha256="d" * 64),
+    )
+
+    snapshot = json.loads((tmp_path / "current_snapshot.json").read_text())
+    terminal = json.loads((tmp_path / "terminal_deviation.json").read_text())
+    assert snapshot["status"] == "GROUNDING_ERROR"
+    assert terminal["status"] == "GROUNDING_ERROR"
+    assert terminal["reason"] == "GROUNDING_ERROR"
+    assert terminal["assessment_sha256"] == assessment.assessment_sha256
+    assert terminal["base_policy_steps"] == outcome.steps
+    assert terminal["base_policy_requests"] == outcome.inference_requests
+    assert terminal["recovery_actions"] == 0
+    assert terminal["recovery_policy_requests"] == 0
+    assert received["base_policy_steps"] == outcome.steps
+    assert received["snapshot"] is None
 
 
 def test_evaluator_parser_accepts_shadow_data_collection_arm() -> None:

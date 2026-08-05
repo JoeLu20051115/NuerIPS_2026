@@ -53,6 +53,7 @@ class CertifiedEpisodeLike(Protocol):
 class ShadowValidatedProposal:
     certified_episode: CertifiedEpisodeLike
     snapshot_reader: Callable[[Mapping[str, Any]], FactSnapshot]
+    strict_terminal_snapshot_reader: Callable[[Mapping[str, Any]], FactSnapshot]
 
 
 @dataclass(frozen=True)

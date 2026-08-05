@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, replace
+from datetime import datetime, timezone
 import hashlib
 import json
 import logging
@@ -78,6 +79,12 @@ from pi05_libero_repro.logiv.shadow_runtime import (
     ShadowValidatedProposal,
     build_shadow_runtime,
 )
+from pi05_libero_repro.logiv.task5_terminal_recovery import (
+    Task5RecoveryCapability,
+    TerminalAssessment,
+    assess_task5_terminal,
+    load_task5_recovery_capability,
+)
 from pi05_libero_repro.logiv.val import ValWrapper
 from pi05_libero_repro.protocol import (
     BaseActionPrefixHasher,
@@ -94,6 +101,9 @@ from pi05_libero_repro.protocol import (
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 COVERAGE_MANIFEST = REPOSITORY_ROOT / "configs/logiv/libero10-coverage.json"
 DOMAIN_PATH = REPOSITORY_ROOT / "configs/logiv/logiv-libero-domain.pddl"
+TASK5_RECOVERY_CAPABILITY = (
+    REPOSITORY_ROOT / "configs/logiv/task5-terminal-pi-recover-v1.json"
+)
 
 
 def _sha256_bytes(value: bytes) -> str:
@@ -610,6 +620,20 @@ def _validate_shadow_options(
     task_ids: tuple[int, ...],
 ) -> dict[int, MonitorEvidenceContract]:
     arm = MethodArm(args.method_arm)
+    if args.capture_task5_terminal_preflight:
+        if arm is not MethodArm.SHADOW_LOGIV:
+            raise ValueError("terminal preflight requires SHADOW_LOGIV")
+        if not args.development_only:
+            raise ValueError("terminal preflight requires development-only mode")
+        if task_ids != (5,):
+            raise ValueError("terminal preflight requires exactly Task 5")
+        if args.collect_recovery_roots:
+            raise ValueError("terminal preflight cannot collect recovery roots")
+        if (
+            getattr(args, "overlay_monitor_recovery_surface", False)
+            or args.shadow_topology_only
+        ):
+            raise ValueError("terminal preflight cannot enable recovery or topology-only mode")
     if args.shadow_topology_only and arm is not MethodArm.SHADOW_LOGIV:
         raise ValueError("shadow topology-only mode requires SHADOW_LOGIV")
     if args.shadow_topology_only and args.shadow_monitor_interval_steps <= 0:
@@ -860,6 +884,162 @@ def _shadow_snapshot_peek(
     return grounder.peek_snapshot()
 
 
+def _strict_terminal_snapshot_reader(
+    store: LiberoObservationStore,
+    grounder: LiberoOracleGrounder,
+    observation: Mapping[str, Any],
+) -> FactSnapshot:
+    store.update(observation)
+    return grounder.peek_snapshot()
+
+
+def _terminal_assessment_payload(
+    assessment: TerminalAssessment,
+) -> dict[str, Any]:
+    return {
+        "eligible": assessment.eligible,
+        "reason": assessment.reason,
+        "event_id": assessment.event_id,
+        "event_type": assessment.event_type,
+        "option_action_cap": assessment.option_action_cap,
+        "snapshot_sha256": assessment.snapshot_sha256,
+        "graph_hash": assessment.graph_hash,
+        "certificate_hash": assessment.certificate_hash,
+        "monitor_contract_sha256": assessment.monitor_contract_sha256,
+        "protected_true_facts": sorted(
+            fact.pddl() for fact in assessment.protected_true_facts
+        ),
+        "capability_sha256": assessment.capability_sha256,
+        "base_policy_steps": assessment.base_policy_steps,
+        "place_node_id": assessment.place_node_id,
+        "assessment_sha256": assessment.assessment_sha256,
+    }
+
+
+def _capture_task5_terminal_preflight(
+    *,
+    artifact_dir: Path,
+    case_id: str,
+    task_id: int,
+    episode_idx: int,
+    episode_id: str,
+    outcome: Any,
+    native_terminal_status: str,
+    runtime: ShadowRuntime,
+    monitor_contract: MonitorEvidenceContract,
+    capability: Task5RecoveryCapability,
+) -> None:
+    proposal = runtime.initial_proposal
+    if proposal is None or proposal.validation is None:
+        raise ValueError("terminal preflight requires an accepted Shadow proposal")
+    validation = proposal.validation
+    certified = validation.certified_episode
+    terminal_state = runtime.state_trace[-1] if runtime.state_trace else {}
+    node_statuses = {
+        item.get("node_id"): item.get("status")
+        for item in terminal_state.get("nodes", ())
+    }
+    place_nodes = tuple(
+        node
+        for node in certified.graph.nodes
+        if node.action is not None and node.action.pddl() == capability.action
+    )
+    place_node_action = place_nodes[0].action if len(place_nodes) == 1 else None
+    place_node_status = (
+        node_statuses.get(place_nodes[0].node_id) if len(place_nodes) == 1 else None
+    )
+    captured_at_utc = datetime.now(timezone.utc).isoformat()
+    strict_snapshot = None
+    grounding_error = None
+    try:
+        strict_snapshot = validation.strict_terminal_snapshot_reader(
+            outcome.final_observation
+        )
+    except Exception as error:
+        grounding_error = f"{type(error).__name__}: {error}"
+
+    observed_base_policy_steps = outcome.steps
+    observed_base_policy_requests = outcome.inference_requests
+    assessment = assess_task5_terminal(
+        capability,
+        task_id=task_id,
+        episode_id=episode_id,
+        base_success=outcome.check_success,
+        native_terminal_status=native_terminal_status,
+        base_policy_steps=observed_base_policy_steps,
+        snapshot=strict_snapshot,
+        problem=certified.problem,
+        graph=certified.graph,
+        certificate=certified.certificate,
+        monitor_contract_sha256=monitor_contract.contract_sha256,
+        certificate_state=terminal_state.get("certificate_state"),
+        place_node_action=place_node_action,
+        place_node_status=place_node_status,
+    )
+    original_assessment_sha256 = assessment.assessment_sha256
+    common = {
+        "schema_version": 1,
+        "case_id": case_id,
+        "task_id": task_id,
+        "episode_idx": episode_idx,
+        "episode_id": episode_id,
+        "captured_at_utc": captured_at_utc,
+        "graph_hash": certified.graph.graph_hash,
+        "certificate_hash": certified.certificate.certificate_hash,
+        "monitor_contract_sha256": monitor_contract.contract_sha256,
+        "capability_sha256": capability.capability_sha256,
+    }
+    if strict_snapshot is None:
+        snapshot_payload = {
+            **common,
+            "status": "GROUNDING_ERROR",
+            "grounding_error": grounding_error,
+        }
+    else:
+        snapshot_payload = {
+            **common,
+            "status": "STRICT_AUDITED",
+            "epoch_id": strict_snapshot.epoch_id,
+            "true": sorted(fact.pddl() for fact in strict_snapshot.true_facts),
+            "false": sorted(fact.pddl() for fact in strict_snapshot.false_facts),
+            "fact_universe": sorted(
+                fact.pddl() for fact in strict_snapshot.fact_universe or ()
+            ),
+            "fact_universe_version": strict_snapshot.fact_universe_version,
+            "fact_universe_sha256": strict_snapshot.fact_universe_sha256,
+            "evidence_hash": strict_snapshot.evidence_hash,
+            "evidence_payload_json": strict_snapshot.evidence_payload_json,
+        }
+    terminal_status = (
+        "GROUNDING_ERROR"
+        if grounding_error is not None
+        else "ELIGIBLE"
+        if assessment.eligible
+        else "DENIED"
+    )
+    terminal_payload = {
+        **common,
+        "status": terminal_status,
+        "reason": "GROUNDING_ERROR" if grounding_error is not None else assessment.reason,
+        "grounding_error": grounding_error,
+        "base_success": outcome.check_success,
+        "native_terminal_status": native_terminal_status,
+        "certificate_state": terminal_state.get("certificate_state"),
+        "place_node_action": (
+            place_node_action.pddl() if place_node_action is not None else None
+        ),
+        "place_node_status": place_node_status,
+        "base_policy_steps": observed_base_policy_steps,
+        "base_policy_requests": observed_base_policy_requests,
+        "recovery_actions": 0,
+        "recovery_policy_requests": 0,
+        "assessment_sha256": original_assessment_sha256,
+        "assessment": _terminal_assessment_payload(assessment),
+    }
+    _write_json(artifact_dir / "current_snapshot.json", snapshot_payload)
+    _write_json(artifact_dir / "terminal_deviation.json", terminal_payload)
+
+
 def _build_evaluator_shadow_runtime(
     args: argparse.Namespace,
     *,
@@ -981,7 +1161,16 @@ def _build_evaluator_shadow_runtime(
             previous_observation_sha256 = current_hash
             return previous_snapshot
 
-        return ShadowValidatedProposal(certified, snapshot_reader)
+        def strict_terminal_snapshot_reader(
+            current_observation: Mapping[str, Any],
+        ) -> FactSnapshot:
+            return _strict_terminal_snapshot_reader(
+                store, grounder, current_observation
+            )
+
+        return ShadowValidatedProposal(
+            certified, snapshot_reader, strict_terminal_snapshot_reader
+        )
 
     event_origins: dict[str, str] = {}
 
@@ -1119,6 +1308,9 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "development_only": args.development_only,
         "oracle_grounding": args.oracle_grounding,
         "collect_recovery_roots": args.collect_recovery_roots,
+        "capture_task5_terminal_preflight": (
+            args.capture_task5_terminal_preflight
+        ),
         "shadow_topology_only": args.shadow_topology_only,
         "recovery_root_split": args.recovery_root_split,
         "shadow_monitor_interval_steps": args.shadow_monitor_interval_steps,
@@ -1193,6 +1385,11 @@ def evaluate(args: argparse.Namespace) -> int:
     )
     contract.validate()
     shadow_contracts = _validate_shadow_options(args, task_ids)
+    task5_preflight_capability = (
+        load_task5_recovery_capability(TASK5_RECOVERY_CAPABILITY)
+        if args.capture_task5_terminal_preflight
+        else None
+    )
     prompt_renderer = SubtaskPromptRenderer(args.prompt_config)
     if prompt_renderer.prompt_version != args.prompt_version:
         raise ValueError("prompt version/config mismatch")
@@ -1416,6 +1613,24 @@ def evaluate(args: argparse.Namespace) -> int:
                                 ),
                             ),
                         )
+                        if args.capture_task5_terminal_preflight:
+                            assert shadow_runtime is not None
+                            assert task5_preflight_capability is not None
+                            monitor_contract = shadow_contracts[task_id]
+                            _capture_task5_terminal_preflight(
+                                artifact_dir=artifact_dir,
+                                case_id=args.run_id.removeprefix(
+                                    "task5-terminal-preflight-"
+                                ),
+                                task_id=task_id,
+                                episode_idx=episode_idx,
+                                episode_id=episode_id,
+                                outcome=outcome,
+                                native_terminal_status=evaluated.value,
+                                runtime=shadow_runtime,
+                                monitor_contract=monitor_contract,
+                                capability=task5_preflight_capability,
+                            )
                         if shadow_runtime is not None:
                             (
                                 proposal_payload,
@@ -1688,6 +1903,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--oracle-grounding", action="store_true")
     parser.add_argument("--development-only", action="store_true")
     parser.add_argument("--collect-recovery-roots", action="store_true")
+    parser.add_argument("--capture-task5-terminal-preflight", action="store_true")
     parser.add_argument("--shadow-topology-only", action="store_true")
     parser.add_argument(
         "--recovery-root-split",

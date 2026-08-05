@@ -290,11 +290,20 @@ def _build(
             goal=bool(observation.get("goal", False)),
         )
 
+    def strict_terminal_snapshot_reader(
+        observation: Mapping[str, Any],
+    ) -> FactSnapshot:
+        return snapshot_reader(observation)
+
     def live_validator(package: Any, observation: Mapping[str, Any]) -> ShadowValidatedProposal:
         if validator_error is not None:
             raise validator_error
         assert observation["policy_step"] == 0
-        return ShadowValidatedProposal(_certified(source_epoch=source_epoch), snapshot_reader)
+        return ShadowValidatedProposal(
+            _certified(source_epoch=source_epoch),
+            snapshot_reader,
+            strict_terminal_snapshot_reader,
+        )
 
     runtime = build_shadow_runtime(
         provider=provider,
@@ -309,6 +318,30 @@ def _build(
         topology_only=topology_only,
     )
     return runtime
+
+
+def test_terminal_reader_is_strict_and_separate_from_advisory_reader() -> None:
+    advisory_snapshot = _snapshot(1)
+    strict_snapshot = _snapshot(2)
+    calls = {"advisory": 0, "strict": 0}
+
+    def advisory_reader(observation: Mapping[str, Any]) -> FactSnapshot:
+        assert observation == {"frame": 1}
+        calls["advisory"] += 1
+        return advisory_snapshot
+
+    def strict_reader(observation: Mapping[str, Any]) -> FactSnapshot:
+        assert observation == {"frame": 2}
+        calls["strict"] += 1
+        return strict_snapshot
+
+    validated = ShadowValidatedProposal(
+        _certified(), advisory_reader, strict_reader
+    )
+
+    assert validated.snapshot_reader({"frame": 1}) is advisory_snapshot
+    assert validated.strict_terminal_snapshot_reader({"frame": 2}) is strict_snapshot
+    assert calls == {"advisory": 1, "strict": 1}
 
 
 def test_provider_is_lazy_and_acceptance_seeds_monitor_at_step_zero() -> None:
