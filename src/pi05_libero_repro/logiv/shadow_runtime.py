@@ -13,6 +13,7 @@ from pi05_libero_repro.logiv.initial_proposal import (
     run_initial_proposal,
 )
 from pi05_libero_repro.logiv.model import (
+    Fact,
     FactSnapshot,
     GoalMode,
     GroundAction,
@@ -95,6 +96,183 @@ class ShadowRuntime:
     state_trace: list[dict[str, Any]] = field(default_factory=list)
 
 
+class ShadowGraphTracker:
+    """Stateful projection of physical macro progress onto one fixed graph."""
+
+    _TRANSPORT_SCHEMAS = frozenset({"place-on", "place-in", "place-relative"})
+
+    def __init__(self, graph: CausalGraph, problem: TaskProblem) -> None:
+        self.graph = graph
+        self.problem = problem
+        self._statuses: dict[str, str] = {"INIT": "COMPLETED"}
+        self._predecessors = {node.node_id: set() for node in graph.nodes}
+        for edge in graph.edges:
+            source = graph.node_map[edge.source]
+            if source.kind is NodeKind.ACTION:
+                self._predecessors[edge.target].add(edge.source)
+        relevant = set(problem.initial_state | problem.initial_false)
+        relevant.update(problem.goal | problem.negative_goal)
+        for node in graph.nodes:
+            if node.action is not None:
+                relevant.update(
+                    node.action.preconditions
+                    | node.action.negative_preconditions
+                    | node.action.add_effects
+                    | node.action.del_effects
+                )
+        self._relevant_facts = frozenset(relevant)
+
+    @staticmethod
+    def _raw_satisfies(
+        snapshot: FactSnapshot,
+        *,
+        positive: frozenset,
+        negative: frozenset,
+    ) -> bool:
+        return all(
+            snapshot.raw_truth(fact) is TruthValue.TRUE for fact in positive
+        ) and all(
+            snapshot.raw_truth(fact) is TruthValue.FALSE for fact in negative
+        )
+
+    def _object_candidates(
+        self, snapshot: FactSnapshot, object_name: str
+    ) -> frozenset:
+        universe = snapshot.fact_universe or self._relevant_facts
+        return frozenset(
+            fact
+            for fact in universe
+            if (
+                fact.predicate == "holding"
+                and fact.arguments == (object_name,)
+            )
+            or (
+                fact.predicate == "at"
+                and fact.arguments
+                and fact.arguments[0] == object_name
+            )
+        )
+
+    def _transport_state(
+        self, snapshot: FactSnapshot, object_name: str
+    ) -> tuple[bool, bool]:
+        candidates = self._object_candidates(snapshot, object_name)
+        values = tuple(snapshot.truth(fact) for fact in candidates)
+        unlocated = bool(values) and all(value is TruthValue.FALSE for value in values)
+        unresolved = bool(values) and not any(
+            value is TruthValue.TRUE for value in values
+        ) and any(value is TruthValue.UNKNOWN for value in values)
+        return unlocated, unresolved
+
+    def project(
+        self,
+        snapshot: FactSnapshot,
+        *,
+        policy_step: int,
+        observation_generation: int,
+        certificate_state: str,
+        phase: str | None = None,
+        settling_step: int | None = None,
+    ) -> dict[str, Any]:
+        statuses: dict[str, str] = {"INIT": "COMPLETED"}
+        for node in self.graph.nodes:
+            if node.kind is not NodeKind.ACTION or node.action is None:
+                continue
+            action = node.action
+            previous = self._statuses.get(node.node_id)
+            completed = snapshot.satisfies(
+                positive=action.add_effects, negative=action.del_effects
+            )
+            if completed:
+                statuses[node.node_id] = "COMPLETED"
+                continue
+            raw_effect = self._raw_satisfies(
+                snapshot,
+                positive=action.add_effects,
+                negative=action.del_effects,
+            )
+            if raw_effect:
+                statuses[node.node_id] = "EFFECT_OBSERVED"
+                continue
+
+            object_name = (
+                action.arguments[0]
+                if action.schema in self._TRANSPORT_SCHEMAS and action.arguments
+                else None
+            )
+            unlocated = unresolved = False
+            held = False
+            if object_name is not None:
+                unlocated, unresolved = self._transport_state(snapshot, object_name)
+                held = snapshot.truth(
+                    Fact("holding", (object_name,))
+                ) is TruthValue.TRUE
+            if object_name is not None and previous in {
+                "READY",
+                "ACTIVE",
+                "EFFECT_OBSERVED",
+            } and (
+                held or unlocated or unresolved
+            ):
+                statuses[node.node_id] = "ACTIVE"
+                continue
+
+            preconditions = action.preconditions | action.negative_preconditions
+            has_unknown = unresolved or any(
+                snapshot.truth(fact) is TruthValue.UNKNOWN for fact in preconditions
+            )
+            ready = (
+                all(
+                    statuses.get(item) == "COMPLETED"
+                    for item in self._predecessors[node.node_id]
+                )
+                and snapshot.satisfies(
+                    positive=action.preconditions,
+                    negative=action.negative_preconditions,
+                )
+            )
+            statuses[node.node_id] = (
+                "READY"
+                if ready
+                else "PRECONDITION_UNKNOWN"
+                if has_unknown
+                else "BLOCKED"
+            )
+
+        goal_completed = self._raw_satisfies(
+            snapshot,
+            positive=self.problem.goal,
+            negative=self.problem.negative_goal,
+        )
+        statuses["GOAL"] = (
+            "COMPLETED"
+            if goal_completed
+            else "READY"
+            if all(
+                statuses.get(item) == "COMPLETED"
+                for item in self._predecessors["GOAL"]
+            )
+            else "BLOCKED"
+        )
+        self._statuses = statuses
+        state: dict[str, Any] = {
+            "policy_step": policy_step,
+            "observation_generation": observation_generation,
+            "certificate_state": certificate_state,
+            "graph_version": self.graph.graph_version,
+            "graph_hash": self.graph.graph_hash,
+            "nodes": [
+                {"node_id": node.node_id, "status": statuses[node.node_id]}
+                for node in self.graph.nodes
+            ],
+        }
+        if phase is not None:
+            state["phase"] = phase
+        if settling_step is not None:
+            state["settling_step"] = settling_step
+        return state
+
+
 def project_graph_state(
     graph: CausalGraph,
     problem: TaskProblem,
@@ -104,60 +282,14 @@ def project_graph_state(
     observation_generation: int,
     certificate_state: str,
 ) -> dict[str, Any]:
-    """Project one observation-backed snapshot onto the certified graph."""
+    """Project one snapshot without retaining temporal action progress."""
 
-    predecessors = {node.node_id: set() for node in graph.nodes}
-    for edge in graph.edges:
-        source = graph.node_map[edge.source]
-        if source.kind is NodeKind.ACTION:
-            predecessors[edge.target].add(edge.source)
-
-    statuses: dict[str, str] = {"INIT": "COMPLETED"}
-    for node in graph.nodes:
-        if node.kind is not NodeKind.ACTION or node.action is None:
-            continue
-        action = node.action
-        completed = snapshot.satisfies(
-            positive=action.add_effects, negative=action.del_effects
-        )
-        if completed:
-            statuses[node.node_id] = "COMPLETED"
-            continue
-        preconditions = action.preconditions | action.negative_preconditions
-        has_unknown = any(
-            snapshot.truth(fact) is TruthValue.UNKNOWN for fact in preconditions
-        )
-        ready = (
-            all(statuses.get(item) == "COMPLETED" for item in predecessors[node.node_id])
-            and snapshot.satisfies(
-                positive=action.preconditions, negative=action.negative_preconditions
-            )
-        )
-        statuses[node.node_id] = (
-            "READY" if ready else "PRECONDITION_UNKNOWN" if has_unknown else "BLOCKED"
-        )
-
-    goal_completed = snapshot.satisfies(
-        positive=problem.goal, negative=problem.negative_goal
+    return ShadowGraphTracker(graph, problem).project(
+        snapshot,
+        policy_step=policy_step,
+        observation_generation=observation_generation,
+        certificate_state=certificate_state,
     )
-    statuses["GOAL"] = (
-        "COMPLETED"
-        if goal_completed
-        else "READY"
-        if all(statuses.get(item) == "COMPLETED" for item in predecessors["GOAL"])
-        else "BLOCKED"
-    )
-    return {
-        "policy_step": policy_step,
-        "observation_generation": observation_generation,
-        "certificate_state": certificate_state,
-        "graph_version": graph.graph_version,
-        "graph_hash": graph.graph_hash,
-        "nodes": [
-            {"node_id": node.node_id, "status": statuses[node.node_id]}
-            for node in graph.nodes
-        ],
-    }
 
 
 def _same_value(first: Any, second: Any) -> bool:
@@ -395,6 +527,9 @@ def build_shadow_runtime(
                     graph=certified.graph,
                     certificate_hash=certified.certificate.certificate_hash,
                 )
+                graph_tracker = ShadowGraphTracker(
+                    certified.graph, certified.problem
+                )
                 def record_state(
                     trace_context: ShadowStepContext,
                     snapshot: FactSnapshot,
@@ -402,13 +537,12 @@ def build_shadow_runtime(
                 ) -> None:
                     try:
                         runtime.state_trace.append(
-                            project_graph_state(
-                                certified.graph,
-                                certified.problem,
+                            graph_tracker.project(
                                 snapshot,
                                 policy_step=trace_context.policy_step,
                                 observation_generation=reconciliation.observation_generation,
                                 certificate_state=reconciliation.certificate_state.value,
+                                phase="POLICY",
                             )
                         )
                     except Exception:

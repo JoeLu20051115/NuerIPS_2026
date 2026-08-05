@@ -1057,6 +1057,8 @@ def _relevant_fact_hash(
 
 
 class ShadowCertificateReconciler:
+    _TRANSPORT_SCHEMAS = frozenset({"place-on", "place-in", "place-relative"})
+
     def __init__(
         self,
         plan_context: ShadowPlanContext,
@@ -1068,6 +1070,7 @@ class ShadowCertificateReconciler:
         self.relevant_facts = _relevant_facts(plan_context)
         self._state = CertificateState.CURRENT
         self._generation = 0
+        self._inflight_nodes: set[str] = set()
 
     def initial(self, snapshot: FactSnapshot) -> CertificateReconciliation:
         return CertificateReconciliation(
@@ -1096,11 +1099,58 @@ class ShadowCertificateReconciler:
                 return False
         return True
 
+    def _transport_envelope(self, action: GroundAction) -> frozenset[SignedLiteral]:
+        object_name = action.arguments[0]
+        facts = {
+            fact
+            for fact in self.relevant_facts
+            if (
+                fact.predicate == "holding"
+                and fact.arguments == (object_name,)
+            )
+            or (
+                fact.predicate == "at"
+                and fact.arguments
+                and fact.arguments[0] == object_name
+            )
+            or fact == Fact("handempty")
+        }
+        return frozenset(
+            SignedLiteral(fact, truth) for fact in facts for truth in (False, True)
+        )
+
+    def _entered_transport(
+        self, action: GroundAction, current: FactSnapshot
+    ) -> bool:
+        object_name = action.arguments[0]
+        if current.truth(Fact("holding", (object_name,))) is TruthValue.TRUE:
+            return True
+        locations = tuple(
+            fact
+            for fact in self.relevant_facts
+            if fact.predicate == "at"
+            and fact.arguments
+            and fact.arguments[0] == object_name
+        )
+        return bool(locations) and all(
+            current.truth(fact) is TruthValue.FALSE for fact in locations
+        )
+
     def _covered(
         self,
         changed: frozenset[SignedLiteral],
         previous: FactSnapshot,
+        current: FactSnapshot,
     ) -> bool:
+        for node_id in tuple(self._inflight_nodes):
+            action = self.plan_context.graph.node_map[node_id].action
+            if action is None or not changed <= self._transport_envelope(action):
+                continue
+            if current.satisfies(
+                positive=action.add_effects, negative=action.del_effects
+            ):
+                self._inflight_nodes.remove(node_id)
+            return True
         for node_id in self.plan_context.graph.canonical_agenda:
             node = self.plan_context.graph.node_map[node_id]
             action = node.action
@@ -1115,6 +1165,16 @@ class ShadowCertificateReconciler:
             )
             if changed <= effects:
                 return True
+            if (
+                action.schema in self._TRANSPORT_SCHEMAS
+                and changed <= self._transport_envelope(action)
+                and self._entered_transport(action, current)
+            ):
+                if not current.satisfies(
+                    positive=action.add_effects, negative=action.del_effects
+                ):
+                    self._inflight_nodes.add(node_id)
+                return True
         return False
 
     def reconcile(
@@ -1128,7 +1188,7 @@ class ShadowCertificateReconciler:
             and current.truth(fact) is not TruthValue.UNKNOWN
         )
         if self._state is CertificateState.CURRENT and changed and not self._covered(
-            changed, previous
+            changed, previous, current
         ):
             self._state = CertificateState.STALE
         return CertificateReconciliation(
