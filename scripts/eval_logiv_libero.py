@@ -884,6 +884,12 @@ def _shadow_snapshot_peek(
     return grounder.peek_snapshot()
 
 
+def _policy_time_snapshot_peek(
+    grounder: LiberoOracleGrounder,
+) -> FactSnapshot:
+    return grounder.peek_advisory_partial_snapshot()
+
+
 def _strict_terminal_snapshot_reader(
     store: LiberoObservationStore,
     grounder: LiberoOracleGrounder,
@@ -1155,9 +1161,12 @@ def _build_evaluator_shadow_runtime(
             if current_hash == previous_observation_sha256:
                 return previous_snapshot
             store.update(current_observation)
-            previous_snapshot = _shadow_snapshot_peek(
-                grounder, topology_only=args.shadow_topology_only
-            )
+            if args.capture_task5_terminal_preflight:
+                previous_snapshot = _policy_time_snapshot_peek(grounder)
+            else:
+                previous_snapshot = _shadow_snapshot_peek(
+                    grounder, topology_only=args.shadow_topology_only
+                )
             previous_observation_sha256 = current_hash
             return previous_snapshot
 

@@ -121,6 +121,42 @@ def test_terminal_snapshot_reader_always_updates_and_uses_strict_grounding() -> 
     assert grounder.strict_calls == 1
 
 
+def test_terminal_preflight_policy_reads_advisory_without_strict_fallback() -> None:
+    updates = []
+
+    class Store:
+        def update(self, observation):
+            updates.append(observation)
+
+    class Grounder:
+        def __init__(self) -> None:
+            self.advisory_calls = 0
+            self.strict_calls = 0
+
+        def peek_advisory_partial_snapshot(self):
+            self.advisory_calls += 1
+            return "advisory"
+
+        def peek_snapshot(self):
+            self.strict_calls += 1
+            raise ValueError("ambiguous final location")
+
+    policy_reader = getattr(evaluator_script, "_policy_time_snapshot_peek", None)
+    strict_reader = getattr(
+        evaluator_script, "_strict_terminal_snapshot_reader", None
+    )
+    assert policy_reader is not None
+    assert strict_reader is not None
+    grounder = Grounder()
+
+    assert policy_reader(grounder) == "advisory"
+    with pytest.raises(ValueError, match="ambiguous final location"):
+        strict_reader(Store(), grounder, {"frame": 2})
+
+    assert updates == [{"frame": 2}]
+    assert (grounder.advisory_calls, grounder.strict_calls) == (1, 1)
+
+
 def _terminal_preflight_args(*extra: str):
     return _parser().parse_args(
         [
