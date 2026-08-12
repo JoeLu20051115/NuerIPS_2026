@@ -61,6 +61,7 @@ def test_planner_replans_from_confirmed_prefix_and_real_val_certifies() -> None:
     complete = planner.plan(task, initial)
 
     assert complete.valid
+    assert complete.searched
     assert "Plan valid" in complete.val_stdout
     assert tuple(action.stage_index for action in complete.actions) == tuple(
         range(len(task.stages))
@@ -196,8 +197,8 @@ def test_full_dag_control_dispatches_ready_node_before_task_prompt() -> None:
 
     assert outcome.success
     assert prompts == [
-        task.stages[0].policy_prompt,
-        task.stages[1].policy_prompt,
+        RECOVERY_POLICY_PROMPTS[task.name][0],
+        RECOVERY_POLICY_PROMPTS[task.name][1],
     ]
     assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 

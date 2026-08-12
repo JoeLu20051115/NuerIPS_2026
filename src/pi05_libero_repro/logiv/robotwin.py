@@ -324,6 +324,7 @@ class RobotwinCertifiedPlan:
     plan_pddl: str
     val_stdout: str
     val_stderr: str
+    searched: bool
 
 
 def _and(atoms: Sequence[str]) -> str:
@@ -400,15 +401,28 @@ class RobotwinPddlPlanner:
         # This prevents a conservative observer from sending the policy back to
         # disturb already completed geometry when an earlier fact is occluded.
         prefix = max(confirmed, default=-1) + 1
+        remaining_indices = frozenset(range(prefix, len(task.stages)))
+        searched_indices: list[int] = []
+        search_true = set(range(prefix))
+        while remaining_indices - set(searched_indices):
+            ready = [
+                index
+                for index in sorted(remaining_indices - set(searched_indices))
+                if index == 0 or index - 1 in search_true
+            ]
+            if not ready:
+                raise RuntimeError("registered RoboTwin PDDL problem is unsolvable")
+            chosen = ready[0]
+            searched_indices.append(chosen)
+            search_true.add(chosen)
         actions = tuple(
             RobotwinPlanAction(
                 stage_index=index,
-                fact=stage.fact,
+                fact=task.stages[index].fact,
                 pddl_name=f"achieve-stage-{index}",
-                policy_prompt=stage.policy_prompt,
+                policy_prompt=task.stages[index].policy_prompt,
             )
-            for index, stage in enumerate(task.stages)
-            if index >= prefix
+            for index in searched_indices
         )
         true_facts = {stage.fact for stage in task.stages[:prefix]}
         domain = self._domain(task)
@@ -452,6 +466,7 @@ class RobotwinPddlPlanner:
             plan_pddl=plan_text,
             val_stdout=result.stdout,
             val_stderr=result.stderr,
+            searched=True,
         )
 
 
@@ -742,7 +757,11 @@ class RobotwinEpisodeController:
                         tuple(events),
                         dispatches,
                     )
-                prompt = self.task.stages[active].policy_prompt
+                prompt = (
+                    base_prompt
+                    if self.task.name in SCENE_BOUND_REPAIR_TASKS
+                    else RECOVERY_POLICY_PROMPTS[self.task.name][active]
+                )
             elif active is None:
                 if base_prompt is None:
                     return RobotwinEpisodeOutcome(
