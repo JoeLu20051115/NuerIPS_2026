@@ -33,16 +33,16 @@
     "beat_block_hammer": 4
   },
   "stage_stall_observations_by_task": {
-    "handover_block": [4, 4, 1],
-    "open_microwave": [4, 3],
-    "place_dual_shoes": [3, 1],
-    "stamp_seal": [3, 1],
-    "blocks_ranking_size": [3, 2, 1],
-    "move_can_pot": [4],
-    "turn_switch": [3],
-    "stack_blocks_three": [3, 2, 1],
-    "stack_bowls_three": [4, 3, 2],
-    "beat_block_hammer": [4, 2]
+    "handover_block": [8, 8, 8],
+    "open_microwave": [8, 20],
+    "place_dual_shoes": [8, 12],
+    "stamp_seal": [8, 20],
+    "blocks_ranking_size": [8, 12, 16],
+    "move_can_pot": [12],
+    "turn_switch": [12],
+    "stack_blocks_three": [8, 12, 20],
+    "stack_bowls_three": [8, 12, 16],
+    "beat_block_hammer": [8, 12]
   },
   "tasks": {
     "handover_block": [100000, 100002, 100003, 100004, 100006, 100007, 100008, 100009, 100010, 100011],
