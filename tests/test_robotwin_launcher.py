@@ -60,3 +60,9 @@ def test_task_specific_base_protection_is_converted_to_dispatches() -> None:
     assert LAUNCHER._min_base_dispatches(config, "turn_switch") == 7
     assert LAUNCHER._min_base_dispatches(config, "stack_blocks_three") == 13
     assert LAUNCHER._min_base_dispatches(config, "move_can_pot") == 0
+
+
+def test_launcher_passes_distinct_repair_chunk_size() -> None:
+    config = {"action_chunk_steps": 50, "repair_action_chunk_steps": 10}
+
+    assert LAUNCHER._repair_action_chunk_steps(config) == 10

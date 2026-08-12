@@ -314,7 +314,7 @@ def test_monitored_base_prefix_keeps_the_original_scene_prompt() -> None:
     assert all(event.control_mode == "BASE_MONITORED" for event in outcome.events)
 
 
-def test_stable_false_frontier_triggers_contextual_local_repair() -> None:
+def test_stable_false_frontier_preserves_scene_specific_repair_prompt() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     false = {task.goal_fact: TruthValue.FALSE}
     grounder = _SequenceGrounder([false, false, false, false])
@@ -337,12 +337,42 @@ def test_stable_false_frontier_triggers_contextual_local_repair() -> None:
 
     assert outcome.success
     assert prompts[:2] == [original, original]
-    assert prompts[2] == RECOVERY_POLICY_PROMPTS[task.name][0]
+    assert prompts[2] == original
     assert [event.control_mode for event in outcome.events] == [
         "BASE_MONITORED",
         "BASE_MONITORED",
         "REPAIR",
         "REPAIR",
+    ]
+
+
+def test_dispatch_receives_control_mode_for_repair_chunk_sizing() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([false] * 4)
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=2,
+    )
+    calls = []
+    original = "Use the left arm to press the flat tan switch."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: None,
+        dispatch_with_mode=lambda prompt, mode: calls.append((prompt, mode)),
+        native_success=lambda: len(calls) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert calls == [
+        (original, "BASE_MONITORED"),
+        (original, "BASE_MONITORED"),
+        (original, "REPAIR"),
     ]
 
 
@@ -369,7 +399,7 @@ def test_base_protection_window_monitors_but_delays_prompt_replacement() -> None
     )
 
     assert outcome.success
-    assert prompts == [original] * 3 + [RECOVERY_POLICY_PROMPTS[task.name][0]]
+    assert prompts == [original] * 4
     assert [event.control_mode for event in outcome.events[:3]] == [
         "BASE_MONITORED"
     ] * 3
@@ -473,7 +503,7 @@ def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
 
     assert outcome.success
     assert prompts[0] == original
-    assert prompts[1] == RECOVERY_POLICY_PROMPTS[task.name][0]
+    assert prompts[1] == original
     assert outcome.events[1].control_mode == "REPAIR"
     assert outcome.events[1].active_stage_index == 0
 
@@ -506,8 +536,8 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
     assert prompts == [
         original,
         original,
-        RECOVERY_POLICY_PROMPTS[task.name][0],
-        RECOVERY_POLICY_PROMPTS[task.name][0],
+        original,
+        original,
     ]
     assert outcome.events[3].control_mode == "REPAIR"
     assert outcome.events[3].active_stage_index == 0

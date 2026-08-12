@@ -275,6 +275,20 @@ RECOVERY_POLICY_PROMPTS = {
 }
 
 
+# These tasks' frozen instructions identify a randomized object variant, target,
+# or arm. Keep that scene binding during repair; PDDL still chooses the active
+# stage and the shorter repair horizon supplies the local receding-horizon edit.
+SCENE_BOUND_REPAIR_TASKS = frozenset(
+    {
+        "place_dual_shoes",
+        "stamp_seal",
+        "move_can_pot",
+        "turn_switch",
+        "beat_block_hammer",
+    }
+)
+
+
 def bind_canonical_policy_prompt(task: RobotwinTask) -> RobotwinTask:
     prompt = CANONICAL_POLICY_PROMPTS[task.name]
     return RobotwinTask(
@@ -608,6 +622,7 @@ class RobotwinEpisodeController:
         *,
         initial_observation: Any,
         dispatch: Callable[[str], Any],
+        dispatch_with_mode: Callable[[str, str], Any] | None = None,
         native_success: Callable[[], bool],
         budget_exhausted: Callable[[], bool],
         base_prompt: str | None = None,
@@ -720,8 +735,13 @@ class RobotwinEpisodeController:
                 prompt = base_prompt
             elif base_prompt is None:
                 prompt = self.task.stages[active].policy_prompt
+            elif self.task.name in SCENE_BOUND_REPAIR_TASKS:
+                prompt = base_prompt
             else:
                 prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
-            observation = dispatch(prompt)
+            if dispatch_with_mode is None:
+                observation = dispatch(prompt)
+            else:
+                observation = dispatch_with_mode(prompt, control_mode)
             dispatches += 1
         raise AssertionError("controller loop exceeded its explicit dispatch bound")

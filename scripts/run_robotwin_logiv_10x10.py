@@ -42,6 +42,10 @@ def _min_base_dispatches(config: dict, task: str) -> int:
     return (steps + chunk - 1) // chunk
 
 
+def _repair_action_chunk_steps(config: dict) -> int:
+    return int(config.get("repair_action_chunk_steps", config["action_chunk_steps"]))
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -94,6 +98,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--logiv_root", str(args.logiv_root),
             "--val_binary", str(args.val_binary),
             "--action_chunk_steps", str(config["action_chunk_steps"]),
+            "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config)),
             "--max_gpt4o_retries", "2",
             "--base_stall_observations", str(_stall_observations(config, task)),
             "--min_base_dispatches", str(_min_base_dispatches(config, task)),

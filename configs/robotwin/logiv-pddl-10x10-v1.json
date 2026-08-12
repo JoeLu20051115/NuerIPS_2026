@@ -4,6 +4,7 @@
   "task_config": "demo_clean",
   "instruction_type": "unseen",
   "action_chunk_steps": 50,
+  "repair_action_chunk_steps": 10,
   "min_base_steps_by_task": {
     "handover_block": 0,
     "open_microwave": 400,
