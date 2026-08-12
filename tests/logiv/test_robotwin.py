@@ -12,6 +12,7 @@ from pi05_libero_repro.logiv.robotwin import (
     RobotwinPddlPlanner,
     RECOVERY_POLICY_PROMPTS,
     SCENE_BOUND_REPAIR_TASKS,
+    TERMINAL_CONSTRAINT_PROMPTS,
     TruthValue,
     bind_canonical_policy_prompt,
     extract_robotwin_images,
@@ -592,7 +593,7 @@ def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
     )
 
     assert outcome.success
-    assert prompts == [RECOVERY_POLICY_PROMPTS[task.name][-1]]
+    assert prompts == [TERMINAL_CONSTRAINT_PROMPTS[task.name]]
     assert outcome.events[0].control_mode == "REPAIR"
     assert outcome.events[0].active_stage_index == len(task.stages) - 1
 
@@ -620,7 +621,7 @@ def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
 
     assert outcome.success
     assert prompts[0] == original
-    assert prompts[1] == original
+    assert prompts[1] == TERMINAL_CONSTRAINT_PROMPTS[task.name]
     assert outcome.events[1].control_mode == "REPAIR"
     assert outcome.events[1].active_stage_index == 0
 
@@ -654,7 +655,7 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
         original,
         original,
         original,
-        original,
+        TERMINAL_CONSTRAINT_PROMPTS[task.name],
     ]
     assert outcome.events[3].control_mode == "REPAIR"
     assert outcome.events[3].active_stage_index == 0

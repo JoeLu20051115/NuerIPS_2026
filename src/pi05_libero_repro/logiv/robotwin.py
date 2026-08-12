@@ -275,6 +275,25 @@ RECOVERY_POLICY_PROMPTS = {
 }
 
 
+# The visual goal can become true one macro before RoboTwin's stricter native
+# success predicate (for example, while a gripper is still closed or a hinged
+# door is not quite past its numeric threshold).  In that case the PDDL suffix
+# is still the terminal node, but replaying the whole task can destroy already
+# correct geometry.  These prompts implement the smallest terminal-node retry.
+TERMINAL_CONSTRAINT_PROMPTS = {
+    "handover_block": "Open the right gripper to release the red block on the blue pad, then withdraw both arms without touching the block.",
+    "open_microwave": "Keep pulling the microwave door farther open with the left arm until it reaches its fully open position.",
+    "place_dual_shoes": "Open both grippers and withdraw both arms without touching the two shoes in the shoe box.",
+    "stamp_seal": "Open both grippers and withdraw both arms without moving the seal centered on the colored target.",
+    "blocks_ranking_size": "Open both grippers and withdraw both arms without touching the ordered row of blocks.",
+    "move_can_pot": "Open both grippers and withdraw both arms without moving the can beside the pot.",
+    "turn_switch": "Press the switch fully to its end position, then withdraw the arm.",
+    "stack_blocks_three": "Open both grippers and withdraw both arms without touching the three-block stack.",
+    "stack_bowls_three": "Open both grippers and withdraw both arms without touching the three-bowl stack.",
+    "beat_block_hammer": "Continue the hammer strike until the hammer head makes firm contact with the block.",
+}
+
+
 # These tasks' frozen instructions identify a randomized object variant, target,
 # or arm. Keep that scene binding during repair; PDDL still chooses the active
 # stage and the shorter repair horizon supplies the local receding-horizon edit.
@@ -772,6 +791,8 @@ class RobotwinEpisodeController:
                         dispatches,
                     )
                 prompt = base_prompt
+            elif goal_conflict_repair:
+                prompt = TERMINAL_CONSTRAINT_PROMPTS[self.task.name]
             elif base_prompt is None:
                 prompt = self.task.stages[active].policy_prompt
             elif self.task.name in SCENE_BOUND_REPAIR_TASKS:
