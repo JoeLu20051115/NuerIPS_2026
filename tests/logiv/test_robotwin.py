@@ -476,7 +476,7 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
     assert RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2] == (
         "Move red block, green block, and blue block to the center. "
-        "Stack blue block on green block and green block on red block. Release both grippers."
+        "Stack blue block on green block and green block on red block; release both grippers."
     )
 
 
