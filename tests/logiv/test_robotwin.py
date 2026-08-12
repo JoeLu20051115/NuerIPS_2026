@@ -256,7 +256,7 @@ def test_repair_reopens_a_dropped_transient_grasp_after_two_observations() -> No
     ]
 
 
-def test_repair_reopens_persistent_geometry_that_no_longer_holds() -> None:
+def test_repair_keeps_confirmed_persistent_geometry_latched() -> None:
     task = ROBOTWIN_TASKS["stack_blocks_three"]
     all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
     base_confirmed = dict(all_false)
@@ -281,7 +281,7 @@ def test_repair_reopens_persistent_geometry_that_no_longer_holds() -> None:
     )
 
     assert outcome.success
-    assert prompts[-1] == RECOVERY_POLICY_PROMPTS[task.name][0]
+    assert prompts[-1] == RECOVERY_POLICY_PROMPTS[task.name][1]
 
 
 def test_monitored_base_prefix_keeps_the_original_scene_prompt() -> None:

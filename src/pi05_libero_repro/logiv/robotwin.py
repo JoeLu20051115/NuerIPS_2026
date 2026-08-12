@@ -642,12 +642,13 @@ class RobotwinEpisodeController:
             latched_true.update(
                 name for name, value in observed.items() if value is TruthValue.TRUE
             )
-            # A completed node is latched against one-frame VLM flicker. During
-            # repair, two consecutive visible FALSE observations prove that its
-            # effect no longer holds, so PDDL may reopen that node. A later TRUE
-            # node still entails its registered prefix in the planner.
+            # Completed geometry is latched against VLM flicker. Only transient
+            # physical state (for example, a grasp) may be reopened after two
+            # consecutive visible FALSE observations. Reopening persistent
+            # geometry made the controller repeatedly disturb already placed
+            # objects instead of advancing through the certified suffix.
             for stage in self.task.stages:
-                if stage.fact == self.task.goal_fact:
+                if not stage.transient:
                     continue
                 value = observed.get(stage.fact, TruthValue.UNKNOWN)
                 if value is TruthValue.TRUE or control_mode != "REPAIR":
