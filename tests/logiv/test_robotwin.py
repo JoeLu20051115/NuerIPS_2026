@@ -333,6 +333,41 @@ def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
     assert outcome.events[1].active_stage_index == 0
 
 
+def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
+    task = ROBOTWIN_TASKS["move_can_pot"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    visual_true = {task.goal_fact: TruthValue.TRUE}
+    grounder = _SequenceGrounder(
+        [false, false, false, visual_true, visual_true]
+    )
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=2,
+    )
+    prompts = []
+    original = "Move the sauce can beside the cooking pot."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 4,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts == [
+        original,
+        original,
+        RECOVERY_POLICY_PROMPTS[task.name][0],
+        RECOVERY_POLICY_PROMPTS[task.name][0],
+    ]
+    assert outcome.events[3].control_mode == "REPAIR"
+    assert outcome.events[3].active_stage_index == 0
+
+
 def test_grounder_compares_current_views_to_episode_initial_views() -> None:
     class RecordingClient:
         def __init__(self):

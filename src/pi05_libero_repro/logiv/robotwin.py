@@ -601,10 +601,10 @@ class RobotwinEpisodeController:
                 visual_goal_native_conflicts += 1
             else:
                 visual_goal_native_conflicts = 0
-            goal_conflict_repair = (
-                base_prompt is not None
-                and visual_goal_native_conflicts >= self.base_stall_observations
-            )
+            goal_conflict_repair = base_prompt is not None and (
+                control_mode == "REPAIR"
+                or visual_goal_native_conflicts >= self.base_stall_observations
+            ) and facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded
             if goal_conflict_repair:
                 # The benchmark evaluator is authoritative for terminal success.
                 # A persistent visual false positive must not erase the remaining
