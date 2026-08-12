@@ -294,12 +294,6 @@ TERMINAL_CONSTRAINT_PROMPTS = {
 }
 
 
-# A seal hovering over its target is visually indistinguishable from contact
-# in one or two low-detail frames.  Require a longer stable observation before
-# overriding the original task prompt with the terminal press correction.
-GOAL_CONFLICT_CONFIRMATIONS = {"stamp_seal": 4}
-
-
 # These tasks' frozen instructions identify a randomized object variant, target,
 # or arm. Keep that scene binding during repair; PDDL still chooses the active
 # stage and the shorter repair horizon supplies the local receding-horizon edit.
@@ -716,14 +710,10 @@ class RobotwinEpisodeController:
             else:
                 visual_goal_native_conflicts = 0
             graph_controlled = control_mode in {"DAG_EXECUTION", "REPAIR"}
-            graph_goal_conflict_threshold = GOAL_CONFLICT_CONFIRMATIONS.get(
-                self.task.name, 2
-            )
             goal_conflict_repair = base_prompt is not None and (
                 (
                     graph_controlled
-                    and visual_goal_native_conflicts
-                    >= graph_goal_conflict_threshold
+                    and visual_goal_native_conflicts >= 2
                 )
                 or (
                     dispatches >= self.min_base_dispatches
