@@ -620,29 +620,29 @@ class RobotwinEpisodeController:
         previous_frontier: int | None = None
         unchanged_false_observations = 0
         visual_goal_native_conflicts = 0
-        transient_false_observations: dict[str, int] = {}
+        latched_false_observations: dict[str, int] = {}
         for epoch in range(self.max_dispatches + 1):
             observed = self.grounder.observe(self.task, observation, epoch=epoch)
             latched_true.update(
                 name for name, value in observed.items() if value is TruthValue.TRUE
             )
-            # Completed geometry is latched to suppress one-frame VLM flicker, but
-            # a grasp is physical state rather than a permanent milestone. During
-            # repair, two consecutive visible FALSE observations reopen a dropped
-            # grasp so PDDL can return to its acquisition action.
+            # A completed node is latched against one-frame VLM flicker. During
+            # repair, two consecutive visible FALSE observations prove that its
+            # effect no longer holds, so PDDL may reopen that node. A later TRUE
+            # node still entails its registered prefix in the planner.
             for stage in self.task.stages:
-                if not stage.transient:
+                if stage.fact == self.task.goal_fact:
                     continue
                 value = observed.get(stage.fact, TruthValue.UNKNOWN)
                 if value is TruthValue.TRUE or control_mode != "REPAIR":
-                    transient_false_observations[stage.fact] = 0
+                    latched_false_observations[stage.fact] = 0
                 elif value is TruthValue.FALSE and stage.fact in latched_true:
-                    count = transient_false_observations.get(stage.fact, 0) + 1
-                    transient_false_observations[stage.fact] = count
+                    count = latched_false_observations.get(stage.fact, 0) + 1
+                    latched_false_observations[stage.fact] = count
                     if count >= 2:
                         latched_true.discard(stage.fact)
                 else:
-                    transient_false_observations[stage.fact] = 0
+                    latched_false_observations[stage.fact] = 0
             facts = {
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
