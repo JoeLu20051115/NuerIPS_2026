@@ -1,7 +1,7 @@
 From 7975dd1b474e5c22eda13f212b3ed4b2ced8d7b9 Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 03:41:40 +0800
-Subject: [PATCH 1/7] feat(robotwin): use shorter LOGIV repair chunks
+Subject: [PATCH 1/6] feat(robotwin): use shorter LOGIV repair chunks
 
 ---
  .../Robotwin/script/eval_lerobot_torch_pi05.py  | 17 ++++++++++++++---
@@ -145,7 +145,7 @@ index 5cc2335..1375405 100644
 From f60f2f8d12f4ea6dbebbf0ca6d308b4c064e1dcf Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 04:05:25 +0800
-Subject: [PATCH 2/7] tune(robotwin): preserve pi05 repair macros
+Subject: [PATCH 2/6] tune(robotwin): preserve pi05 repair macros
 
 ---
  .../script/eval_lerobot_torch_pi05.py         | 20 ++++++-
@@ -327,7 +327,7 @@ index 0000000..8ec017d
 From 94792d51f55ec6b87718b34d0cc47ec310fbf4c8 Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 04:23:43 +0800
-Subject: [PATCH 3/7] feat(robotwin): configure LOGIV image detail
+Subject: [PATCH 3/6] feat(robotwin): configure LOGIV image detail
 
 ---
  .../Robotwin/script/eval_lerobot_torch_pi05.py        |  5 ++++-
@@ -444,7 +444,7 @@ index 1375405..675e529 100644
 From 443c286da367c82f44b6d861ac8e8522f8ddc6b6 Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 06:01:04 +0800
-Subject: [PATCH 4/7] feat(robotwin): enable initial DAG execution
+Subject: [PATCH 4/6] feat(robotwin): enable initial DAG execution
 
 ---
  third_party/Robotwin/script/eval_lerobot_torch_pi05.py | 5 ++++-
@@ -546,7 +546,7 @@ index 675e529..eb68778 100644
 From 6b20ea2a4b75919b5477fb53b99753a871a37934 Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 06:01:51 +0800
-Subject: [PATCH 5/7] fix(robotwin): execute complete DAG node macros
+Subject: [PATCH 5/6] fix(robotwin): execute complete DAG node macros
 
 ---
  .../Robotwin/script/pi05_logiv_execution.py       |  2 +-
@@ -599,7 +599,7 @@ index 8ec017d..0ce9f97 100644
 From ce3dbdffdcefb1908882f40299420c7dbb48bdc1 Mon Sep 17 00:00:00 2001
 From: Du Hangyu <770240437@qq.com>
 Date: Thu, 13 Aug 2026 06:02:20 +0800
-Subject: [PATCH 6/7] fix(robotwin): parse DAG mode explicitly
+Subject: [PATCH 6/6] fix(robotwin): parse DAG mode explicitly
 
 ---
  third_party/Robotwin/script/pi05_logiv_options.py  |  7 ++++++-
@@ -649,93 +649,6 @@ index eb68778..7568b94 100644
      def test_rejects_seed_drift_and_invalid_chunk(self):
          common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
          with self.assertRaisesRegex(ValueError, "accepted_seeds"):
--- 
-2.43.0
-
-
-From 9de4200dd9a49cb2437e282b73b13a5b1c29609c Mon Sep 17 00:00:00 2001
-From: Du Hangyu <770240437@qq.com>
-Date: Thu, 13 Aug 2026 07:30:47 +0800
-Subject: [PATCH 7/7] fix(robotwin): monitor DAG macros throughout execution
-
----
- .../Robotwin/script/pi05_logiv_execution.py   |  2 +-
- .../tests/test_pi05_logiv_execution.py        | 37 +++++++++++++++++--
- 2 files changed, 35 insertions(+), 4 deletions(-)
-
-diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
-index 00962a2..4546050 100644
---- a/third_party/Robotwin/script/pi05_logiv_execution.py
-+++ b/third_party/Robotwin/script/pi05_logiv_execution.py
-@@ -29,7 +29,7 @@ class RecedingHorizonMacroExecutor:
-             ]
-         steps = (
-             self.base_chunk_steps
--            if mode in {"BASE_MONITORED", "DAG_EXECUTION"}
-+            if mode == "BASE_MONITORED"
-             else self.repair_observation_steps
-         )
-         for _ in range(min(steps, len(self._actions))):
-diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
-index 0ce9f97..07bb1d8 100644
---- a/third_party/Robotwin/tests/test_pi05_logiv_execution.py
-+++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
-@@ -53,10 +53,16 @@ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
-         self.assertEqual(len(samples), 2)
-         self.assertEqual(len(executed), 60)
- 
--    def test_dag_node_executes_one_complete_policy_macro_before_gate(self):
-+    def test_dag_node_preserves_policy_macro_across_observation_gates(self):
-+        samples = []
-         executed = []
-+
-+        def sample(prompt, observation):
-+            samples.append((prompt, observation))
-+            return list(range(50))
-+
-         executor = RecedingHorizonMacroExecutor(
--            sample_actions=lambda prompt, observation: list(range(50)),
-+            sample_actions=sample,
-             take_action=executed.append,
-             observe=lambda: None,
-             native_success=lambda: False,
-@@ -64,10 +70,35 @@ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
-             repair_observation_steps=10,
-         )
- 
--        executor.dispatch("ready node", "DAG_EXECUTION", 0)
-+        for _ in range(5):
-+            executor.dispatch("ready node", "DAG_EXECUTION", 0)
- 
-+        self.assertEqual(len(samples), 1)
-         self.assertEqual(executed, list(range(50)))
- 
-+    def test_dag_observes_during_macro_without_resampling_same_frontier(self):
-+        samples = []
-+        executed = []
-+
-+        def sample(prompt, observation):
-+            samples.append((prompt, observation))
-+            return list(range(50))
-+
-+        executor = RecedingHorizonMacroExecutor(
-+            sample_actions=sample,
-+            take_action=executed.append,
-+            observe=lambda: len(executed),
-+            native_success=lambda: False,
-+            base_chunk_steps=50,
-+            repair_observation_steps=10,
-+        )
-+
-+        executor.dispatch("ready node", "DAG_EXECUTION", 0)
-+        executor.dispatch("ready node", "DAG_EXECUTION", 0)
-+
-+        self.assertEqual(len(samples), 1)
-+        self.assertEqual(executed, list(range(20)))
-+
- 
- if __name__ == "__main__":
-     unittest.main()
 -- 
 2.43.0
 
