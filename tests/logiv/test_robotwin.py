@@ -603,6 +603,43 @@ def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
     assert outcome.events[0].active_stage_index == len(task.stages) - 1
 
 
+def test_stamp_requires_four_visual_goal_confirmations_before_terminal_repair() -> None:
+    task = ROBOTWIN_TASKS["stamp_seal"]
+    visual_true = {stage.fact: TruthValue.TRUE for stage in task.stages}
+    grounder = _SequenceGrounder([visual_true] * 5)
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=4,
+    )
+    prompts = []
+    original = "Stamp Navy using the smooth stone seal with writing"
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 4,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert prompts == [
+        original,
+        original,
+        original,
+        TERMINAL_CONSTRAINT_PROMPTS[task.name],
+    ]
+    assert [event.control_mode for event in outcome.events[:4]] == [
+        "DAG_EXECUTION",
+        "DAG_EXECUTION",
+        "DAG_EXECUTION",
+        "REPAIR",
+    ]
+
+
 def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
     task = ROBOTWIN_TASKS["move_can_pot"]
     visual_true = {task.goal_fact: TruthValue.TRUE}
