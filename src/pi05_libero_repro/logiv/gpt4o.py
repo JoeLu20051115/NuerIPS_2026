@@ -81,6 +81,7 @@ class Gpt4oClient:
         api_key: str,
         *,
         model: str = "gpt-4o",
+        image_detail: str = "low",
         timeout_seconds: float = 30.0,
         max_retries: int = 2,
         urlopen: Callable[..., Any] = stdlib_urlopen,
@@ -93,8 +94,11 @@ class Gpt4oClient:
             raise ValueError("GPT-4o LOGIV requires model='gpt-4o'")
         if timeout_seconds <= 0 or max_retries < 0:
             raise ValueError("timeout must be positive and max_retries nonnegative")
+        if image_detail not in {"low", "high"}:
+            raise ValueError("image_detail must be 'low' or 'high'")
         self._api_key = api_key
         self.model = model
+        self.image_detail = image_detail
         self.timeout_seconds = float(timeout_seconds)
         self.max_retries = int(max_retries)
         self._urlopen = urlopen
@@ -140,7 +144,7 @@ class Gpt4oClient:
                 "type": "image_url",
                 "image_url": {
                     "url": encode_png_data_url(image),
-                    "detail": "low",
+                    "detail": self.image_detail,
                 },
             }
             for image in images

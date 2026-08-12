@@ -152,6 +152,39 @@ def test_complete_json_sends_gpt4o_images_and_strict_schema(
     assert "secret" not in json.dumps(record.__dict__)
 
 
+def test_client_can_request_high_detail_for_small_robot_objects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    captured = []
+
+    def urlopen(request, *, timeout):
+        captured.append(json.loads(request.data))
+        return _Response(_completion())
+
+    client = Gpt4oClient.from_env(
+        image_detail="high",
+        urlopen=urlopen,
+        clock=iter((0.0, 0.1)).__next__,
+    )
+    client.complete_json(
+        purpose="state_gate",
+        system="s",
+        text="t",
+        images=(np.zeros((2, 2, 3), dtype=np.uint8),),
+        schema_name="facts",
+        schema=SCHEMA,
+    )
+
+    image = captured[0]["messages"][1]["content"][1]
+    assert image["image_url"]["detail"] == "high"
+
+
+def test_client_rejects_unknown_image_detail() -> None:
+    with pytest.raises(ValueError, match="image_detail"):
+        Gpt4oClient("sk-test", image_detail="ultra")
+
+
 def test_complete_json_retries_transient_http_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

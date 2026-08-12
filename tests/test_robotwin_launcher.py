@@ -66,3 +66,7 @@ def test_launcher_passes_distinct_repair_chunk_size() -> None:
     config = {"action_chunk_steps": 50, "repair_action_chunk_steps": 10}
 
     assert LAUNCHER._repair_action_chunk_steps(config) == 10
+
+
+def test_launcher_passes_configured_vlm_image_detail() -> None:
+    assert LAUNCHER._vlm_image_detail({"vlm_image_detail": "high"}) == "high"

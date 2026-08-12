@@ -46,6 +46,10 @@ def _repair_action_chunk_steps(config: dict) -> int:
     return int(config.get("repair_action_chunk_steps", config["action_chunk_steps"]))
 
 
+def _vlm_image_detail(config: dict) -> str:
+    return str(config.get("vlm_image_detail", "low"))
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -99,6 +103,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--val_binary", str(args.val_binary),
             "--action_chunk_steps", str(config["action_chunk_steps"]),
             "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config)),
+            "--vlm_image_detail", _vlm_image_detail(config),
             "--max_gpt4o_retries", "2",
             "--base_stall_observations", str(_stall_observations(config, task)),
             "--min_base_dispatches", str(_min_base_dispatches(config, task)),
