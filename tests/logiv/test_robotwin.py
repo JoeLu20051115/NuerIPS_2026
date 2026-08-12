@@ -221,6 +221,41 @@ def test_controller_latches_confirmed_milestones_instead_of_regressing() -> None
     assert prompts[1:] == [task.stages[1].policy_prompt] * 2
 
 
+def test_repair_reopens_a_dropped_transient_grasp_after_two_observations() -> None:
+    task = ROBOTWIN_TASKS["handover_block"]
+    all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    left_confirmed = dict(all_false)
+    left_confirmed[task.stages[0].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder(
+        [all_false, left_confirmed, all_false, all_false, all_false, all_false]
+    )
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=1,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 5,
+        budget_exhausted=lambda: False,
+        base_prompt="Transfer the red block and put it on the blue pad.",
+    )
+
+    assert outcome.success
+    assert task.stages[0].transient
+    assert prompts == [
+        "Transfer the red block and put it on the blue pad.",
+        "Transfer the red block and put it on the blue pad.",
+        RECOVERY_POLICY_PROMPTS[task.name][1],
+        RECOVERY_POLICY_PROMPTS[task.name][1],
+        RECOVERY_POLICY_PROMPTS[task.name][0],
+    ]
+
+
 def test_monitored_base_prefix_keeps_the_original_scene_prompt() -> None:
     task = ROBOTWIN_TASKS["open_microwave"]
     all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}

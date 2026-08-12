@@ -23,6 +23,7 @@ class RobotwinStage:
     fact: str
     policy_prompt: str
     observer_question: str
+    transient: bool = False
 
     def __post_init__(self) -> None:
         if not self.fact or not self.policy_prompt or not self.observer_question:
@@ -39,8 +40,10 @@ class RobotwinTask:
         return self.stages[-1].fact
 
 
-def _stage(fact: str, prompt: str, question: str) -> RobotwinStage:
-    return RobotwinStage(fact, prompt, question)
+def _stage(
+    fact: str, prompt: str, question: str, *, transient: bool = False
+) -> RobotwinStage:
+    return RobotwinStage(fact, prompt, question, transient)
 
 
 ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
@@ -51,11 +54,13 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
                 "block-held-by-left",
                 "Use the left arm to grasp the red block and move it to the center handover area. Keep holding the block with the left gripper.",
                 "Is the red block securely held by the left gripper near the center handover area?",
+                transient=True,
             ),
             _stage(
                 "block-held-by-right",
                 "Use the right arm to take the red block from the left gripper. Release the left gripper only after the right gripper securely holds the block.",
                 "Has the red block been transferred so that the right gripper holds it and the left gripper has released it?",
+                transient=True,
             ),
             _stage(
                 "block-on-blue-pad",
@@ -71,6 +76,7 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
                 "handle-grasped",
                 "Reach the microwave door handle with the nearest arm and close the gripper firmly around the handle. Do not release it.",
                 "Is one gripper visibly closed around the microwave door handle?",
+                transient=True,
             ),
             _stage(
                 "microwave-open",
@@ -101,6 +107,7 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
                 "seal-grasped",
                 "Grasp the seal upright with the nearest arm and lift it clear of the table. Keep holding it.",
                 "Is the seal visibly held upright by a gripper above the table?",
+                transient=True,
             ),
             _stage(
                 "seal-on-target",
@@ -196,6 +203,7 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
                 "hammer-grasped",
                 "Grasp the hammer firmly by its handle with the nearest arm and lift it above the table. Keep holding it.",
                 "Is the hammer visibly held by its handle in a gripper above the table?",
+                transient=True,
             ),
             _stage(
                 "block-struck",
@@ -272,7 +280,12 @@ def bind_canonical_policy_prompt(task: RobotwinTask) -> RobotwinTask:
     return RobotwinTask(
         task.name,
         tuple(
-            RobotwinStage(stage.fact, prompt, stage.observer_question)
+            RobotwinStage(
+                stage.fact,
+                prompt,
+                stage.observer_question,
+                stage.transient,
+            )
             for stage in task.stages
         ),
     )
@@ -603,11 +616,29 @@ class RobotwinEpisodeController:
         previous_frontier: int | None = None
         unchanged_false_observations = 0
         visual_goal_native_conflicts = 0
+        transient_false_observations: dict[str, int] = {}
         for epoch in range(self.max_dispatches + 1):
             observed = self.grounder.observe(self.task, observation, epoch=epoch)
             latched_true.update(
                 name for name, value in observed.items() if value is TruthValue.TRUE
             )
+            # Completed geometry is latched to suppress one-frame VLM flicker, but
+            # a grasp is physical state rather than a permanent milestone. During
+            # repair, two consecutive visible FALSE observations reopen a dropped
+            # grasp so PDDL can return to its acquisition action.
+            for stage in self.task.stages:
+                if not stage.transient:
+                    continue
+                value = observed.get(stage.fact, TruthValue.UNKNOWN)
+                if value is TruthValue.TRUE or control_mode != "REPAIR":
+                    transient_false_observations[stage.fact] = 0
+                elif value is TruthValue.FALSE and stage.fact in latched_true:
+                    count = transient_false_observations.get(stage.fact, 0) + 1
+                    transient_false_observations[stage.fact] = count
+                    if count >= 2:
+                        latched_true.discard(stage.fact)
+                else:
+                    transient_false_observations[stage.fact] = 0
             facts = {
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
