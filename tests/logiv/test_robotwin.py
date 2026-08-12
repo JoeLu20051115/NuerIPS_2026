@@ -11,6 +11,7 @@ from pi05_libero_repro.logiv.robotwin import (
     RobotwinFactGrounder,
     RobotwinPddlPlanner,
     RECOVERY_POLICY_PROMPTS,
+    SCENE_BOUND_REPAIR_TASKS,
     TruthValue,
     bind_canonical_policy_prompt,
     extract_robotwin_images,
@@ -443,6 +444,10 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
 
 
+def test_bowl_repair_preserves_randomized_scene_description() -> None:
+    assert "stack_bowls_three" in SCENE_BOUND_REPAIR_TASKS
+
+
 def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
     ranking = ROBOTWIN_TASKS["blocks_ranking_size"]
     bowls = ROBOTWIN_TASKS["stack_bowls_three"]
@@ -454,7 +459,9 @@ def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
     ]
     assert "largest block" in RECOVERY_POLICY_PROMPTS[ranking.name][0]
     assert "medium block" in RECOVERY_POLICY_PROMPTS[ranking.name][1]
-    assert "smallest block" in RECOVERY_POLICY_PROMPTS[ranking.name][2]
+    assert RECOVERY_POLICY_PROMPTS[ranking.name][2] == (
+        "Arrange blocks large block, medium block, and small block in decreasing size order."
+    )
     assert "largest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][0]
     assert "medium bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][1]
     assert "smallest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][2]

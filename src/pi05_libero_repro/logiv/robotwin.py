@@ -250,7 +250,7 @@ RECOVERY_POLICY_PROMPTS = {
     "blocks_ranking_size": (
         "Move the largest block to the center-left.",
         "Set the medium block next to the largest block in the center.",
-        "Place the smallest block right of the medium block to complete the arrangement.",
+        "Arrange blocks large block, medium block, and small block in decreasing size order.",
     ),
     "move_can_pot": (
         "Pick up the can and set it beside the pot.",
@@ -284,6 +284,7 @@ SCENE_BOUND_REPAIR_TASKS = frozenset(
         "stamp_seal",
         "move_can_pot",
         "turn_switch",
+        "stack_bowls_three",
         "beat_block_hammer",
     }
 )
