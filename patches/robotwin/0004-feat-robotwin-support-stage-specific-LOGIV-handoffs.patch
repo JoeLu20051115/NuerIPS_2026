@@ -1,0 +1,121 @@
+From a2ace0d99e62ba66de6dd80e2abed2ae7f174b33 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 01:41:17 +0800
+Subject: [PATCH 4/4] feat(robotwin): support stage-specific LOGIV handoffs
+
+---
+ .../Robotwin/script/eval_lerobot_torch_pi05.py    |  5 ++++-
+ third_party/Robotwin/script/pi05_logiv_options.py | 15 +++++++++++++++
+ .../Robotwin/tests/test_pi05_logiv_options.py     | 15 +++++++++++++++
+ 3 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index 51b4f92..0378495 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -96,7 +96,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, max_gpt4o_retries, base_stall_observations = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, max_gpt4o_retries, base_stall_observations, stage_stall_observations = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -204,6 +204,7 @@ def main(usr_args):
+         action_chunk_steps=action_chunk_steps,
+         max_gpt4o_retries=max_gpt4o_retries,
+         base_stall_observations=base_stall_observations,
++        stage_stall_observations=stage_stall_observations,
+         save_dir=save_dir,
+         video_size=video_size,
+         instruction_type=instruction_type,
+@@ -252,6 +253,7 @@ def eval_logiv_policy(
+     action_chunk_steps,
+     max_gpt4o_retries,
+     base_stall_observations,
++    stage_stall_observations,
+     save_dir,
+     video_size=None,
+     instruction_type=None,
+@@ -322,6 +324,7 @@ def eval_logiv_policy(
+             max_dispatches=(TASK_ENV.step_lim + action_chunk_steps - 1)
+             // action_chunk_steps,
+             base_stall_observations=base_stall_observations,
++            stage_stall_observations=stage_stall_observations,
+         )
+         try:
+             outcome = controller.run(
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index 50ded9e..752441e 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -1,3 +1,4 @@
++import json
+ import os
+ 
+ 
+@@ -36,12 +37,25 @@ def resolve_logiv_options(usr_args):
+     action_chunk_steps = int(usr_args.get("action_chunk_steps", 50))
+     max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
+     base_stall_observations = int(usr_args.get("base_stall_observations", 4))
++    raw_stage_stalls = usr_args.get("stage_stall_observations")
++    if isinstance(raw_stage_stalls, str):
++        raw_stage_stalls = json.loads(raw_stage_stalls)
++    stage_stall_observations = (
++        None
++        if raw_stage_stalls is None
++        else [int(value) for value in raw_stage_stalls]
++    )
+     if action_chunk_steps < 1 or action_chunk_steps > 50:
+         raise ValueError("action_chunk_steps must be in [1, 50]")
+     if max_gpt4o_retries < 0:
+         raise ValueError("max_gpt4o_retries must be nonnegative")
+     if base_stall_observations < 1:
+         raise ValueError("base_stall_observations must be positive")
++    if stage_stall_observations is not None and (
++        not stage_stall_observations
++        or any(value < 1 for value in stage_stall_observations)
++    ):
++        raise ValueError("stage_stall_observations must contain positive values")
+     return (
+         accepted_seeds,
+         accepted_instructions,
+@@ -50,4 +64,5 @@ def resolve_logiv_options(usr_args):
+         action_chunk_steps,
+         max_gpt4o_retries,
+         base_stall_observations,
++        stage_stall_observations,
+     )
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 4a3bfc4..dc7a96d 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -67,9 +67,24 @@ class LogivOptionsTest(unittest.TestCase):
+                 25,
+                 3,
+                 4,
++                None,
+             ),
+         )
+ 
++    def test_resolves_stage_specific_stall_options(self):
++        resolved = resolve_logiv_options(
++            {
++                "accepted_seeds": [100000],
++                "accepted_instructions": ["instruction"],
++                "test_num": 1,
++                "logiv_root": "/repo",
++                "val_binary": "/repo/Validate",
++                "stage_stall_observations": "[4, 4, 1]",
++            }
++        )
++
++        self.assertEqual(resolved[-1], [4, 4, 1])
++
+     def test_rejects_seed_drift_and_invalid_chunk(self):
+         common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
+         with self.assertRaisesRegex(ValueError, "accepted_seeds"):
+-- 
+2.43.0
+
