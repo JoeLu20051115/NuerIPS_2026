@@ -474,6 +474,10 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
     assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stamp_seal"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
+    assert RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2] == (
+        "Move red block, green block, and blue block to the center. "
+        "Stack blue block on green block and green block on red block."
+    )
 
 
 def test_bowl_repair_preserves_randomized_scene_description() -> None:
