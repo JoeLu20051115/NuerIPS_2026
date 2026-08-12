@@ -174,7 +174,7 @@ def test_controller_observes_before_first_dispatch_and_after_every_chunk() -> No
     assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 
 
-def test_full_dag_control_dispatches_ready_node_before_task_prompt() -> None:
+def test_full_dag_control_schedules_nodes_with_frozen_task_prompt() -> None:
     task = ROBOTWIN_TASKS["open_microwave"]
     false = {stage.fact: TruthValue.FALSE for stage in task.stages}
     first_done = dict(false)
@@ -187,20 +187,18 @@ def test_full_dag_control_dispatches_ready_node_before_task_prompt() -> None:
     )
     prompts = []
 
+    original = "Open the gray microwave using the left arm."
     outcome = controller.run(
         initial_observation=None,
         dispatch=lambda prompt: prompts.append(prompt),
         native_success=lambda: len(prompts) == 2,
         budget_exhausted=lambda: False,
-        base_prompt="Open the gray microwave using the left arm.",
+        base_prompt=original,
         dag_from_start=True,
     )
 
     assert outcome.success
-    assert prompts == [
-        RECOVERY_POLICY_PROMPTS[task.name][0],
-        RECOVERY_POLICY_PROMPTS[task.name][1],
-    ]
+    assert prompts == [original, original]
     assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 
 
@@ -597,7 +595,7 @@ def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
 
     assert outcome.success
     assert prompts == [
-        RECOVERY_POLICY_PROMPTS[task.name][-1],
+        "Stack all three blocks.",
         TERMINAL_CONSTRAINT_PROMPTS[task.name],
     ]
     assert outcome.events[0].control_mode == "DAG_EXECUTION"

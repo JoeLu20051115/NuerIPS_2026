@@ -786,12 +786,17 @@ class RobotwinEpisodeController:
                         tuple(events),
                         dispatches,
                     )
-                if base_prompt is None:
-                    prompt = self.task.stages[active].policy_prompt
-                elif self.task.name in SCENE_BOUND_REPAIR_TASKS:
-                    prompt = base_prompt
-                else:
-                    prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
+                # PDDL owns the READY-node schedule from the first dispatch,
+                # while the frozen policy keeps the episode instruction it was
+                # trained on for node-internal continuous control.  Switching
+                # a frozen VLA to synthetic subtask wording before an observed
+                # failure causes distribution shift and is not required by the
+                # LOGIV control boundary.
+                prompt = (
+                    self.task.stages[active].policy_prompt
+                    if base_prompt is None
+                    else base_prompt
+                )
             elif active is None:
                 if base_prompt is None:
                     return RobotwinEpisodeOutcome(
