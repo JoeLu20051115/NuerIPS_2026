@@ -559,16 +559,32 @@ class RobotwinEpisodeController:
         *,
         max_dispatches: int = 64,
         base_stall_observations: int = 2,
+        stage_stall_observations: Sequence[int] | None = None,
     ) -> None:
         self.task = task
         self.planner = planner
         self.grounder = grounder
         self.max_dispatches = int(max_dispatches)
         self.base_stall_observations = int(base_stall_observations)
+        self.stage_stall_observations = (
+            tuple(int(value) for value in stage_stall_observations)
+            if stage_stall_observations is not None
+            else None
+        )
         if self.max_dispatches <= 0:
             raise ValueError("max_dispatches must be positive")
         if self.base_stall_observations <= 0:
             raise ValueError("base_stall_observations must be positive")
+        if self.stage_stall_observations is not None:
+            if len(self.stage_stall_observations) != len(self.task.stages):
+                raise ValueError("stage stall observations must match task stages")
+            if any(value <= 0 for value in self.stage_stall_observations):
+                raise ValueError("stage stall observations must be positive")
+
+    def _stall_threshold(self, stage_index: int) -> int:
+        if self.stage_stall_observations is None:
+            return self.base_stall_observations
+        return self.stage_stall_observations[stage_index]
 
     def run(
         self,
@@ -632,7 +648,7 @@ class RobotwinEpisodeController:
                     unchanged_false_observations += 1
                 else:
                     unchanged_false_observations = 0
-                if unchanged_false_observations >= self.base_stall_observations:
+                if unchanged_false_observations >= self._stall_threshold(active):
                     control_mode = "REPAIR"
             events.append(
                 RobotwinControllerEvent(

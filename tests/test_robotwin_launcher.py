@@ -26,6 +26,17 @@ def test_task_specific_stall_observations_override_global_default() -> None:
     assert LAUNCHER._stall_observations(config, "move_can_pot") == 4
 
 
+def test_stage_specific_thresholds_are_parsed_per_task() -> None:
+    config = {
+        "stage_stall_observations_by_task": {
+            "handover_block": [4, 4, 1],
+        }
+    }
+
+    assert LAUNCHER._stage_stall_observations(config, "handover_block") == [4, 4, 1]
+    assert LAUNCHER._stage_stall_observations(config, "move_can_pot") is None
+
+
 def test_task_specific_stall_observations_must_be_positive() -> None:
     config = {"base_stall_observations_by_task": {"handover_block": 0}}
 

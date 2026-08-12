@@ -24,6 +24,16 @@ def _stall_observations(config: dict, task: str) -> int:
     return value
 
 
+def _stage_stall_observations(config: dict, task: str) -> list[int] | None:
+    values = config.get("stage_stall_observations_by_task", {}).get(task)
+    if values is None:
+        return None
+    parsed = [int(value) for value in values]
+    if not parsed or any(value < 1 for value in parsed):
+        raise ValueError(f"invalid stage stall observations for {task}: {parsed}")
+    return parsed
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -82,6 +92,9 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
         instructions = config.get("instructions", {}).get(task)
         if instructions is not None:
             command.extend(["--accepted_instructions", json.dumps(instructions)])
+        stage_stalls = _stage_stall_observations(config, task)
+        if stage_stalls is not None:
+            command.extend(["--stage_stall_observations", json.dumps(stage_stalls)])
         with log.open("w", encoding="utf-8") as stream:
             result = subprocess.run(
                 command,

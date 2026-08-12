@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from pi05_libero_repro.logiv.robotwin import (
     ROBOTWIN_TASKS,
@@ -287,6 +288,50 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
     assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stamp_seal"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
+
+
+def test_stage_specific_threshold_protects_handoff_then_repairs_placement() -> None:
+    task = ROBOTWIN_TASKS["handover_block"]
+    all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    left_done = dict(all_false)
+    left_done[task.stages[0].fact] = TruthValue.TRUE
+    right_done = dict(left_done)
+    right_done[task.stages[1].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder(
+        [all_false, left_done, left_done, right_done, right_done, right_done]
+    )
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=4,
+        stage_stall_observations=(4, 4, 1),
+    )
+    prompts = []
+    original = "Transfer the red block and put it on the blue pad."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 5,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts[:4] == [original] * 4
+    assert prompts[4] == RECOVERY_POLICY_PROMPTS[task.name][2]
+
+
+def test_stage_specific_threshold_shape_is_validated() -> None:
+    task = ROBOTWIN_TASKS["handover_block"]
+    planner = RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5)
+    grounder = _SequenceGrounder([])
+
+    with pytest.raises(ValueError, match="match task stages"):
+        RobotwinEpisodeController(
+            task, planner, grounder, stage_stall_observations=(1, 2)
+        )
 
 
 def test_visual_goal_cannot_override_native_failure() -> None:
