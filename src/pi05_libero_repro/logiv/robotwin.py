@@ -757,11 +757,12 @@ class RobotwinEpisodeController:
                         tuple(events),
                         dispatches,
                     )
-                prompt = (
-                    base_prompt
-                    if self.task.name in SCENE_BOUND_REPAIR_TASKS
-                    else RECOVERY_POLICY_PROMPTS[self.task.name][active]
-                )
+                if base_prompt is None:
+                    prompt = self.task.stages[active].policy_prompt
+                elif self.task.name in SCENE_BOUND_REPAIR_TASKS:
+                    prompt = base_prompt
+                else:
+                    prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
             elif active is None:
                 if base_prompt is None:
                     return RobotwinEpisodeOutcome(
