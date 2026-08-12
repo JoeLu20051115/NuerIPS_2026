@@ -282,6 +282,13 @@ def test_stable_false_frontier_triggers_contextual_local_repair() -> None:
     ]
 
 
+def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> None:
+    assert "right arm" in RECOVERY_POLICY_PROMPTS["handover_block"][2]
+    assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]
+    assert "release" in RECOVERY_POLICY_PROMPTS["stamp_seal"][1]
+    assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
+
+
 def test_visual_goal_cannot_override_native_failure() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     visual_true = {task.goal_fact: TruthValue.TRUE}

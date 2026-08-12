@@ -5,6 +5,18 @@
   "instruction_type": "unseen",
   "action_chunk_steps": 50,
   "base_stall_observations": 4,
+  "base_stall_observations_by_task": {
+    "handover_block": 1,
+    "open_microwave": 1,
+    "place_dual_shoes": 3,
+    "stamp_seal": 1,
+    "blocks_ranking_size": 2,
+    "move_can_pot": 4,
+    "turn_switch": 2,
+    "stack_blocks_three": 2,
+    "stack_bowls_three": 4,
+    "beat_block_hammer": 4
+  },
   "tasks": {
     "handover_block": [100000, 100002, 100003, 100004, 100006, 100007, 100008, 100009, 100010, 100011],
     "open_microwave": [100001, 100002, 100003, 100004, 100005, 100006, 100007, 100010, 100011, 100013],

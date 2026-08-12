@@ -223,21 +223,21 @@ CANONICAL_POLICY_PROMPTS = {
 
 RECOVERY_POLICY_PROMPTS = {
     "handover_block": (
-        "Grab the red block with the left arm.",
+        "Use the left arm to grab the red block.",
         "Hand the red block to the right arm.",
-        "Place the red block on the blue pad.",
+        "Place the red block onto the blue pad using the right arm.",
     ),
     "open_microwave": (
-        "Grip the microwave handle.",
-        "Pull the microwave door open.",
+        "Grab the handle and open the microwave door.",
+        "Pull the microwave door open with the left arm.",
     ),
     "place_dual_shoes": (
-        "Place one shoe into the shoe box, tip left.",
+        "Place the left shoe into the shoe box, tip left.",
         "Place two shoes into the shoe box, tips left.",
     ),
     "stamp_seal": (
-        "Grab the seal.",
-        "Press the seal onto the target.",
+        "Grab the seal using the nearest arm.",
+        "Press the held seal onto the colored target and release it.",
     ),
     "blocks_ranking_size": (
         "Move the smallest block to the center-right.",
@@ -245,20 +245,20 @@ RECOVERY_POLICY_PROMPTS = {
         "Arrange the blocks largest to smallest, left to right.",
     ),
     "move_can_pot": (
-        "Pick up the can and put it beside the pot.",
+        "Pick up the can and set it beside the pot.",
     ),
     "turn_switch": (
-        "Locate and press the switch.",
+        "Locate and press the switch using the nearest arm.",
     ),
     "stack_blocks_three": (
         "Move the red block to the table center.",
-        "Place the green block on the red block.",
-        "Place the blue block on the green block.",
+        "Place the green block centered on the red block and release it.",
+        "Place the blue block centered on the green block and release it.",
     ),
     "stack_bowls_three": (
-        "Place the bottom bowl.",
-        "Place the second bowl on the first bowl.",
-        "Place the third bowl on the second bowl.",
+        "Place the bottom bowl at the table center.",
+        "Place the second bowl centered inside the first bowl.",
+        "Place the third bowl centered inside the second bowl.",
     ),
     "beat_block_hammer": (
         "Pick up the hammer.",
