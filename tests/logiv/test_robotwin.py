@@ -169,6 +169,37 @@ def test_controller_observes_before_first_dispatch_and_after_every_chunk() -> No
     assert prompts == [stage.policy_prompt for stage in task.stages]
     assert grounder.epochs == [0, 1, 2]
     assert all(event.plan.valid for event in outcome.events)
+    assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
+
+
+def test_full_dag_control_dispatches_ready_node_before_task_prompt() -> None:
+    task = ROBOTWIN_TASKS["open_microwave"]
+    false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    first_done = dict(false)
+    first_done[task.stages[0].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder([false, first_done, first_done])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 2,
+        budget_exhausted=lambda: False,
+        base_prompt="Open the gray microwave using the left arm.",
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert prompts == [
+        task.stages[0].policy_prompt,
+        task.stages[1].policy_prompt,
+    ]
+    assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 
 
 def test_controller_retries_false_stage_without_asking_gpt_to_repair() -> None:

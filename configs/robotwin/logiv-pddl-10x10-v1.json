@@ -5,6 +5,7 @@
   "instruction_type": "unseen",
   "action_chunk_steps": 50,
   "repair_action_chunk_steps": 10,
+  "dag_from_start": true,
   "vlm_image_detail": "low",
   "min_base_steps_by_task": {
     "handover_block": 0,

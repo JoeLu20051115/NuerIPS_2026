@@ -70,3 +70,8 @@ def test_launcher_passes_distinct_repair_chunk_size() -> None:
 
 def test_launcher_passes_configured_vlm_image_detail() -> None:
     assert LAUNCHER._vlm_image_detail({"vlm_image_detail": "high"}) == "high"
+
+
+def test_full_dag_control_is_explicitly_configured() -> None:
+    assert LAUNCHER._dag_from_start({"dag_from_start": True}) is True
+    assert LAUNCHER._dag_from_start({}) is False

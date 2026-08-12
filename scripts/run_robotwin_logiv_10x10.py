@@ -50,6 +50,10 @@ def _vlm_image_detail(config: dict) -> str:
     return str(config.get("vlm_image_detail", "low"))
 
 
+def _dag_from_start(config: dict) -> bool:
+    return bool(config.get("dag_from_start", False))
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -107,6 +111,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--max_gpt4o_retries", "2",
             "--base_stall_observations", str(_stall_observations(config, task)),
             "--min_base_dispatches", str(_min_base_dispatches(config, task)),
+            "--dag_from_start", str(_dag_from_start(config)),
         ]
         instructions = config.get("instructions", {}).get(task)
         if instructions is not None:

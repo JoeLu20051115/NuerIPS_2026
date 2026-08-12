@@ -628,12 +628,17 @@ class RobotwinEpisodeController:
         native_success: Callable[[], bool],
         budget_exhausted: Callable[[], bool],
         base_prompt: str | None = None,
+        dag_from_start: bool = False,
     ) -> RobotwinEpisodeOutcome:
         events: list[RobotwinControllerEvent] = []
         observation = initial_observation
         dispatches = 0
         latched_true: set[str] = set()
-        control_mode = "BASE_MONITORED" if base_prompt is not None else "REPAIR"
+        control_mode = (
+            "DAG_EXECUTION"
+            if dag_from_start or base_prompt is None
+            else "BASE_MONITORED"
+        )
         previous_frontier: int | None = None
         unchanged_false_observations = 0
         visual_goal_native_conflicts = 0
@@ -692,11 +697,10 @@ class RobotwinEpisodeController:
             active = plan.actions[0].stage_index if plan.actions else None
             if goal_conflict_repair:
                 control_mode = "REPAIR"
-            if (
-                not succeeded
-                and control_mode == "BASE_MONITORED"
-                and active is not None
-            ):
+            if not succeeded and control_mode in {
+                "BASE_MONITORED",
+                "DAG_EXECUTION",
+            } and active is not None:
                 active_fact = self.task.stages[active].fact
                 if active != previous_frontier:
                     previous_frontier = active
@@ -705,9 +709,12 @@ class RobotwinEpisodeController:
                     unchanged_false_observations += 1
                 else:
                     unchanged_false_observations = 0
-                if (
-                    dispatches >= self.min_base_dispatches
-                    and unchanged_false_observations
+                minimum_dispatches_reached = (
+                    control_mode == "DAG_EXECUTION"
+                    or dispatches >= self.min_base_dispatches
+                )
+                if minimum_dispatches_reached and (
+                    unchanged_false_observations
                     >= self._stall_threshold(active)
                 ):
                     control_mode = "REPAIR"
@@ -727,6 +734,15 @@ class RobotwinEpisodeController:
             if control_mode == "BASE_MONITORED":
                 assert base_prompt is not None
                 prompt = base_prompt
+            elif control_mode == "DAG_EXECUTION":
+                if active is None:
+                    return RobotwinEpisodeOutcome(
+                        False,
+                        "VISUAL_GOAL_WITHOUT_NATIVE_SUCCESS",
+                        tuple(events),
+                        dispatches,
+                    )
+                prompt = self.task.stages[active].policy_prompt
             elif active is None:
                 if base_prompt is None:
                     return RobotwinEpisodeOutcome(
