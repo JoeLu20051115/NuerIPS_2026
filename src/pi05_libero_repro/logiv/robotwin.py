@@ -691,7 +691,7 @@ class RobotwinEpisodeController:
             else:
                 visual_goal_native_conflicts = 0
             goal_conflict_repair = base_prompt is not None and (
-                control_mode == "REPAIR"
+                control_mode in {"DAG_EXECUTION", "REPAIR"}
                 or (
                     dispatches >= self.min_base_dispatches
                     and visual_goal_native_conflicts

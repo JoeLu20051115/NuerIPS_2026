@@ -570,6 +570,33 @@ def test_visual_goal_cannot_override_native_failure() -> None:
     assert prompts == ["Click the switch."]
 
 
+def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
+    task = ROBOTWIN_TASKS["stack_blocks_three"]
+    visual_true = {stage.fact: TruthValue.TRUE for stage in task.stages}
+    grounder = _SequenceGrounder([visual_true, visual_true])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=4,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+        base_prompt="Stack all three blocks.",
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert prompts == [RECOVERY_POLICY_PROMPTS[task.name][-1]]
+    assert outcome.events[0].control_mode == "REPAIR"
+    assert outcome.events[0].active_stage_index == len(task.stages) - 1
+
+
 def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
     task = ROBOTWIN_TASKS["move_can_pot"]
     visual_true = {task.goal_fact: TruthValue.TRUE}
