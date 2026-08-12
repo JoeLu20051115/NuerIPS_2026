@@ -120,14 +120,14 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "blocks_ranking_size",
         (
             _stage(
-                "small-block-right",
-                "Move the smallest block to the right side of the center row and release it.",
-                "Is the smallest block placed at the right side of the horizontal center row?",
+                "large-block-left",
+                "Move the largest block to the center-left of the table and release it.",
+                "Is the largest block placed at the left side of the horizontal center row?",
             ),
             _stage(
                 "medium-block-center",
-                "Move the medium-sized block to the middle of the same horizontal center row, immediately left of the smallest block, and release it.",
-                "Are the medium and smallest blocks aligned in a horizontal center row with medium immediately left of small?",
+                "Move the medium-sized block to the middle of the same horizontal center row, immediately right of the largest block, and release it.",
+                "Are the largest and medium blocks aligned in a horizontal center row with large immediately left of medium?",
             ),
             _stage(
                 "blocks-ranked-large-to-small",
@@ -248,9 +248,9 @@ RECOVERY_POLICY_PROMPTS = {
         "Press the held seal onto the colored target and release it.",
     ),
     "blocks_ranking_size": (
-        "Move the smallest block to the center-right.",
-        "Move the medium block to the center.",
-        "Arrange the blocks largest to smallest, left to right.",
+        "Move the largest block to the center-left.",
+        "Set the medium block next to the largest block in the center.",
+        "Place the smallest block right of the medium block to complete the arrangement.",
     ),
     "move_can_pot": (
         "Pick up the can and set it beside the pot.",
@@ -264,9 +264,9 @@ RECOVERY_POLICY_PROMPTS = {
         "Place the blue block centered on the green block and release it.",
     ),
     "stack_bowls_three": (
-        "Place the bottom bowl at the table center.",
-        "Place the second bowl centered inside the first bowl.",
-        "Place the third bowl centered inside the second bowl.",
+        "Place the largest bowl at the table center as the bottom bowl.",
+        "Place the medium bowl centered inside the largest bowl.",
+        "Place the smallest bowl centered inside the medium bowl.",
     ),
     "beat_block_hammer": (
         "Pick up the hammer.",

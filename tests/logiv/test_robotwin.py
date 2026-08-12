@@ -443,6 +443,23 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]
 
 
+def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
+    ranking = ROBOTWIN_TASKS["blocks_ranking_size"]
+    bowls = ROBOTWIN_TASKS["stack_bowls_three"]
+
+    assert [stage.fact for stage in ranking.stages] == [
+        "large-block-left",
+        "medium-block-center",
+        "blocks-ranked-large-to-small",
+    ]
+    assert "largest block" in RECOVERY_POLICY_PROMPTS[ranking.name][0]
+    assert "medium block" in RECOVERY_POLICY_PROMPTS[ranking.name][1]
+    assert "smallest block" in RECOVERY_POLICY_PROMPTS[ranking.name][2]
+    assert "largest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][0]
+    assert "medium bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][1]
+    assert "smallest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][2]
+
+
 def test_stage_specific_threshold_protects_handoff_then_repairs_placement() -> None:
     task = ROBOTWIN_TASKS["handover_block"]
     all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
