@@ -281,15 +281,15 @@ RECOVERY_POLICY_PROMPTS = {
 # is still the terminal node, but replaying the whole task can destroy already
 # correct geometry.  These prompts implement the smallest terminal-node retry.
 TERMINAL_CONSTRAINT_PROMPTS = {
-    "handover_block": "Open the right gripper to release the red block on the blue pad, then withdraw both arms without touching the block.",
+    "handover_block": "Place the red block centered on the blue pad using the right arm, release it, then withdraw both arms.",
     "open_microwave": "Keep pulling the microwave door farther open with the left arm until it reaches its fully open position.",
-    "place_dual_shoes": "Open both grippers and withdraw both arms without touching the two shoes in the shoe box.",
-    "stamp_seal": "Open both grippers and withdraw both arms without moving the seal centered on the colored target.",
-    "blocks_ranking_size": "Open both grippers and withdraw both arms without touching the ordered row of blocks.",
-    "move_can_pot": "Open both grippers and withdraw both arms without moving the can beside the pot.",
+    "place_dual_shoes": "Finish placing both shoes inside the shoe box with both tips left, release them, then withdraw both arms.",
+    "stamp_seal": "Press the held seal firmly onto its colored target, release it centered there, then withdraw the arm.",
+    "blocks_ranking_size": "Finish the center row ordered large, medium, small from left to right, release the block, then withdraw both arms.",
+    "move_can_pot": "Finish placing the can upright beside the pot, release it on the table, then withdraw both arms.",
     "turn_switch": "Press the switch fully to its end position, then withdraw the arm.",
-    "stack_blocks_three": "Open both grippers and withdraw both arms without touching the three-block stack.",
-    "stack_bowls_three": "Open both grippers and withdraw both arms without touching the three-bowl stack.",
+    "stack_blocks_three": "Place the blue block centered on the green block, release it gently, then withdraw both arms.",
+    "stack_bowls_three": "Place the remaining bowl centered in the two-bowl stack, release it gently, then withdraw both arms.",
     "beat_block_hammer": "Continue the hammer strike until the hammer head makes firm contact with the block.",
 }
 
@@ -709,18 +709,28 @@ class RobotwinEpisodeController:
                 visual_goal_native_conflicts += 1
             else:
                 visual_goal_native_conflicts = 0
+            graph_controlled = control_mode in {"DAG_EXECUTION", "REPAIR"}
             goal_conflict_repair = base_prompt is not None and (
-                control_mode in {"DAG_EXECUTION", "REPAIR"}
+                (
+                    graph_controlled
+                    and visual_goal_native_conflicts >= 2
+                )
                 or (
                     dispatches >= self.min_base_dispatches
                     and visual_goal_native_conflicts
                     >= self.base_stall_observations
                 )
             ) and facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded
-            if goal_conflict_repair:
+            if goal_conflict_repair or (
+                graph_controlled
+                and facts.get(self.task.goal_fact) is TruthValue.TRUE
+                and not succeeded
+            ):
                 # The benchmark evaluator is authoritative for terminal success.
-                # A persistent visual false positive must not erase the remaining
-                # goal from the Current Problem used by PDDL.
+                # A visual terminal fact never erases the remaining goal before
+                # native success.  The first confirmation keeps executing the
+                # terminal DAG node; two consecutive confirmations constitute
+                # explicit graph/native conflict evidence for local repair.
                 latched_true.discard(self.task.goal_fact)
                 facts[self.task.goal_fact] = TruthValue.FALSE
             plan = self.planner.plan(self.task, facts)

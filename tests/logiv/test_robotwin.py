@@ -551,7 +551,7 @@ def test_stage_specific_threshold_shape_is_validated() -> None:
 def test_visual_goal_cannot_override_native_failure() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     visual_true = {task.goal_fact: TruthValue.TRUE}
-    grounder = _SequenceGrounder([visual_true, visual_true])
+    grounder = _SequenceGrounder([visual_true, visual_true, visual_true])
     controller = RobotwinEpisodeController(
         task,
         RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
@@ -562,19 +562,22 @@ def test_visual_goal_cannot_override_native_failure() -> None:
     outcome = controller.run(
         initial_observation=None,
         dispatch=lambda prompt: prompts.append(prompt),
-        native_success=lambda: len(prompts) == 1,
+        native_success=lambda: len(prompts) == 2,
         budget_exhausted=lambda: False,
         base_prompt="Click the switch.",
     )
 
     assert outcome.success
-    assert prompts == ["Click the switch."]
+    assert prompts == [
+        "Click the switch.",
+        TERMINAL_CONSTRAINT_PROMPTS[task.name],
+    ]
 
 
 def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
     task = ROBOTWIN_TASKS["stack_blocks_three"]
     visual_true = {stage.fact: TruthValue.TRUE for stage in task.stages}
-    grounder = _SequenceGrounder([visual_true, visual_true])
+    grounder = _SequenceGrounder([visual_true, visual_true, visual_true])
     controller = RobotwinEpisodeController(
         task,
         RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
@@ -586,15 +589,19 @@ def test_dag_visual_goal_conflict_repairs_terminal_node() -> None:
     outcome = controller.run(
         initial_observation=None,
         dispatch=lambda prompt: prompts.append(prompt),
-        native_success=lambda: len(prompts) == 1,
+        native_success=lambda: len(prompts) == 2,
         budget_exhausted=lambda: False,
         base_prompt="Stack all three blocks.",
         dag_from_start=True,
     )
 
     assert outcome.success
-    assert prompts == [TERMINAL_CONSTRAINT_PROMPTS[task.name]]
-    assert outcome.events[0].control_mode == "REPAIR"
+    assert prompts == [
+        RECOVERY_POLICY_PROMPTS[task.name][-1],
+        TERMINAL_CONSTRAINT_PROMPTS[task.name],
+    ]
+    assert outcome.events[0].control_mode == "DAG_EXECUTION"
+    assert outcome.events[1].control_mode == "REPAIR"
     assert outcome.events[0].active_stage_index == len(task.stages) - 1
 
 
@@ -631,7 +638,7 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
     false = {task.goal_fact: TruthValue.FALSE}
     visual_true = {task.goal_fact: TruthValue.TRUE}
     grounder = _SequenceGrounder(
-        [false, false, false, visual_true, visual_true]
+        [false, false, false, visual_true, visual_true, visual_true]
     )
     controller = RobotwinEpisodeController(
         task,
@@ -645,7 +652,7 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
     outcome = controller.run(
         initial_observation=None,
         dispatch=lambda prompt: prompts.append(prompt),
-        native_success=lambda: len(prompts) == 4,
+        native_success=lambda: len(prompts) == 5,
         budget_exhausted=lambda: False,
         base_prompt=original,
     )
@@ -655,10 +662,11 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
         original,
         original,
         original,
+        original,
         TERMINAL_CONSTRAINT_PROMPTS[task.name],
     ]
-    assert outcome.events[3].control_mode == "REPAIR"
-    assert outcome.events[3].active_stage_index == 0
+    assert outcome.events[4].control_mode == "REPAIR"
+    assert outcome.events[4].active_stage_index == 0
 
 
 def test_grounder_compares_current_views_to_episode_initial_views() -> None:
