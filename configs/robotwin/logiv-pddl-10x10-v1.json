@@ -5,7 +5,7 @@
   "instruction_type": "unseen",
   "action_chunk_steps": 50,
   "repair_action_chunk_steps": 10,
-  "vlm_image_detail": "high",
+  "vlm_image_detail": "low",
   "min_base_steps_by_task": {
     "handover_block": 0,
     "open_microwave": 400,
