@@ -221,6 +221,52 @@ CANONICAL_POLICY_PROMPTS = {
 }
 
 
+RECOVERY_POLICY_PROMPTS = {
+    "handover_block": (
+        "Grab the red block with the left arm.",
+        "Hand the red block to the right arm.",
+        "Place the red block on the blue pad.",
+    ),
+    "open_microwave": (
+        "Grip the microwave handle.",
+        "Pull the microwave door open.",
+    ),
+    "place_dual_shoes": (
+        "Place one shoe into the shoe box, tip left.",
+        "Place two shoes into the shoe box, tips left.",
+    ),
+    "stamp_seal": (
+        "Grab the seal.",
+        "Press the seal onto the target.",
+    ),
+    "blocks_ranking_size": (
+        "Move the smallest block to the center-right.",
+        "Move the medium block to the center.",
+        "Arrange the blocks largest to smallest, left to right.",
+    ),
+    "move_can_pot": (
+        "Pick up the can and put it beside the pot.",
+    ),
+    "turn_switch": (
+        "Locate and press the switch.",
+    ),
+    "stack_blocks_three": (
+        "Move the red block to the table center.",
+        "Place the green block on the red block.",
+        "Place the blue block on the green block.",
+    ),
+    "stack_bowls_three": (
+        "Place the bottom bowl.",
+        "Place the second bowl on the first bowl.",
+        "Place the third bowl on the second bowl.",
+    ),
+    "beat_block_hammer": (
+        "Pick up the hammer.",
+        "Use the hammer to strike the block.",
+    ),
+}
+
+
 def bind_canonical_policy_prompt(task: RobotwinTask) -> RobotwinTask:
     prompt = CANONICAL_POLICY_PROMPTS[task.name]
     return RobotwinTask(
@@ -408,6 +454,7 @@ class RobotwinFactGrounder:
 
     def __init__(self, client: Any) -> None:
         self.client = client
+        self._initial_images: tuple[np.ndarray, ...] | None = None
 
     def observe(
         self, task: RobotwinTask, observation: Mapping[str, Any], *, epoch: int
@@ -440,15 +487,28 @@ class RobotwinFactGrounder:
             "required": ["facts"],
             "additionalProperties": False,
         }
+        current_images = extract_robotwin_images(observation)
+        if epoch == 0 or self._initial_images is None:
+            self._initial_images = tuple(image.copy() for image in current_images)
+            images = current_images
+            comparison = "These three images are the episode initial views."
+        else:
+            images = self._initial_images + current_images
+            comparison = (
+                "The first three images are the initial head/right/left views; "
+                "the last three are the current synchronized head/right/left views. "
+                "Classify facts for the current views using visible change from initial."
+            )
         response = self.client.complete_json(
             purpose="state_gate",
             system=self.SYSTEM,
             text=(
                 f"Task: {task.name}. Observation epoch: {epoch}.\n"
+                f"{comparison}\n"
                 "Return exactly one classification for every registered fact.\n"
                 + definitions
             ),
-            images=extract_robotwin_images(observation),
+            images=images,
             schema_name="robotwin_visual_facts",
             schema=schema,
         )
@@ -477,6 +537,7 @@ class RobotwinControllerEvent:
     active_stage_index: int | None
     facts: Mapping[str, TruthValue]
     plan: RobotwinCertifiedPlan
+    control_mode: str = "REPAIR"
 
 
 @dataclass(frozen=True)
@@ -497,13 +558,17 @@ class RobotwinEpisodeController:
         grounder: Any,
         *,
         max_dispatches: int = 64,
+        base_stall_observations: int = 2,
     ) -> None:
         self.task = task
         self.planner = planner
         self.grounder = grounder
         self.max_dispatches = int(max_dispatches)
+        self.base_stall_observations = int(base_stall_observations)
         if self.max_dispatches <= 0:
             raise ValueError("max_dispatches must be positive")
+        if self.base_stall_observations <= 0:
+            raise ValueError("base_stall_observations must be positive")
 
     def run(
         self,
@@ -512,11 +577,16 @@ class RobotwinEpisodeController:
         dispatch: Callable[[str], Any],
         native_success: Callable[[], bool],
         budget_exhausted: Callable[[], bool],
+        base_prompt: str | None = None,
     ) -> RobotwinEpisodeOutcome:
         events: list[RobotwinControllerEvent] = []
         observation = initial_observation
         dispatches = 0
         latched_true: set[str] = set()
+        control_mode = "BASE_MONITORED" if base_prompt is not None else "REPAIR"
+        previous_frontier: int | None = None
+        unchanged_false_observations = 0
+        visual_goal_native_conflicts = 0
         for epoch in range(self.max_dispatches + 1):
             observed = self.grounder.observe(self.task, observation, epoch=epoch)
             latched_true.update(
@@ -526,25 +596,73 @@ class RobotwinEpisodeController:
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
             }
+            succeeded = native_success()
+            if facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded:
+                visual_goal_native_conflicts += 1
+            else:
+                visual_goal_native_conflicts = 0
+            goal_conflict_repair = (
+                base_prompt is not None
+                and visual_goal_native_conflicts >= self.base_stall_observations
+            )
+            if goal_conflict_repair:
+                # The benchmark evaluator is authoritative for terminal success.
+                # A persistent visual false positive must not erase the remaining
+                # goal from the Current Problem used by PDDL.
+                latched_true.discard(self.task.goal_fact)
+                facts[self.task.goal_fact] = TruthValue.FALSE
             plan = self.planner.plan(self.task, facts)
             if not plan.valid:
                 return RobotwinEpisodeOutcome(
                     False, "VAL_REJECTED_PLAN", tuple(events), dispatches
                 )
             active = plan.actions[0].stage_index if plan.actions else None
-            events.append(RobotwinControllerEvent(epoch, active, facts, plan))
-            if native_success():
+            if goal_conflict_repair:
+                control_mode = "REPAIR"
+            if (
+                not succeeded
+                and control_mode == "BASE_MONITORED"
+                and active is not None
+            ):
+                active_fact = self.task.stages[active].fact
+                if active != previous_frontier:
+                    previous_frontier = active
+                    unchanged_false_observations = 0
+                elif facts.get(active_fact) is TruthValue.FALSE:
+                    unchanged_false_observations += 1
+                else:
+                    unchanged_false_observations = 0
+                if unchanged_false_observations >= self.base_stall_observations:
+                    control_mode = "REPAIR"
+            events.append(
+                RobotwinControllerEvent(
+                    epoch, active, facts, plan, control_mode=control_mode
+                )
+            )
+            if succeeded:
                 return RobotwinEpisodeOutcome(
                     True, "NATIVE_SUCCESS", tuple(events), dispatches
-                )
-            if active is None:
-                return RobotwinEpisodeOutcome(
-                    False, "VISUAL_GOAL_WITHOUT_NATIVE_SUCCESS", tuple(events), dispatches
                 )
             if budget_exhausted() or dispatches >= self.max_dispatches:
                 return RobotwinEpisodeOutcome(
                     False, "ACTION_BUDGET_EXHAUSTED", tuple(events), dispatches
                 )
-            observation = dispatch(self.task.stages[active].policy_prompt)
+            if control_mode == "BASE_MONITORED":
+                assert base_prompt is not None
+                prompt = base_prompt
+            elif active is None:
+                if base_prompt is None:
+                    return RobotwinEpisodeOutcome(
+                        False,
+                        "VISUAL_GOAL_WITHOUT_NATIVE_SUCCESS",
+                        tuple(events),
+                        dispatches,
+                    )
+                prompt = base_prompt
+            elif base_prompt is None:
+                prompt = self.task.stages[active].policy_prompt
+            else:
+                prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
+            observation = dispatch(prompt)
             dispatches += 1
         raise AssertionError("controller loop exceeded its explicit dispatch bound")

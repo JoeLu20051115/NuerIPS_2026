@@ -69,7 +69,11 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--val_binary", str(args.val_binary),
             "--action_chunk_steps", str(config["action_chunk_steps"]),
             "--max_gpt4o_retries", "2",
+            "--base_stall_observations", str(config.get("base_stall_observations", 4)),
         ]
+        instructions = config.get("instructions", {}).get(task)
+        if instructions is not None:
+            command.extend(["--accepted_instructions", json.dumps(instructions)])
         with log.open("w", encoding="utf-8") as stream:
             result = subprocess.run(
                 command,
@@ -95,8 +99,15 @@ def main() -> int:
     parser.add_argument("--python", type=Path, required=True)
     parser.add_argument("--tokenizer", type=Path, required=True)
     parser.add_argument("--val-binary", type=Path, required=True)
+    parser.add_argument("--tasks", nargs="+")
     args = parser.parse_args()
-    return _run_worker(args.worker, GPU_TASKS[args.worker], args)
+    tasks = tuple(args.tasks) if args.tasks else GPU_TASKS[args.worker]
+    unknown = set(tasks) - set(GPU_TASKS[args.worker])
+    if unknown:
+        parser.error(
+            f"worker {args.worker} cannot run tasks: {', '.join(sorted(unknown))}"
+        )
+    return _run_worker(args.worker, tasks, args)
 
 
 if __name__ == "__main__":

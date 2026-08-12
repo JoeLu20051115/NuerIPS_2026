@@ -9,6 +9,7 @@ from pi05_libero_repro.logiv.robotwin import (
     RobotwinEpisodeController,
     RobotwinFactGrounder,
     RobotwinPddlPlanner,
+    RECOVERY_POLICY_PROMPTS,
     TruthValue,
     bind_canonical_policy_prompt,
     extract_robotwin_images,
@@ -217,3 +218,147 @@ def test_controller_latches_confirmed_milestones_instead_of_regressing() -> None
     assert outcome.success
     assert prompts[0] == task.stages[0].policy_prompt
     assert prompts[1:] == [task.stages[1].policy_prompt] * 2
+
+
+def test_monitored_base_prefix_keeps_the_original_scene_prompt() -> None:
+    task = ROBOTWIN_TASKS["open_microwave"]
+    all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    first_done = dict(all_false)
+    first_done[task.stages[0].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder(
+        [all_false, first_done, first_done, first_done]
+    )
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=2,
+    )
+    prompts = []
+    original = "Open the gray microwave using the left arm."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts == [original, original, original]
+    assert all(event.control_mode == "BASE_MONITORED" for event in outcome.events)
+
+
+def test_stable_false_frontier_triggers_contextual_local_repair() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([false, false, false, false])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=2,
+    )
+    prompts = []
+    original = "Use the left arm to press the flat tan switch."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts[:2] == [original, original]
+    assert prompts[2] == RECOVERY_POLICY_PROMPTS[task.name][0]
+    assert [event.control_mode for event in outcome.events] == [
+        "BASE_MONITORED",
+        "BASE_MONITORED",
+        "REPAIR",
+        "REPAIR",
+    ]
+
+
+def test_visual_goal_cannot_override_native_failure() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    visual_true = {task.goal_fact: TruthValue.TRUE}
+    grounder = _SequenceGrounder([visual_true, visual_true])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+        base_prompt="Click the switch.",
+    )
+
+    assert outcome.success
+    assert prompts == ["Click the switch."]
+
+
+def test_persistent_visual_goal_native_conflict_enters_goal_repair() -> None:
+    task = ROBOTWIN_TASKS["move_can_pot"]
+    visual_true = {task.goal_fact: TruthValue.TRUE}
+    grounder = _SequenceGrounder([visual_true] * 4)
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=2,
+    )
+    prompts = []
+    original = "Move the sauce can beside the cooking pot."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts[0] == original
+    assert prompts[1] == RECOVERY_POLICY_PROMPTS[task.name][0]
+    assert outcome.events[1].control_mode == "REPAIR"
+    assert outcome.events[1].active_stage_index == 0
+
+
+def test_grounder_compares_current_views_to_episode_initial_views() -> None:
+    class RecordingClient:
+        def __init__(self):
+            self.calls = []
+
+        def complete_json(self, **kwargs):
+            self.calls.append(kwargs)
+            return {"facts": [{"name": "switch-activated", "value": "UNKNOWN"}]}
+
+    client = RecordingClient()
+    grounder = RobotwinFactGrounder(client)
+    task = ROBOTWIN_TASKS["turn_switch"]
+
+    def obs(pixel):
+        return {
+            "observation": {
+                name: {
+                    "rgb": np.full((4, 5, 3), pixel, dtype=np.uint8)
+                }
+                for name in ("head_camera", "right_camera", "left_camera")
+            }
+        }
+
+    grounder.observe(task, obs(1), epoch=0)
+    grounder.observe(task, obs(2), epoch=1)
+
+    assert len(client.calls[0]["images"]) == 3
+    assert len(client.calls[1]["images"]) == 6
+    assert "first three images are the initial" in client.calls[1]["text"]
