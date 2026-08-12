@@ -623,6 +623,7 @@ class RobotwinEpisodeController:
         initial_observation: Any,
         dispatch: Callable[[str], Any],
         dispatch_with_mode: Callable[[str, str], Any] | None = None,
+        dispatch_with_context: Callable[[str, str, int | None], Any] | None = None,
         native_success: Callable[[], bool],
         budget_exhausted: Callable[[], bool],
         base_prompt: str | None = None,
@@ -739,7 +740,9 @@ class RobotwinEpisodeController:
                 prompt = base_prompt
             else:
                 prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
-            if dispatch_with_mode is None:
+            if dispatch_with_context is not None:
+                observation = dispatch_with_context(prompt, control_mode, active)
+            elif dispatch_with_mode is None:
                 observation = dispatch(prompt)
             else:
                 observation = dispatch_with_mode(prompt, control_mode)

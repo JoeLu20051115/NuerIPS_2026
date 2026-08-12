@@ -376,6 +376,36 @@ def test_dispatch_receives_control_mode_for_repair_chunk_sizing() -> None:
     ]
 
 
+def test_dispatch_receives_active_frontier_for_macro_continuation() -> None:
+    task = ROBOTWIN_TASKS["handover_block"]
+    all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    left_done = dict(all_false)
+    left_done[task.stages[0].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder([all_false, left_done, left_done])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=1,
+    )
+    calls = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: None,
+        dispatch_with_context=lambda prompt, mode, active: calls.append(
+            (prompt, mode, active)
+        ),
+        native_success=lambda: len(calls) == 2,
+        budget_exhausted=lambda: False,
+        base_prompt="Transfer the red block.",
+    )
+
+    assert outcome.success
+    assert [active for _, _, active in calls] == [0, 1]
+    assert [mode for _, mode, _ in calls] == ["BASE_MONITORED", "BASE_MONITORED"]
+
+
 def test_base_protection_window_monitors_but_delays_prompt_replacement() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     false = {task.goal_fact: TruthValue.FALSE}
