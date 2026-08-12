@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+
+GPU_TASKS = (
+    ("handover_block", "stamp_seal", "turn_switch", "beat_block_hammer"),
+    ("open_microwave", "blocks_ranking_size", "stack_blocks_three"),
+    ("place_dual_shoes", "move_can_pot", "stack_bowls_three"),
+)
+
+
+def _api_key() -> str:
+    existing = os.environ.get("OPENAI_API_KEY", "")
+    if existing.startswith("sk-") and len(existing) > 20:
+        return existing
+    path = Path.home() / ".cline/data/secrets.json"
+    try:
+        value = json.loads(path.read_text())["openRouterApiKey"]
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as error:
+        raise RuntimeError("no valid OpenAI API key source found") from error
+    if not isinstance(value, str) or not value.startswith("sk-") or len(value) <= 20:
+        raise RuntimeError("OpenAI API key source is invalid")
+    return value
+
+
+def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> int:
+    config = json.loads(args.protocol.read_text())
+    robotwin = args.taco / "third_party" / "Robotwin"
+    env = dict(os.environ)
+    env["OPENAI_API_KEY"] = _api_key()
+    env["CUDA_VISIBLE_DEVICES"] = str(gpu)
+    env["TOKENIZERS_PARALLELISM"] = "false"
+    env["PYTHONPATH"] = os.pathsep.join(
+        (
+            ".",
+            "../lerobot/src",
+            str(args.taco),
+            str(args.logiv_root / "src"),
+        )
+    )
+    args.output.mkdir(parents=True, exist_ok=True)
+    for task in tasks:
+        log = args.output / f"{task}.log"
+        command = [
+            str(args.python),
+            "script/eval_lerobot_torch_pi05.py",
+            "--config", "policy/pi05/deploy_policy.yml",
+            "--overrides",
+            "--policy_name", "pi05",
+            "--task_name", task,
+            "--task_config", config["task_config"],
+            "--ckpt_setting", "unified_50tasks",
+            "--seed", "0",
+            "--tag", args.tag,
+            "--instruction_type", config["instruction_type"],
+            "--policy_path", config["checkpoint"],
+            "--test_num", str(len(config["tasks"][task])),
+            "--tokenizer_path", str(args.tokenizer),
+            "--record_videos", "False",
+            "--accepted_seeds", json.dumps(config["tasks"][task]),
+            "--logiv_root", str(args.logiv_root),
+            "--val_binary", str(args.val_binary),
+            "--action_chunk_steps", str(config["action_chunk_steps"]),
+            "--max_gpt4o_retries", "2",
+        ]
+        with log.open("w", encoding="utf-8") as stream:
+            result = subprocess.run(
+                command,
+                cwd=robotwin,
+                env=env,
+                stdout=stream,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
+        if result.returncode:
+            return result.returncode
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--worker", type=int, choices=range(3), required=True)
+    parser.add_argument("--protocol", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--tag", required=True)
+    parser.add_argument("--taco", type=Path, required=True)
+    parser.add_argument("--logiv-root", type=Path, required=True)
+    parser.add_argument("--python", type=Path, required=True)
+    parser.add_argument("--tokenizer", type=Path, required=True)
+    parser.add_argument("--val-binary", type=Path, required=True)
+    args = parser.parse_args()
+    return _run_worker(args.worker, GPU_TASKS[args.worker], args)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
