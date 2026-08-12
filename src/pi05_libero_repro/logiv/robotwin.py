@@ -261,7 +261,7 @@ RECOVERY_POLICY_PROMPTS = {
     "stack_blocks_three": (
         "Move the red block to the table center.",
         "Place the green block centered on the red block and release it.",
-        "Move red block, green block, and blue block to the center. Stack blue block on green block and green block on red block.",
+        "Move red block, green block, and blue block to the center. Stack blue block on green block and green block on red block. Release both grippers.",
     ),
     "stack_bowls_three": (
         "Place the largest bowl at the table center as the bottom bowl.",
