@@ -34,6 +34,14 @@ def _stage_stall_observations(config: dict, task: str) -> list[int] | None:
     return parsed
 
 
+def _min_base_dispatches(config: dict, task: str) -> int:
+    steps = int(config.get("min_base_steps_by_task", {}).get(task, 0))
+    chunk = int(config["action_chunk_steps"])
+    if steps < 0:
+        raise ValueError(f"invalid minimum base steps for {task}: {steps}")
+    return (steps + chunk - 1) // chunk
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -88,6 +96,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--action_chunk_steps", str(config["action_chunk_steps"]),
             "--max_gpt4o_retries", "2",
             "--base_stall_observations", str(_stall_observations(config, task)),
+            "--min_base_dispatches", str(_min_base_dispatches(config, task)),
         ]
         instructions = config.get("instructions", {}).get(task)
         if instructions is not None:

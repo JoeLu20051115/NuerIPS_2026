@@ -46,3 +46,17 @@ def test_task_specific_stall_observations_must_be_positive() -> None:
         assert "handover_block" in str(error)
     else:
         raise AssertionError("zero stall observations must be rejected")
+
+
+def test_task_specific_base_protection_is_converted_to_dispatches() -> None:
+    config = {
+        "action_chunk_steps": 50,
+        "min_base_steps_by_task": {
+            "turn_switch": 350,
+            "stack_blocks_three": 650,
+        },
+    }
+
+    assert LAUNCHER._min_base_dispatches(config, "turn_switch") == 7
+    assert LAUNCHER._min_base_dispatches(config, "stack_blocks_three") == 13
+    assert LAUNCHER._min_base_dispatches(config, "move_can_pot") == 0

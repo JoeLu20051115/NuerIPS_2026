@@ -318,6 +318,36 @@ def test_stable_false_frontier_triggers_contextual_local_repair() -> None:
     ]
 
 
+def test_base_protection_window_monitors_but_delays_prompt_replacement() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([false] * 5)
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=1,
+        min_base_dispatches=3,
+    )
+    prompts = []
+    original = "Use the left arm to press the flat tan switch."
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 4,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+    )
+
+    assert outcome.success
+    assert prompts == [original] * 3 + [RECOVERY_POLICY_PROMPTS[task.name][0]]
+    assert [event.control_mode for event in outcome.events[:3]] == [
+        "BASE_MONITORED"
+    ] * 3
+    assert outcome.events[3].control_mode == "REPAIR"
+
+
 def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> None:
     assert "right arm" in RECOVERY_POLICY_PROMPTS["handover_block"][2]
     assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]

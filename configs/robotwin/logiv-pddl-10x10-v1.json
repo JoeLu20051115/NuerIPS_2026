@@ -4,6 +4,18 @@
   "task_config": "demo_clean",
   "instruction_type": "unseen",
   "action_chunk_steps": 50,
+  "min_base_steps_by_task": {
+    "handover_block": 0,
+    "open_microwave": 400,
+    "place_dual_shoes": 250,
+    "stamp_seal": 150,
+    "blocks_ranking_size": 700,
+    "move_can_pot": 200,
+    "turn_switch": 350,
+    "stack_blocks_three": 650,
+    "stack_bowls_three": 500,
+    "beat_block_hammer": 175
+  },
   "base_stall_observations": 4,
   "base_stall_observations_by_task": {
     "handover_block": 4,

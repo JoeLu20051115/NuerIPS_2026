@@ -573,12 +573,14 @@ class RobotwinEpisodeController:
         max_dispatches: int = 64,
         base_stall_observations: int = 2,
         stage_stall_observations: Sequence[int] | None = None,
+        min_base_dispatches: int = 0,
     ) -> None:
         self.task = task
         self.planner = planner
         self.grounder = grounder
         self.max_dispatches = int(max_dispatches)
         self.base_stall_observations = int(base_stall_observations)
+        self.min_base_dispatches = int(min_base_dispatches)
         self.stage_stall_observations = (
             tuple(int(value) for value in stage_stall_observations)
             if stage_stall_observations is not None
@@ -588,6 +590,8 @@ class RobotwinEpisodeController:
             raise ValueError("max_dispatches must be positive")
         if self.base_stall_observations <= 0:
             raise ValueError("base_stall_observations must be positive")
+        if self.min_base_dispatches < 0:
+            raise ValueError("min_base_dispatches must be nonnegative")
         if self.stage_stall_observations is not None:
             if len(self.stage_stall_observations) != len(self.task.stages):
                 raise ValueError("stage stall observations must match task stages")
@@ -650,7 +654,11 @@ class RobotwinEpisodeController:
                 visual_goal_native_conflicts = 0
             goal_conflict_repair = base_prompt is not None and (
                 control_mode == "REPAIR"
-                or visual_goal_native_conflicts >= self.base_stall_observations
+                or (
+                    dispatches >= self.min_base_dispatches
+                    and visual_goal_native_conflicts
+                    >= self.base_stall_observations
+                )
             ) and facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded
             if goal_conflict_repair:
                 # The benchmark evaluator is authoritative for terminal success.
@@ -679,7 +687,11 @@ class RobotwinEpisodeController:
                     unchanged_false_observations += 1
                 else:
                     unchanged_false_observations = 0
-                if unchanged_false_observations >= self._stall_threshold(active):
+                if (
+                    dispatches >= self.min_base_dispatches
+                    and unchanged_false_observations
+                    >= self._stall_threshold(active)
+                ):
                     control_mode = "REPAIR"
             events.append(
                 RobotwinControllerEvent(
