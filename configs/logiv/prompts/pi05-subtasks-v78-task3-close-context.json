@@ -1,0 +1,10 @@
+{
+  "extends": "pi05-subtasks-v71-task3-local.json",
+  "prompt_version": "pi05-subtasks-v78-task3-close-context",
+  "action_overrides": {
+    "(close-access white_cabinet_1_bottom_access)": "put the black bowl in the bottom drawer of the cabinet and close it"
+  },
+  "action_phase_overrides": {
+    "(close-access white_cabinet_1_bottom_access)": {}
+  }
+}

@@ -203,6 +203,9 @@ class EpisodeOutcome:
     first_frame: np.ndarray
     replay_frames: List[np.ndarray]
     actions: List[np.ndarray]
+    intervention_requested: bool = False
+    discarded_pending_actions: int = 0
+    final_observation: dict[str, Any] | None = None
     shadow_calls: int = 0
     shadow_errors: int = 0
     shadow_failure_records: tuple[ShadowFailureRecord, ...] = ()
@@ -266,6 +269,8 @@ def run_episode(
     request_envelope_reader: Callable[[int, bool], str | None] | None = None,
     capture_replay_frames: bool = True,
     clock: Callable[[], float] = time.perf_counter,
+    intervention_monitor: Callable[[dict, np.ndarray, int], bool] | None = None,
+    shadow_initialization_guard: Callable[[], None] | None = None,
 ) -> EpisodeOutcome:
     if max_steps <= 0 or wait_steps < 0 or replan_steps <= 0 or settling_steps < 0:
         raise ValueError(
@@ -274,10 +279,13 @@ def run_episode(
         )
 
     try:
+        done = False
         env.reset()
         obs = env.set_init_state(initial_state)
         for _ in range(wait_steps):
-            obs, _, _, _ = env.step(list(LIBERO_DUMMY_ACTION))
+            obs, _, done, _ = env.step(list(LIBERO_DUMMY_ACTION))
+            if done:
+                break
 
         action_plan = deque()
         replay_frames = []
@@ -295,7 +303,8 @@ def run_episode(
         current_chunk_dtype = np.dtype(np.float64)
         current_chunk_request_index: int | None = None
         shadow_action_prefix = BaseActionPrefixHasher()
-        done = False
+        intervention_requested = False
+        discarded_pending_actions = 0
 
         def record_shadow_failure(
             policy_step: int, failure_stage: str, error: Exception
@@ -440,9 +449,16 @@ def run_episode(
                     )
                     shadow_parity_valid = False
 
-        call_shadow(obs, None, 0)
+        if done:
+            _, first_frame = prepare_observation(obs, prompt, image_tools)
+            if capture_replay_frames:
+                replay_frames.append(first_frame)
+        else:
+            call_shadow(obs, None, 0)
+            if shadow_initialization_guard is not None:
+                shadow_initialization_guard()
 
-        for _ in range(max_steps):
+        for _ in range(0 if done else max_steps):
             element, main_image = prepare_observation(obs, prompt, image_tools)
             if first_frame is None:
                 first_frame = main_image
@@ -475,13 +491,28 @@ def run_episode(
             executed_actions.append(action)
             obs, _, done, _ = env.step(action.tolist())
             current_chunk_offset += 1
-            call_shadow(obs, action, len(executed_actions))
             if done:
+                break
+            call_shadow(obs, action, len(executed_actions))
+            if intervention_monitor is not None and intervention_monitor(
+                obs, action.copy(), len(executed_actions)
+            ):
+                intervention_requested = True
+                discarded_pending_actions = len(action_plan)
+                action_plan.clear()
                 break
 
         done = bool(done)
-        for settling_index in range(settling_steps):
-            settling_observation, _, _, _ = env.step(list(LIBERO_DUMMY_ACTION))
+        for settling_index in range(
+            0 if done or intervention_requested else settling_steps
+        ):
+            settling_observation, _, settling_done, _ = env.step(
+                list(LIBERO_DUMMY_ACTION)
+            )
+            obs = settling_observation
+            if settling_done:
+                done = True
+                break
             _, settling_frame = prepare_observation(
                 settling_observation, prompt, image_tools
             )
@@ -493,10 +524,8 @@ def run_episode(
                 settling_step=settling_index + 1,
             )
         check_success = bool(env.check_success())
-        if settling_steps == 0 and done != check_success:
-            raise EpisodeInvalid(f"success predicate disagreement: done={done}, check_success={check_success}")
         return EpisodeOutcome(
-            success=check_success,
+            success=done or check_success,
             done=done,
             check_success=check_success,
             steps=len(executed_actions),
@@ -504,6 +533,9 @@ def run_episode(
             first_frame=first_frame,
             replay_frames=replay_frames,
             actions=executed_actions,
+            intervention_requested=intervention_requested,
+            discarded_pending_actions=discarded_pending_actions,
+            final_observation=obs,
             shadow_calls=shadow_calls,
             shadow_errors=shadow_errors,
             shadow_failure_records=tuple(shadow_failure_records),

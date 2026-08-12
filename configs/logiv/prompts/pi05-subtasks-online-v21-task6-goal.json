@@ -1,0 +1,10 @@
+{
+  "extends": "pi05-subtasks-online-v5.json",
+  "prompt_version": "pi05-subtasks-online-v21-task6-goal",
+  "action_overrides": {
+    "(place-on porcelain_mug_1 living_room_table_recovery_surface plate_1)": "Put the white mug on the plate and put the chocolate pudding to the right of the plate."
+  },
+  "action_phase_overrides": {
+    "(place-on porcelain_mug_1 living_room_table_recovery_surface plate_1)": {}
+  }
+}

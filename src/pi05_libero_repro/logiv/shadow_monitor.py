@@ -803,9 +803,6 @@ class VersionedActionEventTracker:
         return bool(
             opened
             and previous.holding is TruthValue.TRUE
-            and feature.destination_region_truth is TruthValue.TRUE
-            and feature.destination_region_distance is not None
-            and feature.destination_region_distance <= rule.region_distance_max
         )
 
     def observe(self, context: ShadowStepContext) -> None:
@@ -1677,7 +1674,28 @@ class StableRecoveryObserver:
                 facts.append(fact.pddl())
                 evidence.update(object_evidence)
         if not facts:
-            return None
+            timeout_evidence: dict[str, ActionEventEvidence] = {}
+            timeout_effects: set[str] = set()
+            for rule in self.monitor_contract.action_event_rules:
+                for item in self._active_evidence(
+                    rule.object_id, rule.attempted_effect, policy_step
+                ):
+                    if item.evidence_kind != "ATTEMPTED_EFFECT_TIMEOUT":
+                        continue
+                    timeout_evidence[item.evidence_id] = item
+                    timeout_effects.add(item.attempted_effect)
+            if not timeout_evidence:
+                return None
+            return (
+                "ATTEMPTED_EFFECT_TIMEOUT_STABLE",
+                tuple(f"effect:{effect}" for effect in sorted(timeout_effects)),
+                tuple(
+                    sorted(
+                        timeout_evidence.values(),
+                        key=lambda item: item.evidence_id,
+                    )
+                ),
+            )
         return (
             "UNPLANNED_SUPPORT_STABLE",
             tuple(sorted(facts)),
@@ -1725,6 +1743,32 @@ class StableRecoveryObserver:
         self._streak_key = None
         self._streak_count = 0
         self._provisional_origin = None
+
+    def observe_settling(
+        self, observation: Mapping[str, Any]
+    ) -> tuple[FactSnapshot, CertificateReconciliation] | None:
+        """Refresh the fixed graph during no-action simulator settling."""
+
+        self.metrics.snapshot_calls += 1
+        try:
+            snapshot = self.snapshot_reader(observation)
+            if not isinstance(snapshot, FactSnapshot):
+                raise ValueError("snapshot reader returned an invalid record")
+            self._validate_snapshot(snapshot)
+        except Exception:
+            self.metrics.snapshot_errors += 1
+            self._reset_streak()
+            return None
+        reconciliation = (
+            self.reconciler.initial(snapshot)
+            if self._previous_snapshot is None
+            else self.reconciler.reconcile(self._previous_snapshot, snapshot)
+        )
+        self._previous_snapshot = snapshot
+        self._reconciliation = reconciliation
+        if reconciliation.certificate_state is CertificateState.STALE:
+            self.metrics.stale_certificates = 1
+        return snapshot, reconciliation
 
     def __call__(self, context: ShadowStepContext) -> None:
         tracker_ok = True

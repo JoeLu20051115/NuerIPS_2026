@@ -114,6 +114,7 @@ def _operational(records) -> dict:
 def _baseline_proxy(records) -> list[SimpleNamespace]:
     return [
         SimpleNamespace(
+            seed=item.seed,
             task_id=item.task_id,
             episode_idx=item.episode_idx,
             success=item.success,

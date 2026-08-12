@@ -38,8 +38,8 @@
       ],
       "confirmation_count": 3,
       "contract_id": "logiv-r2m-monitor-task5-v1",
-      "contract_sha256": "ad2f90576c680d3f51ea3be2ebeb9191b3842eee17feb0da8afda26b3d813d76",
-      "event_detector_sha256": "2ea0333f68a0b9b19fda7b9990549ca9bfd098dcbe4dbeec8ea8aab2c67f7399",
+      "contract_sha256": "4fb3c00e0fa92e22de322a1636991e17fd86d0379f501c7d6711ec4e776e1705",
+      "event_detector_sha256": "a4a95c59c9c773b2e0a700f59ff553f059d3b85e308c7a5bf57b4c03aa2b5f0c",
       "goal_regression_evidence_ttl_policy_steps": 20,
       "grounding_rule_sha256": "7256d4eae5ba0aadc9fc7cd0af384fb9545adfdc2a0e66c891d1b440bddd937f",
       "max_active_attempts_per_object": 8,
@@ -56,7 +56,7 @@
         "(at black_book_1 desk_caddy_1_back_contain_region)",
         "(holding black_book_1)"
       ],
-      "tracker_version": "logiv-action-event-tracker-v1"
+      "tracker_version": "logiv-action-event-tracker-v2"
     },
     {
       "abnormal_support_surfaces": ["kitchen_table_recovery_surface"],
@@ -128,8 +128,8 @@
       ],
       "confirmation_count": 3,
       "contract_id": "logiv-r2m-monitor-task8-v1",
-      "contract_sha256": "05e5da5e028134c9df93e8ec5333f9268fdb0a2617ce375750df4bf23da9c140",
-      "event_detector_sha256": "2ea0333f68a0b9b19fda7b9990549ca9bfd098dcbe4dbeec8ea8aab2c67f7399",
+      "contract_sha256": "b78b3cafcade1af1e269dc3b27b97f068543dd4ee9a64c0a98c28bda939b4e9f",
+      "event_detector_sha256": "a4a95c59c9c773b2e0a700f59ff553f059d3b85e308c7a5bf57b4c03aa2b5f0c",
       "goal_regression_evidence_ttl_policy_steps": 20,
       "grounding_rule_sha256": "7256d4eae5ba0aadc9fc7cd0af384fb9545adfdc2a0e66c891d1b440bddd937f",
       "max_active_attempts_per_object": 8,
@@ -151,7 +151,7 @@
         "(holding moka_pot_1)",
         "(holding moka_pot_2)"
       ],
-      "tracker_version": "logiv-action-event-tracker-v1"
+      "tracker_version": "logiv-action-event-tracker-v2"
     }
   ],
   "schema_version": 1

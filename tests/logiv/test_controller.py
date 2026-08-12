@@ -181,7 +181,17 @@ class SymbolicDispatcher:
             return ExecutorOutcome(
                 status=self.outcome_status,
                 attempt_id=start.attempt_id,
-                stopped=False,
+                stopped=self.outcome_status is ExecutorStatus.EPISODE_SUCCESS,
+                stop_ack_attempt_id=(
+                    start.attempt_id
+                    if self.outcome_status is ExecutorStatus.EPISODE_SUCCESS
+                    else None
+                ),
+                settled_epoch=(
+                    self.world.epoch
+                    if self.outcome_status is ExecutorStatus.EPISODE_SUCCESS
+                    else None
+                ),
                 context=start.context,
             )
         if self.drop_once_schema == action.schema:
@@ -490,6 +500,21 @@ def test_external_evaluator_failure_is_not_upgraded_by_internal_goal() -> None:
 
     assert result.status is ControllerStatus.EPISODE_FAIL
     assert evaluator.calls == 1
+
+
+def test_native_done_absorbing_skips_post_stop_gates_and_external_evaluator() -> None:
+    controller, _, grounder, dispatcher, evaluator = controller_for(
+        8, evaluator_status=EvaluatorStatus.EPISODE_FAIL
+    )
+    dispatcher.outcome_status = ExecutorStatus.EPISODE_SUCCESS
+
+    result = controller.run()
+
+    assert result.status is ControllerStatus.EPISODE_SUCCESS
+    assert result.terminal_cause == "EPISODE_SUCCESS"
+    assert len(dispatcher.dispatches) == 1
+    assert evaluator.calls == 0
+    assert all(call[0] is not ContextPhase.POST_STOP_FACTS for call in grounder.calls)
 
 
 def test_physical_budget_blocks_next_dispatch() -> None:

@@ -16,6 +16,7 @@ from pi05_libero_repro.logiv.model import (
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
 from pi05_libero_repro.logiv.repair import (
     FailureObligation,
+    PddlPlanner,
     RepairBounds,
     RepairOperator,
     RepairStatus,
@@ -32,6 +33,10 @@ REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
 TASK3_SCHEMAS = frozenset(
     {"pick", "put-down", "open-access", "place-held-in", "close-access"}
 )
+
+
+def test_repair_operator_is_only_a_compatibility_name_for_pddl_planner() -> None:
+    assert RepairOperator is PddlPlanner
 
 
 def nominal(task_id: int, fixture: Path | None = None):

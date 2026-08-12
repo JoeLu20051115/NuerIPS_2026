@@ -22,7 +22,7 @@ from pi05_libero_repro.logiv.model import (
 from pi05_libero_repro.logiv.repair import (
     CausalSlice,
     FailureObligation,
-    RepairOperator,
+    PddlPlanner,
     RepairError,
     RepairStatus,
     RetryLedger,
@@ -53,6 +53,7 @@ class DispatchStatus(str, Enum):
 
 class ExecutorStatus(str, Enum):
     SUCCEEDED = "SUCCEEDED"
+    EPISODE_SUCCESS = "EPISODE_SUCCESS"
     EXECUTOR_FAILED = "EXECUTOR_FAILED"
     OUTCOME_UNKNOWN = "EXECUTOR_OUTCOME_UNKNOWN"
     TIMEOUT = "EXECUTOR_TIMEOUT"
@@ -262,7 +263,7 @@ class LogivController:
         evaluator_handle: Any,
         val_wrapper: ValWrapper,
         compiler: CausalDagCompiler,
-        repair_operator: RepairOperator,
+        repair_operator: PddlPlanner,
         retry_policy: RetryPolicy,
         budget_limits: RuntimeBudgetLimits,
         initial_val_calls: int,
@@ -305,6 +306,9 @@ class LogivController:
             raise ValueError("initial installation graph does not match certified inputs")
         self.events.append(f"CERTIFICATE_ACTIVE:{self.certificate.certificate_hash}")
         self.events.append(f"GRAPH_ACTIVE:{self.graph.graph_version}")
+        set_graph_version = getattr(self.grounder, "set_graph_version", None)
+        if set_graph_version is not None:
+            set_graph_version(self.graph.graph_version)
 
     def _result(self, status: ControllerStatus, cause: str | None = None) -> ControllerResult:
         result = ControllerResult(
@@ -443,6 +447,9 @@ class LogivController:
         self.snapshot = snapshot
         self.cursor = 0
         self.graph_installs += 1
+        set_graph_version = getattr(self.grounder, "set_graph_version", None)
+        if set_graph_version is not None:
+            set_graph_version(graph.graph_version)
         self.events.append(f"CERTIFICATE_INSTALLED:{certificate.certificate_hash}")
         self.events.append("GRAPH_INSTALLED")
 
@@ -875,6 +882,27 @@ class LogivController:
                     )
                 )
                 return self._halt(start.attempt_id, "STALE_EXECUTOR_CALLBACKS")
+            if outcome.status is ExecutorStatus.EPISODE_SUCCESS:
+                self.receipts.append(
+                    AttemptReceipt(
+                        attempt_id=start.attempt_id,
+                        occurrence_id=occurrence_id,
+                        graph_version=self.graph.graph_version,
+                        schema=action.schema,
+                        status=AttemptReceiptStatus.COMMITTED,
+                        pre_epoch=self.snapshot.epoch_id,
+                        post_epoch=outcome.settled_epoch,
+                        stop_confirmed=True,
+                        effect_status="NATIVE_SUCCESS",
+                        reason=outcome.reason,
+                    )
+                )
+                self._active_attempt_id = None
+                self.events.append("NATIVE_SUCCESS_ABSORBED")
+                return self._result(
+                    ControllerStatus.EPISODE_SUCCESS,
+                    ControllerStatus.EPISODE_SUCCESS.value,
+                )
             stopped = (
                 outcome.stopped
                 and outcome.stop_ack_attempt_id == start.attempt_id

@@ -1055,16 +1055,32 @@ class LiberoOracleGrounder:
         positive = action.add_effects if completion_positive is None else completion_positive
         negative = action.del_effects if completion_negative is None else completion_negative
         required = positive | negative
-        location_schema = action.schema in {"place-on", "place-in", "place-relative"}
-        if location_schema and len(action.arguments) >= 3:
-            object_name, source, target = action.arguments[:3]
-            required |= frozenset(
-                {
-                    Fact("at", (object_name, source)),
-                    Fact("at", (object_name, target)),
-                    Fact("holding", (object_name,)),
-                }
-            )
+        sourced_place = action.schema in {"place-on", "place-in", "place-relative"}
+        held_place = action.schema in {
+            "place-held-on",
+            "place-held-in",
+            "place-held-relative",
+            "put-down",
+        }
+        location_schema = sourced_place or held_place
+        source = action.arguments[1] if sourced_place else None
+        target = (
+            action.arguments[2]
+            if sourced_place
+            else action.arguments[1]
+            if held_place
+            else None
+        )
+        if location_schema:
+            object_name = action.arguments[0]
+            assert target is not None
+            location_evidence = {
+                Fact("at", (object_name, target)),
+                Fact("holding", (object_name,)),
+            }
+            if source is not None:
+                location_evidence.add(Fact("at", (object_name, source)))
+            required |= frozenset(location_evidence)
         try:
             snapshot = self._snapshot(required)
         except GroundingError:
@@ -1077,18 +1093,22 @@ class LiberoOracleGrounder:
             positive=action.add_effects,
             negative=action.del_effects,
         )
-        if not location_schema or len(action.arguments) < 3:
+        if not location_schema:
             return effects_satisfied, primary_effects_satisfied, False
-        object_name, source, target = action.arguments[:3]
+        assert target is not None
         required_false = {
-            Fact("at", (object_name, source)),
             Fact("at", (object_name, target)),
             Fact("holding", (object_name,)),
         }
+        if source is not None:
+            required_false.add(Fact("at", (object_name, source)))
+        nominal_locations = {target}
+        if source is not None:
+            nominal_locations.add(source)
         alternative_location = any(
             fact.predicate == "at"
             and fact.arguments[0] == object_name
-            and fact.arguments[1] not in {source, target}
+            and fact.arguments[1] not in nominal_locations
             for fact in snapshot.true_facts
         )
         target_diverged = required_false <= snapshot.false_facts and alternative_location
@@ -1184,6 +1204,7 @@ class AttemptResult:
     inference_requests: int
     detector_calls: int
     unused_actions_flushed: int
+    post_stop_reobservation_steps: int
     post_snapshot: FactSnapshot | None
     post_snapshot_error: str | None = None
     reason: str = ""
@@ -1219,9 +1240,13 @@ class Pi05MacroExecutor:
         replan_steps: int,
         max_action_steps: int,
         settling_steps: int,
+        post_stop_grounding_reobservation_steps: int = 0,
         effect_confirmation_steps: int = 1,
+        place_effect_confirmation_steps: int | None = None,
         access_effect_stabilization_steps: int = 0,
+        place_effect_stabilization_steps: int = 0,
         target_divergence_confirmation_steps: int | None = None,
+        held_target_divergence_confirmation_steps: int = 0,
         frontier_followup_steps: int | None = None,
         frontier_completion_followup_steps: int | None = None,
         frontier_completion_recovery_only: bool = False,
@@ -1235,8 +1260,15 @@ class Pi05MacroExecutor:
             replan_steps <= 0
             or max_action_steps <= 0
             or settling_steps < 0
+            or post_stop_grounding_reobservation_steps < 0
             or effect_confirmation_steps <= 0
+            or (
+                place_effect_confirmation_steps is not None
+                and place_effect_confirmation_steps <= 0
+            )
             or access_effect_stabilization_steps < 0
+            or place_effect_stabilization_steps < 0
+            or held_target_divergence_confirmation_steps < 0
             or (
                 target_divergence_confirmation_steps is not None
                 and target_divergence_confirmation_steps <= 0
@@ -1271,12 +1303,20 @@ class Pi05MacroExecutor:
         self.replan_steps = replan_steps
         self.max_action_steps = max_action_steps
         self.settling_steps = settling_steps
+        self.post_stop_grounding_reobservation_steps = (
+            post_stop_grounding_reobservation_steps
+        )
         self.effect_confirmation_steps = effect_confirmation_steps
+        self.place_effect_confirmation_steps = place_effect_confirmation_steps
         self.access_effect_stabilization_steps = access_effect_stabilization_steps
+        self.place_effect_stabilization_steps = place_effect_stabilization_steps
         self.target_divergence_confirmation_steps = (
             effect_confirmation_steps
             if target_divergence_confirmation_steps is None
             else target_divergence_confirmation_steps
+        )
+        self.held_target_divergence_confirmation_steps = (
+            held_target_divergence_confirmation_steps
         )
         self.frontier_followup_steps = frontier_followup_steps
         self.frontier_completion_followup_steps = (
@@ -1410,9 +1450,21 @@ class Pi05MacroExecutor:
         outcome = ExecutorOutcome(
             status=status,
             attempt_id=attempt_id,
-            stopped=status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED},
+            stopped=status
+            in {
+                ExecutorStatus.SUCCEEDED,
+                ExecutorStatus.EPISODE_SUCCESS,
+                ExecutorStatus.EXECUTOR_FAILED,
+            },
             stop_ack_attempt_id=(
-                attempt_id if status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED} else None
+                attempt_id
+                if status
+                in {
+                    ExecutorStatus.SUCCEEDED,
+                    ExecutorStatus.EPISODE_SUCCESS,
+                    ExecutorStatus.EXECUTOR_FAILED,
+                }
+                else None
             ),
             settled_epoch=settled_epoch,
             reason=reason,
@@ -1461,15 +1513,31 @@ class Pi05MacroExecutor:
         active_frontier_followup_steps = self.frontier_followup_steps
         prompt = queued.policy_prompt
         prompt_history = [prompt]
-        place_schemas = {
+        sourced_place_schemas = {
             "place-on",
             "place-in",
             "place-relative",
+        }
+        held_place_schemas = {
             "place-held-on",
             "place-held-in",
             "place-held-relative",
             "put-down",
         }
+        place_schemas = sourced_place_schemas | held_place_schemas
+        divergence_confirmation_steps = (
+            self.held_target_divergence_confirmation_steps
+            if queued.action.schema in held_place_schemas
+            else self.target_divergence_confirmation_steps
+        )
+        effect_stabilization_steps = 0
+        confirmation_steps = self.effect_confirmation_steps
+        if queued.action.schema == "close-access":
+            effect_stabilization_steps = self.access_effect_stabilization_steps
+        elif queued.action.schema in sourced_place_schemas:
+            effect_stabilization_steps = self.place_effect_stabilization_steps
+            if self.place_effect_confirmation_steps is not None:
+                confirmation_steps = self.place_effect_confirmation_steps
         status = ExecutorStatus.SUCCEEDED
         reason = "macro bound reached"
 
@@ -1524,6 +1592,10 @@ class Pi05MacroExecutor:
                 )
                 actions.append(low_level_action.copy())
                 self.total_action_steps += 1
+                if bool(done):
+                    status = ExecutorStatus.EPISODE_SUCCESS
+                    reason = "simulator task predicate became true"
+                    break
                 if self.stop_on_effects:
                     effects_satisfied, primary_satisfied, target_diverged = (
                         self.grounder.observe_action_progress_details(
@@ -1543,7 +1615,7 @@ class Pi05MacroExecutor:
                             stabilized_effect_steps += 1
                             if (
                                 stabilized_effect_steps
-                                >= self.access_effect_stabilization_steps
+                                >= effect_stabilization_steps
                             ):
                                 reason = "observed stabilized declared effects"
                                 break
@@ -1554,10 +1626,9 @@ class Pi05MacroExecutor:
                         continue
                     if effects_satisfied:
                         confirmed_effect_steps += 1
-                        if confirmed_effect_steps >= self.effect_confirmation_steps:
+                        if confirmed_effect_steps >= confirmation_steps:
                             if (
-                                queued.action.schema == "close-access"
-                                and self.access_effect_stabilization_steps > 0
+                                effect_stabilization_steps > 0
                             ):
                                 effect_stabilizing = True
                                 stabilized_effect_steps = 0
@@ -1581,7 +1652,7 @@ class Pi05MacroExecutor:
                         )
                         and not frontier_completion_triggered
                         and not frontier_fallback_triggered
-                        and primary_effect_streak >= self.effect_confirmation_steps
+                        and primary_effect_streak >= confirmation_steps
                     ):
                         frontier_completion_triggered = True
                         frontier_completion_step = len(actions)
@@ -1608,19 +1679,22 @@ class Pi05MacroExecutor:
                     ):
                         reason = "frontier follow-up deadline reached"
                         break
-                    if not effects_satisfied and target_diverged:
+                    if (
+                        not effects_satisfied
+                        and target_diverged
+                        and divergence_confirmation_steps > 0
+                    ):
                         confirmed_divergence_steps += 1
                         if (
                             confirmed_divergence_steps
-                            >= self.target_divergence_confirmation_steps
+                            >= divergence_confirmation_steps
                         ):
                             reason = "observed target-location divergence"
                             break
                     else:
                         confirmed_divergence_steps = 0
                     if (
-                        queued.completion_mode == "DAG_FRONTIER"
-                        and self.frontier_fallback_after_steps is not None
+                        self.frontier_fallback_after_steps is not None
                         and not frontier_fallback_triggered
                         and not frontier_completion_triggered
                         and primary_effect_first_step is None
@@ -1668,12 +1742,6 @@ class Pi05MacroExecutor:
                         elif held_objects and object_name not in held_objects:
                             reason = "observed unexpected-object holding divergence"
                             break
-                # LIBERO overloads ``done`` with the current BDDL task-success
-                # predicate; its state remains step-able.  An effect-gated
-                # LOGIV occurrence therefore cannot use it as STOPPED evidence.
-                if bool(done) and not self.stop_on_effects:
-                    reason = "simulator task predicate became true"
-                    break
         except (EpisodeInvalid, KeyError, TypeError, ValueError) as error:
             # A malformed policy response is outside the action contract.  It is
             # not a task-level effect failure and must never enter automatic retry.
@@ -1693,27 +1761,64 @@ class Pi05MacroExecutor:
                     self.stop_on_effects
                     and queued.action.schema in place_schemas
                     and reason
-                    in {"observed declared effects", "observed frontier effects"}
+                    in {
+                        "observed declared effects",
+                        "observed frontier effects",
+                    }
                 )
                 hold[-1] = -1.0 if release_completion else self._last_gripper_command
                 for _ in range(self.settling_steps):
-                    self.store.advance(lambda: self.env.step(hold.tolist()))
+                    _, _, settling_done, _ = self.store.advance(
+                        lambda: self.env.step(hold.tolist())
+                    )
+                    if bool(settling_done):
+                        status = ExecutorStatus.EPISODE_SUCCESS
+                        reason = "simulator task predicate became true during settling"
+                        break
             except Exception as error:
                 status = ExecutorStatus.SETTLING_TIMEOUT
                 reason = f"settling failed: {error}"
 
         settled_epoch = (
             self.store.epoch_id
-            if status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED}
+            if status
+            in {
+                ExecutorStatus.SUCCEEDED,
+                ExecutorStatus.EPISODE_SUCCESS,
+                ExecutorStatus.EXECUTOR_FAILED,
+            }
             else None
         )
         post_snapshot = None
         post_snapshot_error = None
-        if settled_epoch is not None:
+        post_stop_reobservation_steps = 0
+        if settled_epoch is not None and status is not ExecutorStatus.EPISODE_SUCCESS:
             try:
                 post_snapshot = self.grounder.peek_snapshot()
             except GroundingError as error:
                 post_snapshot_error = str(error)
+
+            needs_reobservation = post_snapshot is None or not post_snapshot.satisfies(
+                positive=queued.completion_positive,
+                negative=queued.completion_negative,
+            )
+            if needs_reobservation and self.post_stop_grounding_reobservation_steps:
+                try:
+                    for _ in range(self.post_stop_grounding_reobservation_steps):
+                        observation, _, _, _ = self.env.step(hold.tolist())
+                        self.store.update(observation)
+                        post_stop_reobservation_steps += 1
+                except Exception as reobservation_error:
+                    status = ExecutorStatus.SETTLING_TIMEOUT
+                    settled_epoch = None
+                    reason = f"post-stop reobservation failed: {reobservation_error}"
+                if settled_epoch is not None and post_stop_reobservation_steps:
+                    settled_epoch = self.store.epoch_id
+                    try:
+                        post_snapshot = self.grounder.peek_snapshot()
+                        post_snapshot_error = None
+                    except GroundingError as retry_error:
+                        post_snapshot_error = str(retry_error)
         self.results.append(
             AttemptResult(
                 attempt_id=start.attempt_id,
@@ -1740,10 +1845,18 @@ class Pi05MacroExecutor:
                 pre_epoch=queued.pre_epoch,
                 post_epoch=settled_epoch,
                 executor_status=status,
-                stopped=status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED},
+                stopped=status
+                in {
+                    ExecutorStatus.SUCCEEDED,
+                    ExecutorStatus.EPISODE_SUCCESS,
+                    ExecutorStatus.EXECUTOR_FAILED,
+                },
                 stop_evidence=(
-                    "synchronous env.step returned and local action deque was flushed"
-                    if status in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED}
+                    "native success returned by synchronous env.step"
+                    if status is ExecutorStatus.EPISODE_SUCCESS
+                    else "synchronous env.step returned and local action deque was flushed"
+                    if status
+                    in {ExecutorStatus.SUCCEEDED, ExecutorStatus.EXECUTOR_FAILED}
                     else "no STOPPED acknowledgement"
                 ),
                 actions=tuple(actions),
@@ -1751,6 +1864,7 @@ class Pi05MacroExecutor:
                 inference_requests=inference_requests,
                 detector_calls=self.grounder.detector_calls - detector_start,
                 unused_actions_flushed=unused_actions_flushed,
+                post_stop_reobservation_steps=post_stop_reobservation_steps,
                 post_snapshot=post_snapshot,
                 post_snapshot_error=post_snapshot_error,
                 reason=reason,

@@ -21,6 +21,7 @@ from scripts.report_logiv_results import (
     load_comparator_records,
     render_markdown,
 )
+from scripts.report_logiv_online import build_online_report, render_online_markdown
 
 
 def _context() -> ContextEnvelope:
@@ -316,6 +317,44 @@ def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
     assert comparison["estimate"] == pytest.approx(1.0)
 
 
+def test_records_accept_the_non_destructive_logiv_repair_overlay_arm(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "overlay.jsonl"
+    overlay = _record(arm="LOGIV_REPAIR_OVERLAY", success=False)
+
+    append_episode_record(path, overlay)
+
+    assert load_episode_records(path) == [overlay]
+
+
+def test_schema4_records_online_trigger_and_shared_action_accounting() -> None:
+    record = replace(
+        _schema3_record(
+            arm="LOGIV_ONLINE", status="ACCEPTED", requests=1, reason=None
+        ),
+        schema_version=4,
+        steps=520,
+        base_prefix_steps=180,
+        repair_steps=340,
+        combined_actions=520,
+        discarded_pending_actions=0,
+        online_trigger_kind="FRONTIER_STALL",
+        online_trigger_step=180,
+        online_trigger_sha256="a" * 64,
+        shadow_monitor_calls=37,
+        shadow_monitor_seconds=0.4,
+    )
+
+    assert validate_episode_records([record]) == []
+
+    invalid = replace(record, combined_actions=521)
+    assert any(
+        "online action accounting mismatch" in error
+        for error in validate_episode_records([invalid])
+    )
+
+
 def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
     recovered = replace(
         _record(episode_idx=0, success=True),
@@ -377,6 +416,88 @@ def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
         "mean_inference_requests": 30.0,
         "mean_wall_seconds": 10.0,
     }
+
+
+def test_paired_bootstrap_keeps_repeated_episode_indices_from_distinct_seeds() -> None:
+    base_seed7 = _record(arm="BASE", success=False)
+    full_seed7 = _record(arm="LOGIV_ONLINE", success=True)
+    base_seed11 = replace(
+        base_seed7, run_id="base-seed11", seed=11, success=True,
+        terminal_status="EPISODE_SUCCESS", terminal_cause="EPISODE_SUCCESS",
+        evaluator_status="EPISODE_SUCCESS",
+    )
+    full_seed11 = replace(
+        full_seed7, run_id="online-seed11", seed=11, success=True
+    )
+
+    comparison = paired_task_stratified_bootstrap(
+        [full_seed7, full_seed11],
+        [base_seed7, base_seed11],
+        samples=100,
+        seed=3,
+    )
+
+    assert comparison["paired_episodes"] == 2
+    assert comparison["estimate"] == pytest.approx(0.5)
+
+
+def test_online_report_counts_positive_negative_and_net_flips() -> None:
+    base_failed = _record(arm="BASE", episode_idx=0, success=False)
+    online_recovered = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=0, success=True),
+        prompt_version="online-repair-prompt",
+        online_trigger_kind="FRONTIER_STALL",
+        online_trigger_step=180,
+        online_trigger_sha256="a" * 64,
+        base_prefix_steps=20,
+        repair_steps=20,
+        combined_actions=40,
+    )
+    base_succeeded = _record(arm="BASE", episode_idx=1, success=True)
+    online_regressed = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=1, success=False),
+        online_trigger_kind="UNPLANNED_RECOVERY_SURFACE",
+        online_trigger_step=90,
+        online_trigger_sha256="b" * 64,
+    )
+    base_unchanged = _record(arm="BASE", episode_idx=2, success=True)
+    online_unchanged = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=2, success=True),
+        base_prefix_steps=40,
+        combined_actions=40,
+    )
+    base_spurious = _record(arm="BASE", episode_idx=3, success=False)
+    online_spurious = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=3, success=True),
+        base_prefix_steps=40,
+        combined_actions=40,
+    )
+
+    report = build_online_report(
+        [base_failed, base_succeeded, base_unchanged, base_spurious],
+        [online_recovered, online_regressed, online_unchanged, online_spurious],
+        bootstrap_samples=100,
+        bootstrap_seed=4,
+    )
+
+    assert report["flips"] == {
+        "positive": 2,
+        "negative": 1,
+        "net": 1,
+        "intervention_positive": 1,
+        "no_trigger_positive": 1,
+        "unchanged_success": 1,
+        "unchanged_failure": 0,
+    }
+    assert report["failure_first_feasibility"]["recovered"] == 1
+    assert report["no_trigger_parity"] == {
+        "pairs": 2,
+        "outcome_matches": 1,
+        "step_matches": 2,
+        "inference_request_matches": 2,
+    }
+    assert any("no-trigger outcome mismatch" in error for error in report["errors"])
+    assert "development/tuning evidence" in render_online_markdown(report)
 
 
 def test_report_includes_schema3_compute_buckets_and_parity_rate() -> None:

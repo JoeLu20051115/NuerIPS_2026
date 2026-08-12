@@ -218,8 +218,10 @@ class Gpt4oClient:
         schema_name: str,
         schema: Mapping[str, Any],
     ) -> Mapping[str, Any]:
-        if not purpose:
-            raise ValueError("request purpose must be nonempty")
+        if purpose != "state_gate":
+            raise Gpt4oRequestError(
+                "LOGIV GPT-4o is restricted to state_gate visual fact confirmation"
+            )
         body = self._payload(
             system=system,
             text=text,

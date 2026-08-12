@@ -27,8 +27,8 @@ from pi05_libero_repro.logiv.model import (
     TaskProblem,
 )
 from pi05_libero_repro.logiv.repair import (
+    PddlPlanner,
     RepairBounds,
-    RepairOperator,
     RepairStatus,
     RetryLedger,
     RetryPolicy,
@@ -39,6 +39,8 @@ from pi05_libero_repro.logiv.val import PlanCertificate, ValWrapper
 class MethodArm(str, Enum):
     BASE = "BASE"
     SHADOW_LOGIV = "SHADOW_LOGIV"
+    LOGIV_ONLINE = "LOGIV_ONLINE"
+    LOGIV_REPAIR_OVERLAY = "LOGIV_REPAIR_OVERLAY"
     STAGE_ONLY = "STAGE_ONLY"
     GRAPH_WITHOUT_VAL = "GRAPH_WITHOUT_VAL"
     VAL_WITHOUT_LOCALIZED_REPAIR = "VAL_WITHOUT_LOCALIZED_REPAIR"
@@ -63,11 +65,22 @@ class EvaluationContract:
     prompt_locked: bool
     task_ids: tuple[int, ...]
     episode_indices: tuple[int, ...]
+    perception_backend: str = "scripted-oracle"
 
     def validate(self) -> None:
-        if self.method_arm is not MethodArm.BASE and not self.oracle_grounding:
+        if self.perception_backend not in {"scripted-oracle", "gpt4o"}:
+            raise EvaluationContractError("unknown perception backend")
+        if (
+            self.method_arm is not MethodArm.BASE
+            and self.perception_backend == "scripted-oracle"
+            and not self.oracle_grounding
+        ):
             raise EvaluationContractError(
                 "the development implementation requires an explicit oracle grounding acknowledgement"
+            )
+        if self.perception_backend == "gpt4o" and self.oracle_grounding:
+            raise EvaluationContractError(
+                "the GPT-4o perception backend must not enable oracle grounding"
             )
         if self.goal_mode is not GoalMode.METADATA_ASSISTED:
             raise EvaluationContractError(
@@ -99,8 +112,12 @@ class CertifiedEpisode:
     certificate: PlanCertificate
     graph: CausalGraph
     installation: ControllerInstallation
-    repair_operator: RepairOperator
+    planner: PddlPlanner
     initial_val_calls: int
+
+    @property
+    def repair_operator(self) -> PddlPlanner:
+        return self.planner
 
 
 def certify_initial_package(
@@ -113,6 +130,8 @@ def certify_initial_package(
     repair_bounds: RepairBounds,
     retry_policy: RetryPolicy | None = None,
     decompose_macro_sources: FrozenSet[str] = frozenset(),
+    planner: PddlPlanner | None = None,
+    causal_slice: Any | None = None,
 ) -> CertifiedEpisode:
     proposal = package.proposal
     if grounded_snapshot.epoch_id != proposal.epoch_id:
@@ -143,7 +162,7 @@ def certify_initial_package(
         safety_epoch=None,
     )
     policy = retry_policy or RetryPolicy(max_retries_per_lineage=1)
-    repair = RepairOperator(
+    active_planner = planner or PddlPlanner(
         val_wrapper,
         allowed_schemas=allowed_schemas,
         bounds=repair_bounds,
@@ -153,13 +172,14 @@ def certify_initial_package(
     lineage_roots = {
         item.action.retry_key: item.lineage_root for item in proposal.candidate_subtasks
     }
-    result = repair.repair(
+    result = active_planner.repair(
         problem,
         rough_plan,
         context=context,
         retry_ledger=RetryLedger(),
         retry_policy=policy,
         lineage_roots=lineage_roots,
+        causal_slice=causal_slice,
     )
     if result.status is not RepairStatus.CERTIFIED or result.certificate is None:
         raise EpisodePreparationError(
@@ -192,7 +212,7 @@ def certify_initial_package(
         certificate=result.certificate,
         graph=graph,
         installation=installation,
-        repair_operator=repair,
+        planner=active_planner,
         initial_val_calls=result.val_calls,
     )
 

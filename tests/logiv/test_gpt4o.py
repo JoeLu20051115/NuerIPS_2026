@@ -180,7 +180,7 @@ def test_complete_json_retries_transient_http_error(
     )
 
     assert client.complete_json(
-        purpose="initial_plan",
+        purpose="state_gate",
         system="s",
         text="t",
         images=(),
@@ -189,8 +189,8 @@ def test_complete_json_retries_transient_http_error(
     ) == {"status": "OK"}
     assert calls == 2
     assert sleeps == [0.5]
-    assert client.request_counts == {"initial_plan": 1}
-    assert client.http_attempt_counts == {"initial_plan": 2}
+    assert client.request_counts == {"state_gate": 1}
+    assert client.http_attempt_counts == {"state_gate": 2}
     assert client.records[0].retries == 1
 
 
@@ -212,7 +212,7 @@ def test_complete_json_timeout_exhaustion_is_secret_safe(
 
     with pytest.raises(Gpt4oRequestError) as captured:
         client.complete_json(
-            purpose="local_repair",
+            purpose="state_gate",
             system="s",
             text="t",
             images=(),
@@ -221,9 +221,30 @@ def test_complete_json_timeout_exhaustion_is_secret_safe(
         )
     assert secret not in str(captured.value)
     assert "after 2 attempts" in str(captured.value)
-    assert client.request_counts == {"local_repair": 1}
-    assert client.http_attempt_counts == {"local_repair": 2}
+    assert client.request_counts == {"state_gate": 1}
+    assert client.http_attempt_counts == {"state_gate": 2}
     assert client.records == ()
+
+
+@pytest.mark.parametrize("purpose", ["initial_plan", "local_repair"])
+def test_logiv_gpt4o_transport_rejects_non_vlm_purposes(purpose: str) -> None:
+    opened = []
+    client = Gpt4oClient(
+        "secret", urlopen=lambda *args, **kwargs: opened.append(args)
+    )
+
+    with pytest.raises(Gpt4oRequestError, match="state_gate"):
+        client.complete_json(
+            purpose=purpose,
+            system="system",
+            text="facts",
+            images=(),
+            schema_name="facts",
+            schema={"type": "object"},
+        )
+
+    assert opened == []
+    assert client.request_counts == {}
 
 
 @pytest.mark.parametrize(

@@ -29,6 +29,7 @@ from pi05_libero_repro.logiv.model import (
     TruthValue,
     fact_universe_sha256,
 )
+from pi05_libero_repro.logiv.online_repair import OnlineDeviationKind
 from pi05_libero_repro.logiv.recovery_records import CollectionLabel
 from pi05_libero_repro.logiv.shadow_monitor import MonitorEvidenceContract
 from pi05_libero_repro.logiv.shadow_runtime import (
@@ -280,6 +281,8 @@ def _build(
     collector=lambda trigger, context, episode_context: object(),
     topology_only: bool = False,
     interval_steps: int = 1,
+    observation_interval_steps: int | None = None,
+    online_detector_settings: Mapping[str, int] | None = None,
 ):
     contract = _contract()
 
@@ -316,6 +319,8 @@ def _build(
         interval_steps=interval_steps,
         confirmation_count=2,
         topology_only=topology_only,
+        observation_interval_steps=observation_interval_steps,
+        online_detector_settings=online_detector_settings,
     )
     return runtime
 
@@ -381,6 +386,48 @@ def test_topology_only_records_fixed_graph_states_without_recovery_monitoring() 
     )
 
 
+def test_gpt4o_topology_observation_starts_at_zero_and_keeps_five_step_cadence() -> None:
+    runtime = _build(
+        _Provider(),
+        topology_only=True,
+        interval_steps=5,
+        observation_interval_steps=5,
+    )
+    hasher = BaseActionPrefixHasher()
+
+    for step in range(7):
+        runtime.observer(_context(step, hasher))
+
+    assert [state["policy_step"] for state in runtime.state_trace] == [0, 5]
+
+
+def test_topology_only_latches_a_strictly_confirmed_online_repair_request() -> None:
+    runtime = _build(
+        _Provider(),
+        topology_only=True,
+        online_detector_settings={
+            "confirmation_count": 2,
+            "min_intervention_step": 0,
+            "stall_steps": 100,
+        },
+    )
+    hasher = BaseActionPrefixHasher()
+
+    runtime.observer(_context(0, hasher))
+    runtime.observer(_context(1, hasher, abnormal=True))
+    assert runtime.online_repair_request is None
+    runtime.observer(_context(2, hasher, abnormal=True))
+
+    request = runtime.online_repair_request
+    assert request is not None
+    assert request.kind is OnlineDeviationKind.UNPLANNED_RECOVERY_SURFACE
+    assert request.policy_step == 2
+    assert request.signature == (AT_ABNORMAL.pddl(),)
+    assert runtime.deviation_trace[-1]["online_repair_request_sha256"] == (
+        request.request_sha256
+    )
+
+
 def test_topology_only_records_every_callback_even_with_sparse_monitor_interval() -> None:
     runtime = _build(_Provider(), topology_only=True, interval_steps=5)
     hasher = BaseActionPrefixHasher()
@@ -397,6 +444,30 @@ def test_topology_only_records_every_callback_even_with_sparse_monitor_interval(
     ]
 
 
+def test_online_detector_honors_sparse_monitor_interval_without_sparse_trace() -> None:
+    runtime = _build(
+        _Provider(),
+        topology_only=True,
+        interval_steps=5,
+        online_detector_settings={
+            "confirmation_count": 2,
+            "min_intervention_step": 0,
+            "stall_steps": 100,
+        },
+    )
+    hasher = BaseActionPrefixHasher()
+
+    runtime.observer(_context(0, hasher))
+    for step in range(1, 10):
+        runtime.observer(_context(step, hasher, abnormal=True))
+    assert runtime.online_repair_request is None
+    runtime.observer(_context(10, hasher, abnormal=True))
+
+    assert [state["policy_step"] for state in runtime.state_trace] == list(range(11))
+    assert runtime.online_repair_request is not None
+    assert runtime.online_repair_request.policy_step == 10
+
+
 def test_shadow_runtime_fifth_positional_argument_remains_state_trace() -> None:
     counters = ShadowRuntimeCounters()
     trace = [{"policy_step": 0}]
@@ -405,6 +476,8 @@ def test_shadow_runtime_fifth_positional_argument_remains_state_trace() -> None:
 
     assert runtime.state_trace is trace
     assert runtime.settling_observer is None
+    assert runtime.deviation_trace == []
+    assert runtime.online_repair_request is None
 
 
 def test_topology_only_settling_regresses_a_transient_goal_in_the_same_graph() -> None:
@@ -431,6 +504,33 @@ def test_topology_only_settling_regresses_a_transient_goal_in_the_same_graph() -
     assert runtime.state_trace[-1]["phase"] == "SETTLING"
     assert runtime.state_trace[-1]["settling_step"] == 1
     assert runtime.state_trace[-1]["nodes"][-1]["status"] == "BLOCKED"
+
+
+def test_evidence_monitor_settling_completes_goal_in_the_same_graph() -> None:
+    runtime = _build(_Provider())
+    hasher = BaseActionPrefixHasher()
+
+    runtime.observer(_context(0, hasher))
+    runtime.observer(_context(1, hasher))
+
+    assert runtime.settling_observer is not None
+    for settling_step in range(1, 6):
+        runtime.settling_observer(
+            ShadowSettlingContext(
+                observation={
+                    "policy_step": 1,
+                    "abnormal": False,
+                    "goal": True,
+                },
+                policy_step=1,
+                settling_step=settling_step,
+                settling_steps=5,
+            )
+        )
+
+    assert runtime.state_trace[-1]["phase"] == "SETTLING"
+    assert runtime.state_trace[-1]["settling_step"] == 5
+    assert runtime.state_trace[-1]["nodes"][-1]["status"] == "COMPLETED"
 
 
 def test_live_validation_rejection_is_stored_and_later_callbacks_are_noops() -> None:
@@ -512,6 +612,26 @@ def test_collector_gets_unmodified_protocol_context_and_episode_lineage() -> Non
     assert episode.parent_trajectory_lineage_sha256 == "5" * 64
     assert (episode.master_seed, episode.policy_seed, episode.simulator_seed) == (11, 12, 13)
     assert runtime.counters.root_count == 1
+
+
+def test_runtime_records_read_only_deviation_decisions_without_observations() -> None:
+    runtime = _build(_Provider())
+    hasher = BaseActionPrefixHasher()
+
+    runtime.observer(_context(0, hasher))
+    runtime.observer(_context(1, hasher, abnormal=True))
+    runtime.observer(_context(2, hasher, abnormal=True))
+
+    assert runtime.deviation_trace == [
+        {
+            "certificate_state": "STALE",
+            "deviation_status": "ANOMALY_CANDIDATE",
+            "evidence_kinds": [],
+            "policy_step": 2,
+            "signature": [f"(at {OBJECT} {ABNORMAL})"],
+            "trigger_class": "UNPLANNED_SUPPORT_STABLE",
+        }
+    ]
 
 
 def test_action_prefix_mismatch_disables_monitoring_in_provenance_bucket_only() -> None:

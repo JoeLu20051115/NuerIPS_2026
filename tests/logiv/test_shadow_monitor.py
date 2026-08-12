@@ -566,6 +566,24 @@ def test_weak_timeout_does_not_confirm_but_strong_timeout_does() -> None:
     assert strong[0].deviation_status is DeviationStatus.CONFIRMED_DEVIATION
 
 
+def test_attempted_effect_timeout_confirms_without_an_abnormal_surface() -> None:
+    timeout = _evidence(due=5, emitted=5, expires=30)
+
+    triggers, _ = _run(
+        [_initial_snapshot(step) for step in (0, 5, 10, 15, 20)],
+        tracker=_EvidenceTracker([timeout]),
+    )
+
+    assert len(triggers) == 1
+    assert triggers[0].policy_step == 15
+    assert triggers[0].trigger_class == "ATTEMPTED_EFFECT_TIMEOUT_STABLE"
+    assert triggers[0].deviation_status is DeviationStatus.CONFIRMED_DEVIATION
+    assert f"effect:{AT_TARGET.pddl()}" in triggers[0].signature
+    assert [
+        item.evidence_kind for item in triggers[0].historical_failure_evidence
+    ] == ["ATTEMPTED_EFFECT_TIMEOUT"]
+
+
 def test_late_strong_evidence_upgrades_once_without_changing_event_id() -> None:
     strong = _evidence(due=20, emitted=20, expires=30)
     tracker = _EvidenceTracker(evidence_by_step={20: (strong,), 25: (strong,)})
@@ -1053,6 +1071,83 @@ def test_concrete_tracker_emits_timeout_at_due_and_cancels_on_success() -> None:
         destination_region=None,
         policy_step=4,
     ) == ()
+
+
+def test_place_release_starts_before_destination_effect_and_times_out() -> None:
+    rule = _rule(due_after=2)
+    contract = _monitor_contract(rules=(rule,))
+    rows = {
+        0: (
+            _feature(
+                contract,
+                rule,
+                0,
+                gripper=-0.8,
+                holding=TruthValue.TRUE,
+            ),
+        ),
+        1: (_feature(contract, rule, 1, gripper=0.8),),
+        2: (_feature(contract, rule, 2, gripper=0.8),),
+        3: (_feature(contract, rule, 3, gripper=0.8),),
+    }
+
+    tracker = _observe_rows(contract, rows)
+
+    assert tracker.attempt_record_count == 1
+    active = tracker.active_for(
+        object_id=BOOK_1,
+        attempted_effect=AT_TARGET.pddl(),
+        source_region=SOURCE,
+        destination_region=TARGET,
+        policy_step=3,
+    )
+    assert [item.evidence_kind for item in active] == [
+        "ATTEMPTED_EFFECT_TIMEOUT"
+    ]
+    assert active[0].start_policy_step == 1
+    assert active[0].effect_due_policy_step == 3
+
+
+def test_place_release_is_satisfied_if_destination_effect_arrives_by_due_step() -> None:
+    rule = _rule(due_after=2)
+    contract = _monitor_contract(rules=(rule,))
+    rows = {
+        0: (
+            _feature(
+                contract,
+                rule,
+                0,
+                gripper=-0.8,
+                holding=TruthValue.TRUE,
+            ),
+        ),
+        1: (_feature(contract, rule, 1, gripper=0.8),),
+        2: (
+            _feature(
+                contract,
+                rule,
+                2,
+                gripper=0.8,
+                destination=TruthValue.TRUE,
+                destination_distance=0.0,
+            ),
+        ),
+        3: (
+            _feature(
+                contract,
+                rule,
+                3,
+                gripper=0.8,
+                destination=TruthValue.TRUE,
+                destination_distance=0.0,
+            ),
+        ),
+    }
+
+    tracker = _observe_rows(contract, rows)
+
+    assert tracker.attempt_record_count == 1
+    assert tracker.evidence_record_count == 0
 
 
 def test_due_time_unknown_is_inconclusive_and_cannot_be_backdated() -> None:

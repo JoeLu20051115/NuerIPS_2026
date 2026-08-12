@@ -18,6 +18,7 @@ from pi05_libero_repro.logiv.controller import (
     AttemptReceiptStatus,
     ControllerResult,
     ControllerStatus,
+    EvaluatorStatus,
     GroundingStatus,
     LogivController,
     RuntimeBudgetLimits,
@@ -35,6 +36,8 @@ from pi05_libero_repro.logiv.evaluation import (
     run_schema_only_graph,
     run_stage_only,
 )
+from pi05_libero_repro.logiv.gpt4o import Gpt4oClient
+from pi05_libero_repro.logiv.gpt4o_grounding import Gpt4oGrounder
 from pi05_libero_repro.logiv.libero_adapter import (
     build_libero_transition_feature_reader,
     LiberoObservationStore,
@@ -45,6 +48,7 @@ from pi05_libero_repro.logiv.libero_adapter import (
     monitored_fact_universe,
 )
 from pi05_libero_repro.logiv.model import (
+    CandidateSubtask,
     ContextEnvelope,
     ContextPhase,
     FactSnapshot,
@@ -67,7 +71,7 @@ from pi05_libero_repro.logiv.recovery_records import (
     observation_sha256,
     write_recovery_root,
 )
-from pi05_libero_repro.logiv.repair import RepairBounds, RetryPolicy
+from pi05_libero_repro.logiv.repair import CausalSlice, RepairBounds, RetryPolicy
 from pi05_libero_repro.logiv.shadow_monitor import (
     MonitorEvidenceContract,
     ShadowTrigger,
@@ -138,6 +142,24 @@ def _base_physical_attempts(steps: int) -> int:
     if steps < 0:
         raise ValueError("steps must be nonnegative")
     return int(steps > 0)
+
+
+def _remaining_online_action_budget(total_steps: int, prefix_steps: int) -> int:
+    if total_steps <= 0 or prefix_steps < 0:
+        raise ValueError("total_steps must be positive and prefix_steps nonnegative")
+    if prefix_steps > total_steps:
+        raise ValueError("Base prefix exceeds total action budget")
+    return total_steps - prefix_steps
+
+
+def _effective_evaluator_status(
+    result: ControllerResult, evaluator: NativeLiberoTaskEvaluator | None
+) -> str:
+    if result.status is ControllerStatus.EPISODE_SUCCESS:
+        return EvaluatorStatus.EPISODE_SUCCESS.value
+    if evaluator is None or evaluator.last_status is None:
+        return "NOT_CALLED"
+    return evaluator.last_status.value
 
 
 def _replace_episode_environment(
@@ -217,6 +239,32 @@ def _parse_ids(value: str, *, maximum: int) -> tuple[int, ...]:
     return tuple(result)
 
 
+def _place_effect_stabilization_steps_for_task(
+    args: argparse.Namespace, *, task_id: int
+) -> int:
+    if task_id not in args.place_effect_stabilization_task_ids:
+        return 0
+    return args.place_effect_stabilization_steps
+
+
+def _place_effect_confirmation_steps_for_task(
+    args: argparse.Namespace, *, task_id: int
+) -> int | None:
+    if args.place_effect_confirmation_steps <= 0:
+        return None
+    if task_id not in args.place_effect_confirmation_task_ids:
+        return None
+    return args.place_effect_confirmation_steps
+
+
+def _post_stop_reobservation_steps_for_task(
+    args: argparse.Namespace, *, task_id: int
+) -> int:
+    if task_id not in args.post_stop_grounding_reobservation_task_ids:
+        return 0
+    return args.post_stop_grounding_reobservation_steps
+
+
 def _initial_context(package, episode_id: str) -> ContextEnvelope:
     return ContextEnvelope(
         phase=ContextPhase.INITIAL_FACTS,
@@ -253,17 +301,168 @@ def _candidate_sidecar(package) -> bytes:
     ).encode("utf-8")
 
 
-def _ground_initial(package, grounder: LiberoOracleGrounder, context: ContextEnvelope) -> FactSnapshot:
+def _ground_initial(
+    package,
+    grounder: LiberoOracleGrounder,
+    context: ContextEnvelope,
+    *,
+    require_proposal_consistency: bool = True,
+) -> FactSnapshot:
     required = monitored_fact_universe(package.problem)
     response = grounder.ground(ContextPhase.INITIAL_FACTS, context, required)
     if response.status is not GroundingStatus.OK or response.snapshot is None:
         raise RuntimeError(f"STATE_GROUNDING_FAILURE:{response.reason}")
-    proposal = package.proposal.initial_snapshot
-    if not proposal.true_facts <= response.snapshot.true_facts:
-        raise RuntimeError("STATE_GROUNDING_FAILURE:proposal TRUE conflict")
-    if not proposal.false_facts <= response.snapshot.false_facts:
-        raise RuntimeError("STATE_GROUNDING_FAILURE:proposal FALSE conflict")
+    if require_proposal_consistency:
+        proposal = package.proposal.initial_snapshot
+        if not proposal.true_facts <= response.snapshot.true_facts:
+            raise RuntimeError("STATE_GROUNDING_FAILURE:proposal TRUE conflict")
+        if not proposal.false_facts <= response.snapshot.false_facts:
+            raise RuntimeError("STATE_GROUNDING_FAILURE:proposal FALSE conflict")
     return response.snapshot
+
+def _rebase_package_on_snapshot(package, snapshot: FactSnapshot):
+    """Use the observed Base handoff state as the recovery problem's initial state."""
+
+    return replace(
+        package,
+        proposal=replace(
+            package.proposal,
+            epoch_id=snapshot.epoch_id,
+            initial_snapshot=snapshot,
+        ),
+        problem=replace(
+            package.problem,
+            initial_state=snapshot.true_facts,
+            initial_false=snapshot.false_facts,
+        ),
+    )
+
+
+def _online_recovery_inputs(
+    runtime: ShadowRuntime,
+) -> tuple[Any, CausalSlice]:
+    proposal_result = runtime.initial_proposal
+    request = runtime.online_repair_request
+    if (
+        proposal_result is None
+        or proposal_result.package is None
+        or proposal_result.validation is None
+        or request is None
+    ):
+        raise RuntimeError("online recovery inputs are incomplete")
+    certified = proposal_result.validation.certified_episode
+    graph = certified.graph
+    latest = runtime.state_trace[-1] if runtime.state_trace else {}
+    statuses = {
+        item.get("node_id"): item.get("status")
+        for item in latest.get("nodes", ())
+        if isinstance(item, Mapping)
+    }
+    remaining_ids = tuple(
+        node_id
+        for node_id in graph.canonical_agenda
+        if statuses.get(node_id) != "COMPLETED"
+    )
+    if not remaining_ids:
+        remaining_ids = graph.canonical_agenda
+    node_map = graph.node_map
+    candidates = tuple(
+        CandidateSubtask(
+            occurrence_id=node_id,
+            rough_rank=rank,
+            action=node_map[node_id].action,
+            instruction=node_map[node_id].instruction or node_map[node_id].action.pddl(),
+            evidence_source="pddl-planner-certified-dag-remainder",
+            lineage_root=node_map[node_id].lineage_root or f"online:{node_id}",
+        )
+        for rank, node_id in enumerate(remaining_ids)
+        if node_map[node_id].action is not None
+    )
+    if not candidates:
+        raise RuntimeError("online recovery has no remaining action nodes")
+    package = replace(
+        proposal_result.package,
+        proposal=replace(
+            proposal_result.package.proposal,
+            candidate_subtasks=candidates,
+        ),
+    )
+    requested_ids = tuple(
+        node_id for node_id in request.signature if node_id in remaining_ids
+    )
+    affected_ids = requested_ids or tuple(item.occurrence_id for item in candidates)
+    causal_slice = CausalSlice(
+        node_ids=frozenset(affected_ids),
+        canonical_seed=affected_ids,
+        action_signatures=tuple(
+            node_map[node_id].action.retry_key
+            for node_id in affected_ids
+            if node_map[node_id].action is not None
+        ),
+    )
+    return package, causal_slice
+
+
+def _verified_recovery_surface_facts(snapshot: FactSnapshot) -> tuple:
+    return tuple(
+        sorted(
+            fact
+            for fact in snapshot.true_facts
+            if fact.predicate == "at"
+            and len(fact.arguments) == 2
+            and fact.arguments[1].endswith("recovery_surface")
+        )
+    )
+
+
+class _RecoverySurfaceMonitor:
+    """Fail-open, read-only trigger for an observed harmful object drop."""
+
+    def __init__(
+        self,
+        *,
+        env: Any,
+        binding: TaskBinding,
+        required_facts,
+        interval_steps: int,
+    ) -> None:
+        if interval_steps <= 0:
+            raise ValueError("overlay monitor interval must be positive")
+        self.env = env
+        self.binding = binding
+        self.required_facts = required_facts
+        self.interval_steps = interval_steps
+        self.store: LiberoObservationStore | None = None
+        self.grounder: LiberoOracleGrounder | None = None
+        self.trigger_step: int | None = None
+        self.trigger_facts: tuple = ()
+        self.grounding_errors: list[str] = []
+
+    def __call__(self, observation: dict, _action: np.ndarray, step: int) -> bool:
+        if self.store is None:
+            self.store = LiberoObservationStore(observation, epoch_id=0)
+            self.grounder = LiberoOracleGrounder(
+                self.env,
+                self.store,
+                self.binding,
+                self.required_facts,
+            )
+        else:
+            self.store.update(observation)
+        if step % self.interval_steps:
+            return False
+        assert self.grounder is not None
+        try:
+            snapshot = self.grounder.peek_snapshot()
+        except Exception as error:
+            self.grounding_errors.append(f"step-{step}:{type(error).__name__}:{error}")
+            return False
+        recovery_facts = _verified_recovery_surface_facts(snapshot)
+        if not recovery_facts:
+            return False
+        self.trigger_step = step
+        self.trigger_facts = recovery_facts
+        return True
 
 
 def _graph_json(
@@ -361,6 +560,7 @@ def _attempt_json(result) -> dict[str, Any]:
         "inference_requests": result.inference_requests,
         "detector_calls": result.detector_calls,
         "unused_actions_flushed": result.unused_actions_flushed,
+        "post_stop_reobservation_steps": result.post_stop_reobservation_steps,
         "post_snapshot_evidence_hash": (
             result.post_snapshot.evidence_hash if result.post_snapshot is not None else None
         ),
@@ -432,11 +632,7 @@ def _record_events(
         {
             "controller_status": result.status.value,
             "terminal_cause": result.terminal_cause,
-            "evaluator_status": (
-                evaluator.last_status.value
-                if evaluator is not None and evaluator.last_status is not None
-                else "NOT_CALLED"
-            ),
+            "evaluator_status": _effective_evaluator_status(result, evaluator),
         },
     )
 
@@ -457,19 +653,51 @@ def _execute_symbolic_arm(
     task_id: int,
     episode_id: str,
     initial_observation: dict[str, Any],
+    *,
+    recovery_state: bool = False,
+    max_total_action_steps: int | None = None,
+    max_physical_attempts: int | None = None,
+    gpt4o_client: Gpt4oClient | None = None,
+    recovery_package: Any | None = None,
+    causal_slice: CausalSlice | None = None,
 ):
-    provider = ScriptedProposalProvider(args.proposal_config)
-    package = provider.propose(task_id, epoch_id=0, goal_mode=GoalMode(args.goal_mode))
     binding = TaskBinding.from_manifest(args.coverage_manifest, task_id)
+    scaffold = ScriptedProposalProvider(args.proposal_config)
+    if recovery_package is not None:
+        package = recovery_package
+    else:
+        package = scaffold.propose(
+            task_id, epoch_id=0, goal_mode=GoalMode(args.goal_mode)
+        )
     store = LiberoObservationStore(initial_observation, epoch_id=0)
-    grounder = LiberoOracleGrounder(
-        env,
-        store,
-        binding,
-        monitored_fact_universe(package.problem),
-    )
+    if args.perception_backend == "gpt4o":
+        if gpt4o_client is None:
+            gpt4o_client = Gpt4oClient.from_env()
+        grounder = Gpt4oGrounder(
+            client=gpt4o_client,
+            observation_store=store,
+            problem=package.problem,
+            monitored_facts=monitored_fact_universe(package.problem),
+            task_instruction=package.proposal.task_name,
+            graph_version=None,
+            image_tools=image_tools,
+        )
+    else:
+        grounder = LiberoOracleGrounder(
+            env,
+            store,
+            binding,
+            monitored_fact_universe(package.problem),
+        )
     initial_context = _initial_context(package, episode_id)
-    initial_snapshot = _ground_initial(package, grounder, initial_context)
+    initial_snapshot = _ground_initial(
+        package,
+        grounder,
+        initial_context,
+        require_proposal_consistency=not recovery_state,
+    )
+    if recovery_state:
+        package = _rebase_package_on_snapshot(package, initial_snapshot)
     prompt_renderer = SubtaskPromptRenderer(args.prompt_config)
     evaluator = NativeLiberoTaskEvaluator()
     arm = MethodArm(args.method_arm)
@@ -487,10 +715,22 @@ def _execute_symbolic_arm(
         replan_steps=args.replan_steps,
         max_action_steps=args.max_action_steps,
         settling_steps=args.settling_steps,
+        post_stop_grounding_reobservation_steps=(
+            _post_stop_reobservation_steps_for_task(args, task_id=task_id)
+        ),
         effect_confirmation_steps=args.effect_confirmation_steps,
+        place_effect_confirmation_steps=(
+            _place_effect_confirmation_steps_for_task(args, task_id=task_id)
+        ),
         access_effect_stabilization_steps=args.access_effect_stabilization_steps,
+        place_effect_stabilization_steps=(
+            _place_effect_stabilization_steps_for_task(args, task_id=task_id)
+        ),
         target_divergence_confirmation_steps=(
             args.target_divergence_confirmation_steps
+        ),
+        held_target_divergence_confirmation_steps=(
+            args.held_target_divergence_confirmation_steps
         ),
         frontier_followup_steps=args.frontier_followup_steps,
         frontier_completion_followup_steps=(
@@ -507,7 +747,11 @@ def _execute_symbolic_arm(
             args.frontier_fallback_followup_steps or None
         ),
         stop_on_effects=arm is not MethodArm.STAGE_ONLY,
-        max_total_action_steps=args.base_max_steps,
+        max_total_action_steps=(
+            args.base_max_steps
+            if max_total_action_steps is None
+            else max_total_action_steps
+        ),
     )
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     graph = None
@@ -558,20 +802,24 @@ def _execute_symbolic_arm(
     else:
         val_wrapper = ValWrapper(args.val_binary, timeout_seconds=args.val_timeout)
         policy = RetryPolicy(max_retries_per_lineage=args.max_retries_per_lineage)
+        repair_bounds = RepairBounds(
+            max_edits=args.max_edits,
+            max_candidates=args.max_candidates,
+            max_val_calls=args.max_repair_val_calls,
+        )
         certified = certify_initial_package(
             package,
             initial_snapshot,
             episode_id=episode_id,
             val_wrapper=val_wrapper,
             allowed_schemas=binding.supported_action_schemas | binding.recovery_schemas,
-            repair_bounds=RepairBounds(
-                max_edits=args.max_edits,
-                max_candidates=args.max_candidates,
-                max_val_calls=args.max_repair_val_calls,
-            ),
+            repair_bounds=repair_bounds,
             retry_policy=policy,
             decompose_macro_sources=binding.decompose_macro_sources,
+            causal_slice=causal_slice,
         )
+        if args.perception_backend == "gpt4o":
+            grounder.set_graph_version(certified.graph.graph_version)
         graph = certified.graph
         certificate = certified.certificate
         initial_val_calls = certified.initial_val_calls
@@ -592,7 +840,11 @@ def _execute_symbolic_arm(
             repair_operator=repair_operator,
             retry_policy=policy,
             budget_limits=RuntimeBudgetLimits(
-                max_physical_attempts=args.max_physical_attempts,
+                max_physical_attempts=(
+                    args.max_physical_attempts
+                    if max_physical_attempts is None
+                    else max_physical_attempts
+                ),
                 max_repair_rounds=args.max_repair_rounds,
                 max_total_val_calls=args.max_total_val_calls,
             ),
@@ -620,6 +872,18 @@ def _validate_shadow_options(
     task_ids: tuple[int, ...],
 ) -> dict[int, MonitorEvidenceContract]:
     arm = MethodArm(args.method_arm)
+    if arm is MethodArm.LOGIV_ONLINE:
+        if not args.development_only:
+            raise ValueError("LOGIV_ONLINE tuning requires development-only mode")
+        if args.collect_recovery_roots:
+            raise ValueError("LOGIV_ONLINE does not collect Phase 0 recovery roots")
+        if args.capture_task5_terminal_preflight:
+            raise ValueError("LOGIV_ONLINE does not run terminal preflight")
+        if args.shadow_topology_only:
+            raise ValueError("LOGIV_ONLINE selects topology monitoring internally")
+        if args.online_monitor_interval_steps <= 0:
+            raise ValueError("online monitor interval must be positive")
+        return {}
     if args.capture_task5_terminal_preflight:
         if arm is not MethodArm.SHADOW_LOGIV:
             raise ValueError("terminal preflight requires SHADOW_LOGIV")
@@ -662,6 +926,40 @@ def _validate_shadow_options(
         if contract.confirmation_count != args.shadow_confirmations:
             raise ValueError("shadow confirmations do not match frozen contract")
     return contracts
+
+
+def _gpt4o_request_accounting(client: Any | None) -> dict[str, int]:
+    counts = client.request_counts if client is not None else {}
+    unexpected = set(counts) - {"state_gate"}
+    if unexpected:
+        raise ValueError(
+            "LOGIV recorded non-State-Gate GPT-4o purposes: "
+            + ", ".join(sorted(unexpected))
+        )
+    return {
+        "shadow_vlm_requests": int(counts.get("state_gate", 0)),
+        "recovery_policy_requests": 0,
+    }
+
+
+def _symbolic_record_accounting(
+    *, base_policy_requests: int, gpt4o_client: Any | None
+) -> dict[str, Any]:
+    gpt_accounting = _gpt4o_request_accounting(gpt4o_client)
+    return {
+        "base_policy_requests": base_policy_requests,
+        "initial_proposal_requests": 0,
+        "initial_proposal_status": "NOT_APPLICABLE",
+        "initial_proposal_reason_code": None,
+        "shadow_vlm_requests": gpt_accounting["shadow_vlm_requests"],
+        "recovery_policy_requests": gpt_accounting[
+            "recovery_policy_requests"
+        ],
+        "shadow_monitor_calls": 0,
+        "shadow_monitor_errors": 0,
+        "shadow_monitor_seconds": 0.0,
+        "shadow_parity_valid": True,
+    }
 
 
 def _shadow_artifact_payloads(
@@ -714,9 +1012,33 @@ def _shadow_artifact_payloads(
         )
 
     metrics = runtime.monitor.metrics if runtime.monitor is not None else None
+    action_event_tracker = (
+        runtime.monitor.action_event_tracker
+        if runtime.monitor is not None
+        else None
+    )
 
     def metric(name: str) -> int:
         return int(getattr(metrics, name, 0))
+
+    def tracker_metric(name: str) -> int:
+        return int(getattr(action_event_tracker, name, 0))
+
+    terminal_topology_status = None
+    if runtime.state_trace:
+        terminal_topology_status = next(
+            (
+                node.get("status")
+                for node in runtime.state_trace[-1].get("nodes", ())
+                if node.get("node_id") == "GOAL"
+            ),
+            None,
+        )
+    terminal_topology_success = (
+        terminal_topology_status == "COMPLETED"
+        if terminal_topology_status is not None
+        else None
+    )
 
     aggregate_errors = sum(
         (
@@ -762,14 +1084,25 @@ def _shadow_artifact_payloads(
         "anomaly_candidates": metric("anomaly_candidates"),
         "confirmed_deviations": metric("confirmed_deviations"),
         "stale_certificates": metric("stale_certificates"),
+        "attempt_records": tracker_metric("attempt_record_count"),
+        "evidence_records": tracker_metric("evidence_record_count"),
+        "terminal_topology_status": terminal_topology_status,
+        "terminal_topology_success": terminal_topology_success,
+        "base_self_recovered_after_confirmed_deviation": bool(
+            metric("confirmed_deviations") and outcome.check_success
+        ),
+        "deviation_decisions": runtime.deviation_trace,
         "root_count": runtime.counters.root_count,
         "aggregate_errors": aggregate_errors,
     }
+    gpt_accounting = _gpt4o_request_accounting(runtime.gpt4o_client)
+    shadow_vlm_requests = gpt_accounting["shadow_vlm_requests"]
+    recovery_policy_requests = gpt_accounting["recovery_policy_requests"]
     compute_payload = {
         "base_policy_requests": outcome.inference_requests,
         "initial_proposal_requests": request_count,
-        "shadow_vlm_requests": 0,
-        "recovery_policy_requests": 0,
+        "shadow_vlm_requests": shadow_vlm_requests,
+        "recovery_policy_requests": recovery_policy_requests,
         "initial_proposal_seconds": elapsed_seconds,
         "shadow_monitor_seconds": monitor_seconds,
     }
@@ -778,8 +1111,8 @@ def _shadow_artifact_payloads(
         "initial_proposal_requests": request_count,
         "initial_proposal_status": status,
         "initial_proposal_reason_code": reason_code,
-        "shadow_vlm_requests": 0,
-        "recovery_policy_requests": 0,
+        "shadow_vlm_requests": shadow_vlm_requests,
+        "recovery_policy_requests": recovery_policy_requests,
         "shadow_monitor_calls": outcome.shadow_calls,
         "shadow_monitor_errors": aggregate_errors,
         "shadow_monitor_seconds": monitor_seconds,
@@ -812,13 +1145,18 @@ def _shadow_record_accounting(
         reason_code = (
             proposal.reason.split(":", 1)[0] if proposal.reason else None
         )
+    gpt_accounting = _gpt4o_request_accounting(
+        runtime.gpt4o_client if runtime is not None else None
+    )
     return {
         "base_policy_requests": base_policy_requests,
         "initial_proposal_requests": request_count,
         "initial_proposal_status": status,
         "initial_proposal_reason_code": reason_code,
-        "shadow_vlm_requests": 0,
-        "recovery_policy_requests": 0,
+        "shadow_vlm_requests": gpt_accounting["shadow_vlm_requests"],
+        "recovery_policy_requests": gpt_accounting[
+            "recovery_policy_requests"
+        ],
         "shadow_monitor_calls": 0,
         "shadow_monitor_errors": (
             runtime.counters.trace_errors if runtime is not None else 0
@@ -847,15 +1185,23 @@ def _base_execution_payload(
     )
     return {
         "steps": outcome.steps,
+        "inference_requests": outcome.inference_requests,
         "base_policy_requests": outcome.inference_requests,
         "done_signal": outcome.done,
         "post_settling_success": outcome.check_success,
+        "intervention_requested": getattr(outcome, "intervention_requested", False),
+        "discarded_pending_actions": getattr(
+            outcome, "discarded_pending_actions", 0
+        ),
         "initial_state_sha256": initial_state_sha256,
         "base_prompt_sha256": base_prompt_sha256,
         "base_checkpoint_sha256": base_checkpoint_sha256,
         "policy_client_config_sha256": policy_client_config_sha256,
         "request_envelope_log_sha256": request_envelope_log_sha256,
         "actions_sha256": actions_sha256,
+        "actions_prefix_520_sha256": _sha256_array(
+            np.asarray(outcome.actions[:520], dtype=np.float64)
+        ),
     }
 
 
@@ -876,12 +1222,8 @@ def _read_simulator_state(env: Any) -> np.ndarray:
     return np.asarray(state)
 
 
-def _shadow_snapshot_peek(
-    grounder: LiberoOracleGrounder, *, topology_only: bool
-) -> FactSnapshot:
-    if topology_only:
-        return grounder.peek_advisory_partial_snapshot()
-    return grounder.peek_snapshot()
+def _shadow_snapshot_peek(grounder: LiberoOracleGrounder) -> FactSnapshot:
+    return grounder.peek_advisory_partial_snapshot()
 
 
 def _policy_time_snapshot_peek(
@@ -896,7 +1238,8 @@ def _strict_terminal_snapshot_reader(
     observation: Mapping[str, Any],
 ) -> FactSnapshot:
     store.update(observation)
-    return grounder.peek_snapshot()
+    strict_reader = getattr(grounder, "read_strict_snapshot", None)
+    return strict_reader() if strict_reader is not None else grounder.peek_snapshot()
 
 
 def _terminal_assessment_payload(
@@ -1046,6 +1389,33 @@ def _capture_task5_terminal_preflight(
     _write_json(artifact_dir / "terminal_deviation.json", terminal_payload)
 
 
+def _online_detector_settings_for_task(
+    args: argparse.Namespace, *, task_id: int
+) -> dict[str, int | bool | None]:
+    return {
+        "confirmation_count": args.online_confirmations,
+        "recovery_surface_confirmation_count": (
+            args.online_recovery_surface_confirmations
+            if task_id in args.online_recovery_surface_confirmation_task_ids
+            else None
+        ),
+        "min_intervention_step": args.online_min_intervention_step,
+        "stall_steps": args.online_stall_steps,
+        "recovery_requires_achieved_goal": (
+            task_id in args.online_recovery_requires_goal_task_ids
+        ),
+        "stall_requires_achieved_goal": (
+            task_id in args.online_stall_requires_goal_task_ids
+        ),
+        "stall_ignores_holding": (
+            task_id in args.online_stall_ignores_holding_task_ids
+        ),
+        "stall_requires_handempty": (
+            task_id in args.online_stall_requires_handempty_task_ids
+        ),
+    }
+
+
 def _build_evaluator_shadow_runtime(
     args: argparse.Namespace,
     *,
@@ -1062,9 +1432,14 @@ def _build_evaluator_shadow_runtime(
     simulator_seed: int,
     artifact_dir: Path,
     monitor_contract: MonitorEvidenceContract | None,
+    image_tools: Any | None = None,
 ) -> ShadowRuntime:
     binding = TaskBinding.from_manifest(args.coverage_manifest, task_id)
-    provider = ScriptedProposalProvider(args.proposal_config)
+    scaffold = ScriptedProposalProvider(args.proposal_config)
+    gpt4o_client = (
+        Gpt4oClient.from_env() if args.perception_backend == "gpt4o" else None
+    )
+    provider = scaffold
     transition_reader = (
         build_libero_transition_feature_reader(env, binding, monitor_contract)
         if monitor_contract is not None
@@ -1124,32 +1499,50 @@ def _build_evaluator_shadow_runtime(
                 raise ValueError("monitor contract references unregistered proposal IDs")
 
         store = LiberoObservationStore(observation, epoch_id=0)
-        grounder = LiberoOracleGrounder(
-            env,
-            store,
-            binding,
-            monitored_fact_universe(package.problem),
-        )
+        if gpt4o_client is not None:
+            grounder = Gpt4oGrounder(
+                client=gpt4o_client,
+                observation_store=store,
+                problem=package.problem,
+                monitored_facts=monitored_fact_universe(package.problem),
+                task_instruction=package.proposal.task_name,
+                graph_version=None,
+                image_tools=image_tools,
+            )
+        else:
+            grounder = LiberoOracleGrounder(
+                env,
+                store,
+                binding,
+                monitored_fact_universe(package.problem),
+            )
         initial_context = _initial_context(package, episode_id)
         initial_snapshot = _ground_initial(package, grounder, initial_context)
+        val_wrapper = ValWrapper(
+            args.val_binary, timeout_seconds=args.val_timeout
+        )
+        repair_bounds = RepairBounds(
+            max_edits=args.max_edits,
+            max_candidates=args.max_candidates,
+            max_val_calls=args.max_repair_val_calls,
+        )
+        policy = RetryPolicy(
+            max_retries_per_lineage=args.max_retries_per_lineage
+        )
         certified = certify_initial_package(
             package,
             initial_snapshot,
             episode_id=episode_id,
-            val_wrapper=ValWrapper(args.val_binary, timeout_seconds=args.val_timeout),
+            val_wrapper=val_wrapper,
             allowed_schemas=(
                 binding.supported_action_schemas | binding.recovery_schemas
             ),
-            repair_bounds=RepairBounds(
-                max_edits=args.max_edits,
-                max_candidates=args.max_candidates,
-                max_val_calls=args.max_repair_val_calls,
-            ),
-            retry_policy=RetryPolicy(
-                max_retries_per_lineage=args.max_retries_per_lineage
-            ),
+            repair_bounds=repair_bounds,
+            retry_policy=policy,
             decompose_macro_sources=binding.decompose_macro_sources,
         )
+        if gpt4o_client is not None:
+            grounder.set_graph_version(certified.graph.graph_version)
         previous_observation_sha256 = observation_sha256(observation)
         previous_snapshot = initial_snapshot
 
@@ -1164,9 +1557,7 @@ def _build_evaluator_shadow_runtime(
             if args.capture_task5_terminal_preflight:
                 previous_snapshot = _policy_time_snapshot_peek(grounder)
             else:
-                previous_snapshot = _shadow_snapshot_peek(
-                    grounder, topology_only=args.shadow_topology_only
-                )
+                previous_snapshot = _shadow_snapshot_peek(grounder)
             previous_observation_sha256 = current_hash
             return previous_snapshot
 
@@ -1267,7 +1658,7 @@ def _build_evaluator_shadow_runtime(
             pending_actions,
         )
 
-    return build_shadow_runtime(
+    runtime = build_shadow_runtime(
         provider=provider,
         provider_name=provider.provider,
         episode_context=episode_context,
@@ -1275,13 +1666,37 @@ def _build_evaluator_shadow_runtime(
         live_validator=live_validator,
         monitor_contract=monitor_contract,
         root_collector=collect_root,
-        interval_steps=args.shadow_monitor_interval_steps,
-        confirmation_count=args.shadow_confirmations,
-        topology_only=args.shadow_topology_only,
+        interval_steps=(
+            args.online_monitor_interval_steps
+            if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+            else args.shadow_monitor_interval_steps
+        ),
+        confirmation_count=(
+            args.online_confirmations
+            if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+            else args.shadow_confirmations
+        ),
+        topology_only=(
+            MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+            or args.shadow_topology_only
+        ),
+        observation_interval_steps=(
+            args.online_monitor_interval_steps
+            if gpt4o_client is not None
+            else None
+        ),
+        online_detector_settings=(
+            _online_detector_settings_for_task(args, task_id=task_id)
+            if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+            else None
+        ),
     )
+    runtime.gpt4o_client = gpt4o_client
+    return runtime
 
 
 def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_indices: tuple[int, ...]) -> dict[str, Any]:
+    online_topology = MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
     shadow_contract_hashes = (
         {
             str(task_id): load_monitor_evidence_contract(
@@ -1316,20 +1731,45 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "prompt_locked": args.prompt_locked,
         "development_only": args.development_only,
         "oracle_grounding": args.oracle_grounding,
+        "perception_backend": args.perception_backend,
         "collect_recovery_roots": args.collect_recovery_roots,
         "capture_task5_terminal_preflight": (
             args.capture_task5_terminal_preflight
         ),
-        "shadow_topology_only": args.shadow_topology_only,
+        "shadow_topology_only": args.shadow_topology_only or online_topology,
         "recovery_root_split": args.recovery_root_split,
         "shadow_monitor_interval_steps": args.shadow_monitor_interval_steps,
         "shadow_confirmations": args.shadow_confirmations,
+        "online_monitor_interval_steps": args.online_monitor_interval_steps,
+        "online_confirmations": args.online_confirmations,
+        "online_recovery_surface_confirmations": (
+            args.online_recovery_surface_confirmations
+        ),
+        "online_recovery_surface_confirmation_task_ids": list(
+            args.online_recovery_surface_confirmation_task_ids
+        ),
+        "online_min_intervention_step": args.online_min_intervention_step,
+        "online_stall_steps": args.online_stall_steps,
+        "online_recovery_requires_goal_task_ids": list(
+            args.online_recovery_requires_goal_task_ids
+        ),
+        "online_stall_requires_goal_task_ids": list(
+            args.online_stall_requires_goal_task_ids
+        ),
+        "online_stall_ignores_holding_task_ids": list(
+            args.online_stall_ignores_holding_task_ids
+        ),
+        "online_stall_requires_handempty_task_ids": list(
+            args.online_stall_requires_handempty_task_ids
+        ),
         "shadow_monitor_contract": (
-            None if args.shadow_topology_only else str(args.shadow_monitor_contract)
+            None
+            if args.shadow_topology_only or online_topology
+            else str(args.shadow_monitor_contract)
         ),
         "shadow_monitor_contract_registry_sha256": (
             None
-            if args.shadow_topology_only
+            if args.shadow_topology_only or online_topology
             else resolved_json_sha256(args.shadow_monitor_contract)
         ),
         "shadow_monitor_contract_sha256": (
@@ -1342,10 +1782,37 @@ def _run_config(args: argparse.Namespace, task_ids: tuple[int, ...], episode_ind
         "no_video": args.no_video,
         "max_action_steps": args.max_action_steps,
         "max_total_action_steps": args.base_max_steps,
+        "overlay_repair_max_steps": args.overlay_repair_max_steps,
+        "overlay_monitor_recovery_surface": (
+            args.overlay_monitor_recovery_surface
+        ),
+        "overlay_monitor_interval_steps": args.overlay_monitor_interval_steps,
         "settling_steps": args.settling_steps,
+        "post_stop_grounding_reobservation_steps": (
+            args.post_stop_grounding_reobservation_steps
+        ),
+        "post_stop_grounding_reobservation_task_ids": list(
+            args.post_stop_grounding_reobservation_task_ids
+        ),
         "effect_confirmation_steps": args.effect_confirmation_steps,
+        "place_effect_confirmation_steps": args.place_effect_confirmation_steps,
+        "place_effect_confirmation_task_ids": list(
+            args.place_effect_confirmation_task_ids
+        ),
+        "access_effect_stabilization_steps": (
+            args.access_effect_stabilization_steps
+        ),
+        "place_effect_stabilization_steps": (
+            args.place_effect_stabilization_steps
+        ),
+        "place_effect_stabilization_task_ids": list(
+            args.place_effect_stabilization_task_ids
+        ),
         "target_divergence_confirmation_steps": (
             args.target_divergence_confirmation_steps
+        ),
+        "held_target_divergence_confirmation_steps": (
+            args.held_target_divergence_confirmation_steps
         ),
         "frontier_followup_steps": args.frontier_followup_steps,
         "frontier_completion_followup_steps": (
@@ -1391,6 +1858,7 @@ def evaluate(args: argparse.Namespace) -> int:
         prompt_locked=args.prompt_locked,
         task_ids=task_ids,
         episode_indices=episode_indices,
+        perception_backend=args.perception_backend,
     )
     contract.validate()
     shadow_contracts = _validate_shadow_options(args, task_ids)
@@ -1516,10 +1984,28 @@ def evaluate(args: argparse.Namespace) -> int:
                 exception_text = None
                 valid = True
                 frames: list[np.ndarray] = []
+                base_prefix_steps = 0
+                repair_steps = 0
+                online_trigger = None
+                episode_gpt4o_client = None
                 try:
                     arm = MethodArm(args.method_arm)
-                    if arm in {MethodArm.BASE, MethodArm.SHADOW_LOGIV}:
-                        if arm is MethodArm.SHADOW_LOGIV:
+                    if args.perception_backend == "gpt4o" and arm not in {
+                        MethodArm.BASE,
+                        MethodArm.SHADOW_LOGIV,
+                        MethodArm.LOGIV_ONLINE,
+                    }:
+                        episode_gpt4o_client = Gpt4oClient.from_env()
+                    if arm in {
+                        MethodArm.BASE,
+                        MethodArm.SHADOW_LOGIV,
+                        MethodArm.LOGIV_ONLINE,
+                        MethodArm.LOGIV_REPAIR_OVERLAY,
+                    }:
+                        if arm in {
+                            MethodArm.SHADOW_LOGIV,
+                            MethodArm.LOGIV_ONLINE,
+                        }:
                             shadow_runtime = _build_evaluator_shadow_runtime(
                                 args,
                                 env=env,
@@ -1537,6 +2023,62 @@ def evaluate(args: argparse.Namespace) -> int:
                                 simulator_seed=simulator_seed,
                                 artifact_dir=artifact_dir,
                                 monitor_contract=shadow_contracts.get(task_id),
+                                image_tools=image_tools,
+                            )
+                            episode_gpt4o_client = shadow_runtime.gpt4o_client
+                        online_initialization_guard = None
+                        if arm is MethodArm.LOGIV_ONLINE:
+                            assert shadow_runtime is not None
+
+                            def require_certified_online_graph() -> None:
+                                assert shadow_runtime is not None
+                                proposal_result = shadow_runtime.initial_proposal
+                                if (
+                                    proposal_result is None
+                                    or proposal_result.validation is None
+                                ):
+                                    reason = (
+                                        proposal_result.reason
+                                        if proposal_result is not None
+                                        else "proposal callback did not run"
+                                    )
+                                    raise RuntimeError(
+                                        f"initial DAG was not certified: {reason}"
+                                    )
+
+                            online_initialization_guard = (
+                                require_certified_online_graph
+                            )
+                        overlay_monitor = None
+                        if (
+                            arm is MethodArm.LOGIV_REPAIR_OVERLAY
+                            and args.overlay_monitor_recovery_surface
+                        ):
+                            monitor_package = ScriptedProposalProvider(
+                                args.proposal_config
+                            ).propose(
+                                task_id,
+                                epoch_id=0,
+                                goal_mode=GoalMode(args.goal_mode),
+                            )
+                            monitor_binding = TaskBinding.from_manifest(
+                                args.coverage_manifest, task_id
+                            )
+                            overlay_monitor = _RecoverySurfaceMonitor(
+                                env=env,
+                                binding=monitor_binding,
+                                required_facts=monitored_fact_universe(
+                                    monitor_package.problem
+                                ),
+                                interval_steps=args.overlay_monitor_interval_steps,
+                            )
+                        intervention_monitor = overlay_monitor
+                        if arm is MethodArm.LOGIV_ONLINE:
+                            assert shadow_runtime is not None
+                            intervention_monitor = (
+                                lambda _obs, _action, _step: (
+                                    shadow_runtime.online_repair_request is not None
+                                )
                             )
                         outcome = run_episode(
                             env,
@@ -1562,10 +2104,21 @@ def evaluate(args: argparse.Namespace) -> int:
                                 episode_client.request_envelope_reader
                             ),
                             capture_replay_frames=not args.no_video,
+                            intervention_monitor=intervention_monitor,
+                            shadow_initialization_guard=(
+                                online_initialization_guard
+                            ),
                         )
+                        base_prefix_steps = outcome.steps
+                        if shadow_runtime is not None:
+                            online_trigger = shadow_runtime.online_repair_request
                         evaluator = NativeLiberoTaskEvaluator()
-                        evaluated = evaluator.evaluate(env)
-                        if outcome.check_success != (
+                        if outcome.done:
+                            evaluated = EvaluatorStatus.EPISODE_SUCCESS
+                            evaluator.last_status = evaluated
+                        else:
+                            evaluated = evaluator.evaluate(env)
+                        if not outcome.done and outcome.check_success != (
                             evaluated.value == ControllerStatus.EPISODE_SUCCESS.value
                         ):
                             raise RuntimeError(
@@ -1573,42 +2126,6 @@ def evaluate(args: argparse.Namespace) -> int:
                             )
                         first_frame_hash = _sha256_array(outcome.first_frame)
                         frames = list(outcome.replay_frames)
-                        status = ControllerStatus(evaluated.value)
-                        result = ControllerResult(
-                            status=status,
-                            terminal_cause=status.value,
-                            receipts=(),
-                            events=(
-                                "BASE_DIRECT_EXECUTION",
-                                f"BASE_DONE_SIGNAL:{outcome.done}",
-                                f"BASE_POST_SETTLING_SUCCESS:{outcome.check_success}",
-                            ),
-                            budget_usage=RuntimeBudgetUsage(
-                                _base_physical_attempts(outcome.steps), 0, 0
-                            ),
-                            graph_installs=0,
-                            active_attempt_id=None,
-                        )
-                        initial_context = ContextEnvelope(
-                            ContextPhase.INITIAL,
-                            GoalMode(args.goal_mode),
-                            f"{episode_id}-base",
-                            0,
-                            episode_id,
-                            f"libero10-task-{task_id}-external-only",
-                            0,
-                            0,
-                            None,
-                            None,
-                            None,
-                            None,
-                            None,
-                        )
-                        evaluator_status = evaluated.value
-                        steps = outcome.steps
-                        inference_requests = outcome.inference_requests
-                        initial_snapshot = None
-                        package = None
                         _write_json(
                             artifact_dir / "base_execution.json",
                             _base_execution_payload(
@@ -1640,39 +2157,232 @@ def evaluate(args: argparse.Namespace) -> int:
                                 monitor_contract=monitor_contract,
                                 capability=task5_preflight_capability,
                             )
-                        if shadow_runtime is not None:
-                            (
-                                proposal_payload,
-                                monitor_payload,
-                                compute_payload,
-                                _,
-                            ) = _shadow_artifact_payloads(
-                                outcome, shadow_runtime
-                            )
+                        if overlay_monitor is not None:
                             _write_json(
-                                artifact_dir / "initial_proposal.json",
-                                proposal_payload,
+                                artifact_dir / "overlay_monitor.json",
+                                {
+                                    "interval_steps": (
+                                        overlay_monitor.interval_steps
+                                    ),
+                                    "trigger_step": overlay_monitor.trigger_step,
+                                    "trigger_facts": [
+                                        fact.pddl()
+                                        for fact in overlay_monitor.trigger_facts
+                                    ],
+                                    "grounding_errors": (
+                                        overlay_monitor.grounding_errors
+                                    ),
+                                },
                             )
-                            _write_json(
-                                artifact_dir / "shadow_monitor.json",
-                                monitor_payload,
+                        remaining_online_steps = (
+                            _remaining_online_action_budget(
+                                args.base_max_steps, outcome.steps
                             )
-                            _write_json(
-                                artifact_dir / "compute_accounting.json",
-                                compute_payload,
-                            )
-                            proposal_result = shadow_runtime.initial_proposal
-                            if (
-                                proposal_result is not None
-                                and proposal_result.validation is not None
-                            ):
-                                package = proposal_result.package
-                                certified = (
-                                    proposal_result.validation.certified_episode
+                            if arm is MethodArm.LOGIV_ONLINE
+                            else None
+                        )
+                        direct_base_result = (
+                            arm in {MethodArm.BASE, MethodArm.SHADOW_LOGIV}
+                            or outcome.success
+                            or (
+                                arm is MethodArm.LOGIV_ONLINE
+                                and (
+                                    online_trigger is None
+                                    or remaining_online_steps == 0
                                 )
-                                graph = certified.graph
-                                final_graph = certified.graph
-                                certificate = certified.certificate
+                            )
+                        )
+                        if direct_base_result:
+                            status = (
+                                ControllerStatus.EPISODE_SUCCESS
+                                if outcome.success
+                                else ControllerStatus(evaluated.value)
+                            )
+                            if (
+                                arm is MethodArm.LOGIV_ONLINE
+                                and online_trigger is not None
+                                and remaining_online_steps == 0
+                            ):
+                                terminal_cause = "BUDGET_EXHAUSTED"
+                            else:
+                                terminal_cause = status.value
+                            if arm in {
+                                MethodArm.BASE,
+                                MethodArm.SHADOW_LOGIV,
+                            }:
+                                direct_event = "BASE_DIRECT_EXECUTION"
+                            elif arm is MethodArm.LOGIV_ONLINE:
+                                if outcome.success:
+                                    direct_event = "ONLINE_NATIVE_SUCCESS_ABSORBED"
+                                elif online_trigger is None:
+                                    direct_event = "ONLINE_NO_VERIFIED_DEVIATION"
+                                else:
+                                    direct_event = "ONLINE_REPAIR_BUDGET_EXHAUSTED"
+                            else:
+                                direct_event = "OVERLAY_BASE_PREFIX_SUCCESS"
+                            result = ControllerResult(
+                                status=status,
+                                terminal_cause=terminal_cause,
+                                receipts=(),
+                                events=(
+                                    direct_event,
+                                    f"BASE_DONE_SIGNAL:{outcome.done}",
+                                    f"BASE_POST_SETTLING_SUCCESS:{outcome.check_success}",
+                                ),
+                                budget_usage=RuntimeBudgetUsage(
+                                    _base_physical_attempts(outcome.steps), 0, 0
+                                ),
+                                graph_installs=0,
+                                active_attempt_id=None,
+                            )
+                            initial_context = ContextEnvelope(
+                                ContextPhase.INITIAL,
+                                GoalMode(args.goal_mode),
+                                f"{episode_id}-base",
+                                0,
+                                episode_id,
+                                f"libero10-task-{task_id}-external-only",
+                                0,
+                                0,
+                                None,
+                                None,
+                                None,
+                                None,
+                                None,
+                            )
+                            evaluator_status = evaluated.value
+                            steps = outcome.steps
+                            inference_requests = outcome.inference_requests
+                            initial_snapshot = None
+                            package = None
+                            if shadow_runtime is not None:
+                                (
+                                    proposal_payload,
+                                    monitor_payload,
+                                    compute_payload,
+                                    _,
+                                ) = _shadow_artifact_payloads(
+                                    outcome, shadow_runtime
+                                )
+                                _write_json(
+                                    artifact_dir / "initial_proposal.json",
+                                    proposal_payload,
+                                )
+                                _write_json(
+                                    artifact_dir / "shadow_monitor.json",
+                                    monitor_payload,
+                                )
+                                _write_json(
+                                    artifact_dir / "compute_accounting.json",
+                                    compute_payload,
+                                )
+                                proposal_result = shadow_runtime.initial_proposal
+                                if (
+                                    proposal_result is not None
+                                    and proposal_result.validation is not None
+                                ):
+                                    package = proposal_result.package
+                                    certified = (
+                                        proposal_result.validation.certified_episode
+                                    )
+                                    graph = certified.graph
+                                    final_graph = certified.graph
+                                    certificate = certified.certificate
+                        else:
+                            recovery_package = None
+                            recovery_causal_slice = None
+                            if (
+                                arm is MethodArm.LOGIV_ONLINE
+                                and args.perception_backend == "gpt4o"
+                            ):
+                                assert shadow_runtime is not None
+                                (
+                                    recovery_package,
+                                    recovery_causal_slice,
+                                ) = _online_recovery_inputs(shadow_runtime)
+                            (
+                                package,
+                                initial_context,
+                                initial_snapshot,
+                                result,
+                                executor,
+                                evaluator,
+                                graph,
+                                final_graph,
+                                certificate,
+                                _,
+                            ) = _execute_symbolic_arm(
+                                args,
+                                env,
+                                episode_client,
+                                image_tools,
+                                task_id,
+                                episode_id,
+                                outcome.final_observation,
+                                recovery_state=True,
+                                max_total_action_steps=(
+                                    remaining_online_steps
+                                    if arm is MethodArm.LOGIV_ONLINE
+                                    else args.base_max_steps
+                                    + args.overlay_repair_max_steps
+                                    - outcome.steps
+                                ),
+                                max_physical_attempts=max(
+                                    0, args.max_physical_attempts - 1
+                                ),
+                                gpt4o_client=episode_gpt4o_client,
+                                recovery_package=recovery_package,
+                                causal_slice=recovery_causal_slice,
+                            )
+                            frames.extend(
+                                frame
+                                for attempt in executor.results
+                                for frame in attempt.frames
+                            )
+                            repair_steps = sum(
+                                len(attempt.actions) for attempt in executor.results
+                            )
+                            repair_inference_requests = sum(
+                                attempt.inference_requests
+                                for attempt in executor.results
+                            )
+                            intervention_event = (
+                                "ONLINE_VERIFIED_DEVIATION_INTERVENTION"
+                                if arm is MethodArm.LOGIV_ONLINE
+                                else (
+                                    "OVERLAY_VERIFIED_DEVIATION_INTERVENTION"
+                                    if outcome.intervention_requested
+                                    else "OVERLAY_BASE_PREFIX_FAILED"
+                                )
+                            )
+                            prefix_event = (
+                                f"ONLINE_BASE_PREFIX_STEPS:{outcome.steps}"
+                                if arm is MethodArm.LOGIV_ONLINE
+                                else f"OVERLAY_BASE_PREFIX_STEPS:{outcome.steps}"
+                            )
+                            result = replace(
+                                result,
+                                events=(
+                                    intervention_event,
+                                    prefix_event,
+                                )
+                                + result.events,
+                                budget_usage=replace(
+                                    result.budget_usage,
+                                    physical_attempts=(
+                                        result.budget_usage.physical_attempts
+                                        + _base_physical_attempts(outcome.steps)
+                                    ),
+                                ),
+                            )
+                            steps = outcome.steps + repair_steps
+                            inference_requests = (
+                                outcome.inference_requests
+                                + repair_inference_requests
+                            )
+                            evaluator_status = _effective_evaluator_status(
+                                result, evaluator
+                            )
                     else:
                         initial_observation = _reset_episode(env, initial_state, args.wait_steps)
                         _, first_frame = prepare_observation(
@@ -1698,17 +2408,17 @@ def evaluate(args: argparse.Namespace) -> int:
                             task_id,
                             episode_id,
                             initial_observation,
+                            gpt4o_client=episode_gpt4o_client,
                         )
                         frames = [frame for attempt in executor.results for frame in attempt.frames]
                         steps = sum(len(attempt.actions) for attempt in executor.results)
                         inference_requests = sum(
                             attempt.inference_requests for attempt in executor.results
                         )
-                        evaluator_status = (
-                            evaluator.last_status.value
-                            if evaluator.last_status is not None
-                            else "NOT_CALLED"
+                        evaluator_status = _effective_evaluator_status(
+                            result, evaluator
                         )
+                    if initial_snapshot is not None:
                         _write_json(
                             artifact_dir / "initial_snapshot.json",
                             {
@@ -1725,6 +2435,7 @@ def evaluate(args: argparse.Namespace) -> int:
                                 artifact_dir / "certificate.json",
                                 _certificate_json(certificate),
                             )
+                        assert executor is not None
                         for attempt_index, attempt in enumerate(executor.results):
                             _write_json(
                                 artifact_dir / f"attempt_{attempt_index:03d}.json",
@@ -1779,26 +2490,73 @@ def evaluate(args: argparse.Namespace) -> int:
 
                 if shadow_runtime is not None:
                     _write_shadow_graph_artifact(artifact_dir, shadow_runtime)
+                    if (
+                        MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        and final_graph is not None
+                    ):
+                        _write_json(
+                            artifact_dir / "final_graph.json",
+                            _graph_json(final_graph),
+                        )
+                    if outcome is not None:
+                        (
+                            proposal_payload,
+                            monitor_payload,
+                            compute_payload,
+                            _,
+                        ) = _shadow_artifact_payloads(outcome, shadow_runtime)
+                        _write_json(
+                            artifact_dir / "initial_proposal.json", proposal_payload
+                        )
+                        _write_json(
+                            artifact_dir / "shadow_monitor.json", monitor_payload
+                        )
+                        _write_json(
+                            artifact_dir / "compute_accounting.json", compute_payload
+                        )
+                    if online_trigger is not None:
+                        _write_json(
+                            artifact_dir / "online_repair_trigger.json",
+                            {
+                                "kind": online_trigger.kind.value,
+                                "policy_step": online_trigger.policy_step,
+                                "first_observed_step": (
+                                    online_trigger.first_observed_step
+                                ),
+                                "signature": list(online_trigger.signature),
+                                "source_graph_hash": (
+                                    online_trigger.source_graph_hash
+                                ),
+                                "request_sha256": online_trigger.request_sha256,
+                                "snapshot_evidence_hash": (
+                                    online_trigger.snapshot.evidence_hash
+                                ),
+                                "discarded_pending_actions": (
+                                    outcome.discarded_pending_actions
+                                    if outcome is not None
+                                    else 0
+                                ),
+                            },
+                        )
 
-                record_accounting = {
-                    "base_policy_requests": inference_requests,
-                    "initial_proposal_requests": 0,
-                    "initial_proposal_status": "NOT_APPLICABLE",
-                    "initial_proposal_reason_code": None,
-                    "shadow_vlm_requests": 0,
-                    "recovery_policy_requests": 0,
-                    "shadow_monitor_calls": 0,
-                    "shadow_monitor_errors": 0,
-                    "shadow_monitor_seconds": 0.0,
-                    "shadow_parity_valid": True,
-                }
-                if MethodArm(args.method_arm) is MethodArm.SHADOW_LOGIV:
+                record_accounting = _symbolic_record_accounting(
+                    base_policy_requests=inference_requests,
+                    gpt4o_client=episode_gpt4o_client,
+                )
+                if MethodArm(args.method_arm) in {
+                    MethodArm.SHADOW_LOGIV,
+                    MethodArm.LOGIV_ONLINE,
+                }:
                     record_accounting = _shadow_record_accounting(
                         outcome=outcome,
                         runtime=shadow_runtime,
                         exception_text=exception_text,
                         base_policy_requests=inference_requests,
                     )
+                    if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE:
+                        record_accounting["base_policy_requests"] = (
+                            inference_requests
+                        )
 
                 video_path = None
                 if frames and not args.no_video:
@@ -1811,8 +2569,27 @@ def evaluate(args: argparse.Namespace) -> int:
                     video_path = str(relative)
                 success = result.status is ControllerStatus.EPISODE_SUCCESS
                 receipt_statuses = [receipt.status for receipt in result.receipts]
+                record_initial_graph = graph
+                record_initial_certificate = certificate
+                if (
+                    MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                    and shadow_runtime is not None
+                    and shadow_runtime.initial_proposal is not None
+                    and shadow_runtime.initial_proposal.validation is not None
+                ):
+                    online_certified = (
+                        shadow_runtime.initial_proposal.validation.certified_episode
+                    )
+                    record_initial_graph = online_certified.graph
+                    record_initial_certificate = online_certified.certificate
                 record = LogivEpisodeRecord(
-                    schema_version=3,
+                    schema_version=(
+                        5
+                        if args.perception_backend == "gpt4o"
+                        else 4
+                        if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        else 3
+                    ),
                     run_id=args.run_id,
                     checkpoint=args.checkpoint_name,
                     method_arm=args.method_arm,
@@ -1832,10 +2609,20 @@ def evaluate(args: argparse.Namespace) -> int:
                     first_frame_sha256=first_frame_hash,
                     prompt_version=args.prompt_version,
                     initial_certificate_hash=(
-                        certificate.certificate_hash if certificate is not None else None
+                        record_initial_certificate.certificate_hash
+                        if record_initial_certificate is not None
+                        else None
                     ),
-                    initial_graph_hash=graph.graph_hash if graph is not None else None,
-                    initial_graph_width=graph.action_layer_width() if graph is not None else None,
+                    initial_graph_hash=(
+                        record_initial_graph.graph_hash
+                        if record_initial_graph is not None
+                        else None
+                    ),
+                    initial_graph_width=(
+                        record_initial_graph.action_layer_width()
+                        if record_initial_graph is not None
+                        else None
+                    ),
                     final_graph_hash=(
                         final_graph.graph_hash if final_graph is not None else None
                     ),
@@ -1858,7 +2645,11 @@ def evaluate(args: argparse.Namespace) -> int:
                     artifact_dir=str(artifact_dir.relative_to(output_dir)),
                     video_path=video_path,
                     exception=exception_text,
-                    oracle_grounding=MethodArm(args.method_arm) is not MethodArm.BASE,
+                    oracle_grounding=(
+                        MethodArm(args.method_arm) is not MethodArm.BASE
+                        and args.perception_backend == "scripted-oracle"
+                    ),
+                    perception_backend=args.perception_backend,
                     development_only=args.development_only,
                     committed_receipts=receipt_statuses.count(
                         AttemptReceiptStatus.COMMITTED
@@ -1880,6 +2671,42 @@ def evaluate(args: argparse.Namespace) -> int:
                     ),
                     final_goal_gate_rejections=result.events.count(
                         "FINAL_GOAL_GATE_REJECTED"
+                    ),
+                    base_prefix_steps=(
+                        base_prefix_steps
+                        if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        else 0
+                    ),
+                    repair_steps=(
+                        repair_steps
+                        if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        else 0
+                    ),
+                    combined_actions=(
+                        steps
+                        if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        else 0
+                    ),
+                    discarded_pending_actions=(
+                        outcome.discarded_pending_actions
+                        if MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+                        and outcome is not None
+                        else 0
+                    ),
+                    online_trigger_kind=(
+                        online_trigger.kind.value
+                        if online_trigger is not None
+                        else None
+                    ),
+                    online_trigger_step=(
+                        online_trigger.policy_step
+                        if online_trigger is not None
+                        else None
+                    ),
+                    online_trigger_sha256=(
+                        online_trigger.request_sha256
+                        if online_trigger is not None
+                        else None
                     ),
                     **record_accounting,
                     **common_hashes,
@@ -1910,6 +2737,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--goal-mode", required=True, choices=tuple(item.value for item in GoalMode))
     parser.add_argument("--deviation-mode", required=True)
     parser.add_argument("--oracle-grounding", action="store_true")
+    parser.add_argument(
+        "--perception-backend",
+        choices=("scripted-oracle", "gpt4o"),
+        default="scripted-oracle",
+    )
     parser.add_argument("--development-only", action="store_true")
     parser.add_argument("--collect-recovery-roots", action="store_true")
     parser.add_argument("--capture-task5-terminal-preflight", action="store_true")
@@ -1921,6 +2753,38 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--shadow-monitor-interval-steps", default=5, type=int)
     parser.add_argument("--shadow-confirmations", default=3, type=int)
+    parser.add_argument("--online-monitor-interval-steps", default=5, type=int)
+    parser.add_argument("--online-confirmations", default=3, type=int)
+    parser.add_argument(
+        "--online-recovery-surface-confirmations", default=1, type=int
+    )
+    parser.add_argument(
+        "--online-recovery-surface-confirmation-task-ids",
+        default=(),
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
+    parser.add_argument("--online-min-intervention-step", default=120, type=int)
+    parser.add_argument("--online-stall-steps", default=120, type=int)
+    parser.add_argument(
+        "--online-recovery-requires-goal-task-ids",
+        default=(6,),
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
+    parser.add_argument(
+        "--online-stall-requires-handempty-task-ids",
+        default=(8,),
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
+    parser.add_argument(
+        "--online-stall-requires-goal-task-ids",
+        default=(),
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
+    parser.add_argument(
+        "--online-stall-ignores-holding-task-ids",
+        default=(),
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
     parser.add_argument(
         "--shadow-monitor-contract",
         default=REPOSITORY_ROOT / "configs/logiv/r2m-monitor-evidence-v1.json",
@@ -1937,10 +2801,36 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--replan-steps", default=5, type=int)
     parser.add_argument("--max-action-steps", default=260, type=int)
     parser.add_argument("--base-max-steps", default=520, type=int)
+    parser.add_argument("--overlay-repair-max-steps", default=180, type=int)
+    parser.add_argument("--overlay-monitor-recovery-surface", action="store_true")
+    parser.add_argument("--overlay-monitor-interval-steps", default=5, type=int)
     parser.add_argument("--settling-steps", default=10, type=int)
+    parser.add_argument(
+        "--post-stop-grounding-reobservation-steps", default=0, type=int
+    )
+    parser.add_argument(
+        "--post-stop-grounding-reobservation-task-ids",
+        default="all",
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
     parser.add_argument("--effect-confirmation-steps", default=5, type=int)
+    parser.add_argument("--place-effect-confirmation-steps", default=0, type=int)
+    parser.add_argument(
+        "--place-effect-confirmation-task-ids",
+        default="all",
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
     parser.add_argument("--access-effect-stabilization-steps", default=0, type=int)
+    parser.add_argument("--place-effect-stabilization-steps", default=0, type=int)
+    parser.add_argument(
+        "--place-effect-stabilization-task-ids",
+        default="all",
+        type=lambda value: _parse_ids(value, maximum=10),
+    )
     parser.add_argument("--target-divergence-confirmation-steps", default=5, type=int)
+    parser.add_argument(
+        "--held-target-divergence-confirmation-steps", default=0, type=int
+    )
     parser.add_argument("--frontier-followup-steps", default=180, type=int)
     parser.add_argument("--frontier-completion-followup-steps", default=0, type=int)
     parser.add_argument("--frontier-completion-recovery-only", action="store_true")

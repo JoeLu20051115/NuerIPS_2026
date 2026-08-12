@@ -43,11 +43,19 @@ def run_initial_proposal(
     epoch_id: int,
     goal_mode: GoalMode,
     validator: Callable[[ProposalPackage], T],
+    observation: Any | None = None,
     clock: Callable[[], float] = time.perf_counter,
 ) -> InitialProposalResult[T]:
     started = clock()
     try:
-        package = provider.propose(task_id, epoch_id, goal_mode)
+        if getattr(provider, "requires_observation", False):
+            if observation is None:
+                raise ValueError("visual proposal provider requires an observation")
+            package = provider.propose(
+                task_id, epoch_id, goal_mode, observation=observation
+            )
+        else:
+            package = provider.propose(task_id, epoch_id, goal_mode)
         validation = validator(package)
     except Exception as error:
         return InitialProposalResult(

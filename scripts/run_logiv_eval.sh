@@ -19,7 +19,7 @@ checkpoint_manifest="$repo_root/artifacts/manifests/full-checkpoint.json"
 image=pi05-libero-eval:650c5b0
 
 case "$method_arm" in
-  BASE|SHADOW_LOGIV|STAGE_ONLY|GRAPH_WITHOUT_VAL|VAL_WITHOUT_LOCALIZED_REPAIR|FULL_LOGIV) ;;
+  BASE|SHADOW_LOGIV|LOGIV_ONLINE|LOGIV_REPAIR_OVERLAY|STAGE_ONLY|GRAPH_WITHOUT_VAL|VAL_WITHOUT_LOCALIZED_REPAIR|FULL_LOGIV) ;;
   *) echo "invalid method arm: $method_arm" >&2; exit 64 ;;
 esac
 [[ "$gpu" =~ ^[0-9]+$ ]] || { echo "invalid GPU: $gpu" >&2; exit 64; }
@@ -40,6 +40,18 @@ docker image inspect "$image" >/dev/null
 mkdir -p "$output_dir"
 output_dir=$(realpath --canonicalize-existing "$output_dir")
 
+openai_env=()
+for evaluator_arg in "$@"; do
+  if [[ "$evaluator_arg" == "gpt4o" ]]; then
+    [[ -n "${OPENAI_API_KEY:-}" ]] || {
+      echo "OPENAI_API_KEY is required for the gpt4o backend" >&2
+      exit 1
+    }
+    openai_env=(-e OPENAI_API_KEY)
+    break
+  fi
+done
+
 exec docker run --rm --network host --gpus "device=$gpu" \
   --user "$(id -u):$(id -g)" \
   -e HOME=/tmp \
@@ -47,6 +59,7 @@ exec docker run --rm --network host --gpus "device=$gpu" \
   -e MUJOCO_GL=egl \
   -e LD_LIBRARY_PATH=/val \
   -e PYTHONPATH=/repro/src:/app:/app/packages/openpi-client/src:/app/third_party/libero \
+  "${openai_env[@]}" \
   -v "$repo_root:/repro:ro" \
   -v "$openpi_dir:/app:ro" \
   -v "$val_dir:/val:ro" \

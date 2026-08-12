@@ -378,7 +378,9 @@ def _transition(
     return next_true, next_false
 
 
-class RepairOperator:
+class PddlPlanner:
+    """Bounded symbolic search over the fixed PDDL domain, followed by VAL."""
+
     def __init__(
         self,
         val_wrapper: ValWrapper,
@@ -607,3 +609,6 @@ class RepairOperator:
             val_calls=val_calls,
             reason="no certified repair found within configured bounds",
         )
+
+
+RepairOperator = PddlPlanner

@@ -21,6 +21,10 @@ from pi05_libero_repro.logiv.model import (
     TaskProblem,
     TruthValue,
 )
+from pi05_libero_repro.logiv.online_repair import (
+    OnlineGraphDeviationDetector,
+    OnlineRepairRequest,
+)
 from pi05_libero_repro.logiv.recovery_records import (
     CollectionLabel,
     RecoveryRootArtifacts,
@@ -97,6 +101,9 @@ class ShadowRuntime:
     counters: ShadowRuntimeCounters
     state_trace: list[dict[str, Any]] = field(default_factory=list)
     settling_observer: Callable[[ShadowSettlingContext], None] | None = None
+    deviation_trace: list[dict[str, Any]] = field(default_factory=list)
+    online_repair_request: OnlineRepairRequest | None = None
+    gpt4o_client: Any | None = None
 
 
 class ShadowGraphTracker:
@@ -462,11 +469,15 @@ def build_shadow_runtime(
     interval_steps: int,
     confirmation_count: int,
     topology_only: bool = False,
+    observation_interval_steps: int | None = None,
+    online_detector_settings: Mapping[str, int | bool] | None = None,
 ) -> ShadowRuntime:
     """Build a fail-open observer without touching the proposal provider."""
 
     if topology_only and interval_steps <= 0:
         raise ValueError("topology-only interval must be positive")
+    if observation_interval_steps is not None and observation_interval_steps <= 0:
+        raise ValueError("observation interval must be positive")
     counters = ShadowRuntimeCounters()
     action_prefix = BaseActionPrefixHasher()
     previous_context: ShadowStepContext | None = None
@@ -475,6 +486,7 @@ def build_shadow_runtime(
     active_trigger_context: ShadowStepContext | None = None
     topology_auditor: Callable[[ShadowStepContext], None] | None = None
     settling_auditor: Callable[[ShadowSettlingContext], None] | None = None
+    online_detector: OnlineGraphDeviationDetector | None = None
 
     runtime = ShadowRuntime(
         initial_proposal=None,
@@ -572,6 +584,21 @@ def build_shadow_runtime(
         return True
 
     def collect_root(trigger: ShadowTrigger) -> None:
+        runtime.deviation_trace.append(
+            {
+                "certificate_state": trigger.certificate_state.value,
+                "deviation_status": trigger.deviation_status.value,
+                "evidence_kinds": sorted(
+                    {
+                        item.evidence_kind
+                        for item in trigger.historical_failure_evidence
+                    }
+                ),
+                "policy_step": trigger.policy_step,
+                "signature": list(trigger.signature),
+                "trigger_class": trigger.trigger_class,
+            }
+        )
         context = active_trigger_context
         if context is None or not episode_context.collect_recovery_roots:
             return
@@ -605,7 +632,7 @@ def build_shadow_runtime(
         return validated
 
     def observe(context: ShadowStepContext) -> None:
-        nonlocal active_trigger_context, disabled, topology_auditor, settling_auditor
+        nonlocal active_trigger_context, disabled, online_detector, topology_auditor, settling_auditor
         if disabled:
             return
         # If Task 2 could not prepare the step-zero callback, that protocol
@@ -629,6 +656,7 @@ def build_shadow_runtime(
                 task_id=episode_context.task_id,
                 epoch_id=episode_context.initial_epoch_id,
                 goal_mode=goal_mode,
+                observation=context.observation,
                 validator=lambda package: validate_initial(
                     package, context.observation
                 ),
@@ -651,25 +679,58 @@ def build_shadow_runtime(
                 graph_tracker = ShadowGraphTracker(
                     certified.graph, certified.problem
                 )
+                if online_detector_settings is not None:
+                    online_detector = OnlineGraphDeviationDetector(
+                        certified.problem,
+                        certified.graph,
+                        **dict(online_detector_settings),
+                    )
                 def record_state(
                     policy_step: int,
                     snapshot: FactSnapshot,
                     reconciliation: Any,
                     *,
+                    observation: Mapping[str, Any] | None = None,
                     phase: str = "POLICY",
                     settling_step: int | None = None,
                 ) -> None:
                     try:
-                        runtime.state_trace.append(
-                            graph_tracker.project(
-                                snapshot,
-                                policy_step=policy_step,
-                                observation_generation=reconciliation.observation_generation,
-                                certificate_state=reconciliation.certificate_state.value,
-                                phase=phase,
-                                settling_step=settling_step,
-                            )
+                        state = graph_tracker.project(
+                            snapshot,
+                            policy_step=policy_step,
+                            observation_generation=reconciliation.observation_generation,
+                            certificate_state=reconciliation.certificate_state.value,
+                            phase=phase,
+                            settling_step=settling_step,
                         )
+                        runtime.state_trace.append(state)
+                        if (
+                            phase == "POLICY"
+                            and observation is not None
+                            and online_detector is not None
+                            and policy_step % interval_steps == 0
+                        ):
+                            request = online_detector.observe(
+                                snapshot=snapshot,
+                                graph_state=state,
+                                observation=observation,
+                                strict_snapshot_reader=(
+                                    result.validation.strict_terminal_snapshot_reader
+                                ),
+                            )
+                            if request is not None:
+                                runtime.online_repair_request = request
+                                runtime.deviation_trace.append(
+                                    {
+                                        "deviation_status": "CONFIRMED_DEVIATION",
+                                        "online_repair_kind": request.kind.value,
+                                        "online_repair_request_sha256": (
+                                            request.request_sha256
+                                        ),
+                                        "policy_step": request.policy_step,
+                                        "signature": list(request.signature),
+                                    }
+                                )
                     except Exception:
                         counters.trace_errors += 1
 
@@ -695,6 +756,7 @@ def build_shadow_runtime(
                             policy_step,
                             snapshot,
                             reconciliation,
+                            observation=observation,
                             phase=phase,
                             settling_step=settling_step,
                         )
@@ -740,9 +802,32 @@ def build_shadow_runtime(
                         interval_steps=interval_steps,
                         confirmation_count=confirmation_count,
                         on_snapshot=lambda context, snapshot, reconciliation: record_state(
-                            context.policy_step, snapshot, reconciliation
+                            context.policy_step,
+                            snapshot,
+                            reconciliation,
+                            observation=context.observation,
                         ),
                     )
+
+                    def audit_monitored_settling(
+                        settling_context: ShadowSettlingContext,
+                    ) -> None:
+                        assert runtime.monitor is not None
+                        observed = runtime.monitor.observe_settling(
+                            settling_context.observation
+                        )
+                        if observed is None:
+                            return
+                        snapshot, reconciliation = observed
+                        record_state(
+                            settling_context.policy_step,
+                            snapshot,
+                            reconciliation,
+                            phase="SETTLING",
+                            settling_step=settling_context.settling_step,
+                        )
+
+                    settling_auditor = audit_monitored_settling
             except Exception:
                 counters.proposal_callback_errors += 1
                 disabled = True
@@ -754,7 +839,11 @@ def build_shadow_runtime(
                 runtime.monitor(context)
             finally:
                 active_trigger_context = None
-        elif topology_auditor is not None:
+        elif topology_auditor is not None and (
+            observation_interval_steps is None
+            or context.policy_step == 0
+            or context.policy_step % observation_interval_steps == 0
+        ):
             topology_auditor(context)
 
     runtime.observer = observe
@@ -764,5 +853,5 @@ def build_shadow_runtime(
             return
         settling_auditor(context)
 
-    runtime.settling_observer = observe_settling if topology_only else None
+    runtime.settling_observer = observe_settling
     return runtime

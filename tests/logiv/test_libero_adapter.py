@@ -16,6 +16,7 @@ from pi05_libero_repro.logiv.controller import (
     ExecutorStatus,
     GroundingStatus,
 )
+from pi05_libero_repro.logiv.dag import CausalDagCompiler, NodeKind
 from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.libero_adapter import (
     build_libero_transition_feature_reader,
@@ -38,9 +39,12 @@ from pi05_libero_repro.logiv.prompts import SubtaskPromptRenderer
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
 from pi05_libero_repro.logiv.shadow_monitor import load_monitor_evidence_contract
 from pi05_libero_repro.protocol import ShadowStepContext
+from pi05_libero_repro.logiv.repair import RepairBounds, RepairOperator, RepairStatus
+from pi05_libero_repro.logiv.val import ValidationStatus, ValWrapper
 
 
 ROOT = Path(__file__).resolve().parents[2]
+REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
 
 
 class FakeObject:
@@ -979,6 +983,164 @@ def test_macro_executor_stops_on_observed_effect_flushes_chunk_and_settles_relea
     assert Fact("at", ("moka_pot_1", target)) in grounder.peek_snapshot().true_facts
 
 
+def _post_stop_reobservation_executor(*, persistent_unknown: bool):
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    source, target = action.arguments[1:3]
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source): True,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def complete_action(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 1:
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            env.env.relations[("on", "moka_pot_1", target)] = True
+
+    env.step_hook = complete_action
+    original_peek = grounder.peek_snapshot
+    peek_calls = 0
+
+    def post_stop_peek():
+        nonlocal peek_calls
+        peek_calls += 1
+        if persistent_unknown or peek_calls == 1:
+            raise GroundingError("transient exactly-one uncertainty")
+        return original_peek()
+
+    grounder.peek_snapshot = post_stop_peek
+    client = FakeClient([np.zeros((1, 7), dtype=np.float64)])
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=client,
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=1,
+        max_total_action_steps=1,
+        settling_steps=0,
+        post_stop_grounding_reobservation_steps=2,
+    )
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+    return env, client, executor, dispatch, outcome
+
+
+def test_post_stop_reobservation_recovers_transient_unknown_in_same_attempt() -> None:
+    env, client, executor, dispatch, outcome = _post_stop_reobservation_executor(
+        persistent_unknown=False
+    )
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.attempt_id == dispatch.attempt_id == "sim-attempt-000000"
+    assert len(client.requests) == 1
+    assert len(executor.results) == 1
+    assert len(env.actions) == 3
+    assert executor.total_action_steps == 1
+    assert executor.results[0].post_stop_reobservation_steps == 2
+    assert executor.results[0].post_snapshot is not None
+    assert executor.results[0].post_snapshot_error is None
+
+
+def test_post_stop_reobservation_keeps_persistent_unknown_fail_closed() -> None:
+    env, client, executor, dispatch, outcome = _post_stop_reobservation_executor(
+        persistent_unknown=True
+    )
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert outcome.attempt_id == dispatch.attempt_id == "sim-attempt-000000"
+    assert len(client.requests) == 1
+    assert len(executor.results) == 1
+    assert len(env.actions) == 3
+    assert executor.total_action_steps == 1
+    assert executor.results[0].post_stop_reobservation_steps == 2
+    assert executor.results[0].post_snapshot is None
+    assert executor.results[0].post_snapshot_error == (
+        "transient exactly-one uncertainty"
+    )
+
+
+def test_post_stop_reobservation_recovers_delayed_reliable_effect() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+    source, target = action.arguments[1:3]
+    env.env.relations.update(
+        {
+            ("on", "moka_pot_1", source): True,
+            ("on", "moka_pot_1", target): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_right_init_region"): False,
+            ("on", "moka_pot_2", "kitchen_table_moka_pot_left_init_region"): True,
+            ("on", "moka_pot_2", target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def delayed_completion(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 2:
+            env.env.relations[("on", "moka_pot_1", source)] = False
+            env.env.relations[("on", "moka_pot_1", target)] = True
+
+    env.step_hook = delayed_completion
+    client = FakeClient([np.zeros((1, 7), dtype=np.float64)])
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=client,
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=1,
+        max_total_action_steps=1,
+        settling_steps=0,
+        post_stop_grounding_reobservation_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.SUCCEEDED
+    assert len(client.requests) == 1
+    assert len(env.actions) == 3
+    assert executor.total_action_steps == 1
+    result = executor.results[0]
+    assert result.attempt_id == dispatch.attempt_id
+    assert result.post_stop_reobservation_steps == 2
+    assert result.post_snapshot is not None
+    assert result.post_snapshot.satisfies(
+        positive=result.completion_positive,
+        negative=result.completion_negative,
+    )
+
+
 def test_effect_gated_macro_stops_when_object_lands_on_recovery_surface() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
@@ -1035,6 +1197,102 @@ def test_effect_gated_macro_stops_when_object_lands_on_recovery_surface() -> Non
     assert Fact("at", (object_name, recovery)) in (
         executor.results[0].post_snapshot.true_facts
     )
+
+
+def test_place_held_reports_verified_recovery_surface_divergence() -> None:
+    env = FakeEnv()
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=4)
+    binding = TaskBinding.from_manifest(
+        ROOT / "configs/logiv/libero10-coverage-v38-task0-recovery.json", 5
+    )
+    store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+    grounder = LiberoOracleGrounder(
+        env,
+        store,
+        binding,
+        monitored_fact_universe(package.problem),
+    )
+    place = package.proposal.candidate_subtasks[1].action
+    object_name, target, _ = place.arguments
+    source = "study_table_black_book_init_region"
+    recovery = "study_table_recovery_surface"
+    env.env.relations.update(
+        {
+            ("on", object_name, source): False,
+            ("in", object_name, target): False,
+            ("in", object_name, "desk_caddy_1_front_contain_region"): False,
+            ("in", object_name, "desk_caddy_1_left_contain_region"): False,
+            ("in", object_name, "desk_caddy_1_right_contain_region"): False,
+            ("on", object_name, "study_table"): True,
+        }
+    )
+
+    effects, primary, diverged = grounder.observe_action_progress_details(place)
+
+    assert effects is False
+    assert primary is False
+    assert diverged is True
+    snapshot = grounder.peek_snapshot()
+    assert Fact("at", (object_name, recovery)) in snapshot.true_facts
+    assert Fact("holding", (object_name,)) in snapshot.false_facts
+
+
+def test_held_divergence_stop_is_opt_in_and_separately_bounded() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=4)
+    action = package.proposal.candidate_subtasks[1].action
+
+    class AlwaysDivergedGrounder:
+        detector_calls = 0
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return False, False, True
+
+        def peek_snapshot(self):
+            return package.proposal.initial_snapshot
+
+    def execute(held_steps: int | None):
+        env = FakeEnv()
+        store = LiberoObservationStore(dict(env.obs), epoch_id=4)
+        kwargs = (
+            {}
+            if held_steps is None
+            else {"held_target_divergence_confirmation_steps": held_steps}
+        )
+        executor = Pi05MacroExecutor(
+            env=env,
+            client=FakeClient(
+                [np.zeros((1, 7), dtype=np.float64) for _ in range(3)]
+            ),
+            image_tools=FakeImageTools(),
+            observation_store=store,
+            grounder=AlwaysDivergedGrounder(),
+            prompt_renderer=SubtaskPromptRenderer(),
+            safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+            replan_steps=1,
+            max_action_steps=3,
+            max_total_action_steps=3,
+            settling_steps=0,
+            target_divergence_confirmation_steps=1,
+            **kwargs,
+        )
+        dispatch = executor.consume_permit_and_enqueue(
+            action, _context(), package.proposal.initial_snapshot
+        )
+        return executor, executor.await_outcome(dispatch)
+
+    default_executor, default_outcome = execute(None)
+    bounded_executor, bounded_outcome = execute(2)
+
+    assert default_outcome.reason == "macro bound reached"
+    assert len(default_executor.results[0].actions) == 3
+    assert bounded_outcome.reason == "observed target-location divergence"
+    assert len(bounded_executor.results[0].actions) == 2
 
 
 def test_identical_prompt_dag_frontier_waits_for_union_of_ready_effects() -> None:
@@ -1490,6 +1748,68 @@ def test_stalled_frontier_switches_to_fallback_and_uses_fallback_followup() -> N
     assert result.frontier_fallback_step == 2
     assert result.frontier_fallback_prompt == "put both moka pots on the stove"
     assert result.frontier_followup_limit == 3
+
+
+def test_stalled_occurrence_switches_prompt_without_creating_a_new_attempt() -> None:
+    env = FakeEnv()
+    package, store, grounder = _grounder(env)
+    first, second = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    target = first.arguments[2]
+    env.env.relations.update(
+        {
+            ("on", first.arguments[0], first.arguments[1]): True,
+            ("on", first.arguments[0], target): False,
+            ("on", second.arguments[0], second.arguments[1]): True,
+            ("on", second.arguments[0], target): False,
+            ("turnon", "flat_stove_1"): True,
+            ("turnoff", "flat_stove_1"): False,
+        }
+    )
+
+    def complete_after_fallback(step: int, low_level_action: np.ndarray) -> None:
+        del low_level_action
+        if step == 3:
+            env.env.relations[("on", first.arguments[0], first.arguments[1])] = False
+            env.env.relations[("on", first.arguments[0], target)] = True
+
+    env.step_hook = complete_after_fallback
+    client = FakeClient([np.zeros((1, 7), dtype=np.float64) for _ in range(3)])
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=client,
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(
+            ROOT / "configs/logiv/prompts/pi05-subtasks-v23.json"
+        ),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=3,
+        max_total_action_steps=3,
+        settling_steps=0,
+        effect_confirmation_steps=1,
+        frontier_fallback_after_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        first, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed declared effects"
+    assert len(client.requests) == 3
+    assert len(executor.results) == 1
+    result = executor.results[0]
+    assert result.attempt_id == dispatch.attempt_id
+    assert result.completion_mode == "OCCURRENCE"
+    assert result.prompt_history == (
+        "put the moka pot closest to the stove on the stove",
+        "put both moka pots on the stove",
+    )
+    assert result.frontier_fallback_step == 2
 
 
 @pytest.mark.parametrize("recovery_graph", [False, True])
@@ -2495,7 +2815,7 @@ def test_v28_adds_state_specific_task5_and_task6_recovery_prompts() -> None:
     )
 
 
-def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -> None:
+def test_effect_gated_macro_treats_native_done_as_absorbing_success() -> None:
     env = FakeEnv()
     package, store, grounder = _grounder(env)
     action = next(
@@ -2522,7 +2842,6 @@ def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -
         if step == 1:
             env.env.held.add("moka_pot_1")
             env.env.relations[("on", "moka_pot_1", source)] = False
-            # LIBERO's done is task success, not an absorbing terminal state.
             env.done = True
         elif step == 2:
             env.env.held.remove("moka_pot_1")
@@ -2555,10 +2874,59 @@ def test_effect_gated_macro_does_not_confuse_libero_success_with_termination() -
     )
     outcome = executor.await_outcome(dispatch)
 
-    assert outcome.status is ExecutorStatus.SUCCEEDED
-    assert outcome.reason == "observed declared effects"
-    assert len(executor.results[0].actions) == 2
-    assert len(executor.results[0].prompt_history) == 2
+    assert outcome.status is ExecutorStatus.EPISODE_SUCCESS
+    assert outcome.reason == "simulator task predicate became true"
+    assert len(executor.results[0].actions) == 1
+    assert len(executor.results[0].prompt_history) == 1
+
+
+def test_effect_gated_macro_stops_settling_on_native_done() -> None:
+    env = FakeEnv()
+    package, store, _ = _grounder(env)
+    action = package.proposal.candidate_subtasks[0].action
+
+    class ImmediateEffectGrounder:
+        detector_calls = 0
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return True, True, False
+
+        def peek_snapshot(self):
+            raise AssertionError("native done must skip post-stop grounding")
+
+    def become_done_during_first_settling(
+        step: int, low_level_action: np.ndarray
+    ) -> None:
+        del low_level_action
+        if step == 2:
+            env.done = True
+
+    env.step_hook = become_done_during_first_settling
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([np.zeros((1, 7), dtype=np.float64)]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=ImmediateEffectGrounder(),
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=1,
+        max_total_action_steps=1,
+        settling_steps=4,
+        effect_confirmation_steps=1,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.status is ExecutorStatus.EPISODE_SUCCESS
+    assert len(env.actions) == 2
+    assert len(executor.results[0].actions) == 1
 
 
 def test_effect_gated_macro_requires_consecutive_confirmation_before_stop() -> None:
@@ -2682,6 +3050,175 @@ def test_close_access_stabilization_recovers_from_rebound_before_stop() -> None:
         hold = executor.results[-1].actions[index]
         assert np.allclose(hold[:6], 0.0)
         assert hold[-1] == pytest.approx(0.1)
+
+
+def test_place_effect_stabilization_resumes_policy_after_object_rebounds() -> None:
+    env = FakeEnv()
+    package, store, _ = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+
+    class ReboundingPlaceGrounder:
+        detector_calls = 0
+
+        def __init__(self) -> None:
+            self.progress = iter(
+                [
+                    (True, True, False),
+                    (False, False, False),
+                    (True, True, False),
+                    (True, True, False),
+                    (True, True, False),
+                ]
+            )
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return next(self.progress)
+
+        def peek_snapshot(self):
+            return package.proposal.initial_snapshot
+
+    grounder = ReboundingPlaceGrounder()
+    policy_action = np.full((1, 7), 0.2, dtype=np.float64)
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([policy_action, policy_action]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=grounder,
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=5,
+        max_total_action_steps=5,
+        settling_steps=0,
+        effect_confirmation_steps=1,
+        place_effect_stabilization_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed stabilized declared effects"
+    assert len(executor.results[-1].actions) == 5
+    for index in (1, 3, 4):
+        hold = executor.results[-1].actions[index]
+        assert np.allclose(hold[:6], 0.0)
+        assert hold[-1] == pytest.approx(0.2)
+
+
+def test_place_effect_can_switch_to_hold_before_the_global_confirmation_streak() -> None:
+    env = FakeEnv()
+    package, store, _ = _grounder(env)
+    action = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.arguments[0] == "moka_pot_1"
+    )
+
+    class StablePlaceGrounder:
+        detector_calls = 0
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return True, True, False
+
+        def peek_snapshot(self):
+            return package.proposal.initial_snapshot
+
+    policy_action = np.full((1, 7), 0.3, dtype=np.float64)
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([policy_action]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=StablePlaceGrounder(),
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=5,
+        max_total_action_steps=5,
+        settling_steps=0,
+        effect_confirmation_steps=5,
+        place_effect_confirmation_steps=1,
+        place_effect_stabilization_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        action, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "observed stabilized declared effects"
+    assert len(executor.results[-1].actions) == 3
+    for index in (1, 2):
+        hold = executor.results[-1].actions[index]
+        assert np.allclose(hold[:6], 0.0)
+        assert hold[-1] == pytest.approx(0.3)
+
+
+def test_source_place_confirmation_override_does_not_interrupt_held_recovery() -> None:
+    env = FakeEnv()
+    package, store, _ = _grounder(env)
+    sourced = next(
+        item.action
+        for item in package.proposal.candidate_subtasks
+        if item.action.schema == "place-on"
+    )
+    held = FixedDomain().ground(
+        package.problem,
+        "place-held-on",
+        (sourced.arguments[0], sourced.arguments[2]),
+    )
+
+    class StableHeldGrounder:
+        detector_calls = 0
+
+        def observe_action_progress_details(self, *args, **kwargs):
+            del args, kwargs
+            self.detector_calls += 1
+            return True, True, False
+
+        def peek_snapshot(self):
+            return package.proposal.initial_snapshot
+
+    policy_action = np.full((1, 7), 0.4, dtype=np.float64)
+    executor = Pi05MacroExecutor(
+        env=env,
+        client=FakeClient([policy_action, policy_action, policy_action]),
+        image_tools=FakeImageTools(),
+        observation_store=store,
+        grounder=StableHeldGrounder(),
+        prompt_renderer=SubtaskPromptRenderer(),
+        safety_supervisor=SimulatorSafetySupervisor(watchdog_seconds=60.0),
+        replan_steps=1,
+        max_action_steps=3,
+        max_total_action_steps=3,
+        settling_steps=0,
+        effect_confirmation_steps=5,
+        place_effect_confirmation_steps=1,
+        place_effect_stabilization_steps=2,
+    )
+
+    dispatch = executor.consume_permit_and_enqueue(
+        held, _context(), package.proposal.initial_snapshot
+    )
+    outcome = executor.await_outcome(dispatch)
+
+    assert outcome.reason == "macro bound reached"
+    assert len(executor.results[-1].actions) == 3
+    assert all(
+        np.allclose(action, policy_action[0])
+        for action in executor.results[-1].actions
+    )
 
 
 def test_episode_action_budget_rejects_before_creating_another_attempt() -> None:
@@ -3097,3 +3634,654 @@ def test_transition_reader_grounds_support_alias_from_read_only_workspace_geomet
     assert all(item.abnormal_region_truth is TruthValue.TRUE for item in rows)
     assert all(item.abnormal_region_id == "study_table_recovery_surface" for item in rows)
     assert all(item.abnormal_region_distance == pytest.approx(0.0) for item in rows)
+
+
+def test_v54_keeps_original_context_for_failure_driven_tasks() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v54-task012-context.json"
+    )
+    provider = ScriptedProposalProvider()
+    expected = {
+        0: "put both the alphabet soup and the tomato sauce in the basket",
+        1: "put both the cream cheese box and the butter in the basket",
+        2: "turn on the stove and put the moka pot on it",
+    }
+
+    for task_id, task_prompt in expected.items():
+        actions = [
+            item.action
+            for item in provider.propose(task_id, epoch_id=0).proposal.candidate_subtasks
+        ]
+        assert len(actions) == 2
+        assert {
+            renderer.render_phase(action, "acquire") for action in actions
+        } == {task_prompt}
+
+
+def test_v55_routes_context_by_task_and_recovery_phase() -> None:
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+    prior = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v51-task9-context.json"
+    )
+    provider = ScriptedProposalProvider()
+
+    task0 = [
+        item.action
+        for item in provider.propose(0, epoch_id=0).proposal.candidate_subtasks
+    ]
+    task0_context = "put both the alphabet soup and the tomato sauce in the basket"
+    assert [renderer.render(action) for action in task0] == [
+        prior.render(action) for action in task0
+    ]
+    assert {
+        renderer.render_recovery_frontier(action) for action in task0
+    } == {task0_context}
+
+    task1 = [
+        item.action
+        for item in provider.propose(1, epoch_id=0).proposal.candidate_subtasks
+    ]
+    task1_context = "put both the cream cheese box and the butter in the basket"
+    assert {
+        renderer.render_phase(action, "acquire") for action in task1
+    } == {task1_context}
+
+    task2 = [
+        item.action
+        for item in provider.propose(2, epoch_id=0).proposal.candidate_subtasks
+    ]
+    turn_on = next(action for action in task2 if action.schema == "turn-on")
+    place = next(action for action in task2 if action.schema == "place-on")
+    assert renderer.render(turn_on) == prior.render(turn_on)
+    assert renderer.render_phase(place, "acquire") == (
+        "The stove is already on. Put the moka pot on it."
+    )
+
+
+def test_v63_task3_macro_place_then_close_is_certified_without_fake_parallelism() -> None:
+    proposal_path = (
+        ROOT / "configs/logiv/libero10-scripted-proposals-v63-task3-macro.json"
+    )
+    coverage_path = ROOT / "configs/logiv/libero10-coverage-v63-task3-macro.json"
+    package = ScriptedProposalProvider(proposal_path).propose(3, epoch_id=62)
+    binding = TaskBinding.from_manifest(coverage_path, 3)
+    candidates = package.proposal.candidate_subtasks
+    plan = tuple(candidate.action for candidate in candidates)
+    sidecar = json.dumps(
+        [
+            {
+                "occurrence_id": candidate.occurrence_id,
+                "schema": candidate.action.schema,
+                "arguments": list(candidate.action.arguments),
+                "lineage_root": candidate.lineage_root,
+                "instruction": candidate.instruction,
+            }
+            for candidate in candidates
+        ],
+        sort_keys=True,
+    ).encode("utf-8")
+    context = ContextEnvelope(
+        phase=ContextPhase.PREINSTALL_VAL,
+        goal_mode=GoalMode.METADATA_ASSISTED,
+        request_id="task3-v63-certificate",
+        request_generation=0,
+        episode_id="task3-v63-episode",
+        goal_id=package.frozen_goal.goal_id,
+        goal_epoch=package.frozen_goal.goal_epoch,
+        epoch_id=62,
+        graph_version=None,
+        occurrence_id=None,
+        attempt_id=None,
+        certificate_hash=None,
+        safety_epoch=None,
+    )
+
+    assert [action.schema for action in plan] == ["place-in", "close-access"]
+    assert binding.supported_action_schemas == frozenset(
+        {"place-in", "close-access"}
+    )
+    result = ValWrapper(REAL_VAL, timeout_seconds=5.0).validate(
+        package.problem, plan, sidecar, context
+    )
+    assert result.status is ValidationStatus.VALID
+    graph = CausalDagCompiler(REAL_VAL, timeout_seconds=5.0).compile(
+        package.problem, plan, sidecar, result.certificate, context
+    )
+    assert graph.action_layer_width() == 1
+    action_nodes = [node for node in graph.nodes if node.kind is NodeKind.ACTION]
+    assert len(action_nodes) == 2
+    assert any(
+        edge.source == action_nodes[0].node_id
+        and edge.target == action_nodes[1].node_id
+        and edge.conflict_reasons
+        for edge in graph.edges
+    )
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v63-task3-macro.json"
+    )
+    assert renderer.render(plan[0]) == (
+        "put the black bowl in the bottom drawer of the cabinet and close it"
+    )
+
+
+def test_v64_task4_expands_only_the_slow_first_mug_prompt() -> None:
+    prompt_path = ROOT / "configs/logiv/prompts/pi05-subtasks-v64-task4-context.json"
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(4, epoch_id=67)
+    first, second = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    renderer = SubtaskPromptRenderer(prompt_path)
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+
+    assert renderer.render(first) == (
+        "put the white mug on the left plate and put the yellow and white mug on "
+        "the right plate"
+    )
+    assert renderer.render_phase(first, "acquire") == renderer.render(first)
+    assert renderer.render(second) == parent.render(second)
+    assert renderer.render_phase(second, "acquire") == parent.render_phase(
+        second, "acquire"
+    )
+
+
+def test_v66_task4_changes_context_only_after_first_mug_stalls() -> None:
+    prompt_path = ROOT / "configs/logiv/prompts/pi05-subtasks-v66-task4-stall.json"
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(4, epoch_id=68)
+    first, second = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    renderer = SubtaskPromptRenderer(prompt_path)
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+    task_prompt = (
+        "put the white mug on the left plate and put the yellow and white mug on "
+        "the right plate"
+    )
+
+    assert renderer.render(first) == parent.render(first)
+    assert renderer.render(second) == parent.render(second)
+    assert renderer.render_frontier_fallback(first) == task_prompt
+    assert renderer.render_frontier_fallback(second) == parent.render_frontier_fallback(
+        second
+    )
+
+
+def test_v68_task4_disambiguates_left_plate_without_changing_second_mug() -> None:
+    prompt_path = ROOT / "configs/logiv/prompts/pi05-subtasks-v68-task4-left.json"
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(4, epoch_id=69)
+    first, second = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    renderer = SubtaskPromptRenderer(prompt_path)
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+
+    assert renderer.render(first) == "Put the solid white mug on the left plate."
+    assert renderer.render_phase(first, "acquire") == renderer.render(first)
+    assert renderer.render(second) == parent.render(second)
+    assert renderer.render_phase(second, "acquire") == parent.render_phase(
+        second, "acquire"
+    )
+
+
+def test_v71_task3_uses_natural_local_prompts_without_changing_the_plan() -> None:
+    prompt_path = ROOT / "configs/logiv/prompts/pi05-subtasks-v71-task3-local.json"
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(3, epoch_id=71)
+    actions = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    renderer = SubtaskPromptRenderer(prompt_path)
+
+    assert [action.schema for action in actions] == [
+        "pick",
+        "place-held-in",
+        "close-access",
+    ]
+    assert [renderer.render(action) for action in actions] == [
+        "Pick up the black bowl.",
+        "Put the black bowl in the bottom drawer of the cabinet.",
+        "Close the bottom drawer of the cabinet.",
+    ]
+    assert [renderer.render_phase(action, "acquire") for action in actions] == [
+        renderer.render(action) for action in actions
+    ]
+
+
+def test_v72_task5_macro_uses_the_exact_official_task_instruction() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v31-task5-macro.json"
+    ).propose(5, epoch_id=72)
+    action = package.proposal.candidate_subtasks[0].action
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v72-task5-macro-exact.json"
+    )
+
+    assert action.schema == "place-in"
+    assert renderer.render(action) == (
+        "pick up the book and place it in the back compartment of the caddy"
+    )
+    assert renderer.render_phase(action, "acquire") == renderer.render(action)
+
+
+def test_v73_task7_removes_internal_region_names_from_local_prompts() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(7, epoch_id=73)
+    actions = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v73-task7-local.json"
+    )
+
+    assert renderer.render(actions[0]) == "Put the alphabet soup can in the basket."
+    assert renderer.render(actions[1]) == "Put the cream cheese box in the basket."
+    assert [renderer.render_phase(action, "acquire") for action in actions] == [
+        renderer.render(action) for action in actions
+    ]
+
+
+def test_v93_task7_changes_only_the_failed_cream_cheese_occurrence() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(7, epoch_id=93)
+    alphabet, cream_cheese = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v93-task7-cream-only.json"
+    )
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v72-task5-macro-exact.json"
+    )
+
+    assert renderer.render(alphabet) == parent.render(alphabet)
+    assert renderer.render_phase(alphabet, "acquire") == parent.render_phase(
+        alphabet, "acquire"
+    )
+    assert renderer.render(cream_cheese) == (
+        "Put the cream cheese box in the basket."
+    )
+    assert renderer.render_phase(cream_cheese, "acquire") == renderer.render(
+        cream_cheese
+    )
+
+
+def test_v74_task6_uses_a_short_pudding_obligation_prompt() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(6, epoch_id=74)
+    pudding = package.proposal.candidate_subtasks[0].action
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v74-task6-local.json"
+    )
+
+    assert pudding.schema == "place-relative"
+    assert renderer.render(pudding) == (
+        "Put the chocolate pudding to the right of the plate."
+    )
+    assert renderer.render_phase(pudding, "acquire") == renderer.render(pudding)
+
+
+def test_v77_task2_changes_prompt_only_after_the_precise_prompt_stalls() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(2, epoch_id=77)
+    place = next(
+        candidate.action
+        for candidate in package.proposal.candidate_subtasks
+        if candidate.action.schema == "place-on"
+    )
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v77-task2-stall.json"
+    )
+
+    assert renderer.render(place) == (
+        "put the silver moka pot with the black handle on the stove; "
+        "do not move the frying pan"
+    )
+    assert renderer.render_frontier_fallback(place) == (
+        "The stove is already on. Put the moka pot on it."
+    )
+
+
+def test_v78_task3_uses_task_context_only_for_the_close_occurrence() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(3, epoch_id=78)
+    pick, place, close = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v78-task3-close-context.json"
+    )
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v71-task3-local.json"
+    )
+
+    assert renderer.render(pick) == parent.render(pick)
+    assert renderer.render(place) == parent.render(place)
+    assert renderer.render(close) == (
+        "put the black bowl in the bottom drawer of the cabinet and close it"
+    )
+
+
+def test_v82_task3_preserves_the_proven_pick_prompt_until_it_stalls() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(3, epoch_id=82)
+    pick = package.proposal.candidate_subtasks[0].action
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v82-task3-continuous.json"
+    )
+
+    assert renderer.render(pick) == (
+        "Pick up black bowl from kitchen table akita black bowl init region. "
+        "Complete only this subtask, then stop. Do not start another subtask."
+    )
+    assert renderer.render_frontier_fallback(pick) == "Pick up the black bowl."
+
+
+def test_v94_task3_restores_only_the_proven_close_prompt() -> None:
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(3, epoch_id=94)
+    pick, place, close = (
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    )
+    renderer = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v94-task3-close-guard.json"
+    )
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v82-task3-continuous.json"
+    )
+    proven = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+
+    assert renderer.render(pick) == parent.render(pick)
+    assert renderer.render_frontier_fallback(pick) == (
+        parent.render_frontier_fallback(pick)
+    )
+    assert renderer.render(place) == parent.render(place)
+    assert renderer.render(close) == proven.render(close)
+
+
+def _task5_v56_paths() -> tuple[Path, Path, Path]:
+    return (
+        ROOT / "configs/logiv/libero10-scripted-proposals-v56-task5-place-in.json",
+        ROOT / "configs/logiv/libero10-coverage-v56-task5-place-in.json",
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v56-task5-place-in.json",
+    )
+
+
+def test_v56_task5_place_in_macro_is_val_certified_and_compiled() -> None:
+    proposal_path, coverage_path, _ = _task5_v56_paths()
+    package = ScriptedProposalProvider(proposal_path).propose(5, epoch_id=63)
+    binding = TaskBinding.from_manifest(coverage_path, 5)
+    candidates = package.proposal.candidate_subtasks
+    plan = tuple(item.action for item in candidates)
+    sidecar = json.dumps(
+        [
+            {
+                "occurrence_id": item.occurrence_id,
+                "schema": item.action.schema,
+                "arguments": list(item.action.arguments),
+                "lineage_root": item.lineage_root,
+                "instruction": item.instruction,
+            }
+            for item in candidates
+        ],
+        sort_keys=True,
+    ).encode("utf-8")
+    context = ContextEnvelope(
+        phase=ContextPhase.PREINSTALL_VAL,
+        goal_mode=GoalMode.METADATA_ASSISTED,
+        request_id="task5-v56-certificate",
+        request_generation=0,
+        episode_id="task5-v56-episode",
+        goal_id=package.frozen_goal.goal_id,
+        goal_epoch=package.frozen_goal.goal_epoch,
+        epoch_id=63,
+        graph_version=None,
+        occurrence_id=None,
+        attempt_id=None,
+        certificate_hash=None,
+        safety_epoch=None,
+    )
+
+    assert [(action.schema, action.arguments) for action in plan] == [
+        (
+            "place-in",
+            (
+                "black_book_1",
+                "study_table_black_book_init_region",
+                "desk_caddy_1_back_contain_region",
+                "desk_caddy_1_access",
+            ),
+        )
+    ]
+    assert "place-in" in binding.supported_action_schemas
+    assert binding.recovery_schemas == frozenset(
+        {"pick", "put-down", "place-held-in"}
+    )
+
+    result = ValWrapper(REAL_VAL, timeout_seconds=5.0).validate(
+        package.problem, plan, sidecar, context
+    )
+    assert result.status is ValidationStatus.VALID
+    graph = CausalDagCompiler(REAL_VAL, timeout_seconds=5.0).compile(
+        package.problem, plan, sidecar, result.certificate, context
+    )
+    action_nodes = [node for node in graph.nodes if node.kind is NodeKind.ACTION]
+    assert len(action_nodes) == 1
+    assert graph.action_layer_width() == 1
+    action_id = action_nodes[0].node_id
+    assert graph.edge("INIT", action_id) is not None
+    assert graph.edge(action_id, "GOAL") is not None
+
+
+def test_v56_task5_overlay_does_not_change_other_task_proposals() -> None:
+    proposal_path, _, _ = _task5_v56_paths()
+    candidate = ScriptedProposalProvider(proposal_path)
+    parent = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    )
+
+    for task_id in (*range(5), *range(6, 10)):
+        assert candidate.propose(task_id, epoch_id=63) == parent.propose(
+            task_id, epoch_id=63
+        )
+
+
+def test_v56_task5_macro_uses_the_official_full_task_prompt() -> None:
+    proposal_path, _, prompt_path = _task5_v56_paths()
+    action = (
+        ScriptedProposalProvider(proposal_path)
+        .propose(5, epoch_id=63)
+        .proposal.candidate_subtasks[0]
+        .action
+    )
+    renderer = SubtaskPromptRenderer(prompt_path)
+
+    assert renderer.render(action) == (
+        "pick up the book and place it in the back compartment of the caddy"
+    )
+    assert renderer.render_phase(action, "acquire") == renderer.render(action)
+
+
+def _task5_v57_paths() -> tuple[Path, Path]:
+    return (
+        ROOT / "configs/logiv/libero10-coverage-v57-task5-macro-recovery.json",
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v57-task5-macro-recovery.json",
+    )
+
+
+def test_v57_task5_keeps_split_initial_plan_and_adds_macro_recovery() -> None:
+    coverage_path, _ = _task5_v57_paths()
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=64)
+    binding = TaskBinding.from_manifest(coverage_path, 5)
+
+    assert [item.action.schema for item in package.proposal.candidate_subtasks] == [
+        "pick",
+        "place-held-in",
+    ]
+    assert binding.supported_action_schemas == frozenset({"pick", "place-held-in"})
+    assert binding.recovery_schemas == frozenset(
+        {"pick", "put-down", "place-held-in", "place-in"}
+    )
+
+
+def test_v57_task5_repair_uses_one_macro_after_a_drop_to_the_table() -> None:
+    coverage_path, _ = _task5_v57_paths()
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=64)
+    binding = TaskBinding.from_manifest(coverage_path, 5)
+    initial_location = Fact(
+        "at", ("black_book_1", "study_table_black_book_init_region")
+    )
+    recovery_location = Fact(
+        "at", ("black_book_1", "study_table_recovery_surface")
+    )
+    current_problem = replace(
+        package.problem,
+        initial_state=frozenset(
+            (package.problem.initial_state - {initial_location}) | {recovery_location}
+        ),
+        initial_false=frozenset(
+            (package.problem.initial_false - {recovery_location}) | {initial_location}
+        ),
+    )
+    remaining = (package.proposal.candidate_subtasks[1].action,)
+    context = ContextEnvelope(
+        phase=ContextPhase.RECOVERY_VAL,
+        goal_mode=GoalMode.METADATA_ASSISTED,
+        request_id="task5-v57-recovery",
+        request_generation=0,
+        episode_id="task5-v57-episode",
+        goal_id=package.frozen_goal.goal_id,
+        goal_epoch=package.frozen_goal.goal_epoch,
+        epoch_id=64,
+        graph_version="task5-v57-parent-graph",
+        occurrence_id=None,
+        attempt_id=None,
+        certificate_hash="task5-v57-parent-certificate",
+        safety_epoch=None,
+    )
+    result = RepairOperator(
+        ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=binding.recovery_schemas,
+        bounds=RepairBounds(max_edits=5, max_candidates=10000, max_val_calls=20),
+    ).repair(current_problem, remaining, context=context)
+
+    assert result.status is RepairStatus.CERTIFIED
+    assert [(action.schema, action.arguments) for action in result.plan] == [
+        (
+            "place-in",
+            (
+                "black_book_1",
+                "study_table_recovery_surface",
+                "desk_caddy_1_back_contain_region",
+                "desk_caddy_1_access",
+            ),
+        )
+    ]
+
+
+def test_v57_task5_failed_place_and_macro_recovery_use_full_task_context() -> None:
+    _, prompt_path = _task5_v57_paths()
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=64)
+    held_place = package.proposal.candidate_subtasks[1].action
+    macro_recovery = FixedDomain().ground(
+        package.problem,
+        "place-in",
+        (
+            "black_book_1",
+            "study_table_recovery_surface",
+            "desk_caddy_1_back_contain_region",
+            "desk_caddy_1_access",
+        ),
+    )
+    renderer = SubtaskPromptRenderer(prompt_path)
+    task_prompt = "pick up the book and place it in the back compartment of the caddy"
+
+    assert renderer.render(held_place) == task_prompt
+    assert renderer.render_recovery_frontier(macro_recovery) == task_prompt
+
+
+def test_v58_task5_changes_only_the_dropped_book_macro_recovery_prompt() -> None:
+    prompt_path = (
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v58-task5-dropped-macro.json"
+    )
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=65)
+    renderer = SubtaskPromptRenderer(prompt_path)
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+    for candidate in package.proposal.candidate_subtasks:
+        assert renderer.render(candidate.action) == parent.render(candidate.action)
+        assert renderer.render_phase(candidate.action, "acquire") == parent.render_phase(
+            candidate.action, "acquire"
+        )
+
+    macro_recovery = FixedDomain().ground(
+        package.problem,
+        "place-in",
+        (
+            "black_book_1",
+            "study_table_recovery_surface",
+            "desk_caddy_1_back_contain_region",
+            "desk_caddy_1_access",
+        ),
+    )
+    task_prompt = "pick up the book and place it in the back compartment of the caddy"
+    assert renderer.render(macro_recovery) == task_prompt
+    assert renderer.render_recovery_frontier(macro_recovery) == task_prompt
+
+
+def test_v60_task5_keeps_initial_prompts_and_expands_only_recovery_pick() -> None:
+    prompt_path = (
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v60-task5-recovery-pick.json"
+    )
+    package = ScriptedProposalProvider(
+        ROOT / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+    ).propose(5, epoch_id=66)
+    renderer = SubtaskPromptRenderer(prompt_path)
+    parent = SubtaskPromptRenderer(
+        ROOT / "configs/logiv/prompts/pi05-subtasks-v55-routed-context.json"
+    )
+    for candidate in package.proposal.candidate_subtasks:
+        assert renderer.render(candidate.action) == parent.render(candidate.action)
+        assert renderer.render_phase(candidate.action, "acquire") == parent.render_phase(
+            candidate.action, "acquire"
+        )
+
+    recovery_pick = FixedDomain().ground(
+        package.problem,
+        "pick",
+        ("black_book_1", "study_table_recovery_surface"),
+    )
+    task_prompt = "pick up the book and place it in the back compartment of the caddy"
+    assert renderer.render(recovery_pick) == task_prompt
+    assert renderer.render_recovery_frontier(recovery_pick) == task_prompt

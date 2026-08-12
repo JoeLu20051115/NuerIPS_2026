@@ -252,10 +252,10 @@ def test_shadow_observer_cannot_change_or_abort_base_actions() -> None:
     assert shadow.steps == baseline.steps
     assert shadow.inference_requests == baseline.inference_requests
     assert (shadow.done, shadow.check_success) == (baseline.done, baseline.check_success)
-    assert seen_steps == list(range(0, baseline.steps + 1))
-    assert shadow.shadow_calls == baseline.steps + 1
+    assert seen_steps == list(range(0, baseline.steps))
+    assert shadow.shadow_calls == baseline.steps
     assert shadow.shadow_errors == 1
-    assert shadow.shadow_wall_seconds == pytest.approx((baseline.steps + 1) * 0.01)
+    assert shadow.shadow_wall_seconds == pytest.approx(baseline.steps * 0.01)
     assert shadow.shadow_parity_valid
     assert random.random() == baseline_python_draw
     assert np.random.random() == baseline_numpy_draw
@@ -329,7 +329,7 @@ def test_shadow_context_tracks_prefix_pending_actions_and_request_envelopes() ->
         request_envelope_reader=client.request_envelope_reader,
     )
 
-    assert len(contexts) == outcome.steps + 1
+    assert len(contexts) == outcome.steps
     initial = contexts[0]
     assert initial.pending_base_actions.shape == (0, 7)
     assert initial.base_action_response_size is None
@@ -478,15 +478,173 @@ def test_timeout_is_a_valid_policy_failure() -> None:
     assert not outcome.success and not outcome.done and not outcome.check_success
 
 
-def test_success_predicate_disagreement_is_invalid() -> None:
+def test_inactive_intervention_monitor_preserves_base_trajectory_exactly() -> None:
+    baseline_env = FakeEnv()
+    monitored_env = FakeEnv()
+    baseline = run_episode(
+        baseline_env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        max_steps=12,
+    )
+    observed_steps: list[int] = []
+
+    monitored = run_episode(
+        monitored_env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        max_steps=12,
+        intervention_monitor=lambda _obs, _action, step: (
+            observed_steps.append(step) or False
+        ),
+    )
+
+    assert observed_steps == list(range(1, 13))
+    assert not baseline.intervention_requested
+    assert not monitored.intervention_requested
+    assert baseline_env.actions == monitored_env.actions
+    assert baseline.steps == monitored.steps
+    assert baseline.inference_requests == monitored.inference_requests
+    for baseline_action, monitored_action in zip(
+        baseline.actions, monitored.actions, strict=True
+    ):
+        np.testing.assert_array_equal(baseline_action, monitored_action)
+
+
+def test_intervention_monitor_hands_off_without_settling_or_extra_policy_steps() -> None:
+    env = FakeEnv()
+
+    outcome = run_episode(
+        env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        max_steps=12,
+        settling_steps=2,
+        intervention_monitor=lambda _obs, _action, step: step == 3,
+    )
+
+    assert outcome.intervention_requested
+    assert outcome.steps == 3
+    assert outcome.inference_requests == 1
+    assert len(outcome.actions) == 3
+    assert outcome.discarded_pending_actions == 2
+    assert len(outcome.replay_frames) == 3
+    assert outcome.final_observation is not None
+    assert len(env.actions) == 13
+    assert env.actions[-1] != [0.0] * 6 + [-1.0]
+
+
+def test_initialization_guard_runs_after_step_zero_graph_callback_before_policy() -> None:
+    client = FakeClient()
+    callback_steps: list[int] = []
+
+    with pytest.raises(EpisodeInvalid, match="initial DAG was not certified"):
+        run_episode(
+            FakeEnv(),
+            client,
+            np.array([9.0]),
+            "prompt",
+            FakeImageTools(),
+            shadow_observer=lambda context: callback_steps.append(context.policy_step),
+            shadow_initialization_guard=lambda: (_ for _ in ()).throw(
+                RuntimeError("initial DAG was not certified")
+            ),
+        )
+
+    assert callback_steps == [0]
+    assert client.calls == 0
+
+
+def test_done_is_absorbing_before_monitor_or_settling() -> None:
+    env = FakeEnv(succeed_on_policy_step=2)
+    env.success_override = False
+    intervention_steps: list[int] = []
+    shadow_steps: list[int] = []
+
+    outcome = run_episode(
+        env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        max_steps=12,
+        settling_steps=4,
+        shadow_observer=lambda context: shadow_steps.append(context.policy_step),
+        intervention_monitor=lambda _obs, _action, step: (
+            intervention_steps.append(step) or step >= 2
+        ),
+    )
+
+    assert outcome.success is True
+    assert outcome.done is True
+    assert outcome.check_success is False
+    assert outcome.steps == 2
+    assert intervention_steps == [1]
+    assert shadow_steps == [0, 1]
+    assert len(env.actions) == 12
+    assert outcome.intervention_requested is False
+
+
+def test_done_during_initial_wait_is_absorbing_before_graph_or_policy() -> None:
+    env = FakeEnv(succeed_on_policy_step=0)
+    client = FakeClient()
+    shadow_steps: list[int] = []
+
+    outcome = run_episode(
+        env,
+        client,
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        wait_steps=10,
+        shadow_observer=lambda context: shadow_steps.append(context.policy_step),
+    )
+
+    assert outcome.done and outcome.success
+    assert outcome.steps == 0
+    assert client.calls == 0
+    assert shadow_steps == []
+    assert len(env.actions) == 1
+
+
+def test_done_during_settling_stops_remaining_dummy_actions() -> None:
+    env = FakeEnv(succeed_on_policy_step=2)
+
+    outcome = run_episode(
+        env,
+        FakeClient(),
+        np.array([9.0]),
+        "prompt",
+        FakeImageTools(),
+        max_steps=1,
+        settling_steps=4,
+    )
+
+    assert outcome.done and outcome.success
+    assert outcome.steps == 1
+    assert len(env.actions) == 12
+
+
+def test_read_only_success_audit_cannot_revoke_native_done() -> None:
     env = FakeEnv(succeed_on_policy_step=1)
     env.success_override = False
 
-    with pytest.raises(EpisodeInvalid, match="success predicate disagreement"):
-        run_episode(env, FakeClient(), np.array([9.0]), "prompt", FakeImageTools())
+    outcome = run_episode(
+        env, FakeClient(), np.array([9.0]), "prompt", FakeImageTools()
+    )
+
+    assert outcome.done
+    assert not outcome.check_success
+    assert outcome.success
 
 
-def test_base_success_is_rechecked_after_the_same_settling_barrier() -> None:
+def test_base_native_success_skips_the_settling_barrier() -> None:
     class TransientSuccessEnv(FakeEnv):
         lost_success = False
 
@@ -512,16 +670,17 @@ def test_base_success_is_rechecked_after_the_same_settling_barrier() -> None:
     )
 
     assert outcome.done
-    assert not outcome.check_success
-    assert not outcome.success
+    assert outcome.check_success
+    assert outcome.success
     assert outcome.steps == 1
-    assert len(outcome.replay_frames) == 3
-    assert env.actions[-2:] == [[0.0] * 6 + [-1.0]] * 2
+    assert len(outcome.replay_frames) == 1
+    assert len(env.actions) == 11
+    assert not env.lost_success
 
 
 def test_settling_observer_is_ordered_isolated_and_rng_neutral() -> None:
-    baseline_env = FakeEnv(succeed_on_policy_step=1)
-    shadow_env = FakeEnv(succeed_on_policy_step=1)
+    baseline_env = FakeEnv()
+    shadow_env = FakeEnv()
     random.seed(717)
     np.random.seed(717)
     baseline = run_episode(
@@ -530,6 +689,7 @@ def test_settling_observer_is_ordered_isolated_and_rng_neutral() -> None:
         np.array([9.0]),
         "prompt",
         FakeImageTools(),
+        max_steps=1,
         settling_steps=2,
     )
     baseline_draws = (random.random(), np.random.random())
@@ -551,6 +711,7 @@ def test_settling_observer_is_ordered_isolated_and_rng_neutral() -> None:
         np.array([9.0]),
         "prompt",
         FakeImageTools(),
+        max_steps=1,
         settling_steps=2,
         shadow_settling_observer=observe_settling,
     )

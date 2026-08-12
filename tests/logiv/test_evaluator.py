@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from pi05_libero_repro.logiv.dag import SchemaOnlyCausalDagCompiler
+from pi05_libero_repro.logiv.domain import FixedDomain
 from pi05_libero_repro.logiv.configuration import resolved_json_sha256
 from pi05_libero_repro.logiv.evaluation import (
     EvaluationContract,
@@ -17,34 +18,694 @@ from pi05_libero_repro.logiv.evaluation import (
     MethodArm,
     certify_initial_package,
 )
-from pi05_libero_repro.logiv.model import GoalMode
 from pi05_libero_repro.logiv.initial_proposal import (
     InitialProposalResult,
     InitialProposalStatus,
 )
+from pi05_libero_repro.logiv.model import Fact, FactSnapshot, GoalMode
 from pi05_libero_repro.logiv.shadow_runtime import (
     ShadowRuntime,
     ShadowRuntimeCounters,
 )
 from pi05_libero_repro.logiv.task5_terminal_recovery import TerminalAssessment
 from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
-from pi05_libero_repro.logiv.repair import RepairBounds, RepairOperator, RetryPolicy
+from pi05_libero_repro.logiv.repair import (
+    PddlPlanner,
+    RepairBounds,
+    RepairOperator,
+    RetryPolicy,
+)
 from pi05_libero_repro.logiv.val import ValWrapper
 from scripts.eval_logiv_libero import (
     _allocate_episode_artifact_dir,
     _base_physical_attempts,
     _capture_task5_terminal_preflight,
+    _gpt4o_request_accounting,
     _parser,
+    _place_effect_confirmation_steps_for_task,
+    _place_effect_stabilization_steps_for_task,
+    _post_stop_reobservation_steps_for_task,
+    _rebase_package_on_snapshot,
+    _remaining_online_action_budget,
     _replace_episode_environment,
     _run_config,
+    _online_detector_settings_for_task,
     _shadow_artifact_payloads,
+    _symbolic_record_accounting,
     _validate_shadow_options,
+    _verified_recovery_surface_facts,
 )
 from pi05_libero_repro.protocol import EpisodeOutcome, ShadowFailureRecord
 import scripts.eval_logiv_libero as evaluator_script
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+
+
+def test_gpt4o_request_accounting_reports_only_state_gate() -> None:
+    assert _gpt4o_request_accounting(None) == {
+        "shadow_vlm_requests": 0,
+        "recovery_policy_requests": 0,
+    }
+    client = SimpleNamespace(request_counts={"state_gate": 3})
+    assert _gpt4o_request_accounting(client) == {
+        "shadow_vlm_requests": 3,
+        "recovery_policy_requests": 0,
+    }
+
+
+def test_gpt4o_request_accounting_rejects_planning_purposes() -> None:
+    client = SimpleNamespace(
+        request_counts={"state_gate": 3, "local_repair": 1}
+    )
+    with pytest.raises(ValueError, match="non-State-Gate"):
+        _gpt4o_request_accounting(client)
+
+
+def test_direct_symbolic_accounting_keeps_state_gate_requests() -> None:
+    client = SimpleNamespace(request_counts={"state_gate": 4})
+
+    accounting = _symbolic_record_accounting(
+        base_policy_requests=9,
+        gpt4o_client=client,
+    )
+
+    assert accounting["base_policy_requests"] == 9
+    assert accounting["shadow_vlm_requests"] == 4
+    assert accounting["recovery_policy_requests"] == 0
+
+
+def test_online_tuning_configs_resolve_for_all_ten_tasks() -> None:
+    root = Path(__file__).parents[2]
+    proposal_path = root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    coverage_path = root / "configs/logiv/libero10-coverage-online-v1.json"
+    prompt_path = root / "configs/logiv/prompts/pi05-subtasks-online-v1.json"
+
+    provider = ScriptedProposalProvider(proposal_path)
+    renderer = evaluator_script.SubtaskPromptRenderer(prompt_path)
+    for task_id in range(10):
+        package = provider.propose(task_id, epoch_id=0)
+        binding = evaluator_script.TaskBinding.from_manifest(
+            coverage_path, task_id
+        )
+        assert package.proposal.candidate_subtasks
+        assert binding.supported_action_schemas
+    assert renderer.prompt_version == "pi05-subtasks-online-v1"
+
+
+def test_task0_direct_recovery_manifest_keeps_the_place_in_macro() -> None:
+    root = Path(__file__).parents[2]
+    binding = evaluator_script.TaskBinding.from_manifest(
+        root
+        / "configs/logiv/libero10-coverage-online-v2-task0-direct.json",
+        0,
+    )
+
+    assert binding.decompose_macro_sources == frozenset()
+
+
+def test_online_v2_disambiguates_task8_recovery_objects() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v2.json"
+    )
+    domain = FixedDomain()
+
+    left = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render(left) == "Put the left moka pot on the stove."
+    assert renderer.render(right) == "Put the right moka pot on the stove."
+
+
+def test_online_v3_disambiguates_task8_initial_objects() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v3.json"
+    )
+    domain = FixedDomain()
+
+    left = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_moka_pot_left_init_region",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_moka_pot_right_init_region",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render(left) == "Put the left moka pot on the stove."
+    assert renderer.render(right) == "Put the right moka pot on the stove."
+
+
+def test_online_v4_uses_whole_task_prompt_for_task8_recovery() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v4.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render(action) == "Put both moka pots on the stove."
+
+
+def test_online_v5_splits_task8_recovery_into_pick_and_place_phases() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Pick up the moka pot on the left side of the table and hold it."
+    )
+    assert renderer.render_phase(action, "finish") == (
+        "Place the moka pot you are holding on the stove and release it."
+    )
+
+
+def test_online_v6_uses_direct_task8_placement_without_split_phases() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v6-direct.json"
+    )
+    domain = FixedDomain()
+    actions = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ] + [
+        domain.ground(
+            package.problem,
+            "place-on",
+            (
+                object_name,
+                "kitchen_table_recovery_surface",
+                "flat_stove_1_cook_region",
+            ),
+        )
+        for object_name in ("moka_pot_2", "moka_pot_1")
+    ]
+
+    assert [renderer.render_phase(action, "acquire") for action in actions] == [
+        "Put the left moka pot on the stove.",
+        "Put the right moka pot on the stove.",
+        "Put the left moka pot on the stove.",
+        "Put the right moka pot on the stove.",
+    ]
+    assert all(not renderer.has_phase(action, "finish") for action in actions)
+
+
+def test_online_v7_ports_only_contextual_task8_recovery_behavior() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v7-contextual.json"
+    )
+    domain = FixedDomain()
+    nominal = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    recovery = [
+        domain.ground(
+            package.problem,
+            "place-on",
+            (
+                object_name,
+                "kitchen_table_recovery_surface",
+                "flat_stove_1_cook_region",
+            ),
+        )
+        for object_name in ("moka_pot_2", "moka_pot_1")
+    ]
+
+    assert {
+        renderer.render_recovery_frontier(action)
+        for action in nominal + recovery
+    } == {"put both moka pots on the stove"}
+    assert "remaining moka pot" in renderer.render_phase(nominal[1], "acquire")
+    assert "without moving the other moka pot" in renderer.render_phase(
+        nominal[1], "acquire"
+    )
+    assert "remaining moka pot" in renderer.render_phase(recovery[0], "acquire")
+
+
+def test_online_v8_changes_only_the_hard_left_moka_pot_repairs() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v8-left-context.json"
+    )
+    domain = FixedDomain()
+    nominal = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    left_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    right_recovery = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    for action in (nominal[0], left_recovery):
+        prompt = renderer.render_phase(action, "acquire")
+        assert "remaining moka pot" in prompt
+        assert "without moving the other moka pot" in prompt
+    for action in (nominal[1], right_recovery):
+        assert renderer.render_phase(action, "acquire") == parent.render_phase(
+            action, "acquire"
+        )
+
+
+def test_online_v9_uses_a_short_visual_reference_only_for_left_moka_pot() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v9-left-table.json"
+    )
+    domain = FixedDomain()
+    nominal = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    recovery = [
+        domain.ground(
+            package.problem,
+            "place-on",
+            (
+                object_name,
+                "kitchen_table_recovery_surface",
+                "flat_stove_1_cook_region",
+            ),
+        )
+        for object_name in ("moka_pot_2", "moka_pot_1")
+    ]
+
+    expected = "Put the moka pot that is still on the table on the stove."
+    assert renderer.render_phase(nominal[0], "acquire") == expected
+    assert renderer.render_phase(recovery[0], "acquire") == expected
+    for action in (nominal[1], recovery[1]):
+        assert renderer.render_phase(action, "acquire") == parent.render_phase(
+            action, "acquire"
+        )
+
+
+def test_online_v10_targets_only_the_verified_moved_left_moka_pot() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v10-moved-left.json"
+    )
+    domain = FixedDomain()
+    nominal_left, nominal_right = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    moved_left = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_2",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+    moved_right = domain.ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render_phase(moved_left, "acquire") == (
+        "Put the moka pot that was moved to another part of the kitchen table "
+        "on the stove."
+    )
+    for action in (nominal_left, nominal_right, moved_right):
+        assert renderer.render_phase(action, "acquire") == parent.render_phase(
+            action, "acquire"
+        )
+
+
+def test_online_v11_uses_a_direct_task0_tomato_repair_only() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(0, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v11-task0-direct.json"
+    )
+    alphabet, tomato = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+
+    assert renderer.render_phase(tomato, "acquire") == (
+        "Put the tomato sauce can in the basket."
+    )
+    assert renderer.render_phase(alphabet, "acquire") == parent.render_phase(
+        alphabet, "acquire"
+    )
+
+
+def test_online_v12_uses_the_complete_task0_goal_for_either_repair_node() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(0, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v12-task0-goal.json"
+    )
+    actions = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+
+    assert [renderer.render_phase(action, "acquire") for action in actions] == [
+        "put both the alphabet soup and the tomato sauce in the basket",
+        "put both the alphabet soup and the tomato sauce in the basket",
+    ]
+    assert all(not renderer.has_phase(action, "finish") for action in actions)
+
+
+def test_online_v13_uses_a_direct_task9_recovery_from_the_table() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(9, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v13-task9-recovery.json"
+    )
+    domain = FixedDomain()
+    nominal = package.proposal.candidate_subtasks[0].action
+    recovery = domain.ground(
+        package.problem,
+        "place-in",
+        (
+            "white_yellow_mug_1",
+            "kitchen_table_recovery_surface",
+            "microwave_1_heating_region",
+            "microwave_1_access",
+        ),
+    )
+
+    assert renderer.render_phase(recovery, "acquire") == (
+        "Put the yellow and white mug in the microwave and close it."
+    )
+    assert not renderer.has_phase(recovery, "finish")
+    assert renderer.render_phase(nominal, "acquire") == parent.render_phase(
+        nominal, "acquire"
+    )
+
+
+def test_online_v14_uses_a_short_task6_fallen_mug_repair() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(6, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v14-task6-mug.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        ("porcelain_mug_1", "living_room_table_recovery_surface", "plate_1"),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Put the white mug upright on the plate."
+    )
+    assert not renderer.has_phase(action, "finish")
+
+
+def test_online_v15_changes_only_the_task8_nominal_right_pot_prompt() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(8, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v15-task8-right.json"
+    )
+    left, right = [
+        candidate.action for candidate in package.proposal.candidate_subtasks
+    ]
+    recovery_right = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        (
+            "moka_pot_1",
+            "kitchen_table_recovery_surface",
+            "flat_stove_1_cook_region",
+        ),
+    )
+
+    assert renderer.render_phase(right, "acquire") == (
+        "Put the right moka pot on the stove."
+    )
+    assert not renderer.has_phase(right, "finish")
+    for action in (left, recovery_right):
+        assert renderer.render_phase(action, "acquire") == parent.render_phase(
+            action, "acquire"
+        )
+
+
+def test_online_v16_uses_a_single_effect_task9_recovery_prompt() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(9, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v16-task9-place.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-in",
+        (
+            "white_yellow_mug_1",
+            "kitchen_table_recovery_surface",
+            "microwave_1_heating_region",
+            "microwave_1_access",
+        ),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Put the yellow and white mug in the microwave."
+    )
+    assert not renderer.has_phase(action, "finish")
+
+
+def test_online_v17_uses_the_shortest_task6_mug_repair() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(6, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v17-task6-mug.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        ("porcelain_mug_1", "living_room_table_recovery_surface", "plate_1"),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Put the white mug on the plate."
+    )
+    assert not renderer.has_phase(action, "finish")
+
+
+def test_online_v18_shortens_only_the_task0_tomato_recovery_actions() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(0, epoch_id=0)
+    parent = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v5.json"
+    )
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v18-task0-recovery.json"
+    )
+    domain = FixedDomain()
+    pick = domain.ground(
+        package.problem,
+        "pick",
+        ("tomato_sauce_1", "living_room_table_recovery_surface"),
+    )
+    place = domain.ground(
+        package.problem,
+        "place-held-in",
+        ("tomato_sauce_1", "basket_1_contain_region", "basket_1_access"),
+    )
+    nominal = package.proposal.candidate_subtasks[0].action
+
+    assert renderer.render(pick) == "Pick up the tomato sauce can."
+    assert renderer.render(place) == "Put the tomato sauce can in the basket."
+    assert renderer.render(nominal) == parent.render(nominal)
+
+
+def test_online_v19_executes_task0_tomato_recovery_as_one_macro() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(0, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v19-task0-macro.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-in",
+        (
+            "tomato_sauce_1",
+            "living_room_table_recovery_surface",
+            "basket_1_contain_region",
+            "basket_1_access",
+        ),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Put the tomato sauce can in the basket."
+    )
+    assert not renderer.has_phase(action, "finish")
+
+
+def test_online_v20_uses_the_native_task3_goal_for_bowl_repair() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(3, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v20-task3-macro.json"
+    )
+    domain = FixedDomain()
+    nominal = package.proposal.candidate_subtasks[0].action
+    recovery = domain.ground(
+        package.problem,
+        "place-in",
+        (
+            "akita_black_bowl_1",
+            "kitchen_table_recovery_surface",
+            "white_cabinet_1_bottom_region",
+            "white_cabinet_1_bottom_access",
+        ),
+    )
+
+    expected = "Put the black bowl in the bottom drawer and close it."
+    assert renderer.render_phase(nominal, "acquire") == expected
+    assert renderer.render_phase(recovery, "acquire") == expected
+    assert not renderer.has_phase(nominal, "finish")
+    assert not renderer.has_phase(recovery, "finish")
+
+
+def test_online_v21_uses_the_native_task6_goal_for_recovery() -> None:
+    root = Path(__file__).parents[2]
+    package = ScriptedProposalProvider(
+        root / "configs/logiv/libero10-scripted-proposals-online-v1.json"
+    ).propose(6, epoch_id=0)
+    renderer = evaluator_script.SubtaskPromptRenderer(
+        root / "configs/logiv/prompts/pi05-subtasks-online-v21-task6-goal.json"
+    )
+    action = FixedDomain().ground(
+        package.problem,
+        "place-on",
+        ("porcelain_mug_1", "living_room_table_recovery_surface", "plate_1"),
+    )
+
+    assert renderer.render_phase(action, "acquire") == (
+        "Put the white mug on the plate and put the chocolate pudding to the "
+        "right of the plate."
+    )
+    assert not renderer.has_phase(action, "finish")
 
 
 def test_evaluator_accepts_run_scoped_proposal_and_coverage_configs() -> None:
@@ -73,7 +734,7 @@ def test_evaluator_accepts_run_scoped_proposal_and_coverage_configs() -> None:
     assert args.coverage_manifest == Path("/tmp/coverage.json")
 
 
-def test_shadow_snapshot_reader_uses_advisory_grounding_only_for_topology_mode() -> None:
+def test_shadow_snapshot_reader_uses_advisory_grounding_during_manipulation() -> None:
     class Grounder:
         def __init__(self) -> None:
             self.strict_calls = 0
@@ -91,9 +752,8 @@ def test_shadow_snapshot_reader_uses_advisory_grounding_only_for_topology_mode()
     peek = getattr(evaluator_script, "_shadow_snapshot_peek", None)
     assert peek is not None
 
-    assert peek(grounder, topology_only=False) == "strict"
-    assert peek(grounder, topology_only=True) == "advisory"
-    assert (grounder.strict_calls, grounder.advisory_calls) == (1, 1)
+    assert peek(grounder) == "advisory"
+    assert (grounder.strict_calls, grounder.advisory_calls) == (0, 1)
 
 
 def test_terminal_snapshot_reader_always_updates_and_uses_strict_grounding() -> None:
@@ -334,6 +994,363 @@ def test_evaluator_parser_accepts_shadow_data_collection_arm() -> None:
     assert args.shadow_confirmations == 3
 
 
+def test_repair_overlay_has_a_separate_bounded_repair_action_budget() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "repair-overlay",
+            "--method-arm",
+            "LOGIV_REPAIR_OVERLAY",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "VERIFIED_BASE_FAILURE",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/repair-overlay",
+            "--overlay-repair-max-steps",
+            "180",
+            "--overlay-monitor-recovery-surface",
+            "--overlay-monitor-interval-steps",
+            "5",
+        ]
+    )
+
+    assert args.base_max_steps == 520
+    assert args.overlay_repair_max_steps == 180
+    config = _run_config(args, (8,), (0,))
+    assert config["overlay_repair_max_steps"] == 180
+    assert config["overlay_monitor_recovery_surface"] is True
+    assert config["overlay_monitor_interval_steps"] == 5
+
+
+def test_online_logiv_uses_topology_monitor_and_shared_base_budget() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "online-logiv",
+            "--method-arm",
+            "LOGIV_ONLINE",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "ONLINE_VERIFIED_DEVIATION",
+            "--oracle-grounding",
+            "--development-only",
+            "--task-ids",
+            "0:10",
+            "--episode-indices",
+            "0:50",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/online-logiv",
+        ]
+    )
+
+    assert MethodArm(args.method_arm) is MethodArm.LOGIV_ONLINE
+    assert _validate_shadow_options(args, tuple(range(10))) == {}
+    assert _remaining_online_action_budget(args.base_max_steps, 123) == 397
+    config = _run_config(args, tuple(range(10)), tuple(range(50)))
+    assert config["online_monitor_interval_steps"] == 5
+    assert config["online_confirmations"] == 3
+    assert config["online_recovery_surface_confirmations"] == 1
+    assert config["online_recovery_surface_confirmation_task_ids"] == []
+    assert config["online_min_intervention_step"] == 120
+    assert config["online_stall_steps"] == 120
+    assert args.online_recovery_requires_goal_task_ids == (6,)
+    assert config["online_recovery_requires_goal_task_ids"] == [6]
+    assert args.online_stall_requires_handempty_task_ids == (8,)
+    assert config["online_stall_requires_handempty_task_ids"] == [8]
+
+
+def test_online_detector_settings_route_task_scoped_safety_gates() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "online-routing",
+            "--method-arm",
+            "LOGIV_ONLINE",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "ONLINE_VERIFIED_DEVIATION",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/online-routing",
+            "--online-stall-requires-goal-task-ids",
+            "8",
+            "--online-stall-ignores-holding-task-ids",
+            "4",
+            "--online-recovery-surface-confirmations",
+            "1",
+            "--online-recovery-surface-confirmation-task-ids",
+            "8",
+        ]
+    )
+
+    task6 = _online_detector_settings_for_task(args, task_id=6)
+    task8 = _online_detector_settings_for_task(args, task_id=8)
+    task4 = _online_detector_settings_for_task(args, task_id=4)
+    control = _online_detector_settings_for_task(args, task_id=0)
+
+    assert task6["recovery_requires_achieved_goal"] is True
+    assert task6["stall_requires_achieved_goal"] is False
+    assert task6["stall_ignores_holding"] is False
+    assert task6["stall_requires_handempty"] is False
+    assert task8["recovery_requires_achieved_goal"] is False
+    assert task8["stall_requires_achieved_goal"] is True
+    assert task8["stall_ignores_holding"] is False
+    assert task8["stall_requires_handempty"] is True
+    assert task8["recovery_surface_confirmation_count"] == 1
+    assert task4["stall_ignores_holding"] is True
+    assert control["recovery_requires_achieved_goal"] is False
+    assert control["stall_requires_achieved_goal"] is False
+    assert control["stall_ignores_holding"] is False
+    assert control["stall_requires_handempty"] is False
+    assert control["recovery_surface_confirmation_count"] is None
+
+
+def test_online_logiv_shared_budget_rejects_prefix_overrun() -> None:
+    with pytest.raises(ValueError, match="exceeds total action budget"):
+        _remaining_online_action_budget(520, 521)
+
+
+def test_recovery_package_is_rebased_on_the_observed_handoff_state() -> None:
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    handoff = FactSnapshot(
+        epoch_id=7,
+        true_facts=package.proposal.initial_snapshot.true_facts,
+        false_facts=package.proposal.initial_snapshot.false_facts,
+        evidence_hash="handoff-evidence",
+    )
+
+    rebased = _rebase_package_on_snapshot(package, handoff)
+
+    assert rebased.proposal.epoch_id == 7
+    assert rebased.proposal.initial_snapshot == handoff
+    assert rebased.problem.initial_state == handoff.true_facts
+    assert rebased.problem.initial_false == handoff.false_facts
+    assert rebased.frozen_goal == package.frozen_goal
+
+
+def test_task8_recovery_certification_skips_a_pot_already_on_the_stove() -> None:
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    moved = Fact("at", ("moka_pot_2", "flat_stove_1_cook_region"))
+    old = Fact(
+        "at", ("moka_pot_2", "kitchen_table_moka_pot_left_init_region")
+    )
+    handoff = FactSnapshot(
+        epoch_id=0,
+        true_facts=(package.proposal.initial_snapshot.true_facts - {old}) | {moved},
+        false_facts=(package.proposal.initial_snapshot.false_facts - {moved}) | {old},
+        evidence_hash="one-pot-complete",
+    )
+    rebased = _rebase_package_on_snapshot(package, handoff)
+
+    certified = certify_initial_package(
+        rebased,
+        handoff,
+        episode_id="task8-repair-overlay",
+        val_wrapper=ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset(
+            {"pick", "put-down", "place-on", "place-held-on", "turn-on"}
+        ),
+        repair_bounds=RepairBounds(
+            max_edits=5, max_candidates=10000, max_val_calls=20
+        ),
+        decompose_macro_sources=frozenset({"kitchen_table_recovery_surface"}),
+    )
+
+    assert len(certified.plan) == 1
+    assert certified.plan[0].arguments[0] == "moka_pot_1"
+
+
+def test_task8_recovery_certification_can_resume_with_a_pot_already_held() -> None:
+    package = ScriptedProposalProvider().propose(8, epoch_id=0)
+    held = Fact("holding", ("moka_pot_2",))
+    handempty = Fact("handempty")
+    old = Fact(
+        "at", ("moka_pot_2", "kitchen_table_moka_pot_left_init_region")
+    )
+    handoff = FactSnapshot(
+        epoch_id=0,
+        true_facts=(
+            package.proposal.initial_snapshot.true_facts - {old, handempty}
+        )
+        | {held},
+        false_facts=(package.proposal.initial_snapshot.false_facts - {held})
+        | {old, handempty},
+        evidence_hash="held-pot",
+    )
+    rebased = _rebase_package_on_snapshot(package, handoff)
+
+    certified = certify_initial_package(
+        rebased,
+        handoff,
+        episode_id="task8-held-repair-overlay",
+        val_wrapper=ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset(
+            {"pick", "put-down", "place-on", "place-held-on", "turn-on"}
+        ),
+        repair_bounds=RepairBounds(
+            max_edits=5, max_candidates=10000, max_val_calls=20
+        ),
+        decompose_macro_sources=frozenset({"kitchen_table_recovery_surface"}),
+    )
+
+    assert certified.plan[0].schema == "place-held-on"
+    assert certified.plan[0].arguments[0] == "moka_pot_2"
+
+
+def test_recovery_reorders_a_held_second_object_before_recovery_surface_work() -> None:
+    package = ScriptedProposalProvider(
+        Path("configs/logiv/libero10-scripted-proposals-online-v1.json")
+    ).propose(8, epoch_id=0)
+    handempty = Fact("handempty")
+    held = Fact("holding", ("moka_pot_1",))
+    pot1_source = Fact(
+        "at", ("moka_pot_1", "kitchen_table_moka_pot_right_init_region")
+    )
+    pot2_source = Fact(
+        "at", ("moka_pot_2", "kitchen_table_moka_pot_left_init_region")
+    )
+    pot2_recovery = Fact(
+        "at", ("moka_pot_2", "kitchen_table_recovery_surface")
+    )
+    initial = package.proposal.initial_snapshot
+    handoff = FactSnapshot(
+        epoch_id=0,
+        true_facts=(
+            initial.true_facts - {handempty, pot1_source, pot2_source}
+        )
+        | {held, pot2_recovery},
+        false_facts=(initial.false_facts - {held, pot2_recovery})
+        | {handempty, pot1_source, pot2_source},
+        evidence_hash="held-second-object",
+    )
+
+    certified = certify_initial_package(
+        _rebase_package_on_snapshot(package, handoff),
+        handoff,
+        episode_id="task8-held-second-reorder",
+        val_wrapper=ValWrapper(REAL_VAL, timeout_seconds=5.0),
+        allowed_schemas=frozenset(
+            {"pick", "put-down", "place-on", "place-held-on", "turn-on"}
+        ),
+        repair_bounds=RepairBounds(
+            max_edits=5, max_candidates=10000, max_val_calls=20
+        ),
+        decompose_macro_sources=frozenset({"kitchen_table_recovery_surface"}),
+    )
+
+    assert certified.plan[0].schema == "place-held-on"
+    assert certified.plan[0].arguments[0] == "moka_pot_1"
+
+
+def test_overlay_intervenes_only_on_verified_recovery_surface_facts() -> None:
+    recovery = Fact(
+        "at", ("moka_pot_1", "kitchen_table_recovery_surface")
+    )
+    normal = Fact(
+        "at", ("moka_pot_2", "kitchen_table_moka_pot_left_init_region")
+    )
+    snapshot = FactSnapshot(
+        epoch_id=12,
+        true_facts=frozenset({normal, recovery}),
+        false_facts=frozenset(),
+        evidence_hash="verified-deviation",
+    )
+
+    assert _verified_recovery_surface_facts(snapshot) == (recovery,)
+    assert _verified_recovery_surface_facts(
+        replace(snapshot, true_facts=frozenset({normal}))
+    ) == ()
+
+
+def test_place_effect_stabilization_can_be_scoped_to_task4() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "task-scoped-place-stabilization",
+            "--method-arm",
+            "FULL_LOGIV",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/task-scoped-place-stabilization",
+            "--place-effect-stabilization-steps",
+            "10",
+            "--place-effect-stabilization-task-ids",
+            "4",
+        ]
+    )
+
+    assert args.place_effect_stabilization_task_ids == (4,)
+    assert _place_effect_stabilization_steps_for_task(args, task_id=4) == 10
+    assert _place_effect_stabilization_steps_for_task(args, task_id=5) == 0
+
+
+def test_fast_place_confirmation_can_be_scoped_to_task5() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "task-scoped-place-confirmation",
+            "--method-arm",
+            "FULL_LOGIV",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/task-scoped-place-confirmation",
+            "--place-effect-confirmation-steps",
+            "1",
+            "--place-effect-confirmation-task-ids",
+            "5",
+        ]
+    )
+
+    assert args.place_effect_confirmation_task_ids == (5,)
+    assert _place_effect_confirmation_steps_for_task(args, task_id=5) == 1
+    assert _place_effect_confirmation_steps_for_task(args, task_id=4) is None
+
+
+def test_post_stop_reobservation_can_be_scoped_to_task9() -> None:
+    args = _parser().parse_args(
+        [
+            "--run-id",
+            "task-scoped-reobservation",
+            "--method-arm",
+            "FULL_LOGIV",
+            "--goal-mode",
+            "METADATA_ASSISTED",
+            "--deviation-mode",
+            "NOMINAL",
+            "--port",
+            "8010",
+            "--output-dir",
+            "/tmp/task-scoped-reobservation",
+            "--post-stop-grounding-reobservation-steps",
+            "10",
+            "--post-stop-grounding-reobservation-task-ids",
+            "9",
+        ]
+    )
+
+    assert args.post_stop_grounding_reobservation_task_ids == (9,)
+    assert _post_stop_reobservation_steps_for_task(args, task_id=9) == 10
+    assert _post_stop_reobservation_steps_for_task(args, task_id=3) == 0
+
+
 def test_run_config_hashes_resolved_extended_configs(tmp_path: Path) -> None:
     proposal = tmp_path / "proposal.json"
     coverage = tmp_path / "coverage.json"
@@ -522,6 +1539,16 @@ def test_shadow_artifacts_render_step0_containment_as_not_attempted() -> None:
         shadow_parity_valid=True,
     )
     runtime = ShadowRuntime(None, None, None, ShadowRuntimeCounters())
+    runtime.deviation_trace.append(
+        {
+            "certificate_state": "STALE",
+            "deviation_status": "CONFIRMED_DEVIATION",
+            "evidence_kinds": ["ATTEMPTED_EFFECT_TIMEOUT"],
+            "policy_step": 15,
+            "signature": ["effect:(at object target)"],
+            "trigger_class": "ATTEMPTED_EFFECT_TIMEOUT_STABLE",
+        }
+    )
 
     proposal, monitor, compute, accounting = _shadow_artifact_payloads(
         outcome, runtime
@@ -533,6 +1560,12 @@ def test_shadow_artifacts_render_step0_containment_as_not_attempted() -> None:
     assert accounting["initial_proposal_status"] == "NOT_ATTEMPTED"
     assert accounting["initial_proposal_reason_code"] == "INPUT_COPY:MemoryError"
     assert monitor["callback_errors"] == 1
+    assert monitor["deviation_decisions"] == runtime.deviation_trace
+    assert monitor["attempt_records"] == 0
+    assert monitor["evidence_records"] == 0
+    assert monitor["terminal_topology_status"] is None
+    assert monitor["terminal_topology_success"] is None
+    assert monitor["base_self_recovered_after_confirmed_deviation"] is False
     assert monitor["aggregate_errors"] == 1
     assert compute["base_policy_requests"] == 1
 
@@ -551,7 +1584,13 @@ def test_shadow_error_aggregate_sums_each_sole_owner_once() -> None:
     runtime = ShadowRuntime(
         None,
         None,
-        SimpleNamespace(metrics=metrics),
+        SimpleNamespace(
+            metrics=metrics,
+            action_event_tracker=SimpleNamespace(
+                attempt_record_count=11,
+                evidence_record_count=4,
+            ),
+        ),
         ShadowRuntimeCounters(
             root_count=2,
             root_write_errors=6,
@@ -575,8 +1614,50 @@ def test_shadow_error_aggregate_sums_each_sole_owner_once() -> None:
     _, monitor, _, accounting = _shadow_artifact_payloads(outcome, runtime)
 
     assert monitor["trace_errors"] == 9
+    assert monitor["attempt_records"] == 11
+    assert monitor["evidence_records"] == 4
     assert monitor["aggregate_errors"] == 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9
     assert accounting["shadow_monitor_errors"] == monitor["aggregate_errors"]
+
+
+def test_shadow_artifacts_distinguish_confirmed_event_from_terminal_recovery() -> None:
+    runtime = ShadowRuntime(
+        None,
+        None,
+        SimpleNamespace(
+            metrics=SimpleNamespace(confirmed_deviations=1),
+            action_event_tracker=SimpleNamespace(
+                attempt_record_count=1,
+                evidence_record_count=1,
+            ),
+        ),
+        ShadowRuntimeCounters(),
+        state_trace=[
+            {
+                "policy_step": 12,
+                "nodes": [
+                    {"node_id": "INIT", "status": "COMPLETED"},
+                    {"node_id": "GOAL", "status": "COMPLETED"},
+                ],
+            }
+        ],
+    )
+    outcome = EpisodeOutcome(
+        success=True,
+        done=True,
+        check_success=True,
+        steps=12,
+        inference_requests=3,
+        first_frame=np.zeros((1, 1, 3)),
+        replay_frames=[],
+        actions=[],
+    )
+
+    _, monitor, _, _ = _shadow_artifact_payloads(outcome, runtime)
+
+    assert monitor["terminal_topology_status"] == "COMPLETED"
+    assert monitor["terminal_topology_success"] is True
+    assert monitor["base_self_recovered_after_confirmed_deviation"] is True
 
 
 def test_shadow_graph_artifact_is_written_only_for_accepted_proposals(
@@ -899,6 +1980,40 @@ def test_initial_certification_preserves_task8_parallel_graph() -> None:
     )
 
 
+def test_initial_and_repair_share_one_pddl_planner() -> None:
+    package = ScriptedProposalProvider().propose(8, epoch_id=5)
+    wrapper = ValWrapper(REAL_VAL, timeout_seconds=5.0)
+    planner = PddlPlanner(
+        wrapper,
+        allowed_schemas=frozenset(
+            {"pick", "put-down", "place-on", "place-held-on"}
+        ),
+        bounds=RepairBounds(max_edits=3, max_candidates=1000, max_val_calls=20),
+    )
+
+    certified = certify_initial_package(
+        package,
+        package.proposal.initial_snapshot,
+        episode_id="test-task8-shared-planner",
+        val_wrapper=wrapper,
+        allowed_schemas=frozenset(
+            {"pick", "put-down", "place-on", "place-held-on"}
+        ),
+        repair_bounds=RepairBounds(
+            max_edits=3, max_candidates=1000, max_val_calls=20
+        ),
+        planner=planner,
+    )
+
+    assert certified.planner is planner
+    assert certified.repair_operator is planner
+    assert certified.certificate is not None
+    assert (
+        certified.graph.certificate_hash
+        == certified.certificate.certificate_hash
+    )
+
+
 def test_schema_only_arm_never_reuses_full_certificate() -> None:
     package = ScriptedProposalProvider().propose(8, epoch_id=5)
     certified = certify_initial_package(
@@ -956,3 +2071,20 @@ def test_evaluation_contract_requires_explicit_modes_oracle_and_locked_holdout()
         replace(base, goal_mode=GoalMode.GOAL_PREDICTION).validate()
     with pytest.raises(EvaluationContractError, match="frozen 10-task manifest"):
         replace(base, task_ids=(10,)).validate()
+
+
+def test_evaluation_contract_accepts_explicit_gpt4o_without_oracle() -> None:
+    contract = EvaluationContract(
+        method_arm=MethodArm.LOGIV_ONLINE,
+        goal_mode=GoalMode.METADATA_ASSISTED,
+        deviation_mode="NOMINAL",
+        oracle_grounding=False,
+        development_only=True,
+        prompt_locked=False,
+        task_ids=(0,),
+        episode_indices=(0,),
+        perception_backend="gpt4o",
+    )
+    contract.validate()
+    with pytest.raises(EvaluationContractError, match="must not enable oracle"):
+        replace(contract, oracle_grounding=True).validate()

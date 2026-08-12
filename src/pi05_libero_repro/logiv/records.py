@@ -22,6 +22,8 @@ METHOD_ARMS = frozenset(
     {
         "BASE",
         "SHADOW_LOGIV",
+        "LOGIV_ONLINE",
+        "LOGIV_REPAIR_OVERLAY",
         "STAGE_ONLY",
         "GRAPH_WITHOUT_VAL",
         "VAL_WITHOUT_LOCALIZED_REPAIR",
@@ -225,6 +227,14 @@ class LogivEpisodeRecord:
     shadow_monitor_errors: int = 0
     shadow_monitor_seconds: float = 0.0
     shadow_parity_valid: bool = True
+    base_prefix_steps: int = 0
+    repair_steps: int = 0
+    combined_actions: int = 0
+    discarded_pending_actions: int = 0
+    online_trigger_kind: str | None = None
+    online_trigger_step: int | None = None
+    online_trigger_sha256: str | None = None
+    perception_backend: str = "scripted-oracle"
 
     @property
     def key(self) -> tuple[str, str, str, int, int]:
@@ -292,7 +302,7 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
         if record.key in seen:
             errors.append(f"duplicate LOGIV episode: {label}")
         seen.add(record.key)
-        if record.schema_version not in {1, 2, 3}:
+        if record.schema_version not in {1, 2, 3, 4, 5}:
             errors.append(f"unsupported schema version: {label}")
         if record.method_arm not in METHOD_ARMS:
             errors.append(f"unknown method arm: {label}")
@@ -352,6 +362,10 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
             record.recovery_policy_requests,
             record.shadow_monitor_calls,
             record.shadow_monitor_errors,
+            record.base_prefix_steps,
+            record.repair_steps,
+            record.combined_actions,
+            record.discarded_pending_actions,
         )
         if any(value < 0 for value in counters):
             errors.append(f"negative counter: {label}")
@@ -371,11 +385,21 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
             != record.receipts_count
         ):
             errors.append(f"receipt taxonomy/count mismatch: {label}")
-        if record.schema_version == 3:
+        if record.schema_version >= 3:
             if record.inference_requests != record.base_policy_requests:
                 errors.append(f"Base policy request/count mismatch: {label}")
-            if record.shadow_vlm_requests != 0 or record.recovery_policy_requests != 0:
+            if (
+                record.perception_backend != "gpt4o"
+                and (
+                    record.shadow_vlm_requests != 0
+                    or record.recovery_policy_requests != 0
+                )
+            ):
                 errors.append(f"nonzero Phase 0 non-Base requests: {label}")
+            if record.perception_backend not in {"scripted-oracle", "gpt4o"}:
+                errors.append(f"unknown perception backend: {label}")
+            if record.perception_backend == "gpt4o" and record.oracle_grounding:
+                errors.append(f"GPT-4o record enables oracle grounding: {label}")
             reason = record.initial_proposal_reason_code
             stable_reason = (
                 reason is not None
@@ -385,7 +409,7 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
                 )
                 is not None
             )
-            if record.method_arm == "SHADOW_LOGIV":
+            if record.method_arm in {"SHADOW_LOGIV", "LOGIV_ONLINE"}:
                 valid_status = (
                     record.initial_proposal_status == "ACCEPTED"
                     and record.initial_proposal_requests == 1
@@ -407,7 +431,7 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
                 or reason is not None
             ):
                 errors.append(f"invalid non-Shadow proposal accounting: {label}")
-            if record.method_arm != "SHADOW_LOGIV" and (
+            if record.method_arm not in {"SHADOW_LOGIV", "LOGIV_ONLINE"} and (
                 record.shadow_monitor_calls != 0
                 or record.shadow_monitor_errors != 0
                 or record.shadow_monitor_seconds != 0
@@ -415,6 +439,20 @@ def validate_episode_records(records: Sequence[LogivEpisodeRecord]) -> list[str]
                 errors.append(f"non-Shadow monitor accounting is nonzero: {label}")
             if record.method_arm == "BASE" and not record.shadow_parity_valid:
                 errors.append(f"Base parity must remain valid: {label}")
+        if record.schema_version >= 4 and record.method_arm == "LOGIV_ONLINE":
+            if (
+                record.steps != record.combined_actions
+                or record.combined_actions
+                != record.base_prefix_steps + record.repair_steps
+                or record.combined_actions > 520
+            ):
+                errors.append(f"online action accounting mismatch: {label}")
+            triggered = record.online_trigger_kind is not None
+            if triggered != (
+                record.online_trigger_step is not None
+                and _hash_valid(record.online_trigger_sha256)
+            ):
+                errors.append(f"online trigger accounting mismatch: {label}")
         if record.method_arm == "FULL_LOGIV" and record.task_id == 8:
             if record.initial_graph_hash is not None and (
                 record.initial_graph_width is None or record.initial_graph_width < 2
@@ -432,8 +470,11 @@ def paired_task_stratified_bootstrap(
 ) -> dict[str, Any]:
     if samples <= 0:
         raise ValueError("samples must be positive")
-    full = {(item.task_id, item.episode_idx): item for item in full_records}
-    comparator = {(item.task_id, item.episode_idx): item for item in comparator_records}
+    def paired_key(item: Any) -> tuple[int | None, int, int]:
+        return getattr(item, "seed", None), item.task_id, item.episode_idx
+
+    full = {paired_key(item): item for item in full_records}
+    comparator = {paired_key(item): item for item in comparator_records}
     if full.keys() != comparator.keys() or not full:
         raise ValueError("paired records must contain the same nonempty task/episode keys")
     by_task: dict[int, list[float]] = {}
@@ -455,7 +496,7 @@ def paired_task_stratified_bootstrap(
                 getattr(left, field_name) != getattr(right, field_name)
             ):
                 raise ValueError(f"paired {field_name} mismatch: {key}")
-        by_task.setdefault(key[0], []).append(float(left.success) - float(right.success))
+        by_task.setdefault(key[1], []).append(float(left.success) - float(right.success))
     estimate = float(np.mean([np.mean(values) for values in by_task.values()]))
     generator = np.random.default_rng(seed)
     draws = np.empty(samples, dtype=np.float64)
