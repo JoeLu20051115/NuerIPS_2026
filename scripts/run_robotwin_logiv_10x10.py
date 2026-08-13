@@ -54,6 +54,25 @@ def _dag_from_start(config: dict) -> bool:
     return bool(config.get("dag_from_start", False))
 
 
+def _use_registered_dag_prompts(config: dict) -> bool:
+    return bool(config.get("use_registered_dag_prompts", False))
+
+
+def _preserve_original_repair_prompt(config: dict) -> bool:
+    return bool(config.get("preserve_original_repair_prompt", False))
+
+
+def _policy_replan_steps(config: dict) -> int | None:
+    value = config.get("policy_replan_steps")
+    return None if value is None else int(value)
+
+
+def _repair_cfn_path(config: dict, task: str) -> Path | None:
+    if task not in config.get("repair_cfn_tasks", ()):
+        return None
+    return Path(config["checkpoint"]) / "cfns" / f"{task}_cfn.pt"
+
+
 def _api_key() -> str:
     existing = os.environ.get("OPENAI_API_KEY", "")
     if existing.startswith("sk-") and len(existing) > 20:
@@ -113,6 +132,10 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--base_stall_observations", str(_stall_observations(config, task)),
             "--min_base_dispatches", str(_min_base_dispatches(config, task)),
             "--dag_from_start", str(_dag_from_start(config)),
+            "--use_registered_dag_prompts",
+            str(_use_registered_dag_prompts(config)),
+            "--preserve_original_repair_prompt",
+            str(_preserve_original_repair_prompt(config)),
         ]
         instructions = config.get("instructions", {}).get(task)
         if instructions is not None:
@@ -120,6 +143,12 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
         stage_stalls = _stage_stall_observations(config, task)
         if stage_stalls is not None:
             command.extend(["--stage_stall_observations", json.dumps(stage_stalls)])
+        repair_cfn = _repair_cfn_path(config, task)
+        if repair_cfn is not None:
+            command.extend(["--repair_cfn_path", str(repair_cfn)])
+        policy_replan_steps = _policy_replan_steps(config)
+        if policy_replan_steps is not None:
+            command.extend(["--policy_replan_steps", str(policy_replan_steps)])
         with log.open("w", encoding="utf-8") as stream:
             result = subprocess.run(
                 command,

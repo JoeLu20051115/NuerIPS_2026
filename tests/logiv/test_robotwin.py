@@ -101,6 +101,18 @@ def test_planner_replans_from_confirmed_prefix_and_real_val_certifies() -> None:
     assert tuple(action.stage_index for action in inferred_suffix.actions) == (2,)
 
 
+def test_planner_certificate_is_reproducible_across_temp_directories() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    planner = RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5)
+    facts = {task.goal_fact: TruthValue.FALSE}
+
+    first = planner.plan(task, facts)
+    second = planner.plan(task, facts)
+
+    assert first.valid and second.valid
+    assert first.certificate_sha256 == second.certificate_sha256
+
+
 def test_robotwin_image_extraction_has_front_and_both_wrists() -> None:
     obs = {
         "observation": {
@@ -242,6 +254,31 @@ def test_full_dag_control_schedules_nodes_with_frozen_task_prompt() -> None:
     assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 
 
+def test_full_dag_control_can_dispatch_registered_node_prompt() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([false, false])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        use_registered_dag_prompts=True,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+        base_prompt="Use the left arm to press the switch flat tan top brown rectangle",
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert prompts == [task.stages[0].policy_prompt]
+
+
 def test_unknown_frontier_collects_new_evidence_without_dispatching_actions() -> None:
     task = ROBOTWIN_TASKS["open_microwave"]
     unknown = {stage.fact: TruthValue.UNKNOWN for stage in task.stages}
@@ -266,6 +303,31 @@ def test_unknown_frontier_collects_new_evidence_without_dispatching_actions() ->
     assert outcome.success
     assert len(evidence) == 1
     assert prompts == [task.stages[0].policy_prompt]
+    assert outcome.dispatches == 1
+
+
+def test_evidence_observations_do_not_consume_the_dispatch_loop_bound() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    unknown = {task.goal_fact: TruthValue.UNKNOWN}
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([unknown, false, false])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        max_dispatches=1,
+    )
+    prompts = []
+
+    outcome = controller.run(
+        initial_observation="obs-0",
+        dispatch=lambda prompt: prompts.append(prompt) or "obs-action",
+        collect_evidence=lambda: "obs-evidence",
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+    )
+
+    assert outcome.success
     assert outcome.dispatches == 1
 
 
@@ -634,6 +696,42 @@ def test_dag_from_start_protection_window_monitors_before_local_repair() -> None
         "DAG_EXECUTION",
         "REPAIR",
     ]
+
+
+def test_repair_can_keep_frozen_episode_instruction_while_pddl_selects_node() -> None:
+    task = ROBOTWIN_TASKS["blocks_ranking_size"]
+    false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    grounder = _SequenceGrounder([false] * 4)
+    original = "Move large, medium, and small blocks to the center in order."
+    calls = []
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        stage_stall_observations=(1, 1, 1),
+        preserve_original_repair_prompt=True,
+    )
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: None,
+        dispatch_with_context=lambda prompt, mode, active: calls.append(
+            (prompt, mode, active)
+        ),
+        native_success=lambda: len(calls) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert [mode for _, mode, _ in calls] == [
+        "DAG_EXECUTION",
+        "REPAIR",
+        "REPAIR",
+    ]
+    assert [active for _, _, active in calls] == [0, 0, 0]
+    assert [prompt for prompt, _, _ in calls] == [original] * 3
 
 
 def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> None:

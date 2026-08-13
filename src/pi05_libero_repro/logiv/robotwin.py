@@ -492,12 +492,22 @@ class RobotwinPddlPlanner:
                 check=False,
             )
         valid = result.returncode == 0 and "Plan valid" in result.stdout
+        # VAL prints the randomly generated temporary plan path.  Keep the raw
+        # stdout for diagnostics, but remove that nondeterminism from the
+        # certificate payload so identical planning evidence has one digest.
+        stable_stdout = result.stdout
+        for path, label in (
+            (domain_path, "domain.pddl"),
+            (problem_path, "problem.pddl"),
+            (plan_path, "candidate.plan"),
+        ):
+            stable_stdout = stable_stdout.replace(str(path), label)
         payload = {
             "domain": domain,
             "problem": problem,
             "plan": plan_text,
             "val_binary_sha256": hashlib.sha256(self.val_binary.read_bytes()).hexdigest(),
-            "val_stdout": result.stdout,
+            "val_stdout": stable_stdout,
             "valid": valid,
         }
         certificate = hashlib.sha256(
@@ -657,6 +667,8 @@ class RobotwinEpisodeController:
         stage_stall_observations: Sequence[int] | None = None,
         min_base_dispatches: int = 0,
         max_unknown_observations: int = 2,
+        preserve_original_repair_prompt: bool = False,
+        use_registered_dag_prompts: bool = False,
     ) -> None:
         self.task = task
         self.planner = planner
@@ -665,6 +677,10 @@ class RobotwinEpisodeController:
         self.base_stall_observations = int(base_stall_observations)
         self.min_base_dispatches = int(min_base_dispatches)
         self.max_unknown_observations = int(max_unknown_observations)
+        self.preserve_original_repair_prompt = bool(
+            preserve_original_repair_prompt
+        )
+        self.use_registered_dag_prompts = bool(use_registered_dag_prompts)
         self.stage_stall_observations = (
             tuple(int(value) for value in stage_stall_observations)
             if stage_stall_observations is not None
@@ -718,7 +734,8 @@ class RobotwinEpisodeController:
         visual_goal_native_conflicts = 0
         latched_false_observations: dict[str, int] = {}
         unknown_frontier_observations = 0
-        for epoch in range(self.max_dispatches + 1):
+        epoch = 0
+        while True:
             observed = self.grounder.observe(self.task, observation, epoch=epoch)
             latched_true.update(
                 name for name, value in observed.items() if value is TruthValue.TRUE
@@ -825,6 +842,7 @@ class RobotwinEpisodeController:
                         dispatches,
                     )
                 observation = collect_evidence()
+                epoch += 1
                 continue
             unknown_frontier_observations = 0
             if goal_conflict_repair:
@@ -881,7 +899,7 @@ class RobotwinEpisodeController:
                 # LOGIV control boundary.
                 prompt = (
                     self.task.stages[active].policy_prompt
-                    if base_prompt is None
+                    if base_prompt is None or self.use_registered_dag_prompts
                     else base_prompt
                 )
             elif active is None:
@@ -892,6 +910,8 @@ class RobotwinEpisodeController:
                         tuple(events),
                         dispatches,
                     )
+                prompt = base_prompt
+            elif self.preserve_original_repair_prompt and base_prompt is not None:
                 prompt = base_prompt
             elif goal_conflict_repair:
                 prompt = TERMINAL_CONSTRAINT_PROMPTS[self.task.name]
@@ -911,4 +931,4 @@ class RobotwinEpisodeController:
             else:
                 observation = dispatch_with_mode(prompt, control_mode)
             dispatches += 1
-        raise AssertionError("controller loop exceeded its explicit dispatch bound")
+            epoch += 1

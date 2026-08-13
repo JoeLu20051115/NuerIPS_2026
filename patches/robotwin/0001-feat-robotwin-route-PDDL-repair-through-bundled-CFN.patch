@@ -1,0 +1,330 @@
+From 19b9f0334593ff4558f34f474481590335f9c0fb Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 10:42:54 +0800
+Subject: [PATCH 1/3] feat(robotwin): route PDDL repair through bundled CFN
+
+---
+ .../Robotwin/policy/pi05/pi05_model_torch.py  | 52 +++++++++++++++++++
+ .../script/eval_lerobot_torch_pi05.py         | 21 +++++++-
+ .../Robotwin/script/pi05_logiv_execution.py   |  9 +++-
+ .../Robotwin/script/pi05_logiv_options.py     |  8 +++
+ .../tests/test_pi05_logiv_execution.py        | 32 ++++++++++++
+ .../Robotwin/tests/test_pi05_logiv_options.py | 23 ++++++--
+ 6 files changed, 139 insertions(+), 6 deletions(-)
+
+diff --git a/third_party/Robotwin/policy/pi05/pi05_model_torch.py b/third_party/Robotwin/policy/pi05/pi05_model_torch.py
+index ff5531f..ecea918 100644
+--- a/third_party/Robotwin/policy/pi05/pi05_model_torch.py
++++ b/third_party/Robotwin/policy/pi05/pi05_model_torch.py
+@@ -69,6 +69,8 @@ class Lerobot_torch_PI05:
+ 
+         self.num_result = 1
+         self.pi0_step = 50
++        self.repair_cfn = None
++        self.repair_noise = None
+ 
+         # init norm log
+         self.test_num=1
+@@ -139,6 +141,56 @@ class Lerobot_torch_PI05:
+             
+         return actions_un[0].to(torch.float32).cpu().numpy()
+ 
++    def load_repair_cfn(self, cfn_ckpt_path):
++        """Load the checkpoint-bundled CFN used only for PDDL local repair."""
++        from cfn.cfn_net import CFN
++
++        cfn = CFN(cfn_output_dim=20, cfn_hidden_dim=1536).to(
++            next(self.policy.parameters()).device
++        )
++        state = torch.load(cfn_ckpt_path, map_location="cpu", weights_only=True)
++        cfn.cfn.load_state_dict(state)
++        self.repair_cfn = cfn.cfn.eval()
++        generator = torch.Generator(device="cpu").manual_seed(42)
++        shape = (
++            50,
++            self.policy.model.config.n_action_steps,
++            self.policy.model.config.max_action_dim,
++        )
++        self.repair_noise = torch.randn(shape, generator=generator).to(
++            device=next(self.policy.parameters()).device,
++            dtype=next(self.policy.parameters()).dtype,
++        )
++
++    def get_repair_action(self):
++        """Select one of 50 frozen-pi0.5 samples with the frozen repair CFN."""
++        if self.repair_cfn is None or self.repair_noise is None:
++            raise RuntimeError("repair CFN is not loaded")
++        with torch.no_grad():
++            inputs = {
++                key: value.to(self.policy.config.device)
++                if isinstance(value, torch.Tensor)
++                else value
++                for key, value in self.observation_window.items()
++            }
++            for key in inputs:
++                if key == "task":
++                    inputs[key] = inputs[key] * 50
++                elif len(inputs[key].shape) in {2, 4}:
++                    inputs[key] = inputs[key].repeat(50, *([1] * (len(inputs[key].shape) - 1)))
++                else:
++                    raise ValueError(f"unsupported policy input shape for {key}")
++            inputs = self.preprocessor(inputs)
++            actions, features = self.policy.predict_action_chunk_and_get_feature(
++                inputs, self.repair_noise.clone()
++            )
++            actions = self.postprocessor(actions)
++            scores = self.repair_cfn(
++                features.to(next(self.repair_cfn.parameters()).dtype)
++            ).norm(dim=1)
++            selected = int(torch.argmin(scores).item())
++        return actions[selected].to(torch.float32).cpu().numpy()
++
+     def reset_obsrvationwindows(self):
+         self.instruction = None
+         self.observation_window = None
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index e1c6708..feb3b5e 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -101,7 +101,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, repair_cfn_path = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -196,6 +196,8 @@ def main(usr_args):
+     )
+ 
+     torch.manual_seed(42)
++    if repair_cfn_path is not None:
++        model.load_repair_cfn(repair_cfn_path)
+ 
+     _, suc_num = eval_logiv_policy(
+         task_name,
+@@ -214,6 +216,7 @@ def main(usr_args):
+         stage_stall_observations=stage_stall_observations,
+         min_base_dispatches=min_base_dispatches,
+         dag_from_start=dag_from_start,
++        repair_cfn_path=repair_cfn_path,
+         save_dir=save_dir,
+         video_size=video_size,
+         instruction_type=instruction_type,
+@@ -241,6 +244,13 @@ def _sample_logiv_actions(model, observation, prompt):
+     return model.get_action()
+ 
+ 
++def _sample_logiv_repair_actions(model, observation, prompt):
++    model.set_language(prompt)
++    input_rgb_arr, input_state = deploy_policy.encode_obs(observation)
++    model.update_observation_window(input_rgb_arr, input_state)
++    return model.get_repair_action()
++
++
+ def _execute_logiv_chunk(TASK_ENV, model, observation, prompt, action_chunk_steps):
+     actions = _sample_logiv_actions(model, observation, prompt)[:action_chunk_steps]
+     for action in actions:
+@@ -286,6 +296,7 @@ def eval_logiv_policy(
+     stage_stall_observations,
+     min_base_dispatches,
+     dag_from_start,
++    repair_cfn_path,
+     save_dir,
+     video_size=None,
+     instruction_type=None,
+@@ -354,6 +365,13 @@ def eval_logiv_policy(
+             sample_actions=lambda prompt, current_observation: _sample_logiv_actions(
+                 model, current_observation, prompt
+             ),
++            sample_repair_actions=(
++                None
++                if repair_cfn_path is None
++                else lambda prompt, current_observation: _sample_logiv_repair_actions(
++                    model, current_observation, prompt
++                )
++            ),
+             take_action=TASK_ENV.take_action,
+             observe=TASK_ENV.get_obs,
+             native_success=lambda: bool(TASK_ENV.eval_success),
+@@ -418,6 +436,7 @@ def eval_logiv_policy(
+             "dispatches": outcome.dispatches,
+             "gpt4o_requests": len(outcome.events),
+             "original_instruction": str(instruction),
++            "repair_cfn_path": repair_cfn_path,
+             "events": [
+                 {
+                     "epoch": event.epoch,
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+index 547128f..7762a8b 100644
+--- a/third_party/Robotwin/script/pi05_logiv_execution.py
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -21,6 +21,7 @@ class RecedingHorizonMacroExecutor:
+         self,
+         *,
+         sample_actions,
++        sample_repair_actions=None,
+         take_action,
+         observe,
+         native_success,
+@@ -28,6 +29,7 @@ class RecedingHorizonMacroExecutor:
+         repair_observation_steps,
+     ):
+         self.sample_actions = sample_actions
++        self.sample_repair_actions = sample_repair_actions
+         self.take_action = take_action
+         self.observe = observe
+         self.native_success = native_success
+@@ -44,7 +46,12 @@ class RecedingHorizonMacroExecutor:
+         # macro ignores the very evidence that triggered local replanning.
+         if mode == "REPAIR" or key != self._key or not self._actions:
+             self._key = key
+-            self._actions = list(self.sample_actions(prompt, self.observe()))[
++            sampler = (
++                self.sample_repair_actions
++                if mode == "REPAIR" and self.sample_repair_actions is not None
++                else self.sample_actions
++            )
++            self._actions = list(sampler(prompt, self.observe()))[
+                 : self.base_chunk_steps
+             ]
+         steps = (
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index 8de2acc..575e096 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -1,5 +1,6 @@
+ import json
+ import os
++from pathlib import Path
+ 
+ 
+ def logiv_python_path(logiv_root):
+@@ -48,6 +49,10 @@ def resolve_logiv_options(usr_args):
+         if isinstance(raw_dag_from_start, str)
+         else bool(raw_dag_from_start)
+     )
++    raw_repair_cfn_path = usr_args.get("repair_cfn_path")
++    repair_cfn_path = (
++        None if raw_repair_cfn_path in {None, ""} else str(raw_repair_cfn_path)
++    )
+     raw_stage_stalls = usr_args.get("stage_stall_observations")
+     if isinstance(raw_stage_stalls, str):
+         raw_stage_stalls = json.loads(raw_stage_stalls)
+@@ -78,6 +83,8 @@ def resolve_logiv_options(usr_args):
+         or any(value < 1 for value in stage_stall_observations)
+     ):
+         raise ValueError("stage_stall_observations must contain positive values")
++    if repair_cfn_path is not None and not Path(repair_cfn_path).is_file():
++        raise ValueError("repair_cfn_path must name an existing file")
+     return (
+         accepted_seeds,
+         accepted_instructions,
+@@ -91,4 +98,5 @@ def resolve_logiv_options(usr_args):
+         stage_stall_observations,
+         min_base_dispatches,
+         dag_from_start,
++        repair_cfn_path,
+     )
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+index d16333b..2149681 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_execution.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -101,6 +101,38 @@ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
+ 
+         self.assertEqual(executed, list(range(50)))
+ 
++    def test_cfn_sampler_is_used_only_after_pddl_enters_repair(self):
++        samplers = []
++        executed = []
++
++        def base_sample(prompt, observation):
++            samplers.append(("pi05", prompt))
++            return list(range(50))
++
++        def repair_sample(prompt, observation):
++            samplers.append(("cfn", prompt))
++            return list(range(100, 150))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=base_sample,
++            sample_repair_actions=repair_sample,
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("ready node", "DAG_EXECUTION", 0)
++        executor.dispatch("local repair", "REPAIR", 0)
++
++        self.assertEqual(
++            samplers,
++            [("pi05", "ready node"), ("cfn", "local repair")],
++        )
++        self.assertEqual(executed[:50], list(range(50)))
++        self.assertEqual(executed[50:], list(range(100, 110)))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 7568b94..4e61ca5 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -61,6 +61,7 @@ class LogivOptionsTest(unittest.TestCase):
+                     "min_base_dispatches": 6,
+                     "dag_from_start": True,
+                     "accepted_instructions": ["first", "second"],
++                    "repair_cfn_path": __file__,
+                 }
+             ),
+             (
+@@ -76,6 +77,7 @@ class LogivOptionsTest(unittest.TestCase):
+                 None,
+                 6,
+                 True,
++                __file__,
+             ),
+         )
+ 
+@@ -91,9 +93,10 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertEqual(resolved[-3], [4, 4, 1])
+-        self.assertEqual(resolved[-2], 0)
+-        self.assertFalse(resolved[-1])
++        self.assertEqual(resolved[-4], [4, 4, 1])
++        self.assertEqual(resolved[-3], 0)
++        self.assertFalse(resolved[-2])
++        self.assertIsNone(resolved[-1])
+ 
+     def test_cli_false_does_not_enable_initial_dag(self):
+         resolved = resolve_logiv_options(
+@@ -107,7 +110,19 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertFalse(resolved[-1])
++        self.assertFalse(resolved[-2])
++        self.assertIsNone(resolved[-1])
++
++    def test_repair_cfn_path_must_exist_when_configured(self):
++        common = {
++            "accepted_seeds": [100000],
++            "test_num": 1,
++            "logiv_root": "/repo",
++            "val_binary": "/repo/Validate",
++        }
++
++        with self.assertRaisesRegex(ValueError, "repair_cfn_path"):
++            resolve_logiv_options({**common, "repair_cfn_path": "/missing.pt"})
+ 
+     def test_rejects_seed_drift_and_invalid_chunk(self):
+         common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
+-- 
+2.43.0
+

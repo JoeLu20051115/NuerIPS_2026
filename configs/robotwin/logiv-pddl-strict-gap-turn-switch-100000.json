@@ -1,0 +1,24 @@
+{
+  "evidence_label": "targeted development cell; exact frozen baseline instruction",
+  "checkpoint": "/mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/checkpoints/pi05_TACO_robotwin2_finetuned",
+  "task_config": "demo_clean",
+  "instruction_type": "unseen",
+  "action_chunk_steps": 50,
+  "repair_action_chunk_steps": 50,
+  "vlm_image_detail": "low",
+  "base_stall_observations": 4,
+  "stage_stall_observations_by_task": {
+    "turn_switch": [4]
+  },
+  "dag_from_start": true,
+  "use_registered_dag_prompts": true,
+  "preserve_original_repair_prompt": false,
+  "tasks": {
+    "turn_switch": [100000]
+  },
+  "instructions": {
+    "turn_switch": [
+      "Use the left arm to press the switch flat tan top brown rectangle"
+    ]
+  }
+}

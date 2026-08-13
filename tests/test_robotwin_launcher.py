@@ -75,3 +75,36 @@ def test_launcher_passes_configured_vlm_image_detail() -> None:
 def test_full_dag_control_is_explicitly_configured() -> None:
     assert LAUNCHER._dag_from_start({"dag_from_start": True}) is True
     assert LAUNCHER._dag_from_start({}) is False
+
+
+def test_registered_dag_prompts_are_explicitly_configured() -> None:
+    assert LAUNCHER._use_registered_dag_prompts(
+        {"use_registered_dag_prompts": True}
+    ) is True
+    assert LAUNCHER._use_registered_dag_prompts({}) is False
+
+
+def test_checkpoint_cfn_is_selected_only_for_configured_tasks(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "checkpoint"
+    cfn = checkpoint / "cfns" / "handover_block_cfn.pt"
+    cfn.parent.mkdir(parents=True)
+    cfn.touch()
+    config = {
+        "checkpoint": str(checkpoint),
+        "repair_cfn_tasks": ["handover_block"],
+    }
+
+    assert LAUNCHER._repair_cfn_path(config, "handover_block") == cfn
+    assert LAUNCHER._repair_cfn_path(config, "move_can_pot") is None
+
+
+def test_original_repair_prompt_ablation_is_explicitly_configured() -> None:
+    assert LAUNCHER._preserve_original_repair_prompt(
+        {"preserve_original_repair_prompt": True}
+    ) is True
+    assert LAUNCHER._preserve_original_repair_prompt({}) is False
+
+
+def test_policy_replan_steps_are_optional() -> None:
+    assert LAUNCHER._policy_replan_steps({"policy_replan_steps": 10}) == 10
+    assert LAUNCHER._policy_replan_steps({}) is None
