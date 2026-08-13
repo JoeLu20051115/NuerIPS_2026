@@ -89,10 +89,9 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "place_dual_shoes",
         (
             _stage(
-                "both-shoes-grasped",
+                "both-shoes-moved-from-start",
                 "Use both arms simultaneously to grasp the left and right shoes and lift both clear of the table. Keep holding both shoes.",
-                "Are both shoes visibly held by their corresponding left and right grippers above the table?",
-                transient=True,
+                "Compared with the initial views, have both shoes clearly moved away from their initial positions?",
             ),
             _stage(
                 "both-shoes-in-box",

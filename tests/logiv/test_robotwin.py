@@ -677,16 +677,16 @@ def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
     assert "smallest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][2]
 
 
-def test_dual_shoes_dag_matches_simultaneous_training_grasp() -> None:
+def test_dual_shoes_dag_uses_persistent_visible_progress_fact() -> None:
     shoes = ROBOTWIN_TASKS["place_dual_shoes"]
 
     assert [stage.fact for stage in shoes.stages] == [
-        "both-shoes-grasped",
+        "both-shoes-moved-from-start",
         "both-shoes-in-box",
     ]
-    assert shoes.stages[0].transient
+    assert not shoes.stages[0].transient
     assert "both arms" in shoes.stages[0].policy_prompt
-    assert "both shoes" in shoes.stages[0].observer_question
+    assert "initial positions" in shoes.stages[0].observer_question
 
 
 def test_stage_specific_threshold_protects_handoff_then_repairs_placement() -> None:
