@@ -80,6 +80,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             ".",
             "../lerobot/src",
             str(args.taco),
+            str(args.taco / "cfn"),
             str(args.logiv_root / "src"),
         )
     )
