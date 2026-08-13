@@ -504,7 +504,11 @@ def test_dag_from_start_protection_window_monitors_before_local_repair() -> None
 
 
 def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> None:
-    assert "right arm" in RECOVERY_POLICY_PROMPTS["handover_block"][2]
+    assert len(set(RECOVERY_POLICY_PROMPTS["handover_block"])) == 1
+    assert RECOVERY_POLICY_PROMPTS["handover_block"][2] == (
+        "Use the left arm to grab the red block, hand it to the right arm, "
+        "and place it on the blue pad."
+    )
     assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stamp_seal"][1]
     assert "release" in RECOVERY_POLICY_PROMPTS["stack_blocks_three"][2]

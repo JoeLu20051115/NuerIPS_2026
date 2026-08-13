@@ -231,9 +231,9 @@ CANONICAL_POLICY_PROMPTS = {
 
 RECOVERY_POLICY_PROMPTS = {
     "handover_block": (
-        "Use the left arm to grab the red block.",
-        "Hand the red block to the right arm.",
-        "Place the red block onto the blue pad using the right arm.",
+        "Use the left arm to grab the red block, hand it to the right arm, and place it on the blue pad.",
+        "Use the left arm to grab the red block, hand it to the right arm, and place it on the blue pad.",
+        "Use the left arm to grab the red block, hand it to the right arm, and place it on the blue pad.",
     ),
     "open_microwave": (
         "Grab the handle and open the microwave door.",
