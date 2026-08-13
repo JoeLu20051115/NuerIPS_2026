@@ -137,6 +137,14 @@ def test_grounder_restricts_gpt4o_to_visual_fact_confirmation() -> None:
     }
 
 
+def test_grounder_reserves_unknown_for_insufficient_visual_evidence() -> None:
+    system = RobotwinFactGrounder.SYSTEM
+
+    assert "FALSE means" in system
+    assert "not yet satisfied" in system
+    assert "occluded" in system
+
+
 class _SequenceGrounder:
     def __init__(self, values):
         self.values = iter(values)
