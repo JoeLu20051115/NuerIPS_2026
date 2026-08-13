@@ -687,6 +687,7 @@ class RobotwinEpisodeController:
         *,
         initial_observation: Any,
         dispatch: Callable[[str], Any],
+        collect_evidence: Callable[[], Any] | None = None,
         dispatch_with_mode: Callable[[str, str], Any] | None = None,
         dispatch_with_context: Callable[[str, str, int | None], Any] | None = None,
         native_success: Callable[[], bool],
@@ -757,6 +758,12 @@ class RobotwinEpisodeController:
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
             }
+            if (
+                collect_evidence is not None
+                and any(value is TruthValue.UNKNOWN for value in facts.values())
+            ):
+                observation = collect_evidence()
+                continue
             succeeded = native_success()
             if facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded:
                 visual_goal_native_conflicts += 1

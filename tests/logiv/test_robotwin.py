@@ -203,6 +203,33 @@ def test_full_dag_control_schedules_nodes_with_frozen_task_prompt() -> None:
     assert all(event.control_mode == "DAG_EXECUTION" for event in outcome.events)
 
 
+def test_unknown_frontier_collects_new_evidence_without_dispatching_actions() -> None:
+    task = ROBOTWIN_TASKS["open_microwave"]
+    unknown = {stage.fact: TruthValue.UNKNOWN for stage in task.stages}
+    false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    grounder = _SequenceGrounder([unknown, false, false])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+    )
+    prompts = []
+    evidence = []
+
+    outcome = controller.run(
+        initial_observation="obs-0",
+        dispatch=lambda prompt: prompts.append(prompt) or "obs-action",
+        collect_evidence=lambda: evidence.append(True) or "obs-evidence",
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+    )
+
+    assert outcome.success
+    assert len(evidence) == 1
+    assert prompts == [task.stages[0].policy_prompt]
+    assert outcome.dispatches == 1
+
+
 def test_controller_retries_false_stage_without_asking_gpt_to_repair() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     false = {task.goal_fact: TruthValue.FALSE}
