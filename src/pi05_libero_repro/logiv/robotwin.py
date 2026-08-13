@@ -309,6 +309,36 @@ SCENE_BOUND_REPAIR_TASKS = frozenset(
 )
 
 
+# Preserve the episode's randomized object/target/arm binding, while appending
+# only the constraint selected by the current PDDL node.  Replacing the whole
+# prompt here loses scene-specific nouns that the frozen policy still needs.
+SCENE_BOUND_REPAIR_SUFFIXES = {
+    "place_dual_shoes": (
+        "Continue by putting the first remaining shoe inside the box with its tip pointing left.",
+        "Finish putting both shoes inside the box with both tips pointing left, release them, and withdraw both arms.",
+    ),
+    "stamp_seal": (
+        "Continue by securely grasping the named seal with the specified arm.",
+        "Now press that same seal firmly onto the named colored target, release it centered there, and withdraw the arm.",
+    ),
+    "move_can_pot": (
+        "Finish placing the named can upright beside the named pot, release it, and withdraw both arms.",
+    ),
+    "turn_switch": (
+        "Press the named switch fully to its activated end position, then withdraw the specified arm.",
+    ),
+    "stack_bowls_three": (
+        "Continue by placing the named bottom bowl stably at the stack location.",
+        "Continue by placing the next bowl centered inside the bottom bowl.",
+        "Finish by placing the remaining bowl centered in the stack, release it gently, and withdraw both arms.",
+    ),
+    "beat_block_hammer": (
+        "Continue by grasping the named hammer securely.",
+        "Now make firm hammer-head contact with the named block.",
+    ),
+}
+
+
 def bind_canonical_policy_prompt(task: RobotwinTask) -> RobotwinTask:
     prompt = CANONICAL_POLICY_PROMPTS[task.name]
     return RobotwinTask(
@@ -833,7 +863,10 @@ class RobotwinEpisodeController:
             elif base_prompt is None:
                 prompt = self.task.stages[active].policy_prompt
             elif self.task.name in SCENE_BOUND_REPAIR_TASKS:
-                prompt = base_prompt
+                prompt = (
+                    f"{base_prompt.rstrip()} "
+                    f"{SCENE_BOUND_REPAIR_SUFFIXES[self.task.name][active]}"
+                )
             else:
                 prompt = RECOVERY_POLICY_PROMPTS[self.task.name][active]
             if dispatch_with_context is not None:

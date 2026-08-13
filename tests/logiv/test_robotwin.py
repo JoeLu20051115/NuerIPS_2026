@@ -12,6 +12,7 @@ from pi05_libero_repro.logiv.robotwin import (
     RobotwinPddlPlanner,
     RECOVERY_POLICY_PROMPTS,
     SCENE_BOUND_REPAIR_TASKS,
+    SCENE_BOUND_REPAIR_SUFFIXES,
     TERMINAL_CONSTRAINT_PROMPTS,
     TruthValue,
     bind_canonical_policy_prompt,
@@ -369,7 +370,9 @@ def test_stable_false_frontier_preserves_scene_specific_repair_prompt() -> None:
 
     assert outcome.success
     assert prompts[:2] == [original, original]
-    assert prompts[2] == original
+    assert prompts[2] == (
+        f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][0]}"
+    )
     assert [event.control_mode for event in outcome.events] == [
         "BASE_MONITORED",
         "BASE_MONITORED",
@@ -404,7 +407,10 @@ def test_dispatch_receives_control_mode_for_repair_chunk_sizing() -> None:
     assert calls == [
         (original, "BASE_MONITORED"),
         (original, "BASE_MONITORED"),
-        (original, "REPAIR"),
+        (
+            f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][0]}",
+            "REPAIR",
+        ),
     ]
 
 
@@ -461,7 +467,12 @@ def test_base_protection_window_monitors_but_delays_prompt_replacement() -> None
     )
 
     assert outcome.success
-    assert prompts == [original] * 4
+    assert prompts == [
+        original,
+        original,
+        original,
+        f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][0]}",
+    ]
     assert [event.control_mode for event in outcome.events[:3]] == [
         "BASE_MONITORED"
     ] * 3
@@ -520,6 +531,38 @@ def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> Non
 
 def test_bowl_repair_preserves_randomized_scene_description() -> None:
     assert "stack_bowls_three" in SCENE_BOUND_REPAIR_TASKS
+
+
+def test_scene_bound_repair_keeps_original_instruction_and_adds_local_constraint() -> None:
+    task = ROBOTWIN_TASKS["stamp_seal"]
+    false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    grasped = dict(false)
+    grasped[task.stages[0].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder([false, grasped, grasped, grasped])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        stage_stall_observations=(1, 1),
+    )
+    prompts = []
+    original = "Grab the round base seal using the right arm and stamp Navy"
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch=lambda prompt: prompts.append(prompt),
+        native_success=lambda: len(prompts) == 3,
+        budget_exhausted=lambda: False,
+        base_prompt=original,
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert prompts[-1] == (
+        f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][1]}"
+    )
+    assert "Navy" in prompts[-1]
+    assert "release" in prompts[-1]
 
 
 def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
@@ -743,8 +786,8 @@ def test_visual_goal_conflict_reopens_goal_immediately_during_repair() -> None:
     assert prompts == [
         original,
         original,
-        original,
-        original,
+        f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][0]}",
+        f"{original} {SCENE_BOUND_REPAIR_SUFFIXES[task.name][0]}",
         TERMINAL_CONSTRAINT_PROMPTS[task.name],
     ]
     assert outcome.events[4].control_mode == "REPAIR"
