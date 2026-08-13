@@ -89,9 +89,10 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "place_dual_shoes",
         (
             _stage(
-                "first-shoe-in-box",
-                "Pick up the shoe on the left side and place it inside the shoe box with its toe pointing left. Open the gripper after placement.",
-                "Is one shoe fully inside the shoe box with its toe pointing left?",
+                "both-shoes-grasped",
+                "Use both arms simultaneously to grasp the left and right shoes and lift both clear of the table. Keep holding both shoes.",
+                "Are both shoes visibly held by their corresponding left and right grippers above the table?",
+                transient=True,
             ),
             _stage(
                 "both-shoes-in-box",
@@ -120,9 +121,9 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "blocks_ranking_size",
         (
             _stage(
-                "large-block-left",
-                "Move the largest block to the center-left of the table and release it.",
-                "Is the largest block placed at the left side of the horizontal center row?",
+                "small-block-right",
+                "Move the smallest block to the center-right of the table and release it.",
+                "Is the smallest block placed at the right side of the horizontal center row?",
             ),
             _stage(
                 "medium-block-center",
@@ -240,7 +241,7 @@ RECOVERY_POLICY_PROMPTS = {
         "Pull the microwave door open with the left arm.",
     ),
     "place_dual_shoes": (
-        "Place the left shoe into the shoe box, tip left.",
+        "Use both arms to grasp and lift both shoes simultaneously.",
         "Place two shoes into the shoe box, tips left.",
     ),
     "stamp_seal": (
@@ -248,7 +249,7 @@ RECOVERY_POLICY_PROMPTS = {
         "Press the held seal onto the colored target and release it.",
     ),
     "blocks_ranking_size": (
-        "Move the largest block to the center-left.",
+        "Move the smallest block to the center-right.",
         "Set the medium block next to the largest block in the center.",
         "Arrange blocks large block, medium block, and small block in decreasing size order.",
     ),
@@ -314,7 +315,7 @@ SCENE_BOUND_REPAIR_TASKS = frozenset(
 # prompt here loses scene-specific nouns that the frozen policy still needs.
 SCENE_BOUND_REPAIR_SUFFIXES = {
     "place_dual_shoes": (
-        "Continue by putting the first remaining shoe inside the box with its tip pointing left.",
+        "Continue by using both arms to grasp and lift both named shoes simultaneously.",
         "Finish putting both shoes inside the box with both tips pointing left, release them, and withdraw both arms.",
     ),
     "stamp_seal": (

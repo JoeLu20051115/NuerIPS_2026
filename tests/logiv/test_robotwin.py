@@ -653,11 +653,11 @@ def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
     bowls = ROBOTWIN_TASKS["stack_bowls_three"]
 
     assert [stage.fact for stage in ranking.stages] == [
-        "large-block-left",
+        "small-block-right",
         "medium-block-center",
         "blocks-ranked-large-to-small",
     ]
-    assert "largest block" in RECOVERY_POLICY_PROMPTS[ranking.name][0]
+    assert "smallest block" in RECOVERY_POLICY_PROMPTS[ranking.name][0]
     assert "medium block" in RECOVERY_POLICY_PROMPTS[ranking.name][1]
     assert RECOVERY_POLICY_PROMPTS[ranking.name][2] == (
         "Arrange blocks large block, medium block, and small block in decreasing size order."
@@ -665,6 +665,18 @@ def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
     assert "largest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][0]
     assert "medium bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][1]
     assert "smallest bowl" in RECOVERY_POLICY_PROMPTS[bowls.name][2]
+
+
+def test_dual_shoes_dag_matches_simultaneous_training_grasp() -> None:
+    shoes = ROBOTWIN_TASKS["place_dual_shoes"]
+
+    assert [stage.fact for stage in shoes.stages] == [
+        "both-shoes-grasped",
+        "both-shoes-in-box",
+    ]
+    assert shoes.stages[0].transient
+    assert "both arms" in shoes.stages[0].policy_prompt
+    assert "both shoes" in shoes.stages[0].observer_question
 
 
 def test_stage_specific_threshold_protects_handoff_then_repairs_placement() -> None:
