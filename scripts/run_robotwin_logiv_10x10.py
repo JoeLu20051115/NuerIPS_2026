@@ -14,6 +14,7 @@ GPU_TASKS = (
     ("open_microwave", "blocks_ranking_size", "stack_blocks_three"),
     ("place_dual_shoes", "move_can_pot", "stack_bowls_three"),
 )
+ALL_TASKS = frozenset(task for tasks in GPU_TASKS for task in tasks)
 
 
 def _stall_observations(config: dict, task: str) -> int:
@@ -166,6 +167,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--worker", type=int, choices=range(3), required=True)
+    parser.add_argument("--gpu", type=int, choices=range(3))
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tag", required=True)
@@ -177,12 +179,11 @@ def main() -> int:
     parser.add_argument("--tasks", nargs="+")
     args = parser.parse_args()
     tasks = tuple(args.tasks) if args.tasks else GPU_TASKS[args.worker]
-    unknown = set(tasks) - set(GPU_TASKS[args.worker])
+    unknown = set(tasks) - ALL_TASKS
     if unknown:
-        parser.error(
-            f"worker {args.worker} cannot run tasks: {', '.join(sorted(unknown))}"
-        )
-    return _run_worker(args.worker, tasks, args)
+        parser.error(f"unknown tasks: {', '.join(sorted(unknown))}")
+    gpu = args.worker if args.gpu is None else args.gpu
+    return _run_worker(gpu, tasks, args)
 
 
 if __name__ == "__main__":

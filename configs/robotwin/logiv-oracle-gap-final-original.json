@@ -1,0 +1,53 @@
+{
+  "checkpoint": "/mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/checkpoints/pi05_TACO_robotwin2_finetuned",
+  "task_config": "demo_clean",
+  "instruction_type": "unseen",
+  "action_chunk_steps": 50,
+  "repair_action_chunk_steps": 50,
+  "vlm_image_detail": "low",
+  "dag_from_start": true,
+  "use_registered_dag_prompts": false,
+  "preserve_original_repair_prompt": true,
+  "repair_cfn_tasks": [],
+  "base_stall_observations": 4,
+  "base_stall_observations_by_task": {
+    "blocks_ranking_size": 4,
+    "place_dual_shoes": 3,
+    "stamp_seal": 4
+  },
+  "stage_stall_observations_by_task": {
+    "blocks_ranking_size": [4, 3, 2],
+    "place_dual_shoes": [3, 2],
+    "stamp_seal": [3, 2]
+  },
+  "min_base_steps_by_task": {
+    "blocks_ranking_size": 700,
+    "place_dual_shoes": 250,
+    "stamp_seal": 150
+  },
+  "tasks": {
+    "blocks_ranking_size": [100005, 100007, 100009],
+    "place_dual_shoes": [100001, 100002, 100008, 100009, 100012, 100019, 100021],
+    "stamp_seal": [100001, 100008]
+  },
+  "instructions": {
+    "blocks_ranking_size": [
+      "Take large block, medium block, and small block to the table center.",
+      "Move large block, medium block, and small block to the table center.",
+      "Place large block, medium block, and small block in order at the center."
+    ],
+    "place_dual_shoes": [
+      "Grab two the rounded white shoe, point tips left, place in the rectangular Nike box for shoes.",
+      "Lift two the shoe with black stripes, tips pointing left, into the medium cardboard shoe-box.",
+      "Use both arms to move two the smooth plastic shoe to the orange box for keeping shoes, tips pointing left.",
+      "Grab two the brown shoe with green red stripes and set them in the orange box for keeping shoes, tips left.",
+      "Pick up two the black shoe with white midsole, tips left, into the orange box for keeping shoes.",
+      "Use both arms to move two the brown footwear with smooth texture to the medium cardboard shoe-box, tips pointing left.",
+      "Lift two the shoe with black stripe design, tips pointing left, into the medium cardboard shoe-box."
+    ],
+    "stamp_seal": [
+      "Grab the round base seal using the right arm and stamp Navy",
+      "Grab the seal with smooth texture using the left arm and stamp Coral"
+    ]
+  }
+}

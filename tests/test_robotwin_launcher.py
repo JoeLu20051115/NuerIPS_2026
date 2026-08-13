@@ -1,5 +1,6 @@
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -108,3 +109,52 @@ def test_original_repair_prompt_ablation_is_explicitly_configured() -> None:
 def test_policy_replan_steps_are_optional() -> None:
     assert LAUNCHER._policy_replan_steps({"policy_replan_steps": 10}) == 10
     assert LAUNCHER._policy_replan_steps({}) is None
+
+
+def test_explicit_gpu_allows_tasks_independent_of_worker_group(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    calls = []
+
+    def record_run(gpu, tasks, args):
+        calls.append((gpu, tasks, args))
+        return 0
+
+    monkeypatch.setattr(LAUNCHER, "_run_worker", record_run)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "run_robotwin_logiv_10x10.py",
+            "--worker",
+            "0",
+            "--gpu",
+            "1",
+            "--protocol",
+            str(tmp_path / "protocol.json"),
+            "--output",
+            str(tmp_path / "output"),
+            "--tag",
+            "test",
+            "--taco",
+            str(tmp_path / "taco"),
+            "--logiv-root",
+            str(tmp_path / "logiv"),
+            "--python",
+            sys.executable,
+            "--tokenizer",
+            str(tmp_path / "tokenizer.model"),
+            "--val-binary",
+            str(tmp_path / "Validate"),
+            "--tasks",
+            "place_dual_shoes",
+            "turn_switch",
+        ],
+    )
+
+    assert LAUNCHER.main() == 0
+    assert len(calls) == 1
+    gpu, tasks, _args = calls[0]
+    assert gpu == 1
+    assert tasks == ("place_dual_shoes", "turn_switch")
