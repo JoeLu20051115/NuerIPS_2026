@@ -42,6 +42,22 @@ def test_registry_is_exactly_the_frozen_ten_task_protocol() -> None:
         assert all(stage.policy_prompt and stage.observer_question for stage in task.stages)
 
 
+def test_handover_and_microwave_use_persistent_visual_milestones() -> None:
+    handover = ROBOTWIN_TASKS["handover_block"]
+    microwave = ROBOTWIN_TASKS["open_microwave"]
+
+    assert [stage.fact for stage in handover.stages] == [
+        "block-at-handover-center",
+        "block-near-blue-pad",
+        "block-on-blue-pad",
+    ]
+    assert [stage.fact for stage in microwave.stages] == [
+        "microwave-door-started-opening",
+        "microwave-open",
+    ]
+    assert not any(stage.transient for stage in (*handover.stages, *microwave.stages))
+
+
 def test_capability_routed_tasks_keep_dag_but_use_training_style_prompt() -> None:
     task = ROBOTWIN_TASKS["stack_blocks_three"]
 
@@ -109,7 +125,7 @@ class _Client:
         return {
             "facts": [
                 {"name": "microwave-open", "value": "FALSE"},
-                {"name": "handle-grasped", "value": "UNKNOWN"},
+                {"name": "microwave-door-started-opening", "value": "UNKNOWN"},
             ]
         }
 
@@ -127,7 +143,7 @@ def test_grounder_restricts_gpt4o_to_visual_fact_confirmation() -> None:
     result = RobotwinFactGrounder(client).observe(task, obs, epoch=3)
 
     assert result["microwave-open"] is TruthValue.FALSE
-    assert result["handle-grasped"] is TruthValue.UNKNOWN
+    assert result["microwave-door-started-opening"] is TruthValue.UNKNOWN
     assert client.kwargs["purpose"] == "state_gate"
     assert "Do not plan" in client.kwargs["system"]
     assert len(client.kwargs["images"]) == 3
@@ -345,7 +361,7 @@ def test_controller_latches_confirmed_milestones_instead_of_regressing() -> None
     assert prompts[1:] == [task.stages[1].policy_prompt] * 2
 
 
-def test_repair_reopens_a_dropped_transient_grasp_after_two_observations() -> None:
+def test_repair_does_not_reopen_a_completed_handover_geometry_milestone() -> None:
     task = ROBOTWIN_TASKS["handover_block"]
     all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
     left_confirmed = dict(all_false)
@@ -370,13 +386,13 @@ def test_repair_reopens_a_dropped_transient_grasp_after_two_observations() -> No
     )
 
     assert outcome.success
-    assert task.stages[0].transient
+    assert not task.stages[0].transient
     assert prompts == [
         "Transfer the red block and put it on the blue pad.",
         "Transfer the red block and put it on the blue pad.",
         RECOVERY_POLICY_PROMPTS[task.name][1],
         RECOVERY_POLICY_PROMPTS[task.name][1],
-        RECOVERY_POLICY_PROMPTS[task.name][0],
+        RECOVERY_POLICY_PROMPTS[task.name][1],
     ]
 
 
@@ -772,9 +788,9 @@ def test_downstream_handoff_never_regresses_before_completed_milestone() -> None
     )
 
     assert outcome.success
-    # Losing the right-hand grasp may reopen the handoff itself, but never the
-    # already completed left-hand pickup.
-    assert [active for _, _, active in calls] == [0, 1, 2, 2, 2, 1]
+    # Persistent visual geometry keeps the certified prefix latched even after
+    # the arms occlude the block; repair remains on the terminal placement.
+    assert [active for _, _, active in calls] == [0, 1, 2, 2, 2, 2]
     assert calls[-1][1] == "REPAIR"
 
 

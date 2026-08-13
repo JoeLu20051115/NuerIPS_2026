@@ -51,16 +51,14 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "handover_block",
         (
             _stage(
-                "block-held-by-left",
+                "block-at-handover-center",
                 "Use the left arm to grasp the red block and move it to the center handover area. Keep holding the block with the left gripper.",
-                "Is the red block securely held by the left gripper near the center handover area?",
-                transient=True,
+                "Compared with the initial views, has the red block moved to the open center handover area between the two arms?",
             ),
             _stage(
-                "block-held-by-right",
+                "block-near-blue-pad",
                 "Use the right arm to take the red block from the left gripper. Release the left gripper only after the right gripper securely holds the block.",
-                "Has the red block been transferred so that the right gripper holds it and the left gripper has released it?",
-                transient=True,
+                "Has the red block moved away from the center handover area toward the blue pad after the handoff?",
             ),
             _stage(
                 "block-on-blue-pad",
@@ -73,10 +71,9 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
         "open_microwave",
         (
             _stage(
-                "handle-grasped",
-                "Reach the microwave door handle with the nearest arm and close the gripper firmly around the handle. Do not release it.",
-                "Is one gripper visibly closed around the microwave door handle?",
-                transient=True,
+                "microwave-door-started-opening",
+                "Reach the microwave door handle with the left arm, grasp it firmly, and begin pulling the door along its hinge path.",
+                "Compared with the initial views, has the microwave door visibly begun rotating away from its fully closed position?",
             ),
             _stage(
                 "microwave-open",
