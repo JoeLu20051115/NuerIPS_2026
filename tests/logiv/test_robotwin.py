@@ -230,6 +230,62 @@ def test_unknown_frontier_collects_new_evidence_without_dispatching_actions() ->
     assert outcome.dispatches == 1
 
 
+def test_unknown_future_fact_does_not_pause_ready_node() -> None:
+    task = ROBOTWIN_TASKS["open_microwave"]
+    facts = {
+        task.stages[0].fact: TruthValue.FALSE,
+        task.stages[1].fact: TruthValue.UNKNOWN,
+    }
+    grounder = _SequenceGrounder([facts, facts])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+    )
+    prompts = []
+    evidence = []
+
+    outcome = controller.run(
+        initial_observation="obs-0",
+        dispatch=lambda prompt: prompts.append(prompt) or "obs-action",
+        collect_evidence=lambda: evidence.append(True) or "obs-evidence",
+        native_success=lambda: len(prompts) == 1,
+        budget_exhausted=lambda: False,
+    )
+
+    assert outcome.success
+    assert evidence == []
+    assert prompts == [task.stages[0].policy_prompt]
+
+
+def test_persistent_unknown_frontier_stops_after_finite_evidence_budget() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    unknown = {task.goal_fact: TruthValue.UNKNOWN}
+    grounder = _SequenceGrounder([unknown, unknown, unknown])
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        max_unknown_observations=2,
+    )
+    prompts = []
+    evidence = []
+
+    outcome = controller.run(
+        initial_observation="obs-0",
+        dispatch=lambda prompt: prompts.append(prompt),
+        collect_evidence=lambda: evidence.append(True) or "obs-evidence",
+        native_success=lambda: False,
+        budget_exhausted=lambda: False,
+    )
+
+    assert not outcome.success
+    assert outcome.reason == "UNRESOLVED_VISUAL_FACT"
+    assert len(evidence) == 2
+    assert prompts == []
+    assert len(outcome.events) == 3
+
+
 def test_controller_retries_false_stage_without_asking_gpt_to_repair() -> None:
     task = ROBOTWIN_TASKS["turn_switch"]
     false = {task.goal_fact: TruthValue.FALSE}

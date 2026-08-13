@@ -653,6 +653,7 @@ class RobotwinEpisodeController:
         base_stall_observations: int = 2,
         stage_stall_observations: Sequence[int] | None = None,
         min_base_dispatches: int = 0,
+        max_unknown_observations: int = 2,
     ) -> None:
         self.task = task
         self.planner = planner
@@ -660,6 +661,7 @@ class RobotwinEpisodeController:
         self.max_dispatches = int(max_dispatches)
         self.base_stall_observations = int(base_stall_observations)
         self.min_base_dispatches = int(min_base_dispatches)
+        self.max_unknown_observations = int(max_unknown_observations)
         self.stage_stall_observations = (
             tuple(int(value) for value in stage_stall_observations)
             if stage_stall_observations is not None
@@ -671,6 +673,8 @@ class RobotwinEpisodeController:
             raise ValueError("base_stall_observations must be positive")
         if self.min_base_dispatches < 0:
             raise ValueError("min_base_dispatches must be nonnegative")
+        if self.max_unknown_observations < 0:
+            raise ValueError("max_unknown_observations must be nonnegative")
         if self.stage_stall_observations is not None:
             if len(self.stage_stall_observations) != len(self.task.stages):
                 raise ValueError("stage stall observations must match task stages")
@@ -710,6 +714,7 @@ class RobotwinEpisodeController:
         unchanged_false_observations = 0
         visual_goal_native_conflicts = 0
         latched_false_observations: dict[str, int] = {}
+        unknown_frontier_observations = 0
         for epoch in range(self.max_dispatches + 1):
             observed = self.grounder.observe(self.task, observation, epoch=epoch)
             latched_true.update(
@@ -758,12 +763,6 @@ class RobotwinEpisodeController:
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
             }
-            if (
-                collect_evidence is not None
-                and any(value is TruthValue.UNKNOWN for value in facts.values())
-            ):
-                observation = collect_evidence()
-                continue
             succeeded = native_success()
             if facts.get(self.task.goal_fact) is TruthValue.TRUE and not succeeded:
                 visual_goal_native_conflicts += 1
@@ -799,6 +798,32 @@ class RobotwinEpisodeController:
                     False, "VAL_REJECTED_PLAN", tuple(events), dispatches
                 )
             active = plan.actions[0].stage_index if plan.actions else None
+            active_unknown = (
+                active is not None
+                and facts.get(self.task.stages[active].fact)
+                is TruthValue.UNKNOWN
+            )
+            if active_unknown and not succeeded:
+                unknown_frontier_observations += 1
+                events.append(
+                    RobotwinControllerEvent(
+                        epoch, active, facts, plan, control_mode=control_mode
+                    )
+                )
+                if (
+                    collect_evidence is None
+                    or unknown_frontier_observations
+                    > self.max_unknown_observations
+                ):
+                    return RobotwinEpisodeOutcome(
+                        False,
+                        "UNRESOLVED_VISUAL_FACT",
+                        tuple(events),
+                        dispatches,
+                    )
+                observation = collect_evidence()
+                continue
+            unknown_frontier_observations = 0
             if goal_conflict_repair:
                 control_mode = "REPAIR"
             if not succeeded and control_mode in {
