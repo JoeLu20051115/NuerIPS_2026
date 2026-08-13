@@ -523,6 +523,8 @@ def extract_robotwin_images(observation: Mapping[str, Any]) -> tuple[np.ndarray,
             np.asarray(cameras[name]["rgb"])
             for name in ("head_camera", "right_camera", "left_camera")
         )
+        if "observer_camera" in cameras:
+            images += (np.asarray(cameras["observer_camera"]["rgb"]),)
     except (KeyError, TypeError) as error:
         raise ValueError("RoboTwin observation is missing required RGB cameras") from error
     for image in images:
@@ -536,7 +538,7 @@ class RobotwinFactGrounder:
 
     SYSTEM = (
         "You are a conservative visual fact observer for a robot simulation. "
-        "Only classify the registered facts from the three synchronized camera views. "
+        "Only classify the registered facts from the synchronized camera views. "
         "TRUE means the fact is visibly satisfied now. FALSE means the relevant "
         "objects are visible and the fact is not yet satisfied, including an "
         "action that is visibly still in progress. Use UNKNOWN only when the "
@@ -584,12 +586,12 @@ class RobotwinFactGrounder:
         if epoch == 0 or self._initial_images is None:
             self._initial_images = tuple(image.copy() for image in current_images)
             images = current_images
-            comparison = "These three images are the episode initial views."
+            comparison = "These images are the episode initial synchronized views."
         else:
             images = self._initial_images + current_images
             comparison = (
-                "The first three images are the initial head/right/left views; "
-                "the last three are the current synchronized head/right/left views. "
+                f"The first {len(current_images)} images are the initial views; "
+                f"the last {len(current_images)} are the current synchronized views. "
                 "Classify facts for the current views using visible change from initial."
             )
         response = self.client.complete_json(

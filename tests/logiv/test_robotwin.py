@@ -116,6 +116,21 @@ def test_robotwin_image_extraction_has_front_and_both_wrists() -> None:
     assert [int(image[0, 0, 0]) for image in images] == [0, 1, 2]
 
 
+def test_robotwin_image_extraction_includes_optional_observer_view() -> None:
+    obs = {
+        "observation": {
+            "head_camera": {"rgb": np.zeros((4, 5, 3), dtype=np.uint8)},
+            "right_camera": {"rgb": np.ones((4, 5, 3), dtype=np.uint8)},
+            "left_camera": {"rgb": np.full((4, 5, 3), 2, dtype=np.uint8)},
+            "observer_camera": {"rgb": np.full((4, 5, 3), 3, dtype=np.uint8)},
+        }
+    }
+
+    images = extract_robotwin_images(obs)
+
+    assert [int(image[0, 0, 0]) for image in images] == [0, 1, 2, 3]
+
+
 class _Client:
     def __init__(self) -> None:
         self.kwargs = None
@@ -943,4 +958,4 @@ def test_grounder_compares_current_views_to_episode_initial_views() -> None:
 
     assert len(client.calls[0]["images"]) == 3
     assert len(client.calls[1]["images"]) == 6
-    assert "first three images are the initial" in client.calls[1]["text"]
+    assert "first 3 images are the initial" in client.calls[1]["text"]
