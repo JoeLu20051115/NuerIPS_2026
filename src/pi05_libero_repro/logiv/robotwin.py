@@ -126,9 +126,9 @@ ROBOTWIN_TASKS: dict[str, RobotwinTask] = {
                 "Is the smallest block placed at the right side of the horizontal center row?",
             ),
             _stage(
-                "medium-block-center",
-                "Move the medium-sized block to the middle of the same horizontal center row, immediately right of the largest block, and release it.",
-                "Are the largest and medium blocks aligned in a horizontal center row with large immediately left of medium?",
+                "medium-left-of-small",
+                "Move the medium-sized block to the middle of the same horizontal center row, immediately left of the small block, and release it.",
+                "Are the medium and small blocks aligned in a horizontal center row with medium immediately left of small block?",
             ),
             _stage(
                 "blocks-ranked-large-to-small",

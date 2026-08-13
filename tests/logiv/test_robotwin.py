@@ -662,9 +662,11 @@ def test_ranking_and_bowl_dags_follow_pi05_training_order() -> None:
 
     assert [stage.fact for stage in ranking.stages] == [
         "small-block-right",
-        "medium-block-center",
+        "medium-left-of-small",
         "blocks-ranked-large-to-small",
     ]
+    assert "small block" in ranking.stages[1].observer_question
+    assert "largest" not in ranking.stages[1].observer_question
     assert "smallest block" in RECOVERY_POLICY_PROMPTS[ranking.name][0]
     assert "medium block" in RECOVERY_POLICY_PROMPTS[ranking.name][1]
     assert RECOVERY_POLICY_PROMPTS[ranking.name][2] == (
