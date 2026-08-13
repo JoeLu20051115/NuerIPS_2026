@@ -668,6 +668,8 @@ class RobotwinEpisodeController:
         observation = initial_observation
         dispatches = 0
         latched_true: set[str] = set()
+        highest_confirmed_stage = -1
+        completed_stage_indices: set[int] = set()
         control_mode = (
             "DAG_EXECUTION"
             if dag_from_start or base_prompt is None
@@ -682,13 +684,30 @@ class RobotwinEpisodeController:
             latched_true.update(
                 name for name, value in observed.items() if value is TruthValue.TRUE
             )
+            highest_confirmed_stage = max(
+                [highest_confirmed_stage]
+                + [
+                    index
+                    for index, stage in enumerate(self.task.stages)
+                    if observed.get(stage.fact) is TruthValue.TRUE
+                ]
+            )
+            completed_stage_indices.update(range(highest_confirmed_stage))
             # Completed geometry is latched against VLM flicker. Only transient
             # physical state (for example, a grasp) may be reopened after two
             # consecutive visible FALSE observations. Reopening persistent
             # geometry made the controller repeatedly disturb already placed
             # objects instead of advancing through the certified suffix.
-            for stage in self.task.stages:
+            for index, stage in enumerate(self.task.stages):
                 if not stage.transient:
+                    continue
+                # A confirmed downstream milestone proves that all earlier DAG
+                # nodes completed. Their transient physical effects need not
+                # remain true forever (the left hand must release after a
+                # handoff), so never send repair behind that milestone. The
+                # most recent transient milestone itself may still reopen when
+                # its required current state is visibly lost.
+                if index < highest_confirmed_stage:
                     continue
                 value = observed.get(stage.fact, TruthValue.UNKNOWN)
                 if value is TruthValue.TRUE or control_mode != "REPAIR":
@@ -700,6 +719,10 @@ class RobotwinEpisodeController:
                         latched_true.discard(stage.fact)
                 else:
                     latched_false_observations[stage.fact] = 0
+            latched_true.update(
+                self.task.stages[index].fact
+                for index in completed_stage_indices
+            )
             facts = {
                 name: TruthValue.TRUE if name in latched_true else value
                 for name, value in observed.items()
@@ -754,8 +777,7 @@ class RobotwinEpisodeController:
                 else:
                     unchanged_false_observations = 0
                 minimum_dispatches_reached = (
-                    control_mode == "DAG_EXECUTION"
-                    or dispatches >= self.min_base_dispatches
+                    dispatches >= self.min_base_dispatches
                 )
                 if minimum_dispatches_reached and (
                     unchanged_false_observations

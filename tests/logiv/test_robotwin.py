@@ -468,6 +468,41 @@ def test_base_protection_window_monitors_but_delays_prompt_replacement() -> None
     assert outcome.events[3].control_mode == "REPAIR"
 
 
+def test_dag_from_start_protection_window_monitors_before_local_repair() -> None:
+    task = ROBOTWIN_TASKS["turn_switch"]
+    false = {task.goal_fact: TruthValue.FALSE}
+    grounder = _SequenceGrounder([false] * 5)
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        base_stall_observations=1,
+        stage_stall_observations=(1,),
+        min_base_dispatches=3,
+    )
+    calls = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch_with_context=lambda prompt, mode, active: calls.append(
+            (prompt, mode, active)
+        ),
+        dispatch=lambda prompt: None,
+        native_success=lambda: len(calls) == 4,
+        budget_exhausted=lambda: False,
+        base_prompt="Click the switch.",
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    assert [mode for _, mode, _ in calls] == [
+        "DAG_EXECUTION",
+        "DAG_EXECUTION",
+        "DAG_EXECUTION",
+        "REPAIR",
+    ]
+
+
 def test_recovery_prompts_preserve_required_arm_and_release_constraints() -> None:
     assert "right arm" in RECOVERY_POLICY_PROMPTS["handover_block"][2]
     assert "left arm" in RECOVERY_POLICY_PROMPTS["open_microwave"][1]
@@ -544,6 +579,51 @@ def test_stage_specific_threshold_shape_is_validated() -> None:
         RobotwinEpisodeController(
             task, planner, grounder, stage_stall_observations=(1, 2)
         )
+
+
+def test_downstream_handoff_never_regresses_before_completed_milestone() -> None:
+    task = ROBOTWIN_TASKS["handover_block"]
+    all_false = {stage.fact: TruthValue.FALSE for stage in task.stages}
+    left_done = dict(all_false)
+    left_done[task.stages[0].fact] = TruthValue.TRUE
+    right_done = dict(all_false)
+    right_done[task.stages[1].fact] = TruthValue.TRUE
+    grounder = _SequenceGrounder(
+        [
+            all_false,
+            left_done,
+            right_done,
+            all_false,
+            all_false,
+            all_false,
+            all_false,
+        ]
+    )
+    controller = RobotwinEpisodeController(
+        task,
+        RobotwinPddlPlanner(REAL_VAL, timeout_seconds=5),
+        grounder,
+        stage_stall_observations=(1, 1, 1),
+    )
+    calls = []
+
+    outcome = controller.run(
+        initial_observation=None,
+        dispatch_with_context=lambda prompt, mode, active: calls.append(
+            (prompt, mode, active)
+        ),
+        dispatch=lambda prompt: None,
+        native_success=lambda: len(calls) == 6,
+        budget_exhausted=lambda: False,
+        base_prompt="Transfer the red block and put it on the blue pad.",
+        dag_from_start=True,
+    )
+
+    assert outcome.success
+    # Losing the right-hand grasp may reopen the handoff itself, but never the
+    # already completed left-hand pickup.
+    assert [active for _, _, active in calls] == [0, 1, 2, 2, 2, 1]
+    assert calls[-1][1] == "REPAIR"
 
 
 def test_visual_goal_cannot_override_native_failure() -> None:
