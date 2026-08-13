@@ -76,3 +76,6 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
     assert report["positive_flips"] == 1
     assert report["negative_flips"] == 1
     assert report["errors"] == []
+    assert report["evidence_label"] == "development/tuning"
+    assert report["strict_protocol_complete"] is True
+    assert "not an independent holdout" in REPORT.render_markdown(report)

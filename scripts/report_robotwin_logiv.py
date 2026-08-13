@@ -87,8 +87,10 @@ def build_report(
         by_task[task]["successes"] += int(bool(actual[key].get("success")))
         by_task[task]["baseline_successes"] += int(baseline[key])
     return {
+        "evidence_label": "development/tuning",
         "expected": len(expected),
         "completed": len(paired),
+        "strict_protocol_complete": len(paired) == len(expected) and not errors,
         "successes": successes,
         "success_rate": successes / len(paired) if paired else None,
         "baseline_successes": sum(baseline[key] for key in paired),
@@ -105,10 +107,12 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines = [
         "# RoboTwin 2.0 LOGIV + PDDL — 10 tasks × 10 episodes",
         "",
+        "- Evidence label: **development/tuning (not an independent holdout)**",
         f"- Overall: **{report['successes']}/{report['completed']} = {rate_text}**",
         f"- Baseline on paired scenes: **{report['baseline_successes']}/{report['completed']}**",
         f"- Flips: **+{report['positive_flips']} / -{report['negative_flips']}**",
         f"- Protocol completeness: **{report['completed']}/{report['expected']}**",
+        f"- Strict protocol audit: **{'PASS' if report['strict_protocol_complete'] else 'FAIL'}**",
         "",
         "| Task | LOGIV | Baseline |",
         "|---|---:|---:|",
