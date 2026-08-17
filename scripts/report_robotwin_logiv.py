@@ -166,7 +166,9 @@ def build_report(
         if baseline is not None:
             by_task[task]["baseline_successes"] += int(baseline[key])
     return {
-        "evidence_label": "development/seed-selected",
+        "evidence_label": config.get(
+            "evidence_label", "development/seed-selected"
+        ),
         "expected": len(expected),
         "completed": len(paired),
         "strict_protocol_complete": len(paired) == len(expected) and not errors,
@@ -186,9 +188,9 @@ def render_markdown(report: dict[str, Any]) -> str:
     rate = report["success_rate"]
     rate_text = "n/a" if rate is None else f"{100 * rate:.1f}%"
     lines = [
-        "# RoboTwin 2.0 LOGIV + PDDL — 10 tasks × 10 episodes",
+        "# RoboTwin 2.0 LOGIV + PDDL — audited episodes",
         "",
-        "- Evidence label: **development/seed-selected (not an independent holdout)**",
+        f"- Evidence label: **{report['evidence_label']} (not an independent holdout)**",
         f"- Overall: **{report['successes']}/{report['completed']} = {rate_text}**",
     ]
     if report["baseline_successes"] is None:

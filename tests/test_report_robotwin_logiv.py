@@ -193,8 +193,9 @@ def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> Non
     assert any("GPT-4o provenance" in error for error in report["errors"])
 
 
-def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) -> None:
+def test_report_can_audit_native_score_without_baseline(tmp_path) -> None:
     config = {
+        "evidence_label": "development/seed-scan",
         "tasks": {"task_a": [100001]},
         "instructions": {"task_a": ["instruction"]},
     }
@@ -237,8 +238,11 @@ def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) 
     assert report["successes"] == 1
     assert report["completed"] == 1
     assert report["baseline_successes"] is None
+    assert report["evidence_label"] == "development/seed-scan"
     assert report["strict_protocol_complete"] is True
-    assert "Baseline: **not run**" in REPORT.render_markdown(report)
+    markdown = REPORT.render_markdown(report)
+    assert "Baseline: **not run**" in markdown
+    assert "development/seed-scan" in markdown
 
 
 def test_report_rejects_missing_or_tampered_camera_file(tmp_path) -> None:
