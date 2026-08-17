@@ -43,28 +43,39 @@ def _min_base_dispatches(config: dict, task: str) -> int:
     return (steps + chunk - 1) // chunk
 
 
-def _repair_action_chunk_steps(config: dict) -> int:
-    return int(config.get("repair_action_chunk_steps", config["action_chunk_steps"]))
+def _task_option(config: dict, name: str, task: str | None, default=None):
+    if task is not None and task in config.get(f"{name}_by_task", {}):
+        return config[f"{name}_by_task"][task]
+    return config.get(name, default)
 
 
-def _vlm_image_detail(config: dict) -> str:
-    return str(config.get("vlm_image_detail", "low"))
+def _repair_action_chunk_steps(config: dict, task: str | None = None) -> int:
+    value = _task_option(config, "repair_action_chunk_steps", task)
+    return int(config["action_chunk_steps"] if value is None else value)
 
 
-def _dag_from_start(config: dict) -> bool:
-    return bool(config.get("dag_from_start", False))
+def _vlm_image_detail(config: dict, task: str | None = None) -> str:
+    return str(_task_option(config, "vlm_image_detail", task, "low"))
 
 
-def _use_registered_dag_prompts(config: dict) -> bool:
-    return bool(config.get("use_registered_dag_prompts", False))
+def _dag_from_start(config: dict, task: str | None = None) -> bool:
+    return bool(_task_option(config, "dag_from_start", task, False))
 
 
-def _preserve_original_repair_prompt(config: dict) -> bool:
-    return bool(config.get("preserve_original_repair_prompt", False))
+def _use_registered_dag_prompts(config: dict, task: str | None = None) -> bool:
+    return bool(_task_option(config, "use_registered_dag_prompts", task, False))
 
 
-def _policy_replan_steps(config: dict) -> int | None:
-    value = config.get("policy_replan_steps")
+def _preserve_original_repair_prompt(
+    config: dict, task: str | None = None
+) -> bool:
+    return bool(
+        _task_option(config, "preserve_original_repair_prompt", task, False)
+    )
+
+
+def _policy_replan_steps(config: dict, task: str | None = None) -> int | None:
+    value = _task_option(config, "policy_replan_steps", task)
     return None if value is None else int(value)
 
 
@@ -123,16 +134,16 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
             "--logiv_root", str(args.logiv_root),
             "--val_binary", str(args.val_binary),
             "--action_chunk_steps", str(config["action_chunk_steps"]),
-            "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config)),
-            "--vlm_image_detail", _vlm_image_detail(config),
+            "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config, task)),
+            "--vlm_image_detail", _vlm_image_detail(config, task),
             "--max_gpt4o_retries", "2",
             "--base_stall_observations", str(_stall_observations(config, task)),
             "--min_base_dispatches", str(_min_base_dispatches(config, task)),
-            "--dag_from_start", str(_dag_from_start(config)),
+            "--dag_from_start", str(_dag_from_start(config, task)),
             "--use_registered_dag_prompts",
-            str(_use_registered_dag_prompts(config)),
+            str(_use_registered_dag_prompts(config, task)),
             "--preserve_original_repair_prompt",
-            str(_preserve_original_repair_prompt(config)),
+            str(_preserve_original_repair_prompt(config, task)),
         ]
         instructions = config.get("instructions", {}).get(task)
         if instructions is not None:
@@ -143,7 +154,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
         repair_cfn = _repair_cfn_path(config, task)
         if repair_cfn is not None:
             command.extend(["--repair_cfn_path", str(repair_cfn)])
-        policy_replan_steps = _policy_replan_steps(config)
+        policy_replan_steps = _policy_replan_steps(config, task)
         if policy_replan_steps is not None:
             command.extend(["--policy_replan_steps", str(policy_replan_steps)])
         with log.open("w", encoding="utf-8") as stream:

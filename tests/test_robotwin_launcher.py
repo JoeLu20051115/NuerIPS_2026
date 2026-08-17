@@ -111,6 +111,36 @@ def test_policy_replan_steps_are_optional() -> None:
     assert LAUNCHER._policy_replan_steps({}) is None
 
 
+def test_control_options_can_be_tuned_per_task() -> None:
+    config = {
+        "repair_action_chunk_steps": 10,
+        "repair_action_chunk_steps_by_task": {"open_microwave": 50},
+        "vlm_image_detail": "low",
+        "vlm_image_detail_by_task": {"open_microwave": "high"},
+        "dag_from_start": True,
+        "dag_from_start_by_task": {"handover_block": False},
+        "use_registered_dag_prompts": False,
+        "use_registered_dag_prompts_by_task": {"turn_switch": True},
+        "preserve_original_repair_prompt": False,
+        "preserve_original_repair_prompt_by_task": {"place_dual_shoes": True},
+        "policy_replan_steps": None,
+        "policy_replan_steps_by_task": {"stack_blocks_three": 10},
+    }
+
+    assert LAUNCHER._repair_action_chunk_steps(config, "open_microwave") == 50
+    assert LAUNCHER._repair_action_chunk_steps(config, "turn_switch") == 10
+    assert LAUNCHER._vlm_image_detail(config, "open_microwave") == "high"
+    assert LAUNCHER._vlm_image_detail(config, "turn_switch") == "low"
+    assert LAUNCHER._dag_from_start(config, "handover_block") is False
+    assert LAUNCHER._dag_from_start(config, "turn_switch") is True
+    assert LAUNCHER._use_registered_dag_prompts(config, "turn_switch") is True
+    assert LAUNCHER._preserve_original_repair_prompt(
+        config, "place_dual_shoes"
+    ) is True
+    assert LAUNCHER._policy_replan_steps(config, "stack_blocks_three") == 10
+    assert LAUNCHER._policy_replan_steps(config, "turn_switch") is None
+
+
 def test_launcher_accepts_explicit_openai_key_alias_without_secret_files(
     monkeypatch,
 ) -> None:
