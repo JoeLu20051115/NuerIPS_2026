@@ -556,7 +556,7 @@ def build_robotwin_audit_collage(images: Sequence[np.ndarray]) -> np.ndarray:
     for image in arrays:
         if image.dtype != np.uint8 or image.ndim != 3 or image.shape[2] != 3:
             raise ValueError("audit collage images must be HxWx3 uint8")
-    columns = min(4, len(arrays))
+    columns = min(2 if len(arrays) <= 4 else 4, len(arrays))
     rows = (len(arrays) + columns - 1) // columns
     height = max(image.shape[0] for image in arrays)
     width = max(image.shape[1] for image in arrays)

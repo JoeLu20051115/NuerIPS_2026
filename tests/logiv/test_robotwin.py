@@ -235,7 +235,7 @@ def test_grounder_persists_the_exact_multicamera_request_as_png_audit(
         "current/left_camera",
         "current/observer_camera",
     ]
-    for index, expected_size in enumerate(((20, 4), (20, 8))):
+    for index, expected_size in enumerate(((10, 8), (20, 8))):
         path = Path(grounder.audit_records[index]["path"])
         encoded = path.read_bytes()
         assert encoded.startswith(b"\x89PNG\r\n\x1a\n")
