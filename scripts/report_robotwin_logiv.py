@@ -43,18 +43,24 @@ def _event_records(root: Path) -> list[dict[str, Any]]:
 
 
 def build_report(
-    config: dict[str, Any], events_root: Path, baseline_logs: Path
+    config: dict[str, Any], events_root: Path, baseline_logs: Path | None
 ) -> dict[str, Any]:
     expected = {
         (task, int(seed)): config["instructions"][task][index]
         for task, seeds in config["tasks"].items()
         for index, seed in enumerate(seeds)
     }
-    baseline = {
-        (task, seed): success
-        for task in config["tasks"]
-        for seed, success in parse_baseline_log(baseline_logs / f"{task}.log").items()
-    }
+    baseline = (
+        {
+            (task, seed): success
+            for task in config["tasks"]
+            for seed, success in parse_baseline_log(
+                baseline_logs / f"{task}.log"
+            ).items()
+        }
+        if baseline_logs is not None
+        else None
+    )
     records = _event_records(events_root)
     actual: dict[tuple[str, int], dict[str, Any]] = {}
     errors: list[str] = []
@@ -111,13 +117,23 @@ def build_report(
             errors.append(f"invalid camera audit: {key}")
     missing = sorted(expected.keys() - actual.keys())
     errors.extend(f"missing LOGIV record: {key}" for key in missing)
-    if set(baseline) != set(expected):
+    if baseline is not None and set(baseline) != set(expected):
         errors.append("baseline seed set does not match frozen protocol")
 
-    paired = sorted(set(actual) & set(expected) & set(baseline))
+    paired = sorted(set(actual) & set(expected))
+    if baseline is not None:
+        paired = sorted(set(paired) & set(baseline))
     successes = sum(bool(actual[key].get("success")) for key in paired)
-    positive = sum(not baseline[key] and actual[key].get("success") for key in paired)
-    negative = sum(baseline[key] and not actual[key].get("success") for key in paired)
+    positive = (
+        sum(not baseline[key] and actual[key].get("success") for key in paired)
+        if baseline is not None
+        else None
+    )
+    negative = (
+        sum(baseline[key] and not actual[key].get("success") for key in paired)
+        if baseline is not None
+        else None
+    )
     by_task: dict[str, dict[str, int]] = defaultdict(
         lambda: {"completed": 0, "successes": 0, "baseline_successes": 0}
     )
@@ -125,7 +141,8 @@ def build_report(
         task, _seed = key
         by_task[task]["completed"] += 1
         by_task[task]["successes"] += int(bool(actual[key].get("success")))
-        by_task[task]["baseline_successes"] += int(baseline[key])
+        if baseline is not None:
+            by_task[task]["baseline_successes"] += int(baseline[key])
     return {
         "evidence_label": "development/seed-selected",
         "expected": len(expected),
@@ -133,7 +150,9 @@ def build_report(
         "strict_protocol_complete": len(paired) == len(expected) and not errors,
         "successes": successes,
         "success_rate": successes / len(paired) if paired else None,
-        "baseline_successes": sum(baseline[key] for key in paired),
+        "baseline_successes": (
+            sum(baseline[key] for key in paired) if baseline is not None else None
+        ),
         "positive_flips": positive,
         "negative_flips": negative,
         "per_task": dict(by_task),
@@ -149,18 +168,34 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "- Evidence label: **development/seed-selected (not an independent holdout)**",
         f"- Overall: **{report['successes']}/{report['completed']} = {rate_text}**",
-        f"- Baseline on paired scenes: **{report['baseline_successes']}/{report['completed']}**",
-        f"- Flips: **+{report['positive_flips']} / -{report['negative_flips']}**",
-        f"- Protocol completeness: **{report['completed']}/{report['expected']}**",
-        f"- Strict protocol audit: **{'PASS' if report['strict_protocol_complete'] else 'FAIL'}**",
-        "",
-        "| Task | LOGIV | Baseline |",
-        "|---|---:|---:|",
     ]
+    if report["baseline_successes"] is None:
+        lines.append("- Baseline: **not run**")
+    else:
+        lines.extend(
+            (
+                f"- Baseline on paired scenes: **{report['baseline_successes']}/{report['completed']}**",
+                f"- Flips: **+{report['positive_flips']} / -{report['negative_flips']}**",
+            )
+        )
+    lines.extend(
+        (
+            f"- Protocol completeness: **{report['completed']}/{report['expected']}**",
+            f"- Strict protocol audit: **{'PASS' if report['strict_protocol_complete'] else 'FAIL'}**",
+            "",
+            "| Task | LOGIV | Baseline |",
+            "|---|---:|---:|",
+        )
+    )
     for task, row in report["per_task"].items():
+        baseline_text = (
+            "n/a"
+            if report["baseline_successes"] is None
+            else f"{row['baseline_successes']}/{row['completed']}"
+        )
         lines.append(
             f"| `{task}` | {row['successes']}/{row['completed']} | "
-            f"{row['baseline_successes']}/{row['completed']} |"
+            f"{baseline_text} |"
         )
     if report["errors"]:
         lines.extend(("", "## Audit errors", ""))
@@ -173,7 +208,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--events-root", required=True, type=Path)
-    parser.add_argument("--baseline-logs", required=True, type=Path)
+    parser.add_argument("--baseline-logs", type=Path)
     parser.add_argument("--json", required=True, type=Path)
     parser.add_argument("--markdown", required=True, type=Path)
     args = parser.parse_args()

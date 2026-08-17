@@ -173,3 +173,50 @@ def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> Non
     assert any("camera audit" in error for error in report["errors"])
     assert any("non-ternary" in error for error in report["errors"])
     assert any("GPT-4o provenance" in error for error in report["errors"])
+
+
+def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) -> None:
+    config = {
+        "tasks": {"task_a": [100001]},
+        "instructions": {"task_a": ["instruction"]},
+    }
+    events = tmp_path / "events"
+    events.mkdir()
+    record = {
+        "task": "task_a",
+        "seed": 100001,
+        "success": True,
+        "original_instruction": "instruction",
+        "gpt4o_requests": 1,
+        "gpt4o_calls": [
+            {
+                "purpose": "state_gate",
+                "model": "gpt-4o-2024-08-06",
+                "request_sha256": "a" * 64,
+                "response_sha256": "b" * 64,
+            }
+        ],
+        "events": [{"val_valid": True, "facts": {"fact": "FALSE"}}],
+        "vlm_audit": [
+            {
+                "path": "vlm_audit/frame.png",
+                "sha256": "c" * 64,
+                "camera_order": [
+                    "current/head_camera",
+                    "current/right_camera",
+                    "current/left_camera",
+                ],
+            }
+        ],
+    }
+    (events / "logiv_events.jsonl").write_text(
+        json.dumps(record) + "\n", encoding="utf-8"
+    )
+
+    report = REPORT.build_report(config, events, None)
+
+    assert report["successes"] == 1
+    assert report["completed"] == 1
+    assert report["baseline_successes"] is None
+    assert report["strict_protocol_complete"] is True
+    assert "Baseline: **not run**" in REPORT.render_markdown(report)
