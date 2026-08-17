@@ -19,12 +19,16 @@ checkpoints; the order below is authoritative.
 13. `0002-feat-robotwin-verify-every-PDDL-node-with-bundled-CF.patch`
 14. `0003-feat-robotwin-support-frozen-prompt-node-replanning.patch`
 15. `0004-feat-robotwin-execute-registered-PDDL-node-prompts.patch`
+16. `0006-feat-robotwin-persist-per-gate-multicamera-evidence.patch`
+17. `0007-feat-robotwin-discover-deterministic-candidate-seed-.patch`
+18. `0008-fix-robotwin-audit-and-skip-unreachable-expert-seeds.patch`
+19. `0009-feat-robotwin-record-direct-GPT-4o-call-provenance.patch`
 
 Example:
 
 ```bash
 git am /path/to/NuerIPS_2026/patches/robotwin/0001-fix-robotwin-parameterize-pi05-baseline-evaluation.patch
-# Continue with items 2--15 in the order above.
+# Continue with items 2--19 in the order above.
 ```
 
 The final four patches correspond to TACO commits `19b9f03`, `2d3fc45`,
@@ -32,3 +36,7 @@ The final four patches correspond to TACO commits `19b9f03`, `2d3fc45`,
 configurations that did not enable CFN or node-internal replanning. The final
 patch adds the explicit registered-node prompt switch used by the strict
 `turn_switch` development cell.
+
+Items 16--19 add the four-camera State Gate evidence archive, deterministic
+20--30 seed-pool discovery, explicit rejection records for expert-unreachable
+scenes, and direct GPT-4o request provenance used by the seed-selected run.

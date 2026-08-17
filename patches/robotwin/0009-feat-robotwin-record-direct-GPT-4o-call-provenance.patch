@@ -1,0 +1,128 @@
+From 2d4c66372099f0a136e071c2f955386da66bfd0f Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Mon, 17 Aug 2026 12:03:09 +0800
+Subject: [PATCH 9/9] feat(robotwin): record direct GPT-4o call provenance
+
+---
+ .../script/eval_lerobot_torch_pi05.py         |  8 ++++++-
+ .../Robotwin/script/pi05_logiv_execution.py   | 18 ++++++++++++++
+ .../tests/test_pi05_logiv_execution.py        | 24 +++++++++++++++++++
+ 3 files changed, 49 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index eb0b1b2..9665c68 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -32,6 +32,7 @@ from script.pi05_logiv_execution import (
+     attach_observer_view,
+     collect_fresh_evidence,
+     relativize_vlm_audit_records,
++    serialize_gpt4o_call_records,
+ )
+ 
+ from policy.pi05 import pi05_model_torch
+@@ -351,6 +352,7 @@ def eval_logiv_policy(
+             )
+         instruction = accepted_instructions[now_id]
+         TASK_ENV.set_instruction(instruction=instruction)
++        call_record_start = len(client.records)
+         grounder = RobotwinFactGrounder(
+             client,
+             audit_dir=Path(save_dir) / "vlm_audit",
+@@ -441,6 +443,9 @@ def eval_logiv_policy(
+             if TASK_ENV.eval_video_path is not None:
+                 TASK_ENV._del_eval_video_ffmpeg()
+ 
++        gpt4o_calls = serialize_gpt4o_call_records(
++            client.records[call_record_start:]
++        )
+         record = {
+             "task": task_name,
+             "seed": now_seed,
+@@ -448,7 +453,8 @@ def eval_logiv_policy(
+             "reason": outcome.reason,
+             "actions": TASK_ENV.take_action_cnt,
+             "dispatches": outcome.dispatches,
+-            "gpt4o_requests": len(outcome.events),
++            "gpt4o_requests": len(gpt4o_calls),
++            "gpt4o_calls": gpt4o_calls,
+             "original_instruction": str(instruction),
+             "repair_cfn_path": repair_cfn_path,
+             "preserve_original_repair_prompt": preserve_original_repair_prompt,
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+index 87908d6..8ff8ea9 100644
+--- a/third_party/Robotwin/script/pi05_logiv_execution.py
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -2,6 +2,24 @@ from copy import deepcopy
+ from pathlib import Path
+ 
+ 
++def serialize_gpt4o_call_records(records):
++    fields = (
++        "purpose",
++        "response_id",
++        "model",
++        "input_tokens",
++        "output_tokens",
++        "elapsed_seconds",
++        "retries",
++        "request_sha256",
++        "response_sha256",
++    )
++    return [
++        {field: getattr(record, field) for field in fields}
++        for record in records
++    ]
++
++
+ def relativize_vlm_audit_records(records, save_dir):
+     """Serialize audit paths without allowing an episode to escape its output."""
+     root = Path(save_dir).resolve()
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+index a1f2865..20a716b 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_execution.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -1,16 +1,40 @@
+ import unittest
+ from pathlib import Path
+ import tempfile
++from types import SimpleNamespace
+ 
+ from script.pi05_logiv_execution import (
+     RecedingHorizonMacroExecutor,
+     attach_observer_view,
+     collect_fresh_evidence,
+     relativize_vlm_audit_records,
++    serialize_gpt4o_call_records,
+ )
+ 
+ 
+ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
++    def test_gpt4o_call_records_keep_model_usage_and_hashes(self):
++        records = [
++            SimpleNamespace(
++                purpose="state_gate",
++                response_id="chatcmpl-1",
++                model="gpt-4o-2024-08-06",
++                input_tokens=100,
++                output_tokens=12,
++                elapsed_seconds=0.5,
++                retries=1,
++                request_sha256="a" * 64,
++                response_sha256="b" * 64,
++            )
++        ]
++
++        serialized = serialize_gpt4o_call_records(records)
++
++        self.assertEqual(serialized[0]["purpose"], "state_gate")
++        self.assertEqual(serialized[0]["model"], "gpt-4o-2024-08-06")
++        self.assertEqual(serialized[0]["input_tokens"], 100)
++        self.assertEqual(serialized[0]["request_sha256"], "a" * 64)
++
+     def test_vlm_audit_records_are_confined_to_the_episode_output(self):
+         with tempfile.TemporaryDirectory() as directory:
+             root = Path(directory).resolve()
+-- 
+2.43.0
+
