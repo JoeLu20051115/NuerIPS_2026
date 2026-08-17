@@ -53,7 +53,22 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "success": True,
             "original_instruction": "first",
             "gpt4o_requests": 3,
-            "events": [{"val_valid": True}],
+            "events": [
+                {"val_valid": True, "facts": {"fact": "UNRESOLVED"}}
+                for _ in range(3)
+            ],
+            "vlm_audit": [
+                {
+                    "path": f"vlm_audit/first-{epoch}.png",
+                    "sha256": "a" * 64,
+                    "camera_order": [
+                        "current/head_camera",
+                        "current/right_camera",
+                        "current/left_camera",
+                    ],
+                }
+                for epoch in range(3)
+            ],
         },
         {
             "task": "task_a",
@@ -61,7 +76,22 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "success": False,
             "original_instruction": "second",
             "gpt4o_requests": 2,
-            "events": [{"val_valid": True}],
+            "events": [
+                {"val_valid": True, "facts": {"fact": "FALSE"}}
+                for _ in range(2)
+            ],
+            "vlm_audit": [
+                {
+                    "path": f"vlm_audit/second-{epoch}.png",
+                    "sha256": "b" * 64,
+                    "camera_order": [
+                        "current/head_camera",
+                        "current/right_camera",
+                        "current/left_camera",
+                    ],
+                }
+                for epoch in range(2)
+            ],
         },
     ]
     (events / "logiv_events.jsonl").write_text(
@@ -76,6 +106,43 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
     assert report["positive_flips"] == 1
     assert report["negative_flips"] == 1
     assert report["errors"] == []
-    assert report["evidence_label"] == "development/tuning"
+    assert report["evidence_label"] == "development/seed-selected"
     assert report["strict_protocol_complete"] is True
     assert "not an independent holdout" in REPORT.render_markdown(report)
+
+
+def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> None:
+    config = {
+        "tasks": {"task_a": [100001]},
+        "instructions": {"task_a": ["instruction"]},
+    }
+    baseline = tmp_path / "baseline"
+    baseline.mkdir()
+    (baseline / "task_a.log").write_text(
+        "Success rate: 0/1 => 0.0%, current seed: 100001\n",
+        encoding="utf-8",
+    )
+    events = tmp_path / "events"
+    events.mkdir()
+    (events / "logiv_events.jsonl").write_text(
+        json.dumps(
+            {
+                "task": "task_a",
+                "seed": 100001,
+                "success": False,
+                "original_instruction": "instruction",
+                "gpt4o_requests": 1,
+                "events": [
+                    {"val_valid": True, "facts": {"fact": "UNKNOWN"}}
+                ],
+                "vlm_audit": [],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = REPORT.build_report(config, events, baseline)
+
+    assert any("camera audit" in error for error in report["errors"])
+    assert any("non-ternary" in error for error in report["errors"])

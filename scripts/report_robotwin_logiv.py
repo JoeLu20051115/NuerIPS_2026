@@ -13,6 +13,12 @@ SUCCESS_RE = re.compile(
     r"Success rate:\s*(\d+)/(\d+).*?current seed:\s*(\d+)"
 )
 ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+TERNARY_VALUES = {"TRUE", "FALSE", "UNRESOLVED"}
+CURRENT_CAMERAS = {
+    "current/head_camera",
+    "current/right_camera",
+    "current/left_camera",
+}
 
 
 def parse_baseline_log(path: Path) -> dict[int, bool]:
@@ -67,8 +73,28 @@ def build_report(
             errors.append(f"missing monitor events: {key}")
         elif not all(event.get("val_valid") is True for event in record["events"]):
             errors.append(f"VAL-invalid plan: {key}")
-        if int(record.get("gpt4o_requests", 0)) < 1:
+        request_count = int(record.get("gpt4o_requests", 0))
+        if request_count < 1:
             errors.append(f"missing GPT-4o observation: {key}")
+        event_values = {
+            value
+            for event in record.get("events", [])
+            if isinstance(event, dict)
+            for value in event.get("facts", {}).values()
+        }
+        if not event_values or not event_values <= TERNARY_VALUES:
+            errors.append(f"non-ternary State Gate fact: {key}")
+        audits = record.get("vlm_audit")
+        if not isinstance(audits, list) or len(audits) != request_count:
+            errors.append(f"missing or incomplete camera audit: {key}")
+        elif any(
+            not isinstance(audit, dict)
+            or not isinstance(audit.get("path"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", str(audit.get("sha256", "")))
+            or not CURRENT_CAMERAS <= set(audit.get("camera_order", []))
+            for audit in audits
+        ):
+            errors.append(f"invalid camera audit: {key}")
     missing = sorted(expected.keys() - actual.keys())
     errors.extend(f"missing LOGIV record: {key}" for key in missing)
     if set(baseline) != set(expected):
@@ -87,7 +113,7 @@ def build_report(
         by_task[task]["successes"] += int(bool(actual[key].get("success")))
         by_task[task]["baseline_successes"] += int(baseline[key])
     return {
-        "evidence_label": "development/tuning",
+        "evidence_label": "development/seed-selected",
         "expected": len(expected),
         "completed": len(paired),
         "strict_protocol_complete": len(paired) == len(expected) and not errors,
@@ -107,7 +133,7 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines = [
         "# RoboTwin 2.0 LOGIV + PDDL — 10 tasks × 10 episodes",
         "",
-        "- Evidence label: **development/tuning (not an independent holdout)**",
+        "- Evidence label: **development/seed-selected (not an independent holdout)**",
         f"- Overall: **{report['successes']}/{report['completed']} = {rate_text}**",
         f"- Baseline on paired scenes: **{report['baseline_successes']}/{report['completed']}**",
         f"- Flips: **+{report['positive_flips']} / -{report['negative_flips']}**",
