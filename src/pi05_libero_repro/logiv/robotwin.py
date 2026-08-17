@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from dataclasses import dataclass
 from enum import Enum
 import hashlib
@@ -15,7 +16,10 @@ import numpy as np
 class TruthValue(str, Enum):
     TRUE = "TRUE"
     FALSE = "FALSE"
-    UNKNOWN = "UNKNOWN"
+    UNRESOLVED = "UNRESOLVED"
+    # Backward-compatible internal spelling for historical experiment code.
+    # Enum iteration and all serialized/VLM-facing values use UNRESOLVED.
+    UNKNOWN = "UNRESOLVED"
 
 
 @dataclass(frozen=True)
@@ -543,6 +547,29 @@ def extract_robotwin_images(observation: Mapping[str, Any]) -> tuple[np.ndarray,
     return images
 
 
+def build_robotwin_audit_collage(images: Sequence[np.ndarray]) -> np.ndarray:
+    """Tile the exact ordered VLM request images into a dependency-free RGB grid."""
+
+    if not images:
+        raise ValueError("audit collage requires at least one image")
+    arrays = tuple(np.asarray(image) for image in images)
+    for image in arrays:
+        if image.dtype != np.uint8 or image.ndim != 3 or image.shape[2] != 3:
+            raise ValueError("audit collage images must be HxWx3 uint8")
+    columns = min(4, len(arrays))
+    rows = (len(arrays) + columns - 1) // columns
+    height = max(image.shape[0] for image in arrays)
+    width = max(image.shape[1] for image in arrays)
+    collage = np.zeros((rows * height, columns * width, 3), dtype=np.uint8)
+    for index, image in enumerate(arrays):
+        row, column = divmod(index, columns)
+        collage[
+            row * height : row * height + image.shape[0],
+            column * width : column * width + image.shape[1],
+        ] = image
+    return collage
+
+
 class RobotwinFactGrounder:
     """GPT-4o adapter restricted to registered visual facts."""
 
@@ -551,15 +578,64 @@ class RobotwinFactGrounder:
         "Only classify the registered facts from the synchronized camera views. "
         "TRUE means the fact is visibly satisfied now. FALSE means the relevant "
         "objects are visible and the fact is not yet satisfied, including an "
-        "action that is visibly still in progress. Use UNKNOWN only when the "
+        "action that is visibly still in progress. Use UNRESOLVED only when the "
         "relevant object or relation is occluded, out of view, or visually "
-        "ambiguous; UNKNOWN never means merely incomplete. "
+        "ambiguous; UNRESOLVED never means merely incomplete. "
         "Do not plan, recommend, rank, or describe robot actions."
     )
 
-    def __init__(self, client: Any) -> None:
+    def __init__(
+        self,
+        client: Any,
+        *,
+        audit_dir: str | Path | None = None,
+        episode_id: str | None = None,
+    ) -> None:
         self.client = client
         self._initial_images: tuple[np.ndarray, ...] | None = None
+        self.audit_dir = None if audit_dir is None else Path(audit_dir)
+        self.episode_id = episode_id
+        self._audit_records: list[dict[str, Any]] = []
+        if (self.audit_dir is None) != (self.episode_id is None):
+            raise ValueError("audit_dir and episode_id must be configured together")
+        if self.episode_id is not None and not all(
+            character.isalnum() or character in {"-", "_"}
+            for character in self.episode_id
+        ):
+            raise ValueError("episode_id contains unsafe path characters")
+
+    @property
+    def audit_records(self) -> tuple[dict[str, Any], ...]:
+        return tuple(dict(record) for record in self._audit_records)
+
+    def _write_audit(
+        self,
+        *,
+        epoch: int,
+        images: Sequence[np.ndarray],
+        camera_order: Sequence[str],
+    ) -> None:
+        if self.audit_dir is None or self.episode_id is None:
+            return
+        # Import lazily so the pure symbolic planner remains independent of the
+        # OpenAI transport unless visual grounding is actually instantiated.
+        from .gpt4o import encode_png_data_url
+
+        collage = build_robotwin_audit_collage(images)
+        encoded = encode_png_data_url(collage)
+        png = base64.b64decode(encoded.partition(",")[2], validate=True)
+        self.audit_dir.mkdir(parents=True, exist_ok=True)
+        path = self.audit_dir / f"{self.episode_id}-epoch-{epoch:03d}.png"
+        with path.open("xb") as stream:
+            stream.write(png)
+        self._audit_records.append(
+            {
+                "epoch": epoch,
+                "path": str(path.resolve()),
+                "camera_order": list(camera_order),
+                "sha256": hashlib.sha256(png).hexdigest(),
+            }
+        )
 
     def observe(
         self, task: RobotwinTask, observation: Mapping[str, Any], *, epoch: int
@@ -593,17 +669,25 @@ class RobotwinFactGrounder:
             "additionalProperties": False,
         }
         current_images = extract_robotwin_images(observation)
+        camera_names = ("head_camera", "right_camera", "left_camera") + (
+            ("observer_camera",) if len(current_images) == 4 else ()
+        )
         if epoch == 0 or self._initial_images is None:
             self._initial_images = tuple(image.copy() for image in current_images)
             images = current_images
+            camera_order = tuple(f"current/{name}" for name in camera_names)
             comparison = "These images are the episode initial synchronized views."
         else:
             images = self._initial_images + current_images
+            camera_order = tuple(f"initial/{name}" for name in camera_names) + tuple(
+                f"current/{name}" for name in camera_names
+            )
             comparison = (
                 f"The first {len(current_images)} images are the initial views; "
                 f"the last {len(current_images)} are the current synchronized views. "
                 "Classify facts for the current views using visible change from initial."
             )
+        self._write_audit(epoch=epoch, images=images, camera_order=camera_order)
         response = self.client.complete_json(
             purpose="state_gate",
             system=self.SYSTEM,

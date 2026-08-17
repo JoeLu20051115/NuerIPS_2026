@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import struct
 
 import numpy as np
 import pytest
@@ -143,6 +144,15 @@ def test_robotwin_image_extraction_includes_optional_observer_view() -> None:
     assert [int(image[0, 0, 0]) for image in images] == [0, 1, 2, 3]
 
 
+def test_public_truth_values_use_unresolved_not_unknown() -> None:
+    assert [value.value for value in TruthValue] == [
+        "TRUE",
+        "FALSE",
+        "UNRESOLVED",
+    ]
+    assert TruthValue.UNKNOWN is TruthValue.UNRESOLVED
+
+
 class _Client:
     def __init__(self) -> None:
         self.kwargs = None
@@ -152,7 +162,10 @@ class _Client:
         return {
             "facts": [
                 {"name": "microwave-open", "value": "FALSE"},
-                {"name": "microwave-door-started-opening", "value": "UNKNOWN"},
+                {
+                    "name": "microwave-door-started-opening",
+                    "value": "UNRESOLVED",
+                },
             ]
         }
 
@@ -170,7 +183,7 @@ def test_grounder_restricts_gpt4o_to_visual_fact_confirmation() -> None:
     result = RobotwinFactGrounder(client).observe(task, obs, epoch=3)
 
     assert result["microwave-open"] is TruthValue.FALSE
-    assert result["microwave-door-started-opening"] is TruthValue.UNKNOWN
+    assert result["microwave-door-started-opening"] is TruthValue.UNRESOLVED
     assert client.kwargs["purpose"] == "state_gate"
     assert "Do not plan" in client.kwargs["system"]
     assert len(client.kwargs["images"]) == 3
@@ -178,6 +191,56 @@ def test_grounder_restricts_gpt4o_to_visual_fact_confirmation() -> None:
                ["properties"]["name"]["enum"]) == {
         stage.fact for stage in task.stages
     }
+    assert client.kwargs["schema"]["properties"]["facts"]["items"][
+        "properties"
+    ]["value"]["enum"] == ["TRUE", "FALSE", "UNRESOLVED"]
+
+
+def test_grounder_persists_the_exact_multicamera_request_as_png_audit(
+    tmp_path: Path,
+) -> None:
+    client = _Client()
+    task = ROBOTWIN_TASKS["open_microwave"]
+    obs = {
+        "observation": {
+            name: {"rgb": np.full((4, 5, 3), value, dtype=np.uint8)}
+            for value, name in enumerate(
+                ("head_camera", "right_camera", "left_camera", "observer_camera")
+            )
+        }
+    }
+    grounder = RobotwinFactGrounder(
+        client,
+        audit_dir=tmp_path,
+        episode_id="open_microwave-seed100002",
+    )
+
+    grounder.observe(task, obs, epoch=0)
+    grounder.observe(task, obs, epoch=1)
+
+    assert len(grounder.audit_records) == 2
+    assert grounder.audit_records[0]["camera_order"] == [
+        "current/head_camera",
+        "current/right_camera",
+        "current/left_camera",
+        "current/observer_camera",
+    ]
+    assert grounder.audit_records[1]["camera_order"] == [
+        "initial/head_camera",
+        "initial/right_camera",
+        "initial/left_camera",
+        "initial/observer_camera",
+        "current/head_camera",
+        "current/right_camera",
+        "current/left_camera",
+        "current/observer_camera",
+    ]
+    for index, expected_size in enumerate(((20, 4), (20, 8))):
+        path = Path(grounder.audit_records[index]["path"])
+        encoded = path.read_bytes()
+        assert encoded.startswith(b"\x89PNG\r\n\x1a\n")
+        assert struct.unpack(">II", encoded[16:24]) == expected_size
+        assert len(grounder.audit_records[index]["sha256"]) == 64
 
 
 def test_grounder_reserves_unknown_for_insufficient_visual_evidence() -> None:
