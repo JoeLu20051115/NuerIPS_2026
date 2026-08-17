@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 
@@ -12,6 +13,13 @@ SPEC = importlib.util.spec_from_file_location(
 REPORT = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(REPORT)
+
+
+def _audit_file(root: Path, relative: str, content: bytes) -> str:
+    path = root / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(content)
+    return hashlib.sha256(content).hexdigest()
 
 
 def test_baseline_parser_derives_per_seed_success_from_cumulative_count(tmp_path) -> None:
@@ -46,6 +54,16 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
     )
     events = tmp_path / "events" / "nested"
     events.mkdir(parents=True)
+    first_hashes = [
+        _audit_file(events, f"vlm_audit/first-{epoch}.png", f"first-{epoch}".encode())
+        for epoch in range(3)
+    ]
+    second_hashes = [
+        _audit_file(
+            events, f"vlm_audit/second-{epoch}.png", f"second-{epoch}".encode()
+        )
+        for epoch in range(2)
+    ]
     records = [
         {
             "task": "task_a",
@@ -69,7 +87,7 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "vlm_audit": [
                 {
                     "path": f"vlm_audit/first-{epoch}.png",
-                    "sha256": "a" * 64,
+                    "sha256": first_hashes[epoch],
                     "camera_order": [
                         "current/head_camera",
                         "current/right_camera",
@@ -101,7 +119,7 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "vlm_audit": [
                 {
                     "path": f"vlm_audit/second-{epoch}.png",
-                    "sha256": "b" * 64,
+                    "sha256": second_hashes[epoch],
                     "camera_order": [
                         "current/head_camera",
                         "current/right_camera",
@@ -182,6 +200,7 @@ def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) 
     }
     events = tmp_path / "events"
     events.mkdir()
+    frame_hash = _audit_file(events, "vlm_audit/frame.png", b"frame")
     record = {
         "task": "task_a",
         "seed": 100001,
@@ -200,7 +219,7 @@ def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) 
         "vlm_audit": [
             {
                 "path": "vlm_audit/frame.png",
-                "sha256": "c" * 64,
+                "sha256": frame_hash,
                 "camera_order": [
                     "current/head_camera",
                     "current/right_camera",
@@ -220,3 +239,46 @@ def test_seed_selected_report_can_audit_native_score_without_baseline(tmp_path) 
     assert report["baseline_successes"] is None
     assert report["strict_protocol_complete"] is True
     assert "Baseline: **not run**" in REPORT.render_markdown(report)
+
+
+def test_report_rejects_missing_or_tampered_camera_file(tmp_path) -> None:
+    config = {
+        "tasks": {"task_a": [100001]},
+        "instructions": {"task_a": ["instruction"]},
+    }
+    events = tmp_path / "events"
+    events.mkdir()
+    record = {
+        "task": "task_a",
+        "seed": 100001,
+        "success": False,
+        "original_instruction": "instruction",
+        "gpt4o_requests": 1,
+        "gpt4o_calls": [
+            {
+                "purpose": "state_gate",
+                "model": "gpt-4o-2024-08-06",
+                "request_sha256": "a" * 64,
+                "response_sha256": "b" * 64,
+            }
+        ],
+        "events": [{"val_valid": True, "facts": {"fact": "FALSE"}}],
+        "vlm_audit": [
+            {
+                "path": "vlm_audit/missing.png",
+                "sha256": hashlib.sha256(b"different").hexdigest(),
+                "camera_order": [
+                    "current/head_camera",
+                    "current/right_camera",
+                    "current/left_camera",
+                ],
+            }
+        ],
+    }
+    (events / "logiv_events.jsonl").write_text(
+        json.dumps(record) + "\n", encoding="utf-8"
+    )
+
+    report = REPORT.build_report(config, events, None)
+
+    assert any("camera audit file" in error for error in report["errors"])

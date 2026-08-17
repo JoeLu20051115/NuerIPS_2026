@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -34,12 +35,29 @@ def parse_baseline_log(path: Path) -> dict[int, bool]:
     return result
 
 
-def _event_records(root: Path) -> list[dict[str, Any]]:
-    records = []
+def _event_records(root: Path) -> list[tuple[dict[str, Any], Path]]:
+    records: list[tuple[dict[str, Any], Path]] = []
     for path in sorted(root.rglob("logiv_events.jsonl")):
         with path.open(encoding="utf-8") as stream:
-            records.extend(json.loads(line) for line in stream if line.strip())
+            records.extend(
+                (json.loads(line), path.parent)
+                for line in stream
+                if line.strip()
+            )
     return records
+
+
+def _audit_file_matches(episode_root: Path, audit: dict[str, Any]) -> bool:
+    try:
+        root = episode_root.resolve()
+        path = (root / audit["path"]).resolve()
+        path.relative_to(root)
+        expected = str(audit["sha256"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    if not path.is_file():
+        return False
+    return hashlib.sha256(path.read_bytes()).hexdigest() == expected
 
 
 def build_report(
@@ -64,7 +82,7 @@ def build_report(
     records = _event_records(events_root)
     actual: dict[tuple[str, int], dict[str, Any]] = {}
     errors: list[str] = []
-    for record in records:
+    for record, episode_root in records:
         key = (str(record.get("task")), int(record.get("seed")))
         if key in actual:
             errors.append(f"duplicate LOGIV record: {key}")
@@ -115,6 +133,10 @@ def build_report(
             for audit in audits
         ):
             errors.append(f"invalid camera audit: {key}")
+        elif any(
+            not _audit_file_matches(episode_root, audit) for audit in audits
+        ):
+            errors.append(f"missing or mismatched camera audit file: {key}")
     missing = sorted(expected.keys() - actual.keys())
     errors.extend(f"missing LOGIV record: {key}" for key in missing)
     if baseline is not None and set(baseline) != set(expected):
