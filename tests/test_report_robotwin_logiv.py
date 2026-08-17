@@ -53,6 +53,15 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "success": True,
             "original_instruction": "first",
             "gpt4o_requests": 3,
+            "gpt4o_calls": [
+                {
+                    "purpose": "state_gate",
+                    "model": "gpt-4o-2024-08-06",
+                    "request_sha256": "c" * 64,
+                    "response_sha256": "d" * 64,
+                }
+                for _ in range(3)
+            ],
             "events": [
                 {"val_valid": True, "facts": {"fact": "UNRESOLVED"}}
                 for _ in range(3)
@@ -76,6 +85,15 @@ def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
             "success": False,
             "original_instruction": "second",
             "gpt4o_requests": 2,
+            "gpt4o_calls": [
+                {
+                    "purpose": "state_gate",
+                    "model": "gpt-4o-2024-08-06",
+                    "request_sha256": "e" * 64,
+                    "response_sha256": "f" * 64,
+                }
+                for _ in range(2)
+            ],
             "events": [
                 {"val_valid": True, "facts": {"fact": "FALSE"}}
                 for _ in range(2)
@@ -132,6 +150,14 @@ def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> Non
                 "success": False,
                 "original_instruction": "instruction",
                 "gpt4o_requests": 1,
+                "gpt4o_calls": [
+                    {
+                        "purpose": "repair",
+                        "model": "not-gpt-4o",
+                        "request_sha256": "bad",
+                        "response_sha256": "bad",
+                    }
+                ],
                 "events": [
                     {"val_valid": True, "facts": {"fact": "UNKNOWN"}}
                 ],
@@ -146,3 +172,4 @@ def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> Non
 
     assert any("camera audit" in error for error in report["errors"])
     assert any("non-ternary" in error for error in report["errors"])
+    assert any("GPT-4o provenance" in error for error in report["errors"])

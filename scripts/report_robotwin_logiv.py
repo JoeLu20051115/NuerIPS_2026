@@ -76,6 +76,20 @@ def build_report(
         request_count = int(record.get("gpt4o_requests", 0))
         if request_count < 1:
             errors.append(f"missing GPT-4o observation: {key}")
+        calls = record.get("gpt4o_calls")
+        if not isinstance(calls, list) or len(calls) != request_count or any(
+            not isinstance(call, dict)
+            or call.get("purpose") != "state_gate"
+            or not str(call.get("model", "")).startswith("gpt-4o")
+            or not re.fullmatch(
+                r"[0-9a-f]{64}", str(call.get("request_sha256", ""))
+            )
+            or not re.fullmatch(
+                r"[0-9a-f]{64}", str(call.get("response_sha256", ""))
+            )
+            for call in calls or []
+        ):
+            errors.append(f"invalid GPT-4o provenance: {key}")
         event_values = {
             value
             for event in record.get("events", [])
