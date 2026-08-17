@@ -111,6 +111,25 @@ def test_policy_replan_steps_are_optional() -> None:
     assert LAUNCHER._policy_replan_steps({}) is None
 
 
+def test_launcher_accepts_explicit_openai_key_alias_without_secret_files(
+    monkeypatch,
+) -> None:
+    key = "sk-" + "a" * 48
+    monkeypatch.setenv("OPENAI_API_KEY", "none")
+    monkeypatch.setenv("OPENAI_KEY", key)
+
+    assert LAUNCHER._api_key() == key
+
+
+def test_launcher_prefers_standard_openai_api_key(monkeypatch) -> None:
+    standard = "sk-" + "b" * 48
+    alias = "sk-" + "c" * 48
+    monkeypatch.setenv("OPENAI_API_KEY", standard)
+    monkeypatch.setenv("OPENAI_KEY", alias)
+
+    assert LAUNCHER._api_key() == standard
+
+
 def test_explicit_gpu_allows_tasks_independent_of_worker_group(
     monkeypatch,
     tmp_path: Path,

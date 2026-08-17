@@ -75,17 +75,13 @@ def _repair_cfn_path(config: dict, task: str) -> Path | None:
 
 
 def _api_key() -> str:
-    existing = os.environ.get("OPENAI_API_KEY", "")
-    if existing.startswith("sk-") and len(existing) > 20:
-        return existing
-    path = Path.home() / ".cline/data/secrets.json"
-    try:
-        value = json.loads(path.read_text())["openRouterApiKey"]
-    except (OSError, KeyError, TypeError, json.JSONDecodeError) as error:
-        raise RuntimeError("no valid OpenAI API key source found") from error
-    if not isinstance(value, str) or not value.startswith("sk-") or len(value) <= 20:
-        raise RuntimeError("OpenAI API key source is invalid")
-    return value
+    for name in ("OPENAI_API_KEY", "OPENAI_KEY"):
+        value = os.environ.get(name, "")
+        if value.startswith("sk-") and len(value) > 20:
+            return value
+    raise RuntimeError(
+        "set a valid OPENAI_API_KEY (or OPENAI_KEY) for the direct OpenAI API"
+    )
 
 
 def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> int:
