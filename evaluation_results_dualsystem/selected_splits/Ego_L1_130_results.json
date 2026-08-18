@@ -1,0 +1,18 @@
+{
+  "dataset": "Ego_L1_130",
+  "reconstruction_note": "Summary rebuilt from preserved aggregate statistics after the original episode-level EgoDex logs were lost.",
+  "task_token_only": {
+    "num_episodes": 130,
+    "mean_l2": 0.1077,
+    "mean_task_progress": 0.4171,
+    "success_rate": 0.541,
+    "rate_of_l2_lt_0_1": null
+  },
+  "dual_llm": {
+    "num_episodes": 130,
+    "mean_l2": 0.1003,
+    "mean_task_progress": 0.4388,
+    "success_rate": 0.555,
+    "rate_of_l2_lt_0_1": null
+  }
+}

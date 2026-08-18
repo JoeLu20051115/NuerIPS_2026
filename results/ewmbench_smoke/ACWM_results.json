@@ -1,0 +1,29 @@
+{
+  "scene_consistency": [
+    0.9456273806946618,
+    [
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_smoke/ACWM_dataset/367/649524000/0/video",
+        "video_results": 0.9456273806946618
+      }
+    ]
+  ],
+  "trajectory_consistency": {
+    "367": {
+      "649524000": {
+        "0": {
+          "hsd": "0.956",
+          "dyn": "0.158",
+          "ndtw": "0.761"
+        }
+      }
+    }
+  },
+  "psnr": {
+    "367": {
+      "649524000": {
+        "0": 11.252635052117798
+      }
+    }
+  }
+}

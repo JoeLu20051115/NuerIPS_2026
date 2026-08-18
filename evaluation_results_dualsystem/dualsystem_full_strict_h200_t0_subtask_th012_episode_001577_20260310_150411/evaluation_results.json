@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.13438022668653332,
+  "video_mse": 0.006835683911437787,
+  "policy_inference_time_per_step": 4.394004401843995,
+  "llm_planning_time": 1.1942900391295552,
+  "total_episode_time": 45.134334057569504,
+  "completion_time": 4.394004401843995,
+  "robustness_score": 0.8656197733134667,
+  "num_sub_tasks": 5,
+  "task_description": "Change the position of the marker to face across the table",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the marker.",
+    "Lift the marker above the table.",
+    "Rotate the marker to face across the table.",
+    "Place the marker back on the table."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the marker.  \nLift the marker above the table.  \nRotate the marker to face across the table.  \nPlace the marker back on the table."
+  },
+  "evaluation_status": "SUCCESS"
+}

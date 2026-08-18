@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.11655207991181904,
+  "video_mse": 0.0029930235272601553,
+  "policy_inference_time_per_step": 2.116957112867385,
+  "llm_planning_time": 3.2158142486587167,
+  "total_episode_time": 24.385385377332568,
+  "completion_time": 2.116957112867385,
+  "robustness_score": 0.883447920088181,
+  "num_sub_tasks": 5,
+  "task_description": "Move the pencil to the left",
+  "sub_instructions": [
+    "open gripper",
+    "move pencil to the left",
+    "close gripper",
+    "move pencil to the desired position",
+    "open gripper"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 0.8,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "open gripper  \nmove pencil to the left  \nclose gripper  \nmove pencil to the desired position  \nopen gripper  "
+  },
+  "evaluation_status": "SUCCESS"
+}

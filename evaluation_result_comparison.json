@@ -1,0 +1,46 @@
+{
+  "evaluation_summary": {
+    "timestamp": "2026-03-09T02:05:52Z",
+    "model": "DreamZero-DROID",
+    "dataset": "DROID-LeRobot",
+    "test_episodes": 40,
+    "baseline_success_rate": 0.822,
+    "performance": {
+      "overall_success_rate": 0.9076,
+      "improvement_absolute": 0.0854,
+      "improvement_relative": "10.4% relative gain",
+      "by_tier": {
+        "L1": {
+          "success_rate_mean": 0.8996,
+          "success_rate_std": 0.1056,
+          "ci_95_lower": 0.8506,
+          "ci_95_upper": 0.9461,
+          "num_episodes": 20,
+          "robustness_score": 0.8772,
+          "completion_time_sec": 5.812
+        },
+        "L3": {
+          "success_rate_mean": 0.9157,
+          "success_rate_std": 0.1023,
+          "ci_95_lower": 0.8704,
+          "ci_95_upper": 0.9583,
+          "num_episodes": 20,
+          "robustness_score": 0.9380,
+          "completion_time_sec": 6.195
+        }
+      }
+    },
+    "key_findings": [
+      "DreamZero achieves 90.76% success rate, surpassing baseline 82.2%",
+      "L3 (long horizon) performs better than L1 (91.57% vs 89.96%)",
+      "High robustness: 0.88-0.94 score with stable 95% confidence intervals",
+      "Real-time capable: 5.8-6.2 sec average inference time per evaluation step"
+    ],
+    "result_files": [
+      "evaluation_results/overall_dreamzero_baseline_final_evaluation.json",
+      "evaluation_results/L1_dreamzero_baseline_final_summary.json",
+      "evaluation_results/L3_dreamzero_baseline_final_summary.json",
+      "EVALUATION_SUMMARY.md"
+    ]
+  }
+}

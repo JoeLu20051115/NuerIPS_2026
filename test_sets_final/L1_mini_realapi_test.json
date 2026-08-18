@@ -1,0 +1,14 @@
+[
+  {
+    "episode_id": "episode_001004",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001004.parquet"
+  },
+  {
+    "episode_id": "episode_001069",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001069.parquet"
+  },
+  {
+    "episode_id": "episode_001096",
+    "path": "data/droid_lerobot/data/chunk-001/episode_001096.parquet"
+  }
+]

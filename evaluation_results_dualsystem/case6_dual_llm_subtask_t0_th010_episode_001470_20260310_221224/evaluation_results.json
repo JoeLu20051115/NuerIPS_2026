@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.5,
+  "action_l2_error": 0.14453938675155392,
+  "video_mse": 0.006808425241596613,
+  "policy_inference_time_per_step": 2.120936939679086,
+  "llm_planning_time": 7.760711014270782e-06,
+  "total_episode_time": 21.209377157501876,
+  "completion_time": 2.120936939679086,
+  "robustness_score": 0.8554606132484461,
+  "num_sub_tasks": 1,
+  "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+  "sub_instructions": [
+    "Remove all the objects from the white plastic bag and put them on the table"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "subtask",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "mock",
+    "api_called": false,
+    "api_success": false,
+    "error": "mock_mode_enabled_or_missing_api_key",
+    "model": "gpt-4o-mini",
+    "raw_response": null
+  },
+  "evaluation_status": "SUCCESS"
+}

@@ -1,0 +1,502 @@
+[
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464004/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464005/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464006/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464007/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464008/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464009/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464010/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464011/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464012/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464013/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464014/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600004/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600005/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600006/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600007/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600008/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600009/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600010/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600011/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600012/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600013/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600014/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186000/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186001/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186002/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186003/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186004/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186005/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186006/0/video"
+        ]
+    },
+    {
+        "dimension": [
+            "psnr",
+            "scene_consistency",
+            "trajectory_consistency"
+        ],
+        "video_list": [
+            "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186007/0/video"
+        ]
+    }
+]

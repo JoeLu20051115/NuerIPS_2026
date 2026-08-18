@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.1291112869980044,
+  "video_mse": 0.003620285680844973,
+  "policy_inference_time_per_step": 2.1293326400220396,
+  "llm_planning_time": 1.5478755813091993,
+  "total_episode_time": 22.841201981529593,
+  "completion_time": 2.1293326400220396,
+  "robustness_score": 0.8708887130019956,
+  "num_sub_tasks": 5,
+  "task_description": "Close the top drawer of the left cabinet",
+  "sub_instructions": [
+    "move to the left cabinet",
+    "grasp the top drawer",
+    "close the top drawer",
+    "release the top drawer",
+    "move back to the starting position"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the left cabinet  \ngrasp the top drawer  \nclose the top drawer  \nrelease the top drawer  \nmove back to the starting position  "
+  },
+  "evaluation_status": "SUCCESS"
+}

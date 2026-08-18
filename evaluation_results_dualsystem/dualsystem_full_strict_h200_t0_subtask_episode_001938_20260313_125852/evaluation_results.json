@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.3,
+  "action_l2_error": 0.1652357682516203,
+  "video_mse": 0.00501128826935218,
+  "policy_inference_time_per_step": 4.486910433508456,
+  "llm_planning_time": 1.543910183943808,
+  "total_episode_time": 46.413014519028366,
+  "completion_time": 4.486910433508456,
+  "robustness_score": 0.8347642317483797,
+  "num_sub_tasks": 5,
+  "task_description": "Put the glue stick inside the mug cup",
+  "sub_instructions": [
+    "Move to the location of the glue stick.",
+    "Grasp the glue stick with the gripper.",
+    "Move to the location of the mug cup.",
+    "Open the gripper to place the glue stick inside the mug cup.",
+    "Close the gripper to secure the glue stick inside the mug cup."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the location of the glue stick.  \nGrasp the glue stick with the gripper.  \nMove to the location of the mug cup.  \nOpen the gripper to place the glue stick inside the mug cup.  \nClose the gripper to secure the glue stick inside the mug cup.  "
+  },
+  "evaluation_status": "SUCCESS"
+}

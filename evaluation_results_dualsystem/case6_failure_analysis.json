@@ -1,0 +1,504 @@
+{
+  "rows": [
+    {
+      "episode": "episode_001395",
+      "task": "Remove the sachet from the shelf",
+      "sr": {
+        "s1": 0.6,
+        "b2": 0.6,
+        "dual": 0.4
+      },
+      "subs": {
+        "b2": [
+          "Remove the sachet from the shelf"
+        ],
+        "dual": [
+          "Remove the sachet from the shelf"
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0565,
+          0.0537,
+          0.2527,
+          0.082,
+          0.084,
+          0.3727,
+          0.0824,
+          0.044,
+          0.1488,
+          0.2406
+        ],
+        "b2": [
+          0.0484,
+          0.0755,
+          0.1998,
+          0.1031,
+          0.0794,
+          0.4728,
+          0.0895,
+          0.0377,
+          0.0686,
+          0.134
+        ],
+        "dual": [
+          0.0502,
+          0.0723,
+          0.1934,
+          0.1104,
+          0.0901,
+          0.4245,
+          0.1042,
+          0.0344,
+          0.1211,
+          0.1202
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0565,
+          "mid": 0.3727,
+          "last": 0.2406,
+          "max": 0.3727,
+          "max_step_idx": 5
+        },
+        "b2": {
+          "first": 0.0484,
+          "mid": 0.4728,
+          "last": 0.134,
+          "max": 0.4728,
+          "max_step_idx": 5
+        },
+        "dual": {
+          "first": 0.0502,
+          "mid": 0.4245,
+          "last": 0.1202,
+          "max": 0.4245,
+          "max_step_idx": 5
+        }
+      }
+    },
+    {
+      "episode": "episode_001406",
+      "task": "Pick up the cloths from the plastic container and put them on the table.",
+      "sr": {
+        "s1": 0.2,
+        "b2": 0.5,
+        "dual": 0.4
+      },
+      "subs": {
+        "b2": [
+          "Pick up the cloths",
+          "from the plastic container and",
+          "put them on the table."
+        ],
+        "dual": [
+          "Pick up the cloths from the plastic container and put them on the table."
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0269,
+          0.0815,
+          0.123,
+          0.1315,
+          0.1089,
+          0.276,
+          0.3009,
+          0.1344,
+          0.217,
+          0.2445
+        ],
+        "b2": [
+          0.0419,
+          0.0951,
+          0.1294,
+          0.0951,
+          0.052,
+          0.1823,
+          0.1875,
+          0.0569,
+          0.2102,
+          0.25
+        ],
+        "dual": [
+          0.0298,
+          0.1605,
+          0.1456,
+          0.0941,
+          0.0729,
+          0.1038,
+          0.197,
+          0.0736,
+          0.1859,
+          0.2495
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0269,
+          "mid": 0.276,
+          "last": 0.2445,
+          "max": 0.3009,
+          "max_step_idx": 6
+        },
+        "b2": {
+          "first": 0.0419,
+          "mid": 0.1823,
+          "last": 0.25,
+          "max": 0.25,
+          "max_step_idx": 9
+        },
+        "dual": {
+          "first": 0.0298,
+          "mid": 0.1038,
+          "last": 0.2495,
+          "max": 0.2495,
+          "max_step_idx": 9
+        }
+      }
+    },
+    {
+      "episode": "episode_001470",
+      "task": "Remove all the objects from the white plastic bag and put them on the table",
+      "sr": {
+        "s1": 0.4,
+        "b2": 0.2,
+        "dual": 0.5
+      },
+      "subs": {
+        "b2": [
+          "Remove all the objects from",
+          "the white plastic bag and",
+          "put them on the table"
+        ],
+        "dual": [
+          "Remove all the objects from the white plastic bag and put them on the table"
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0428,
+          0.0603,
+          0.1876,
+          0.172,
+          0.1127,
+          0.0807,
+          0.0441,
+          0.2805,
+          0.2127,
+          0.2786
+        ],
+        "b2": [
+          0.1418,
+          0.0437,
+          0.1453,
+          0.1022,
+          0.2128,
+          0.08,
+          0.1432,
+          0.2445,
+          0.1847,
+          0.2962
+        ],
+        "dual": [
+          0.0675,
+          0.0393,
+          0.1603,
+          0.0961,
+          0.2132,
+          0.0827,
+          0.0901,
+          0.2227,
+          0.1534,
+          0.3201
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0428,
+          "mid": 0.0807,
+          "last": 0.2786,
+          "max": 0.2805,
+          "max_step_idx": 7
+        },
+        "b2": {
+          "first": 0.1418,
+          "mid": 0.08,
+          "last": 0.2962,
+          "max": 0.2962,
+          "max_step_idx": 9
+        },
+        "dual": {
+          "first": 0.0675,
+          "mid": 0.0827,
+          "last": 0.3201,
+          "max": 0.3201,
+          "max_step_idx": 9
+        }
+      }
+    },
+    {
+      "episode": "episode_001669",
+      "task": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+      "sr": {
+        "s1": 0.5,
+        "b2": 0.3,
+        "dual": 0.2
+      },
+      "subs": {
+        "b2": [
+          "Put the wooden spoon inside the pot on the right side of the stove",
+          "remove the lid from the pot on the left side of the stove"
+        ],
+        "dual": [
+          "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove"
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0237,
+          0.1417,
+          0.2685,
+          0.0717,
+          0.0552,
+          0.1956,
+          0.1128,
+          0.0761,
+          0.0479,
+          0.1868
+        ],
+        "b2": [
+          0.065,
+          0.1073,
+          0.1303,
+          0.1194,
+          0.101,
+          0.2505,
+          0.1058,
+          0.0863,
+          0.0984,
+          0.1525
+        ],
+        "dual": [
+          0.1044,
+          0.1506,
+          0.1155,
+          0.1256,
+          0.1045,
+          0.1989,
+          0.1057,
+          0.0897,
+          0.0874,
+          0.1728
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0237,
+          "mid": 0.1956,
+          "last": 0.1868,
+          "max": 0.2685,
+          "max_step_idx": 2
+        },
+        "b2": {
+          "first": 0.065,
+          "mid": 0.2505,
+          "last": 0.1525,
+          "max": 0.2505,
+          "max_step_idx": 5
+        },
+        "dual": {
+          "first": 0.1044,
+          "mid": 0.1989,
+          "last": 0.1728,
+          "max": 0.1989,
+          "max_step_idx": 5
+        }
+      }
+    },
+    {
+      "episode": "episode_001754",
+      "task": "Push the button down on the toaster.",
+      "sr": {
+        "s1": 0.5,
+        "b2": 0.4,
+        "dual": 0.5
+      },
+      "subs": {
+        "b2": [
+          "Push the button down on the toaster."
+        ],
+        "dual": [
+          "Push the button down on the toaster."
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0977,
+          0.2469,
+          0.218,
+          0.2191,
+          0.091,
+          0.0669,
+          0.069,
+          0.0474,
+          0.141,
+          0.3539
+        ],
+        "b2": [
+          0.083,
+          0.1047,
+          0.2615,
+          0.1903,
+          0.0929,
+          0.0692,
+          0.0811,
+          0.1406,
+          0.1807,
+          0.1993
+        ],
+        "dual": [
+          0.0805,
+          0.0817,
+          0.2657,
+          0.1716,
+          0.0834,
+          0.0749,
+          0.0795,
+          0.107,
+          0.153,
+          0.1786
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0977,
+          "mid": 0.0669,
+          "last": 0.3539,
+          "max": 0.3539,
+          "max_step_idx": 9
+        },
+        "b2": {
+          "first": 0.083,
+          "mid": 0.0692,
+          "last": 0.1993,
+          "max": 0.2615,
+          "max_step_idx": 2
+        },
+        "dual": {
+          "first": 0.0805,
+          "mid": 0.0749,
+          "last": 0.1786,
+          "max": 0.2657,
+          "max_step_idx": 2
+        }
+      }
+    },
+    {
+      "episode": "episode_001827",
+      "task": "Move the blue and white doll to the left",
+      "sr": {
+        "s1": 0.5,
+        "b2": 0.4,
+        "dual": 0.4
+      },
+      "subs": {
+        "b2": [
+          "Move the blue and",
+          "white doll to the left"
+        ],
+        "dual": [
+          "Move the blue and white doll to the left"
+        ]
+      },
+      "err": {
+        "s1": [
+          0.0405,
+          0.1688,
+          0.1431,
+          0.0682,
+          0.0537,
+          0.0931,
+          0.0638,
+          0.3193,
+          0.1683,
+          0.1554
+        ],
+        "b2": [
+          0.0715,
+          0.1646,
+          0.1448,
+          0.0798,
+          0.025,
+          0.1276,
+          0.0682,
+          0.1342,
+          0.1423,
+          0.117
+        ],
+        "dual": [
+          0.0945,
+          0.1465,
+          0.1404,
+          0.0733,
+          0.0533,
+          0.1042,
+          0.081,
+          0.1204,
+          0.154,
+          0.1538
+        ]
+      },
+      "key": {
+        "s1": {
+          "first": 0.0405,
+          "mid": 0.0931,
+          "last": 0.1554,
+          "max": 0.3193,
+          "max_step_idx": 7
+        },
+        "b2": {
+          "first": 0.0715,
+          "mid": 0.1276,
+          "last": 0.117,
+          "max": 0.1646,
+          "max_step_idx": 1
+        },
+        "dual": {
+          "first": 0.0945,
+          "mid": 0.1042,
+          "last": 0.1538,
+          "max": 0.154,
+          "max_step_idx": 8
+        }
+      }
+    }
+  ],
+  "cat": {
+    "dual_gt_b2": [
+      "episode_001470",
+      "episode_001754",
+      "episode_001827",
+      "episode_001406",
+      "episode_001669",
+      "episode_001395"
+    ],
+    "b2_eq_s1": [
+      "episode_001395",
+      "episode_001754",
+      "episode_001827",
+      "episode_001470",
+      "episode_001669",
+      "episode_001406"
+    ],
+    "dual_fail": [
+      "episode_001669",
+      "episode_001395",
+      "episode_001406",
+      "episode_001827",
+      "episode_001470",
+      "episode_001754"
+    ]
+  }
+}

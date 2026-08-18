@@ -1,0 +1,13 @@
+{
+  "put both the alphabet soup and the tomato sauce in the basket": {
+    "sub_instructions": [
+      "Grasp the alphabet soup can with the gripper",
+      "Move the alphabet soup can to the basket",
+      "Place the alphabet soup can in the basket",
+      "Grasp the tomato sauce can with the gripper",
+      "Move the tomato sauce can to the basket and place it inside"
+    ],
+    "model": "gpt-4o-mini",
+    "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+  }
+}

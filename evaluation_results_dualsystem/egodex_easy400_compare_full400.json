@@ -1,0 +1,254 @@
+{
+  "results": [
+    {
+      "episode_id": "basic_pick_place/0",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.26238462924957273,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/task_token_only/basic_pick_place__0/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/0",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper  "
+      },
+      "mean_l2": 0.26238462924957273,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/dual_llm/basic_pick_place__0/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/1",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.25263565927743914,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 1,
+      "step_alignment_l2_lt_0_1": 0.1,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show the object being picked up or placed at the target location, indicating that the task goal is not achieved.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/task_token_only/basic_pick_place__1/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/1",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper"
+      },
+      "mean_l2": 0.2543536931276321,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 1,
+      "step_alignment_l2_lt_0_1": 0.1,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show any relevant objects or actions related to the task of picking up and placing an object at the target location.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/dual_llm/basic_pick_place__1/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/2",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.23413216173648835,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 1,
+      "step_alignment_l2_lt_0_1": 0.1,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show the object being picked up or placed at the target location, indicating that the task goal is not achieved.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/task_token_only/basic_pick_place__2/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/2",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper"
+      },
+      "mean_l2": 0.2345128446817398,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 1,
+      "step_alignment_l2_lt_0_1": 0.1,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not show any relevant objects or actions related to the task of picking up and placing an object at the target location.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/dual_llm/basic_pick_place__2/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/3",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.2848874554038048,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/task_token_only/basic_pick_place__3/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/3",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper  "
+      },
+      "mean_l2": 0.28428578227758405,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/dual_llm/basic_pick_place__3/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/4",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "task_token_only",
+      "prompt": "Pick up an object and place it at the target location.",
+      "sub_instructions": [
+        "Pick up an object and place it at the target location."
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "mean_l2": 0.26865699589252473,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame does not provide any visual evidence of the task being completed, as it is distorted and unclear.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/task_token_only/basic_pick_place__4/iter_000050000/0000_pred.mp4"
+    },
+    {
+      "episode_id": "basic_pick_place/4",
+      "task_description": "Pick up an object and place it at the target location.",
+      "mode": "dual_llm",
+      "prompt": "Pick up an object and place it at the target location.. Plan: move to the object ; grasp the object ; move to the target location ; place the object",
+      "sub_instructions": [
+        "move to the object",
+        "grasp the object",
+        "move to the target location",
+        "place the object"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the object  \ngrasp the object  \nmove to the target location  \nplace the object  \nopen the gripper"
+      },
+      "mean_l2": 0.2689642317593098,
+      "num_steps": 10,
+      "num_step_pass_l2_lt_0_1": 0,
+      "step_alignment_l2_lt_0_1": 0.0,
+      "task_progress": 0.0,
+      "rule_success": false,
+      "task_success": false,
+      "judge_reason": "The predicted final frame is distorted and does not provide any visual evidence of the task being completed.",
+      "generated_video": "/home/xingrui/lueq/NuerIPS_2026/evaluation_results_dualsystem/egodex_easy400_compare_full400/dual_llm/basic_pick_place__4/iter_000050000/0000_pred.mp4"
+    }
+  ]
+}

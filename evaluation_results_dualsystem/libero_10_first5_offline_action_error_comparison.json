@@ -1,0 +1,456 @@
+{
+  "metric_definition": "mean over sampled demo steps of ||a_pred[:7] - a_demo[:7]||_2 using the first predicted action from the DreamZero chunk",
+  "tasks_evaluated": 5,
+  "demo_selection": "first demo trajectory (sorted key) for each of the first 5 LIBERO-10 tasks",
+  "num_eval_steps_per_demo": 10,
+  "task_prompt_overall_mean_action_l2_error": 3.646809163093567,
+  "subtask_prompt_overall_mean_action_l2_error": 3.6443753194808957,
+  "overall_delta_sub_minus_task": -0.0024338436126711827,
+  "comparisons": [
+    {
+      "task_id": 0,
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket",
+      "demo_file": "/home/xingrui/duhangyu/LIBERO/libero/libero/../datasets/libero_10/LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket_demo.hdf5",
+      "demo_key": "demo_0",
+      "num_eval_steps": 10,
+      "task_prompt_mean_action_l2_error": 3.8929965496063232,
+      "subtask_prompt_mean_action_l2_error": 3.8874671459198,
+      "delta_sub_minus_task": -0.0055294036865234375,
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "step_records": [
+        {
+          "step_idx": 0,
+          "task_prompt_error_l2": 3.715895652770996,
+          "subtask_prompt_error_l2": 3.718827247619629,
+          "delta_sub_minus_task": 0.0029315948486328125,
+          "subtask_prompt": "move to the alphabet soup"
+        },
+        {
+          "step_idx": 43,
+          "task_prompt_error_l2": 3.687013626098633,
+          "subtask_prompt_error_l2": 3.6821160316467285,
+          "delta_sub_minus_task": -0.004897594451904297,
+          "subtask_prompt": "move to the alphabet soup"
+        },
+        {
+          "step_idx": 86,
+          "task_prompt_error_l2": 3.7647876739501953,
+          "subtask_prompt_error_l2": 3.7614798545837402,
+          "delta_sub_minus_task": -0.003307819366455078,
+          "subtask_prompt": "grasp the alphabet soup"
+        },
+        {
+          "step_idx": 129,
+          "task_prompt_error_l2": 3.7573039531707764,
+          "subtask_prompt_error_l2": 3.7527916431427,
+          "delta_sub_minus_task": -0.004512310028076172,
+          "subtask_prompt": "grasp the alphabet soup"
+        },
+        {
+          "step_idx": 172,
+          "task_prompt_error_l2": 3.407700300216675,
+          "subtask_prompt_error_l2": 3.3771355152130127,
+          "delta_sub_minus_task": -0.03056478500366211,
+          "subtask_prompt": "move to the basket"
+        },
+        {
+          "step_idx": 215,
+          "task_prompt_error_l2": 4.324570178985596,
+          "subtask_prompt_error_l2": 4.317254066467285,
+          "delta_sub_minus_task": -0.007316112518310547,
+          "subtask_prompt": "move to the basket"
+        },
+        {
+          "step_idx": 258,
+          "task_prompt_error_l2": 3.850389003753662,
+          "subtask_prompt_error_l2": 3.826314926147461,
+          "delta_sub_minus_task": -0.024074077606201172,
+          "subtask_prompt": "place the alphabet soup in the basket"
+        },
+        {
+          "step_idx": 301,
+          "task_prompt_error_l2": 4.310453414916992,
+          "subtask_prompt_error_l2": 4.3069634437561035,
+          "delta_sub_minus_task": -0.003489971160888672,
+          "subtask_prompt": "place the alphabet soup in the basket"
+        },
+        {
+          "step_idx": 344,
+          "task_prompt_error_l2": 3.3882408142089844,
+          "subtask_prompt_error_l2": 3.3842391967773438,
+          "delta_sub_minus_task": -0.004001617431640625,
+          "subtask_prompt": "move to the tomato sauce"
+        },
+        {
+          "step_idx": 387,
+          "task_prompt_error_l2": 4.723610877990723,
+          "subtask_prompt_error_l2": 4.747549533843994,
+          "delta_sub_minus_task": 0.023938655853271484,
+          "subtask_prompt": "move to the tomato sauce"
+        }
+      ]
+    },
+    {
+      "task_id": 1,
+      "language_instruction": "put both the cream cheese box and the butter in the basket",
+      "demo_file": "/home/xingrui/duhangyu/LIBERO/libero/libero/../datasets/libero_10/LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket_demo.hdf5",
+      "demo_key": "demo_0",
+      "num_eval_steps": 10,
+      "task_prompt_mean_action_l2_error": 3.265482783317566,
+      "subtask_prompt_mean_action_l2_error": 3.2657895565032957,
+      "delta_sub_minus_task": 0.00030677318572980283,
+      "sub_instructions": [
+        "move to the cream cheese box",
+        "grasp the cream cheese box",
+        "move to the basket",
+        "place the cream cheese box in the basket",
+        "move to the butter"
+      ],
+      "step_records": [
+        {
+          "step_idx": 0,
+          "task_prompt_error_l2": 3.720067024230957,
+          "subtask_prompt_error_l2": 3.7205066680908203,
+          "delta_sub_minus_task": 0.00043964385986328125,
+          "subtask_prompt": "move to the cream cheese box"
+        },
+        {
+          "step_idx": 28,
+          "task_prompt_error_l2": 2.9378185272216797,
+          "subtask_prompt_error_l2": 2.9524309635162354,
+          "delta_sub_minus_task": 0.014612436294555664,
+          "subtask_prompt": "move to the cream cheese box"
+        },
+        {
+          "step_idx": 57,
+          "task_prompt_error_l2": 3.293260335922241,
+          "subtask_prompt_error_l2": 3.295682430267334,
+          "delta_sub_minus_task": 0.0024220943450927734,
+          "subtask_prompt": "grasp the cream cheese box"
+        },
+        {
+          "step_idx": 85,
+          "task_prompt_error_l2": 2.8161609172821045,
+          "subtask_prompt_error_l2": 2.789492607116699,
+          "delta_sub_minus_task": -0.026668310165405273,
+          "subtask_prompt": "grasp the cream cheese box"
+        },
+        {
+          "step_idx": 114,
+          "task_prompt_error_l2": 2.915397882461548,
+          "subtask_prompt_error_l2": 2.9278085231781006,
+          "delta_sub_minus_task": 0.012410640716552734,
+          "subtask_prompt": "move to the basket"
+        },
+        {
+          "step_idx": 142,
+          "task_prompt_error_l2": 3.7563955783843994,
+          "subtask_prompt_error_l2": 3.7463178634643555,
+          "delta_sub_minus_task": -0.010077714920043945,
+          "subtask_prompt": "move to the basket"
+        },
+        {
+          "step_idx": 171,
+          "task_prompt_error_l2": 3.616682767868042,
+          "subtask_prompt_error_l2": 3.6201767921447754,
+          "delta_sub_minus_task": 0.0034940242767333984,
+          "subtask_prompt": "place the cream cheese box in the basket"
+        },
+        {
+          "step_idx": 199,
+          "task_prompt_error_l2": 3.2058827877044678,
+          "subtask_prompt_error_l2": 3.2011024951934814,
+          "delta_sub_minus_task": -0.004780292510986328,
+          "subtask_prompt": "place the cream cheese box in the basket"
+        },
+        {
+          "step_idx": 228,
+          "task_prompt_error_l2": 2.8482940196990967,
+          "subtask_prompt_error_l2": 2.8594863414764404,
+          "delta_sub_minus_task": 0.01119232177734375,
+          "subtask_prompt": "move to the butter"
+        },
+        {
+          "step_idx": 257,
+          "task_prompt_error_l2": 3.544867992401123,
+          "subtask_prompt_error_l2": 3.544890880584717,
+          "delta_sub_minus_task": 2.288818359375e-05,
+          "subtask_prompt": "move to the butter"
+        }
+      ]
+    },
+    {
+      "task_id": 2,
+      "language_instruction": "turn on the stove and put the moka pot on it",
+      "demo_file": "/home/xingrui/duhangyu/LIBERO/libero/libero/../datasets/libero_10/KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it_demo.hdf5",
+      "demo_key": "demo_0",
+      "num_eval_steps": 10,
+      "task_prompt_mean_action_l2_error": 3.6978700399398803,
+      "subtask_prompt_mean_action_l2_error": 3.6950207710266114,
+      "delta_sub_minus_task": -0.0028492689132688653,
+      "sub_instructions": [
+        "move to the stove",
+        "grasp the moka pot",
+        "place the moka pot on the stove",
+        "open the stove",
+        "turn on the stove"
+      ],
+      "step_records": [
+        {
+          "step_idx": 0,
+          "task_prompt_error_l2": 3.7712490558624268,
+          "subtask_prompt_error_l2": 3.7673823833465576,
+          "delta_sub_minus_task": -0.0038666725158691406,
+          "subtask_prompt": "move to the stove"
+        },
+        {
+          "step_idx": 30,
+          "task_prompt_error_l2": 4.08479642868042,
+          "subtask_prompt_error_l2": 4.0893940925598145,
+          "delta_sub_minus_task": 0.004597663879394531,
+          "subtask_prompt": "move to the stove"
+        },
+        {
+          "step_idx": 60,
+          "task_prompt_error_l2": 4.704377174377441,
+          "subtask_prompt_error_l2": 4.687546730041504,
+          "delta_sub_minus_task": -0.0168304443359375,
+          "subtask_prompt": "grasp the moka pot"
+        },
+        {
+          "step_idx": 90,
+          "task_prompt_error_l2": 3.573802947998047,
+          "subtask_prompt_error_l2": 3.571514129638672,
+          "delta_sub_minus_task": -0.002288818359375,
+          "subtask_prompt": "grasp the moka pot"
+        },
+        {
+          "step_idx": 120,
+          "task_prompt_error_l2": 4.12186336517334,
+          "subtask_prompt_error_l2": 4.1159539222717285,
+          "delta_sub_minus_task": -0.005909442901611328,
+          "subtask_prompt": "place the moka pot on the stove"
+        },
+        {
+          "step_idx": 150,
+          "task_prompt_error_l2": 3.4342129230499268,
+          "subtask_prompt_error_l2": 3.428246259689331,
+          "delta_sub_minus_task": -0.005966663360595703,
+          "subtask_prompt": "place the moka pot on the stove"
+        },
+        {
+          "step_idx": 180,
+          "task_prompt_error_l2": 3.07584810256958,
+          "subtask_prompt_error_l2": 3.0791542530059814,
+          "delta_sub_minus_task": 0.003306150436401367,
+          "subtask_prompt": "open the stove"
+        },
+        {
+          "step_idx": 210,
+          "task_prompt_error_l2": 3.776606321334839,
+          "subtask_prompt_error_l2": 3.7759995460510254,
+          "delta_sub_minus_task": -0.0006067752838134766,
+          "subtask_prompt": "open the stove"
+        },
+        {
+          "step_idx": 240,
+          "task_prompt_error_l2": 3.3950107097625732,
+          "subtask_prompt_error_l2": 3.3956215381622314,
+          "delta_sub_minus_task": 0.0006108283996582031,
+          "subtask_prompt": "turn on the stove"
+        },
+        {
+          "step_idx": 271,
+          "task_prompt_error_l2": 3.04093337059021,
+          "subtask_prompt_error_l2": 3.0393948554992676,
+          "delta_sub_minus_task": -0.0015385150909423828,
+          "subtask_prompt": "turn on the stove"
+        }
+      ]
+    },
+    {
+      "task_id": 3,
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it",
+      "demo_file": "/home/xingrui/duhangyu/LIBERO/libero/libero/../datasets/libero_10/KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it_demo.hdf5",
+      "demo_key": "demo_0",
+      "num_eval_steps": 10,
+      "task_prompt_mean_action_l2_error": 3.8290825366973875,
+      "subtask_prompt_mean_action_l2_error": 3.827128219604492,
+      "delta_sub_minus_task": -0.001954317092895508,
+      "sub_instructions": [
+        "open the bottom drawer of the cabinet",
+        "grasp the black bowl",
+        "move the black bowl to the bottom drawer",
+        "place the black bowl in the bottom drawer",
+        "close the bottom drawer of the cabinet"
+      ],
+      "step_records": [
+        {
+          "step_idx": 0,
+          "task_prompt_error_l2": 3.813662052154541,
+          "subtask_prompt_error_l2": 3.791919708251953,
+          "delta_sub_minus_task": -0.02174234390258789,
+          "subtask_prompt": "open the bottom drawer of the cabinet"
+        },
+        {
+          "step_idx": 28,
+          "task_prompt_error_l2": 3.6684484481811523,
+          "subtask_prompt_error_l2": 3.6476356983184814,
+          "delta_sub_minus_task": -0.0208127498626709,
+          "subtask_prompt": "open the bottom drawer of the cabinet"
+        },
+        {
+          "step_idx": 57,
+          "task_prompt_error_l2": 3.998169422149658,
+          "subtask_prompt_error_l2": 4.016897201538086,
+          "delta_sub_minus_task": 0.018727779388427734,
+          "subtask_prompt": "grasp the black bowl"
+        },
+        {
+          "step_idx": 86,
+          "task_prompt_error_l2": 3.4837076663970947,
+          "subtask_prompt_error_l2": 3.481186628341675,
+          "delta_sub_minus_task": -0.002521038055419922,
+          "subtask_prompt": "grasp the black bowl"
+        },
+        {
+          "step_idx": 115,
+          "task_prompt_error_l2": 3.479360342025757,
+          "subtask_prompt_error_l2": 3.482344627380371,
+          "delta_sub_minus_task": 0.002984285354614258,
+          "subtask_prompt": "move the black bowl to the bottom drawer"
+        },
+        {
+          "step_idx": 144,
+          "task_prompt_error_l2": 3.479132652282715,
+          "subtask_prompt_error_l2": 3.468902111053467,
+          "delta_sub_minus_task": -0.010230541229248047,
+          "subtask_prompt": "move the black bowl to the bottom drawer"
+        },
+        {
+          "step_idx": 173,
+          "task_prompt_error_l2": 4.683425426483154,
+          "subtask_prompt_error_l2": 4.669857025146484,
+          "delta_sub_minus_task": -0.013568401336669922,
+          "subtask_prompt": "place the black bowl in the bottom drawer"
+        },
+        {
+          "step_idx": 202,
+          "task_prompt_error_l2": 4.474907875061035,
+          "subtask_prompt_error_l2": 4.4763593673706055,
+          "delta_sub_minus_task": 0.0014514923095703125,
+          "subtask_prompt": "place the black bowl in the bottom drawer"
+        },
+        {
+          "step_idx": 231,
+          "task_prompt_error_l2": 3.68385648727417,
+          "subtask_prompt_error_l2": 3.6990132331848145,
+          "delta_sub_minus_task": 0.015156745910644531,
+          "subtask_prompt": "close the bottom drawer of the cabinet"
+        },
+        {
+          "step_idx": 260,
+          "task_prompt_error_l2": 3.5261549949645996,
+          "subtask_prompt_error_l2": 3.5371665954589844,
+          "delta_sub_minus_task": 0.011011600494384766,
+          "subtask_prompt": "close the bottom drawer of the cabinet"
+        }
+      ]
+    },
+    {
+      "task_id": 4,
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+      "demo_file": "/home/xingrui/duhangyu/LIBERO/libero/libero/../datasets/libero_10/LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate_demo.hdf5",
+      "demo_key": "demo_0",
+      "num_eval_steps": 10,
+      "task_prompt_mean_action_l2_error": 3.5486139059066772,
+      "subtask_prompt_mean_action_l2_error": 3.5464709043502807,
+      "delta_sub_minus_task": -0.002143001556396573,
+      "sub_instructions": [
+        "grasp the white mug",
+        "move the white mug to the left plate",
+        "place the white mug on the left plate",
+        "grasp the yellow mug",
+        "grasp the white mug"
+      ],
+      "step_records": [
+        {
+          "step_idx": 0,
+          "task_prompt_error_l2": 3.7563631534576416,
+          "subtask_prompt_error_l2": 3.7614173889160156,
+          "delta_sub_minus_task": 0.0050542354583740234,
+          "subtask_prompt": "grasp the white mug"
+        },
+        {
+          "step_idx": 30,
+          "task_prompt_error_l2": 3.8608105182647705,
+          "subtask_prompt_error_l2": 3.873563289642334,
+          "delta_sub_minus_task": 0.012752771377563477,
+          "subtask_prompt": "grasp the white mug"
+        },
+        {
+          "step_idx": 60,
+          "task_prompt_error_l2": 3.681802749633789,
+          "subtask_prompt_error_l2": 3.6812822818756104,
+          "delta_sub_minus_task": -0.0005204677581787109,
+          "subtask_prompt": "move the white mug to the left plate"
+        },
+        {
+          "step_idx": 91,
+          "task_prompt_error_l2": 3.1893362998962402,
+          "subtask_prompt_error_l2": 3.194467067718506,
+          "delta_sub_minus_task": 0.005130767822265625,
+          "subtask_prompt": "move the white mug to the left plate"
+        },
+        {
+          "step_idx": 121,
+          "task_prompt_error_l2": 3.283599615097046,
+          "subtask_prompt_error_l2": 3.2773730754852295,
+          "delta_sub_minus_task": -0.006226539611816406,
+          "subtask_prompt": "place the white mug on the left plate"
+        },
+        {
+          "step_idx": 152,
+          "task_prompt_error_l2": 3.6170365810394287,
+          "subtask_prompt_error_l2": 3.6101455688476562,
+          "delta_sub_minus_task": -0.006891012191772461,
+          "subtask_prompt": "place the white mug on the left plate"
+        },
+        {
+          "step_idx": 182,
+          "task_prompt_error_l2": 3.4953811168670654,
+          "subtask_prompt_error_l2": 3.5109028816223145,
+          "delta_sub_minus_task": 0.015521764755249023,
+          "subtask_prompt": "grasp the yellow mug"
+        },
+        {
+          "step_idx": 213,
+          "task_prompt_error_l2": 3.1739611625671387,
+          "subtask_prompt_error_l2": 3.146324396133423,
+          "delta_sub_minus_task": -0.02763676643371582,
+          "subtask_prompt": "grasp the yellow mug"
+        },
+        {
+          "step_idx": 243,
+          "task_prompt_error_l2": 3.2011570930480957,
+          "subtask_prompt_error_l2": 3.1978859901428223,
+          "delta_sub_minus_task": -0.0032711029052734375,
+          "subtask_prompt": "grasp the white mug"
+        },
+        {
+          "step_idx": 274,
+          "task_prompt_error_l2": 4.226690769195557,
+          "subtask_prompt_error_l2": 4.2113471031188965,
+          "delta_sub_minus_task": -0.015343666076660156,
+          "subtask_prompt": "grasp the white mug"
+        }
+      ]
+    }
+  ]
+}

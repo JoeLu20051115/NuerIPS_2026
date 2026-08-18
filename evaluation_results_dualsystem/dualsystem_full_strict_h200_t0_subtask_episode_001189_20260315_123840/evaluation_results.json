@@ -1,0 +1,9 @@
+{
+  "success_rate": 0.0,
+  "video_mse": Infinity,
+  "completion_time": 0.0,
+  "robustness_score": 0.0,
+  "num_sub_tasks": 0,
+  "evaluation_status": "SKIPPED",
+  "error_message": "Policy client not initialized or video loader unavailable"
+}

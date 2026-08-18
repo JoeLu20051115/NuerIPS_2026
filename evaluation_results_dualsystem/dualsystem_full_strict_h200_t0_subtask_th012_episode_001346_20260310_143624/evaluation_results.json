@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.9,
+  "action_l2_error": 0.0758362826200987,
+  "video_mse": 0.0008569243410489306,
+  "policy_inference_time_per_step": 4.387356283701957,
+  "llm_planning_time": 1.8511408055201173,
+  "total_episode_time": 45.72470364253968,
+  "completion_time": 4.387356283701957,
+  "robustness_score": 0.9241637173799013,
+  "num_sub_tasks": 5,
+  "task_description": "Remove the marker from the green bowl and put it in the table",
+  "sub_instructions": [
+    "move to the green bowl",
+    "grasp the marker",
+    "move to the table",
+    "place the marker on the table",
+    "open the gripper to release the marker"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the green bowl  \ngrasp the marker  \nmove to the table  \nplace the marker on the table  \nopen the gripper to release the marker  "
+  },
+  "evaluation_status": "SUCCESS"
+}

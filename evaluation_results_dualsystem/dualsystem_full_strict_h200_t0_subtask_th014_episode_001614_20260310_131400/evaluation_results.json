@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.13655390526890254,
+  "video_mse": 0.005001279239898644,
+  "policy_inference_time_per_step": 2.126783765666187,
+  "llm_planning_time": 1.7667436813935637,
+  "total_episode_time": 23.034581338055432,
+  "completion_time": 2.126783765666187,
+  "robustness_score": 0.8634460947310975,
+  "num_sub_tasks": 5,
+  "task_description": "Put the black pen inside the white mug",
+  "sub_instructions": [
+    "move to the black pen",
+    "grasp the black pen",
+    "move to the white mug",
+    "open the gripper",
+    "place the black pen inside the white mug"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.14,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the black pen  \ngrasp the black pen  \nmove to the white mug  \nopen the gripper  \nplace the black pen inside the white mug  "
+  },
+  "evaluation_status": "SUCCESS"
+}

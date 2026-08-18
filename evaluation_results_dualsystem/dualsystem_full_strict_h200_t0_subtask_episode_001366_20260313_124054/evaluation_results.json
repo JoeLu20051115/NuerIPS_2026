@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.13850802152683422,
+  "video_mse": 0.002598896750446664,
+  "policy_inference_time_per_step": 4.48396913735196,
+  "llm_planning_time": 2.6161223985254765,
+  "total_episode_time": 47.455813772045076,
+  "completion_time": 4.48396913735196,
+  "robustness_score": 0.8614919784731658,
+  "num_sub_tasks": 5,
+  "task_description": "Move the pencil to the left",
+  "sub_instructions": [
+    "Open the gripper",
+    "Grasp the pencil",
+    "Move the pencil to the left",
+    "Place the pencil down",
+    "Close the gripper"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper  \nGrasp the pencil  \nMove the pencil to the left  \nPlace the pencil down  \nClose the gripper"
+  },
+  "evaluation_status": "SUCCESS"
+}

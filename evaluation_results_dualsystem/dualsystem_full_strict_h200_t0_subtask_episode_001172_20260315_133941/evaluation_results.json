@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.10028477116102341,
+  "video_mse": 0.0023392547017221663,
+  "policy_inference_time_per_step": 4.167468623165041,
+  "llm_planning_time": 1.8576930854469538,
+  "total_episode_time": 43.532379317097366,
+  "completion_time": 4.167468623165041,
+  "robustness_score": 0.8997152288389766,
+  "num_sub_tasks": 5,
+  "task_description": "Open the top left door of the cabinet.",
+  "sub_instructions": [
+    "move to the cabinet",
+    "grasp the top left door handle",
+    "pull the door handle to open",
+    "adjust grip if necessary",
+    "release the door handle"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the cabinet  \ngrasp the top left door handle  \npull the door handle to open  \nadjust grip if necessary  \nrelease the door handle"
+  },
+  "evaluation_status": "SUCCESS"
+}

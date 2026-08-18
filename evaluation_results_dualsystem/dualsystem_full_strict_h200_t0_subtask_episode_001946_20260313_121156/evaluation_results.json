@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.1,
+  "action_l2_error": 0.16441815921694225,
+  "video_mse": 0.0030923235833745103,
+  "policy_inference_time_per_step": 4.492378431279212,
+  "llm_planning_time": 1.1883175913244486,
+  "total_episode_time": 46.11210190411657,
+  "completion_time": 4.492378431279212,
+  "robustness_score": 0.8355818407830577,
+  "num_sub_tasks": 5,
+  "task_description": "Turn on the chandelier",
+  "sub_instructions": [
+    "Move to the light switch location.",
+    "Grasp the light switch.",
+    "Open the light switch.",
+    "Release the light switch.",
+    "Move back to the starting position."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the light switch location.  \nGrasp the light switch.  \nOpen the light switch.  \nRelease the light switch.  \nMove back to the starting position."
+  },
+  "evaluation_status": "SUCCESS"
+}

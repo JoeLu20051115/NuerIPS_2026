@@ -1,0 +1,191 @@
+{
+  "model_name": "dreamzero_libero_ft1000_dual_subtask_realapi",
+  "model_path": "checkpoints/dreamzero_libero_subset_1000_tb/checkpoint-1000",
+  "num_episodes": 5,
+  "mean_action_l2_error": 0.03153344050107957,
+  "std_action_l2_error": 0.005176526271722168,
+  "mean_completion_time": 6.784176107198,
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "sampled_prompts": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "action_l2_error": 0.02763819164600343,
+      "per_step_errors": [
+        0.03334637767925335,
+        0.022239096091729048,
+        0.024609683200542333,
+        0.026344230098176224,
+        0.031651571160316194
+      ],
+      "completion_time": 6.862646003067494
+    },
+    {
+      "episode_id": "episode_000001",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "sampled_prompts": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "action_l2_error": 0.03128619159936384,
+      "per_step_errors": [
+        0.023964122614347234,
+        0.028165305286452915,
+        0.04323281388775322,
+        0.02684909422437007,
+        0.03421962198389575
+      ],
+      "completion_time": 6.771278782002628
+    },
+    {
+      "episode_id": "episode_000002",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "sampled_prompts": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "action_l2_error": 0.03093583803833049,
+      "per_step_errors": [
+        0.034189398109871635,
+        0.03161431763342447,
+        0.036676254886566464,
+        0.03235453112127841,
+        0.019844688440511453
+      ],
+      "completion_time": 6.757652927190065
+    },
+    {
+      "episode_id": "episode_000003",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "sampled_prompts": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "action_l2_error": 0.026583769926368704,
+      "per_step_errors": [
+        0.027929841460562474,
+        0.02869890602349236,
+        0.024068144348650167,
+        0.02044090611892193,
+        0.031781051680216596
+      ],
+      "completion_time": 6.763273545727134
+    },
+    {
+      "episode_id": "episode_000004",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "sampled_prompts": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "action_l2_error": 0.041223211295331366,
+      "per_step_errors": [
+        0.03007640616364222,
+        0.03783589786568043,
+        0.05799921891245194,
+        0.03747738185424638,
+        0.04272715168063588
+      ],
+      "completion_time": 6.766029278002679
+    }
+  ],
+  "comparison_to_system1": {
+    "system1_mean_action_l2_error": 0.03132453927771778,
+    "delta_vs_system1": 0.0002089012233617918,
+    "system1_mean_completion_time": 6.768947872333229,
+    "delta_time_vs_system1": 0.01522823486477165
+  }
+}

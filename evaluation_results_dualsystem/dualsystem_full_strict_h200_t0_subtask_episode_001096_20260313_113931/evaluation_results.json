@@ -1,0 +1,54 @@
+{
+  "success_rate": 0.2,
+  "action_l2_error": 0.21042770117821244,
+  "video_mse": 0.015328492431625904,
+  "policy_inference_time_per_step": 4.496856517344713,
+  "llm_planning_time": 2.012077858671546,
+  "total_episode_time": 46.98064303211868,
+  "completion_time": 4.496856517344713,
+  "robustness_score": 0.7895722988217876,
+  "num_sub_tasks": 5,
+  "task_description": "Bring the small, white object, closer to the foam pack",
+  "sub_instructions": [
+    "Move to the location of the small, white object.",
+    "Grasp the small, white object with the gripper.",
+    "Move towards the foam pack.",
+    "Place the small, white object next to the foam pack.",
+    "Open the gripper to release the object."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "llm",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the location of the small, white object.  \nGrasp the small, white object with the gripper.  \nMove towards the foam pack.  \nPlace the small, white object next to the foam pack.  \nOpen the gripper to release the object."
+  },
+  "evaluation_status": "SUCCESS"
+}

@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.13340084041932698,
+  "video_mse": 0.011679410953907255,
+  "policy_inference_time_per_step": 2.106348331645131,
+  "llm_planning_time": 1.3982888339087367,
+  "total_episode_time": 22.461772150360048,
+  "completion_time": 2.106348331645131,
+  "robustness_score": 0.866599159580673,
+  "num_sub_tasks": 5,
+  "task_description": "Move pen from the mug to the table",
+  "sub_instructions": [
+    "open gripper",
+    "move gripper to mug",
+    "close gripper",
+    "move gripper to table",
+    "place pen on table"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "open gripper  \nmove gripper to mug  \nclose gripper  \nmove gripper to table  \nplace pen on table  "
+  },
+  "evaluation_status": "SUCCESS"
+}

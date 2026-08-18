@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.13307207364780615,
+  "video_mse": 0.006520904747051107,
+  "policy_inference_time_per_step": 4.38774743322283,
+  "llm_planning_time": 2.296552878804505,
+  "total_episode_time": 46.17402721103281,
+  "completion_time": 4.38774743322283,
+  "robustness_score": 0.8669279263521938,
+  "num_sub_tasks": 5,
+  "task_description": "Push the button down on the toaster.",
+  "sub_instructions": [
+    "Move the arm to the toaster.",
+    "Grasp the button on the toaster.",
+    "Push the button down.",
+    "Release the button.",
+    "Move the arm back to the starting position."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move the arm to the toaster.  \nGrasp the button on the toaster.  \nPush the button down.  \nRelease the button.  \nMove the arm back to the starting position."
+  },
+  "evaluation_status": "SUCCESS"
+}

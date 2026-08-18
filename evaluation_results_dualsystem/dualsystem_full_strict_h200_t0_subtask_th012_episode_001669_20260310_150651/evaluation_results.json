@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.1197369785505433,
+  "video_mse": 0.00354474014252208,
+  "policy_inference_time_per_step": 4.3903646829538046,
+  "llm_planning_time": 2.9688952825963497,
+  "total_episode_time": 46.8725421121344,
+  "completion_time": 4.3903646829538046,
+  "robustness_score": 0.8802630214494567,
+  "num_sub_tasks": 5,
+  "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+  "sub_instructions": [
+    "Move to the pot on the right side of the stove.",
+    "Grasp the wooden spoon.",
+    "Place the wooden spoon inside the pot on the right side of the stove.",
+    "Move to the pot on the left side of the stove.",
+    "Open the lid of the pot on the left side of the stove."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the pot on the right side of the stove.  \nGrasp the wooden spoon.  \nPlace the wooden spoon inside the pot on the right side of the stove.  \nMove to the pot on the left side of the stove.  \nOpen the lid of the pot on the left side of the stove.  "
+  },
+  "evaluation_status": "SUCCESS"
+}

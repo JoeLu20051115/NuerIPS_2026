@@ -1,0 +1,719 @@
+{
+  "psnr": {
+    "367": {
+      "649524000": {
+        "0": 22.421254450479367
+      },
+      "649524001": {
+        "0": 19.389001681851514
+      },
+      "649524002": {
+        "0": 22.024069386090524
+      },
+      "649524003": {
+        "0": 18.773894546323525
+      },
+      "649559000": {
+        "0": 22.872972560993837
+      },
+      "649559001": {
+        "0": 19.228374755574244
+      },
+      "649559002": {
+        "0": 21.553019387800312
+      },
+      "649559003": {
+        "0": 19.584418539678623
+      },
+      "650191000": {
+        "0": 20.557835527738458
+      },
+      "650191001": {
+        "0": 19.97276668692475
+      },
+      "650191002": {
+        "0": 20.406092423814055
+      },
+      "650191003": {
+        "0": 21.162363785858325
+      }
+    },
+    "392": {
+      "651464000": {
+        "0": 24.645700098186442
+      },
+      "651464001": {
+        "0": 21.324124821024736
+      },
+      "651464002": {
+        "0": 22.637437278414527
+      },
+      "651464003": {
+        "0": 22.129098998118153
+      },
+      "651464004": {
+        "0": 21.967743828902194
+      },
+      "651464005": {
+        "0": 19.4531951127573
+      },
+      "651464006": {
+        "0": 19.138897654857008
+      },
+      "651464007": {
+        "0": 21.81571743086694
+      },
+      "651464008": {
+        "0": 23.19534259831472
+      },
+      "651464009": {
+        "0": 22.539119053881002
+      },
+      "651464010": {
+        "0": 22.553422409974093
+      },
+      "651464011": {
+        "0": 22.268522644847703
+      },
+      "651464012": {
+        "0": 19.518051838873443
+      },
+      "651464013": {
+        "0": 23.412712194997372
+      },
+      "651464014": {
+        "0": 21.78855676475712
+      },
+      "664600000": {
+        "0": 22.403663392822093
+      },
+      "664600001": {
+        "0": 22.370541482923525
+      },
+      "664600002": {
+        "0": 20.21178562218899
+      },
+      "664600003": {
+        "0": 19.492142474952207
+      },
+      "664600004": {
+        "0": 20.81458380993909
+      },
+      "664600005": {
+        "0": 20.445675840204505
+      },
+      "664600006": {
+        "0": 18.64069480845895
+      },
+      "664600007": {
+        "0": 22.11133745338081
+      },
+      "664600008": {
+        "0": 19.55096286181522
+      },
+      "664600009": {
+        "0": 20.79732023177188
+      },
+      "664600010": {
+        "0": 20.304225681338867
+      },
+      "664600011": {
+        "0": 20.88573318972687
+      },
+      "664600012": {
+        "0": 20.077978337384106
+      },
+      "664600013": {
+        "0": 23.023245988857465
+      },
+      "664600014": {
+        "0": 19.86521983247481
+      },
+      "681186000": {
+        "0": 20.880710982502897
+      },
+      "681186001": {
+        "0": 20.03784621840125
+      },
+      "681186002": {
+        "0": 19.763897329309124
+      },
+      "681186003": {
+        "0": 20.86360261846232
+      },
+      "681186004": {
+        "0": 21.287429587891122
+      },
+      "681186005": {
+        "0": 20.052309674540005
+      },
+      "681186006": {
+        "0": 18.04358844300142
+      },
+      "681186007": {
+        "0": 20.909395319673692
+      }
+    }
+  },
+  "scene_consistency": [
+    0.9211962815956501,
+    [
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524000/0/video",
+        "video_results": 0.9434429109096527
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524001/0/video",
+        "video_results": 0.8837408930063247
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524002/0/video",
+        "video_results": 0.9141506634909531
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649524003/0/video",
+        "video_results": 0.9011036046913692
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559000/0/video",
+        "video_results": 0.9426574959204748
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559001/0/video",
+        "video_results": 0.8936865787420954
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559002/0/video",
+        "video_results": 0.9142852681023734
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/649559003/0/video",
+        "video_results": 0.9017224893337343
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191000/0/video",
+        "video_results": 0.8964028719699744
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191001/0/video",
+        "video_results": 0.9068911150097847
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191002/0/video",
+        "video_results": 0.9117789079745611
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/367/650191003/0/video",
+        "video_results": 0.9021276187512183
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464000/0/video",
+        "video_results": 0.9501808600293266
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464001/0/video",
+        "video_results": 0.9379261858535536
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464002/0/video",
+        "video_results": 0.9646266945030378
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464003/0/video",
+        "video_results": 0.9354370510578156
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464004/0/video",
+        "video_results": 0.9692748059397158
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464005/0/video",
+        "video_results": 0.9087782800197601
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464006/0/video",
+        "video_results": 0.8708608419927832
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464007/0/video",
+        "video_results": 0.9242341415956616
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464008/0/video",
+        "video_results": 0.9640608709305525
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464009/0/video",
+        "video_results": 0.9424864374674283
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464010/0/video",
+        "video_results": 0.9327299656967322
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464011/0/video",
+        "video_results": 0.9404406218152297
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464012/0/video",
+        "video_results": 0.8949346580566504
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464013/0/video",
+        "video_results": 0.9604145516951879
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/651464014/0/video",
+        "video_results": 0.9305606360236803
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600000/0/video",
+        "video_results": 0.9388756173849105
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600001/0/video",
+        "video_results": 0.9605321668345352
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600002/0/video",
+        "video_results": 0.9405533901669763
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600003/0/video",
+        "video_results": 0.9185984954237938
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600004/0/video",
+        "video_results": 0.955103946359534
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600005/0/video",
+        "video_results": 0.9290728271007538
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600006/0/video",
+        "video_results": 0.8862383346088597
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600007/0/video",
+        "video_results": 0.9212245538428023
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600008/0/video",
+        "video_results": 0.904664825797081
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600009/0/video",
+        "video_results": 0.9570686609848685
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600010/0/video",
+        "video_results": 0.9425311643968929
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600011/0/video",
+        "video_results": 0.9613816860047254
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600012/0/video",
+        "video_results": 0.9354659095406532
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600013/0/video",
+        "video_results": 0.9630193836413897
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/664600014/0/video",
+        "video_results": 0.9012380689382553
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186000/0/video",
+        "video_results": 0.9244986492044786
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186001/0/video",
+        "video_results": 0.9215175383018724
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186002/0/video",
+        "video_results": 0.9371730347474416
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186003/0/video",
+        "video_results": 0.9232625278030954
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186004/0/video",
+        "video_results": 0.9657192843801835
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186005/0/video",
+        "video_results": 0.9379669174551963
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186006/0/video",
+        "video_results": 0.8718361955578044
+      },
+      {
+        "video_path": "/home/xingrui/lueq/NuerIPS_2026/results/agibot_worldmodel_baseline_first50/ACWM_dataset/392/681186007/0/video",
+        "video_results": 0.9354322901793889
+      }
+    ]
+  ],
+  "trajectory_consistency": {
+    "367": {
+      "649524000": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.379",
+          "ndtw": "1.000"
+        }
+      },
+      "649524001": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.085",
+          "ndtw": "1.000"
+        }
+      },
+      "649524002": {
+        "0": {
+          "hsd": "0.974",
+          "dyn": "0.164",
+          "ndtw": "1.000"
+        }
+      },
+      "649524003": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.151",
+          "ndtw": "1.000"
+        }
+      },
+      "649559000": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.255",
+          "ndtw": "1.000"
+        }
+      },
+      "649559001": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.129",
+          "ndtw": "1.000"
+        }
+      },
+      "649559002": {
+        "0": {
+          "hsd": "0.842",
+          "dyn": "0.235",
+          "ndtw": "1.000"
+        }
+      },
+      "649559003": {
+        "0": {
+          "hsd": "0.941",
+          "dyn": "0.080",
+          "ndtw": "1.000"
+        }
+      },
+      "650191000": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.239",
+          "ndtw": "1.000"
+        }
+      },
+      "650191001": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.174",
+          "ndtw": "1.000"
+        }
+      },
+      "650191002": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.220",
+          "ndtw": "1.000"
+        }
+      },
+      "650191003": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.110",
+          "ndtw": "1.000"
+        }
+      }
+    },
+    "392": {
+      "651464000": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.261",
+          "ndtw": "1.000"
+        }
+      },
+      "651464001": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "651464002": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.243",
+          "ndtw": "1.000"
+        }
+      },
+      "651464003": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.227",
+          "ndtw": "1.000"
+        }
+      },
+      "651464004": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.227",
+          "ndtw": "1.000"
+        }
+      },
+      "651464005": {
+        "0": {
+          "hsd": "0.365",
+          "dyn": "0.105",
+          "ndtw": "0.912"
+        }
+      },
+      "651464006": {
+        "0": {
+          "hsd": "0.986",
+          "dyn": "0.101",
+          "ndtw": "0.804"
+        }
+      },
+      "651464007": {
+        "0": {
+          "hsd": "0.664",
+          "dyn": "0.098",
+          "ndtw": "0.824"
+        }
+      },
+      "651464008": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.236",
+          "ndtw": "1.000"
+        }
+      },
+      "651464009": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.293",
+          "ndtw": "1.000"
+        }
+      },
+      "651464010": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.148",
+          "ndtw": "1.000"
+        }
+      },
+      "651464011": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.247",
+          "ndtw": "1.000"
+        }
+      },
+      "651464012": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.186",
+          "ndtw": "0.715"
+        }
+      },
+      "651464013": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.042",
+          "ndtw": "0.518"
+        }
+      },
+      "651464014": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600000": {
+        "0": {
+          "hsd": "0.302",
+          "dyn": "0.188",
+          "ndtw": "0.821"
+        }
+      },
+      "664600001": {
+        "0": {
+          "hsd": "0.622",
+          "dyn": "0.163",
+          "ndtw": "0.600"
+        }
+      },
+      "664600002": {
+        "0": {
+          "hsd": "0.690",
+          "dyn": "0.086",
+          "ndtw": "0.657"
+        }
+      },
+      "664600003": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600004": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.098",
+          "ndtw": "1.000"
+        }
+      },
+      "664600005": {
+        "0": {
+          "hsd": "0.840",
+          "dyn": "0.150",
+          "ndtw": "0.688"
+        }
+      },
+      "664600006": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.149",
+          "ndtw": "1.000"
+        }
+      },
+      "664600007": {
+        "0": {
+          "hsd": "0.987",
+          "dyn": "0.114",
+          "ndtw": "1.000"
+        }
+      },
+      "664600008": {
+        "0": {
+          "hsd": "0.097",
+          "dyn": "0.014",
+          "ndtw": "0.541"
+        }
+      },
+      "664600009": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600010": {
+        "0": {
+          "hsd": "0.000",
+          "dyn": "0.000",
+          "ndtw": "0.000"
+        }
+      },
+      "664600011": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.185",
+          "ndtw": "1.000"
+        }
+      },
+      "664600012": {
+        "0": {
+          "hsd": "0.875",
+          "dyn": "0.078",
+          "ndtw": "0.914"
+        }
+      },
+      "664600013": {
+        "0": {
+          "hsd": "0.495",
+          "dyn": "0.092",
+          "ndtw": "0.417"
+        }
+      },
+      "664600014": {
+        "0": {
+          "hsd": "0.466",
+          "dyn": "0.278",
+          "ndtw": "0.685"
+        }
+      },
+      "681186000": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.231",
+          "ndtw": "1.000"
+        }
+      },
+      "681186001": {
+        "0": {
+          "hsd": "0.414",
+          "dyn": "0.159",
+          "ndtw": "1.000"
+        }
+      },
+      "681186002": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.203",
+          "ndtw": "1.000"
+        }
+      },
+      "681186003": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.231",
+          "ndtw": "1.000"
+        }
+      },
+      "681186004": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.186",
+          "ndtw": "1.000"
+        }
+      },
+      "681186005": {
+        "0": {
+          "hsd": "0.800",
+          "dyn": "0.147",
+          "ndtw": "1.000"
+        }
+      },
+      "681186006": {
+        "0": {
+          "hsd": "1.000",
+          "dyn": "0.324",
+          "ndtw": "1.000"
+        }
+      },
+      "681186007": {
+        "0": {
+          "hsd": "0.624",
+          "dyn": "0.136",
+          "ndtw": "1.000"
+        }
+      }
+    }
+  }
+}

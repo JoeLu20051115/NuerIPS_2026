@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.2,
+  "action_l2_error": 0.1350965254291569,
+  "video_mse": 0.003107055841073671,
+  "policy_inference_time_per_step": 4.4092344916425645,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 44.092344916425645,
+  "completion_time": 4.4092344916425645,
+  "robustness_score": 0.864903474570843,
+  "num_sub_tasks": 1,
+  "task_description": "Close the top drawer of the left cabinet",
+  "sub_instructions": [
+    "Close the top drawer of the left cabinet"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "task_only",
+  "planner_mode": "disabled",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "disabled",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": null
+  },
+  "evaluation_status": "SUCCESS"
+}

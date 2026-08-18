@@ -1,0 +1,71 @@
+{
+  "results": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "task_token_only",
+      "sub_instructions": [
+        "Clear table in the restaurant"
+      ],
+      "planner_meta": {
+        "planner_mode": "disabled"
+      },
+      "plan_time": 0.0,
+      "mean_l2": 0.07189178218444188,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.8,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) in a cleared state on the table, indicating that the task of clearing the table is almost fully achieved.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000794_03_18_13_00_39_n3.mp4"
+    },
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mode": "dual_llm",
+      "sub_instructions": [
+        "move to table",
+        "grasp dirty dish",
+        "place dirty dish in bin",
+        "move to table",
+        "grasp silverware"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to table  \ngrasp dirty dish  \nplace dirty dish in bin  \nmove to table  \ngrasp silverware"
+      },
+      "plan_time": 1.017559395171702,
+      "mean_l2": 0.06191159412264824,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 3,
+      "step_alignment_l2_lt_0_1": 1.0,
+      "task_progress": 0.6,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) moved closer to the target area, indicating partial completion of the task. While not perfectly aligned, the intent to clear the table is evident.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000795_03_18_13_01_09_n4.mp4"
+    }
+  ],
+  "summary": {
+    "task_token_only": {
+      "num_episodes": 1,
+      "mean_l2": 0.07189178218444188,
+      "mean_task_progress": 0.8,
+      "success_rate": 1.0,
+      "rate_of_l2_lt_0_1": 0.6666666666666666
+    },
+    "dual_llm": {
+      "num_episodes": 1,
+      "mean_l2": 0.06191159412264824,
+      "mean_task_progress": 0.6,
+      "success_rate": 1.0,
+      "rate_of_l2_lt_0_1": 1.0
+    }
+  }
+}

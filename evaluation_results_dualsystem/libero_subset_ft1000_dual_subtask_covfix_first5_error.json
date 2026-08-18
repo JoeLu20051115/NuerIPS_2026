@@ -1,0 +1,197 @@
+{
+  "model_name": "dreamzero_libero_ft1000_dual_subtask_covfix",
+  "model_path": "checkpoints/dreamzero_libero_subset_1000_tb/checkpoint-1000",
+  "num_episodes": 5,
+  "mean_action_l2_error": 0.031127394748925376,
+  "std_action_l2_error": 0.0028543081041494988,
+  "mean_completion_time": 6.782559967897832,
+  "results": [
+    {
+      "episode_id": "episode_000000",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+      },
+      "sub_instructions": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "sampled_prompts": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "action_l2_error": 0.031562431508127584,
+      "per_step_errors": [
+        0.03233351586995798,
+        0.029032026408626573,
+        0.035721952842418976,
+        0.0271370456185069,
+        0.03358761680112747
+      ],
+      "completion_time": 6.849868167191744
+    },
+    {
+      "episode_id": "episode_000001",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+      },
+      "sub_instructions": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "sampled_prompts": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "action_l2_error": 0.03123566517151206,
+      "per_step_errors": [
+        0.029666930707304272,
+        0.02241220227374714,
+        0.034878424922287043,
+        0.035307723595458494,
+        0.03391304435876334
+      ],
+      "completion_time": 6.766780448332429
+    },
+    {
+      "episode_id": "episode_000002",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+      },
+      "sub_instructions": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "sampled_prompts": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "action_l2_error": 0.028571489286550622,
+      "per_step_errors": [
+        0.03527514376806368,
+        0.026491094203709372,
+        0.028087460769459213,
+        0.021792379960763254,
+        0.03121136773075757
+      ],
+      "completion_time": 6.771107941865921
+    },
+    {
+      "episode_id": "episode_000003",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+      },
+      "sub_instructions": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "sampled_prompts": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "action_l2_error": 0.028135165056716427,
+      "per_step_errors": [
+        0.026603312785861907,
+        0.027701238102685537,
+        0.030952364754722364,
+        0.021588392928584027,
+        0.03383051671172828
+      ],
+      "completion_time": 6.766565507650375
+    },
+    {
+      "episode_id": "episode_000004",
+      "task": "put both the alphabet soup and the tomato sauce in the basket",
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Grasp the alphabet soup can with the gripper.  \nMove the alphabet soup can to the basket.  \nPlace the alphabet soup can in the basket.  \nGrasp the tomato sauce can with the gripper.  \nMove the tomato sauce can to the basket and place it inside."
+      },
+      "sub_instructions": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "sampled_prompts": [
+        "Grasp the alphabet soup can with the gripper",
+        "Move the alphabet soup can to the basket",
+        "Place the alphabet soup can in the basket",
+        "Grasp the tomato sauce can with the gripper",
+        "Move the tomato sauce can to the basket and place it inside"
+      ],
+      "action_l2_error": 0.036132222721720175,
+      "per_step_errors": [
+        0.01834831075103534,
+        0.03896396609518769,
+        0.0505402583659538,
+        0.03847369795532897,
+        0.03433488044109505
+      ],
+      "completion_time": 6.758477774448693
+    }
+  ],
+  "comparison_to_system1": {
+    "mean_action_l2_error": 0.03132453927771778,
+    "delta_action_l2_error": -0.00019714452879240202,
+    "mean_completion_time": 6.768947872333229,
+    "delta_completion_time": 0.013612095564603521
+  },
+  "comparison_to_old_subtask": {
+    "mean_action_l2_error": 0.03153344050107957,
+    "delta_action_l2_error": -0.0004060457521541938,
+    "mean_completion_time": 6.784176107198,
+    "delta_completion_time": -0.001616139300168129
+  }
+}

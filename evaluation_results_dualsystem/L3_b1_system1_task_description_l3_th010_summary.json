@@ -1,0 +1,1055 @@
+{
+  "tier": "L3",
+  "method": "b1_system1_task_description_l3_th010",
+  "num_episodes": 20,
+  "num_failed": 0,
+  "success_rate": {
+    "mean": 0.43999999999999995,
+    "std": 0.1984943324127921,
+    "ci_95": [
+      0.355,
+      0.53
+    ]
+  },
+  "policy_inference_time_per_step": {
+    "mean": 4.413954432928003,
+    "std": 0.00402280417014739
+  },
+  "llm_planning_time_per_episode": {
+    "mean": 0.0,
+    "std": 0.0
+  },
+  "total_episode_time": {
+    "mean": 44.139544329280035,
+    "std": 0.040228041701473365
+  },
+  "completion_time": {
+    "mean": 4.413954432928003,
+    "std": 0.00402280417014739
+  },
+  "robustness_score": {
+    "mean": 0.8770442798814507,
+    "std": 0.031036151529296008
+  },
+  "evaluation_config": {
+    "error_threshold": 0.1,
+    "eval_steps": 10,
+    "prompt_mode": "task_only",
+    "planner_mode": "disabled"
+  },
+  "planner_stats": {
+    "planner_mode_counts": {
+      "real_api": 0,
+      "fallback_mock": 0,
+      "mock": 0,
+      "heuristic": 0,
+      "disabled": 20
+    },
+    "api_called_count": 0,
+    "api_success_count": 0,
+    "instruction_compliance_pass_count": 0,
+    "avg_num_inference_calls": 10.0
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.13208607695274285,
+      "video_mse": 0.011237489026167025,
+      "policy_inference_time_per_step": 4.415630916226656,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.15630916226655,
+      "completion_time": 4.415630916226656,
+      "robustness_score": 0.8679139230472571,
+      "num_sub_tasks": 1,
+      "task_description": "Remove the sachet from the shelf",
+      "sub_instructions": [
+        "Remove the sachet from the shelf"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.1312647657203017,
+      "video_mse": 0.004149839985525405,
+      "policy_inference_time_per_step": 4.422603197582066,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.22603197582066,
+      "completion_time": 4.422603197582066,
+      "robustness_score": 0.8687352342796983,
+      "num_sub_tasks": 1,
+      "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+      "sub_instructions": [
+        "Pick up the cloths from the plastic container and put them on the table."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.09028639498292268,
+      "video_mse": 0.001554446159021836,
+      "policy_inference_time_per_step": 4.420412115938961,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.204121159389615,
+      "completion_time": 4.420412115938961,
+      "robustness_score": 0.9097136050170773,
+      "num_sub_tasks": 1,
+      "task_description": "Remove the doll from the bowl",
+      "sub_instructions": [
+        "Remove the doll from the bowl"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.8,
+      "action_l2_error": 0.07797185070878958,
+      "video_mse": 0.0020957547819237766,
+      "policy_inference_time_per_step": 4.419880797807127,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.19880797807127,
+      "completion_time": 4.419880797807127,
+      "robustness_score": 0.9220281492912105,
+      "num_sub_tasks": 1,
+      "task_description": "Turn off the light switch.",
+      "sub_instructions": [
+        "Turn off the light switch."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.10861135600747455,
+      "video_mse": 0.0034531109598225306,
+      "policy_inference_time_per_step": 4.415748340170831,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.157483401708305,
+      "completion_time": 4.415748340170831,
+      "robustness_score": 0.8913886439925255,
+      "num_sub_tasks": 1,
+      "task_description": "Press down on the lid of the flask",
+      "sub_instructions": [
+        "Press down on the lid of the flask"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.14453938675155392,
+      "video_mse": 0.006808425241596613,
+      "policy_inference_time_per_step": 4.412228953186423,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.122289531864226,
+      "completion_time": 4.412228953186423,
+      "robustness_score": 0.8554606132484461,
+      "num_sub_tasks": 1,
+      "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+      "sub_instructions": [
+        "Remove all the objects from the white plastic bag and put them on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.1350965254291569,
+      "video_mse": 0.003107055841073671,
+      "policy_inference_time_per_step": 4.4092344916425645,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.092344916425645,
+      "completion_time": 4.4092344916425645,
+      "robustness_score": 0.864903474570843,
+      "num_sub_tasks": 1,
+      "task_description": "Close the top drawer of the left cabinet",
+      "sub_instructions": [
+        "Close the top drawer of the left cabinet"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.11276677215471817,
+      "video_mse": 0.0035787042508808806,
+      "policy_inference_time_per_step": 4.412294153310358,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.122941533103585,
+      "completion_time": 4.412294153310358,
+      "robustness_score": 0.8872332278452818,
+      "num_sub_tasks": 1,
+      "task_description": "Change the position of the marker to face across the table",
+      "sub_instructions": [
+        "Change the position of the marker to face across the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.1387071838876942,
+      "video_mse": 0.003754901910787824,
+      "policy_inference_time_per_step": 4.415319877956063,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.153198779560626,
+      "completion_time": 4.415319877956063,
+      "robustness_score": 0.8612928161123058,
+      "num_sub_tasks": 1,
+      "task_description": "Put the black pen inside the white mug",
+      "sub_instructions": [
+        "Put the black pen inside the white mug"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.12452499764467553,
+      "video_mse": 0.005992022843848947,
+      "policy_inference_time_per_step": 4.411523902695626,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.11523902695626,
+      "completion_time": 4.411523902695626,
+      "robustness_score": 0.8754750023553245,
+      "num_sub_tasks": 1,
+      "task_description": "Put the jersey on the backrest of the chair",
+      "sub_instructions": [
+        "Put the jersey on the backrest of the chair"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.12550930481723405,
+      "video_mse": 0.0012362056613740872,
+      "policy_inference_time_per_step": 4.412445136904717,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.124451369047165,
+      "completion_time": 4.412445136904717,
+      "robustness_score": 0.874490695182766,
+      "num_sub_tasks": 1,
+      "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+      "sub_instructions": [
+        "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": false,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.12758530315467712,
+      "video_mse": 0.0036055858101927615,
+      "policy_inference_time_per_step": 4.4144524553790685,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.14452455379069,
+      "completion_time": 4.4144524553790685,
+      "robustness_score": 0.8724146968453229,
+      "num_sub_tasks": 1,
+      "task_description": "Push the button down on the toaster.",
+      "sub_instructions": [
+        "Push the button down on the toaster."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.09356835453244465,
+      "video_mse": 0.003522472515864572,
+      "policy_inference_time_per_step": 4.414600069914013,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.14600069914013,
+      "completion_time": 4.414600069914013,
+      "robustness_score": 0.9064316454675554,
+      "num_sub_tasks": 1,
+      "task_description": "Put one orange block in the green bowl",
+      "sub_instructions": [
+        "Put one orange block in the green bowl"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.07995403610357603,
+      "video_mse": 0.001672822653103461,
+      "policy_inference_time_per_step": 4.4118315652012825,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.118315652012825,
+      "completion_time": 4.4118315652012825,
+      "robustness_score": 0.920045963896424,
+      "num_sub_tasks": 1,
+      "task_description": "Remove the candy bar from the sink",
+      "sub_instructions": [
+        "Remove the candy bar from the sink"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.08228743939474961,
+      "video_mse": 0.0022171093885557337,
+      "policy_inference_time_per_step": 4.406587340775877,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.06587340775877,
+      "completion_time": 4.406587340775877,
+      "robustness_score": 0.9177125606052504,
+      "num_sub_tasks": 1,
+      "task_description": "Pick up the bear plush toy from the table and put it in the pot",
+      "sub_instructions": [
+        "Pick up the bear plush toy from the table and put it in the pot"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.11213944341813491,
+      "video_mse": 0.0011838159750841661,
+      "policy_inference_time_per_step": 4.4173574347049,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.173574347049,
+      "completion_time": 4.4173574347049,
+      "robustness_score": 0.8878605565818651,
+      "num_sub_tasks": 1,
+      "task_description": "Move the blue and white doll to the left",
+      "sub_instructions": [
+        "Move the blue and white doll to the left"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.3,
+      "action_l2_error": 0.1649753877613806,
+      "video_mse": 0.011799526535782328,
+      "policy_inference_time_per_step": 4.410102975275367,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.101029752753675,
+      "completion_time": 4.410102975275367,
+      "robustness_score": 0.8350246122386193,
+      "num_sub_tasks": 1,
+      "task_description": "Lay down the bottle on the table",
+      "sub_instructions": [
+        "Lay down the bottle on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.0,
+      "action_l2_error": 0.19787841063247566,
+      "video_mse": 0.007817049564945869,
+      "policy_inference_time_per_step": 4.409314724989235,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.093147249892354,
+      "completion_time": 4.409314724989235,
+      "robustness_score": 0.8021215893675243,
+      "num_sub_tasks": 1,
+      "task_description": "Put the glue stick inside the mug cup",
+      "sub_instructions": [
+        "Put the glue stick inside the mug cup"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.1,
+      "action_l2_error": 0.1743079166200731,
+      "video_mse": 0.0033029796903003795,
+      "policy_inference_time_per_step": 4.4105599349364635,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.10559934936464,
+      "completion_time": 4.4105599349364635,
+      "robustness_score": 0.8256920833799268,
+      "num_sub_tasks": 1,
+      "task_description": "Turn on the chandelier",
+      "sub_instructions": [
+        "Turn on the chandelier"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.1050534956962105,
+      "video_mse": 0.008040723305401721,
+      "policy_inference_time_per_step": 4.416960273962468,
+      "llm_planning_time": 0.0,
+      "total_episode_time": 44.16960273962468,
+      "completion_time": 4.416960273962468,
+      "robustness_score": 0.8949465043037895,
+      "num_sub_tasks": 1,
+      "task_description": "Take the yellow block and put it in the box",
+      "sub_instructions": [
+        "Take the yellow block and put it in the box"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "task_only",
+      "planner_mode": "disabled",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "disabled",
+        "api_called": false,
+        "api_success": false,
+        "error": null,
+        "model": null,
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    }
+  ]
+}

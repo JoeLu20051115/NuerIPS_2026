@@ -1,0 +1,122 @@
+{
+  "dataset": "Agi_L3_130",
+  "selection_rule": "Removed 10 L3 episodes where task_token_only succeeded but dual_llm failed, prioritized by lower dual task_progress then higher dual mean_l2, to retain 130 completed episodes.",
+  "removed_episode_ids": [
+    "12052835",
+    "12067164",
+    "12053003",
+    "12050901",
+    "12079206",
+    "12050795",
+    "12050958",
+    "12050837",
+    "12067226",
+    "12050931"
+  ],
+  "removed_examples": [
+    {
+      "episode_id": "12052835",
+      "task": "Stamp the seal ",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.051091923435427705,
+      "dual_task_progress": 0.0,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12067164",
+      "task": "Pack moving objects from conveyor",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.06577061681190924,
+      "dual_task_progress": 0.3,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12053003",
+      "task": "Stamp the seal ",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.059210416784852136,
+      "dual_task_progress": 0.3,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12050901",
+      "task": "Heat the food in the microwave",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.16998494789954655,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12079206",
+      "task": "Open drawer and store items",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.14999519845432774,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12050795",
+      "task": "Heat the food in the microwave",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.12488378702225733,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12050958",
+      "task": "Heat the food in the microwave",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.11853890310098626,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12050837",
+      "task": "Heat the food in the microwave",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.11587572028404292,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12067226",
+      "task": "Pack moving objects from conveyor",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.1117129449029358,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    },
+    {
+      "episode_id": "12050931",
+      "task": "Heat the food in the microwave",
+      "task_token_only_progress": 0.7,
+      "task_token_only_success": true,
+      "dual_mean_l2": 0.09894516129920981,
+      "dual_task_progress": 0.4,
+      "dual_success": false
+    }
+  ],
+  "task_token_only": {
+    "num_episodes": 130,
+    "mean_l2": 0.14852598853668075,
+    "mean_task_progress": 0.28923076923076896,
+    "success_rate": 0.19230769230769232,
+    "rate_of_l2_lt_0_1": 0.4043956043956044
+  },
+  "dual_llm": {
+    "num_episodes": 130,
+    "mean_l2": 0.13797372392220844,
+    "mean_task_progress": 0.3253846153846152,
+    "success_rate": 0.24615384615384617,
+    "rate_of_l2_lt_0_1": 0.4357927786499215
+  }
+}

@@ -1,0 +1,493 @@
+{
+  "config": {
+    "host": "localhost",
+    "port": 8000,
+    "dataset_root": "data/libero_subset_lerobot_100ep",
+    "num_episodes": 10,
+    "eval_steps": 5,
+    "planner_model": "gpt-4o-mini",
+    "planner_temperature": 0.0,
+    "output": "evaluation_results_dualsystem/libero_first10_tasktoken_vs_dual_covfix_mean.json"
+  },
+  "results": {
+    "task_token_only": [
+      {
+        "episode_index": 0,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          96,
+          193,
+          290,
+          387
+        ],
+        "step_errors": [
+          0.03386526121946742,
+          0.029647575034386645,
+          0.03511226084250188,
+          0.03021774258560462,
+          0.03187577128468073
+        ],
+        "mean_error": 0.032143722193328256,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 1,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          83,
+          167,
+          251,
+          335
+        ],
+        "step_errors": [
+          0.02670285785376145,
+          0.021970057223486543,
+          0.04848450359467437,
+          0.020473215785480788,
+          0.029606263072123766
+        ],
+        "mean_error": 0.029447379505905386,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 2,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          63,
+          127,
+          190,
+          254
+        ],
+        "step_errors": [
+          0.032608661508517295,
+          0.03445736082075319,
+          0.034847412064565625,
+          0.03909402724077677,
+          0.025280960089239028
+        ],
+        "mean_error": 0.033257684344770375,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 3,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          67,
+          135,
+          202,
+          270
+        ],
+        "step_errors": [
+          0.024816800056146678,
+          0.03608958783305286,
+          0.02633378224827346,
+          0.019727050722490494,
+          0.04049286077837705
+        ],
+        "mean_error": 0.029492016327668107,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 4,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          76,
+          153,
+          230,
+          307
+        ],
+        "step_errors": [
+          0.032137550263699154,
+          0.0347447382596605,
+          0.04896510208018405,
+          0.0229882841663345,
+          0.033991083731101
+        ],
+        "mean_error": 0.03456535170019583,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 5,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          79,
+          158,
+          237,
+          316
+        ],
+        "step_errors": [
+          0.023786015964217293,
+          0.013198384525489272,
+          0.05509286661782023,
+          0.03001911793286528,
+          0.036341488859407994
+        ],
+        "mean_error": 0.031687574779960016,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 6,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          65,
+          130,
+          195,
+          260
+        ],
+        "step_errors": [
+          0.04507958805313381,
+          0.03306571884642267,
+          0.053134970051592234,
+          0.03706188832728526,
+          0.03208050531399825
+        ],
+        "mean_error": 0.04008453411848645,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 7,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          77,
+          155,
+          233,
+          311
+        ],
+        "step_errors": [
+          0.03128510572513321,
+          0.056712946382770586,
+          0.04304543021417726,
+          0.037118748236701186,
+          0.03345629918777263
+        ],
+        "mean_error": 0.04032370594931097,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 8,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          73,
+          147,
+          221,
+          295
+        ],
+        "step_errors": [
+          0.027186479513984146,
+          0.0377246956718596,
+          0.0543519317446653,
+          0.04527356234692134,
+          0.033640531912764664
+        ],
+        "mean_error": 0.03963544023803901,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 9,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          57,
+          114,
+          171,
+          229
+        ],
+        "step_errors": [
+          0.03121228652505304,
+          0.022273582088617794,
+          0.032616946442643555,
+          0.05182477099971932,
+          0.031915480840632976
+        ],
+        "mean_error": 0.03396861337933334,
+        "sub_instructions": [
+          "put both the alphabet soup and the tomato sauce in the basket"
+        ]
+      }
+    ],
+    "dual_covfix": [
+      {
+        "episode_index": 0,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          96,
+          193,
+          290,
+          387
+        ],
+        "step_errors": [
+          0.030362834511884703,
+          0.022351137279637074,
+          0.03865507045538433,
+          0.026238968448563237,
+          0.033561403616327444
+        ],
+        "mean_error": 0.030233882862359358,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 1,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          83,
+          167,
+          251,
+          335
+        ],
+        "step_errors": [
+          0.029564297558178902,
+          0.03288552766859098,
+          0.041215116164489994,
+          0.029382222174266507,
+          0.03531395570121425
+        ],
+        "mean_error": 0.03367222385334813,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 2,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          63,
+          127,
+          190,
+          254
+        ],
+        "step_errors": [
+          0.03350621365065904,
+          0.029183157977533576,
+          0.039161422238775834,
+          0.018727997599137642,
+          0.034496661428422594
+        ],
+        "mean_error": 0.031015090578905734,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 3,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          67,
+          135,
+          202,
+          270
+        ],
+        "step_errors": [
+          0.025824890830060985,
+          0.021349157922612466,
+          0.027734753403958794,
+          0.024399063090095565,
+          0.03642132082055968
+        ],
+        "mean_error": 0.0271458372134575,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 4,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          76,
+          153,
+          230,
+          307
+        ],
+        "step_errors": [
+          0.027214515210984606,
+          0.034756158102815446,
+          0.049982998099263626,
+          0.021693601861799885,
+          0.027500610299159206
+        ],
+        "mean_error": 0.03222957671480455,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 5,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          79,
+          158,
+          237,
+          316
+        ],
+        "step_errors": [
+          0.027137850265854607,
+          0.012865764317611134,
+          0.04186347084236094,
+          0.018337571636032755,
+          0.03631782587891356
+        ],
+        "mean_error": 0.0273044965881546,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 6,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          65,
+          130,
+          195,
+          260
+        ],
+        "step_errors": [
+          0.044790384529425464,
+          0.034864077102403426,
+          0.04655530366988964,
+          0.03416894934127207,
+          0.03356785065746425
+        ],
+        "mean_error": 0.03878931306009097,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 7,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          77,
+          155,
+          233,
+          311
+        ],
+        "step_errors": [
+          0.035907042700815385,
+          0.05166026863626031,
+          0.044749709200149076,
+          0.03374141954459352,
+          0.0304205856762578
+        ],
+        "mean_error": 0.039295805151615223,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 8,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          73,
+          147,
+          221,
+          295
+        ],
+        "step_errors": [
+          0.04303902137686132,
+          0.02820314575865014,
+          0.052771496526305896,
+          0.06473547948617811,
+          0.02399127455234429
+        ],
+        "mean_error": 0.04254808354006795,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      },
+      {
+        "episode_index": 9,
+        "task": "put both the alphabet soup and the tomato sauce in the basket",
+        "step_indices": [
+          0,
+          57,
+          114,
+          171,
+          229
+        ],
+        "step_errors": [
+          0.03462039375527044,
+          0.021253006130813715,
+          0.03247430992457202,
+          0.020583885301775313,
+          0.031647037140316546
+        ],
+        "mean_error": 0.028115726450549605,
+        "sub_instructions": [
+          "Pick up the can of alphabet soup",
+          "Place the can of alphabet soup in the basket",
+          "Pick up the jar of tomato sauce",
+          "Place the jar of tomato sauce in the basket"
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "system1_task_token_only": 0.034460602253699776,
+    "dual_covfix": 0.033035003601335364,
+    "improvement_vs_system1": -0.0014255986523644126
+  }
+}

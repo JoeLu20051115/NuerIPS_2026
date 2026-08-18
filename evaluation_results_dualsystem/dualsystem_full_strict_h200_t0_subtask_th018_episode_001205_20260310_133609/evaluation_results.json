@@ -1,0 +1,53 @@
+{
+  "success_rate": 1.0,
+  "action_l2_error": 0.07638217882248821,
+  "video_mse": 0.001720618909186394,
+  "policy_inference_time_per_step": 2.1324057376012204,
+  "llm_planning_time": 1.386404387652874,
+  "total_episode_time": 22.71046176366508,
+  "completion_time": 2.1324057376012204,
+  "robustness_score": 0.9236178211775118,
+  "num_sub_tasks": 5,
+  "task_description": "Pick up the object with zebra tag and put it on the table",
+  "sub_instructions": [
+    "move to the location of the object with zebra tag",
+    "grasp the object with zebra tag",
+    "move to the table",
+    "place the object on the table",
+    "open the gripper to release the object"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.18,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the location of the object with zebra tag  \ngrasp the object with zebra tag  \nmove to the table  \nplace the object on the table  \nopen the gripper to release the object"
+  },
+  "evaluation_status": "SUCCESS"
+}

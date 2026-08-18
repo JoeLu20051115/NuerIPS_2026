@@ -1,0 +1,355 @@
+{
+  "tier": "L3",
+  "method": "case6_dual_llm_subtask_t0_th010",
+  "num_episodes": 6,
+  "num_failed": 0,
+  "success_rate": {
+    "mean": 0.39999999999999997,
+    "std": 0.1,
+    "ci_95": [
+      0.31666666666666665,
+      0.4666666666666666
+    ]
+  },
+  "policy_inference_time_per_step": {
+    "mean": 2.7828366356746606,
+    "std": 0.7774234385312294
+  },
+  "llm_planning_time_per_episode": {
+    "mean": 8.965221544106802e-06,
+    "std": 4.154807340016386e-06
+  },
+  "total_episode_time": {
+    "mean": 27.82837532196815,
+    "std": 7.774234870518748
+  },
+  "completion_time": {
+    "mean": 2.7828366356746606,
+    "std": 0.7774234385312294
+  },
+  "robustness_score": {
+    "mean": 0.8711459531975593,
+    "std": 0.009613033250043347
+  },
+  "evaluation_config": {
+    "error_threshold": 0.1,
+    "eval_steps": 10,
+    "prompt_mode": "subtask",
+    "planner_mode": "llm"
+  },
+  "planner_stats": {
+    "planner_mode_counts": {
+      "real_api": 0,
+      "fallback_mock": 0,
+      "mock": 6,
+      "heuristic": 0,
+      "disabled": 0
+    },
+    "api_called_count": 0,
+    "api_success_count": 0,
+    "instruction_compliance_pass_count": 0,
+    "avg_num_inference_calls": 10.0
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.13208607695274285,
+      "video_mse": 0.011237489026167025,
+      "policy_inference_time_per_step": 2.109546775277704,
+      "llm_planning_time": 3.225170075893402e-06,
+      "total_episode_time": 21.095470977947116,
+      "completion_time": 2.109546775277704,
+      "robustness_score": 0.8679139230472571,
+      "num_sub_tasks": 1,
+      "task_description": "Remove the sachet from the shelf",
+      "sub_instructions": [
+        "Remove the sachet from the shelf"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.1312647657203017,
+      "video_mse": 0.004149839985525405,
+      "policy_inference_time_per_step": 2.1149792189709844,
+      "llm_planning_time": 8.94349068403244e-06,
+      "total_episode_time": 21.149801133200526,
+      "completion_time": 2.1149792189709844,
+      "robustness_score": 0.8687352342796983,
+      "num_sub_tasks": 1,
+      "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+      "sub_instructions": [
+        "Pick up the cloths from the plastic container and put them on the table."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.14453938675155392,
+      "video_mse": 0.006808425241596613,
+      "policy_inference_time_per_step": 2.120936939679086,
+      "llm_planning_time": 7.760711014270782e-06,
+      "total_episode_time": 21.209377157501876,
+      "completion_time": 2.120936939679086,
+      "robustness_score": 0.8554606132484461,
+      "num_sub_tasks": 1,
+      "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+      "sub_instructions": [
+        "Remove all the objects from the white plastic bag and put them on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.12550930481723405,
+      "video_mse": 0.0012362056613740872,
+      "policy_inference_time_per_step": 2.655596443451941,
+      "llm_planning_time": 1.7226673662662506e-05,
+      "total_episode_time": 26.555981661193073,
+      "completion_time": 2.655596443451941,
+      "robustness_score": 0.874490695182766,
+      "num_sub_tasks": 1,
+      "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+      "sub_instructions": [
+        "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": false,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.12758530315467712,
+      "video_mse": 0.0036055858101927615,
+      "policy_inference_time_per_step": 3.890450643748045,
+      "llm_planning_time": 8.52346420288086e-06,
+      "total_episode_time": 38.90451496094465,
+      "completion_time": 3.890450643748045,
+      "robustness_score": 0.8724146968453229,
+      "num_sub_tasks": 1,
+      "task_description": "Push the button down on the toaster.",
+      "sub_instructions": [
+        "Push the button down on the toaster."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.11213944341813491,
+      "video_mse": 0.0011838159750841661,
+      "policy_inference_time_per_step": 3.805509792920202,
+      "llm_planning_time": 8.111819624900818e-06,
+      "total_episode_time": 38.055106041021645,
+      "completion_time": 3.805509792920202,
+      "robustness_score": 0.8878605565818651,
+      "num_sub_tasks": 1,
+      "task_description": "Move the blue and white doll to the left",
+      "sub_instructions": [
+        "Move the blue and white doll to the left"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "prompt_mode": "subtask",
+      "planner_mode": "llm",
+      "instruction_validation": {
+        "num_sub_tasks": 1,
+        "all_non_empty": true,
+        "within_3_to_5": false,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": false
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.1,
+      "planner_meta": {
+        "planner_mode": "mock",
+        "api_called": false,
+        "api_success": false,
+        "error": "mock_mode_enabled_or_missing_api_key",
+        "model": "gpt-4o-mini",
+        "raw_response": null
+      },
+      "evaluation_status": "SUCCESS"
+    }
+  ]
+}

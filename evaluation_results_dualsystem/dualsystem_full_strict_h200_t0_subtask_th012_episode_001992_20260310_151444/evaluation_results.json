@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.12538692439030905,
+  "video_mse": 0.016785369409874896,
+  "policy_inference_time_per_step": 4.387085947114974,
+  "llm_planning_time": 1.9580329013988376,
+  "total_episode_time": 45.82889237254858,
+  "completion_time": 4.387085947114974,
+  "robustness_score": 0.8746130756096909,
+  "num_sub_tasks": 5,
+  "task_description": "Take the yellow block and put it in the box",
+  "sub_instructions": [
+    "move to the yellow block",
+    "grasp the yellow block",
+    "move to the box",
+    "place the yellow block in the box",
+    "open the gripper to release the block"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the yellow block  \ngrasp the yellow block  \nmove to the box  \nplace the yellow block in the box  \nopen the gripper to release the block  "
+  },
+  "evaluation_status": "SUCCESS"
+}

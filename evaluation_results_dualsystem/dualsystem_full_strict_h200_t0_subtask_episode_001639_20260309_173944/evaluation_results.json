@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.1029770000672287,
+  "video_mse": 0.0014048284098271192,
+  "policy_inference_time_per_step": 2.123228134214878,
+  "llm_planning_time": 1.2172152660787106,
+  "total_episode_time": 22.44949660822749,
+  "completion_time": 2.123228134214878,
+  "robustness_score": 0.8970229999327713,
+  "num_sub_tasks": 5,
+  "task_description": "Put the jersey on the backrest of the chair",
+  "sub_instructions": [
+    "move to the jersey",
+    "grasp the jersey",
+    "move to the chair",
+    "place the jersey on the backrest of the chair",
+    "release the jersey"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "subtask",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "move to the jersey  \ngrasp the jersey  \nmove to the chair  \nplace the jersey on the backrest of the chair  \nrelease the jersey"
+  },
+  "evaluation_status": "SUCCESS"
+}

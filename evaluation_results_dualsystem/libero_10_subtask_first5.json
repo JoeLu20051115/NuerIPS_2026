@@ -1,0 +1,488 @@
+{
+  "timestamp": "2026-03-15 21:50:07",
+  "suite": "libero_10",
+  "num_tasks": 5,
+  "task_ids": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "episodes_per_task": 1,
+  "num_requested_episodes": 5,
+  "num_completed_episodes": 5,
+  "num_skipped_episodes": 0,
+  "init_state_id": 0,
+  "max_steps": 200,
+  "open_loop_horizon": 8,
+  "action_limit": 1.0,
+  "prompt_mode": "subtask",
+  "planner_model": "gpt-4o-mini",
+  "host": "localhost",
+  "port": 8000,
+  "success_rate": 0.0,
+  "num_success": 0,
+  "mean_reward_sum": 0.0,
+  "mean_steps_executed": 200.0,
+  "mean_joint_action_l2": 1.761796918974822,
+  "mean_llm_plan_time_sec": 1.4252338273450733,
+  "skipped": [],
+  "results": [
+    {
+      "task_id": 0,
+      "task_name": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket",
+      "language_instruction": "put both the alphabet soup and the tomato sauce in the basket",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7645533607496582,
+      "wall_clock_time_sec": 120.96760169230402,
+      "prompt_mode": "subtask",
+      "requested_prompt_mode": "subtask",
+      "llm_plan_time_sec": 2.512834628112614,
+      "sub_instructions": [
+        "move to the alphabet soup",
+        "grasp the alphabet soup",
+        "move to the basket",
+        "place the alphabet soup in the basket",
+        "move to the tomato sauce"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the alphabet soup  \ngrasp the alphabet soup  \nmove to the basket  \nplace the alphabet soup in the basket  \nmove to the tomato sauce  \ngrasp the tomato sauce  \nmove to the basket  \nplace the tomato sauce in the basket  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.620230510893136
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6707504177181
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7522765661824034
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7572820848483446
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7769195465029182
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7772895416930965
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7870047925886525
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7962272940146222
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8110402064673894
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8232232950623342
+        }
+      ]
+    },
+    {
+      "task_id": 1,
+      "task_name": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket",
+      "language_instruction": "put both the cream cheese box and the butter in the basket",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7508744829464526,
+      "wall_clock_time_sec": 121.30537408683449,
+      "prompt_mode": "subtask",
+      "requested_prompt_mode": "subtask",
+      "llm_plan_time_sec": 2.9823311464861035,
+      "sub_instructions": [
+        "move to the cream cheese box",
+        "grasp the cream cheese box",
+        "move to the basket",
+        "place the cream cheese box in the basket",
+        "move to the butter"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the cream cheese box  \ngrasp the cream cheese box  \nmove to the basket  \nplace the cream cheese box in the basket  \nmove to the butter  \ngrasp the butter  \nmove to the basket  \nplace the butter in the basket  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6032941885794838
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6608333636647516
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7463060609456662
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7499242973420677
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.759811015296786
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7645828861027941
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7770761146901344
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7791380724165609
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7909467350805712
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7964484430695893
+        }
+      ]
+    },
+    {
+      "task_id": 2,
+      "task_name": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it",
+      "language_instruction": "turn on the stove and put the moka pot on it",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7723867439020538,
+      "wall_clock_time_sec": 121.39992542285472,
+      "prompt_mode": "subtask",
+      "requested_prompt_mode": "subtask",
+      "llm_plan_time_sec": 1.6309086000546813,
+      "sub_instructions": [
+        "move to the stove",
+        "grasp the moka pot",
+        "place the moka pot on the stove",
+        "open the stove",
+        "turn on the stove"
+      ],
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the stove  \ngrasp the moka pot  \nplace the moka pot on the stove  \nopen the stove  \nturn on the stove  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.604682722261812
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6617926765923139
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7380698153425835
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7664331965142126
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.778884366336563
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7828848433080506
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7944725188570574
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8117306845124157
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.826600824758527
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.844661513395996
+        }
+      ]
+    },
+    {
+      "task_id": 3,
+      "task_name": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it",
+      "language_instruction": "put the black bowl in the bottom drawer of the cabinet and close it",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.782022724422307,
+      "wall_clock_time_sec": 121.42523391451687,
+      "prompt_mode": "subtask",
+      "requested_prompt_mode": "subtask",
+      "llm_plan_time_sec": 5.1927752792835236e-05,
+      "sub_instructions": [
+        "open the bottom drawer of the cabinet",
+        "grasp the black bowl",
+        "move the black bowl to the bottom drawer",
+        "place the black bowl in the bottom drawer",
+        "close the bottom drawer of the cabinet"
+      ],
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "open the bottom drawer of the cabinet  \ngrasp the black bowl  \nmove the black bowl to the bottom drawer  \nplace the black bowl in the bottom drawer  \nclose the bottom drawer of the cabinet  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6316765923013061
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6865974260663654
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7579665970750817
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7638907764881449
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7807419749355784
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7888065701562827
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8070006691202927
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8082612700585017
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.834596155590102
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.8573830102203919
+        }
+      ]
+    },
+    {
+      "task_id": 4,
+      "task_name": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate",
+      "language_instruction": "put the white mug on the left plate and put the yellow and white mug on the right plate",
+      "init_state_id": 0,
+      "success": false,
+      "reward_sum": 0.0,
+      "steps_executed": 200,
+      "mean_joint_action_l2": 1.7391472828536376,
+      "wall_clock_time_sec": 121.57523593585938,
+      "prompt_mode": "subtask",
+      "requested_prompt_mode": "subtask",
+      "llm_plan_time_sec": 4.28343191742897e-05,
+      "sub_instructions": [
+        "grasp the white mug",
+        "move the white mug to the left plate",
+        "place the white mug on the left plate",
+        "grasp the yellow mug",
+        "grasp the white mug"
+      ],
+      "planner_meta": {
+        "planner_mode": "cache",
+        "api_called": false,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "grasp the white mug  \nmove the white mug to the left plate  \nplace the white mug on the left plate  \ngrasp the yellow mug  \ngrasp the white mug  \nmove the yellow and white mug to the right plate  \nplace the yellow and white mug on the right plate  "
+      },
+      "step_logs": [
+        {
+          "step_idx": 0,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6090697269608791
+        },
+        {
+          "step_idx": 20,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.6523184703810327
+        },
+        {
+          "step_idx": 40,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7298098677156262
+        },
+        {
+          "step_idx": 60,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.748138432927883
+        },
+        {
+          "step_idx": 80,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7546062724752214
+        },
+        {
+          "step_idx": 100,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7585153674876408
+        },
+        {
+          "step_idx": 120,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7618619210443898
+        },
+        {
+          "step_idx": 140,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7690701520832677
+        },
+        {
+          "step_idx": 160,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7700752907583057
+        },
+        {
+          "step_idx": 180,
+          "reward": 0.0,
+          "success": false,
+          "joint_action_l2": 1.7758744381948701
+        }
+      ]
+    }
+  ]
+}

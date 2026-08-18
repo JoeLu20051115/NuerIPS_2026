@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.7,
+  "action_l2_error": 0.1441169877732527,
+  "video_mse": 0.009941977990397872,
+  "policy_inference_time_per_step": 2.1258945878595115,
+  "llm_planning_time": 1.2732680542394519,
+  "total_episode_time": 22.532213932834566,
+  "completion_time": 2.1258945878595115,
+  "robustness_score": 0.8558830122267473,
+  "num_sub_tasks": 5,
+  "task_description": "Coil the cord",
+  "sub_instructions": [
+    "Move to the cord's starting point.",
+    "Grasp the cord with the gripper.",
+    "Coil the cord around a designated object.",
+    "Place the coiled cord securely.",
+    "Open the gripper to release the cord."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.18,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the cord's starting point.  \nGrasp the cord with the gripper.  \nCoil the cord around a designated object.  \nPlace the coiled cord securely.  \nOpen the gripper to release the cord.  "
+  },
+  "evaluation_status": "SUCCESS"
+}

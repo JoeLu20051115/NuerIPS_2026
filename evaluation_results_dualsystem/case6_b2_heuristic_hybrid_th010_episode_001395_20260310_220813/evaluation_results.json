@@ -1,0 +1,50 @@
+{
+  "success_rate": 0.6,
+  "action_l2_error": 0.1308817085798446,
+  "video_mse": 0.014920896808137902,
+  "policy_inference_time_per_step": 2.1066598070785405,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 21.066598070785403,
+  "completion_time": 2.1066598070785405,
+  "robustness_score": 0.8691182914201554,
+  "num_sub_tasks": 1,
+  "task_description": "Remove the sachet from the shelf",
+  "sub_instructions": [
+    "Remove the sachet from the shelf"
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "heuristic",
+  "instruction_validation": {
+    "num_sub_tasks": 1,
+    "all_non_empty": true,
+    "within_3_to_5": false,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": false
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "heuristic",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": "Remove the sachet from the shelf"
+  },
+  "evaluation_status": "SUCCESS"
+}

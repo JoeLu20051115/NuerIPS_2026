@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.4,
+  "action_l2_error": 0.15738515022325444,
+  "video_mse": 0.004730494575418276,
+  "policy_inference_time_per_step": 3.7971261175349356,
+  "llm_planning_time": 1.2221278650686145,
+  "total_episode_time": 39.19338904041797,
+  "completion_time": 3.7971261175349356,
+  "robustness_score": 0.8426148497767456,
+  "num_sub_tasks": 5,
+  "task_description": "Move the towel to the right",
+  "sub_instructions": [
+    "Open the gripper.",
+    "Grasp the towel.",
+    "Move the arm to the right.",
+    "Place the towel down.",
+    "Close the gripper."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Open the gripper.  \nGrasp the towel.  \nMove the arm to the right.  \nPlace the towel down.  \nClose the gripper."
+  },
+  "evaluation_status": "SUCCESS"
+}

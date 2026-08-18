@@ -1,0 +1,25 @@
+{
+  "manifest_path": "data/agibot_easy400_for_droid/meta/agibot_easy400_dreamzero_manifest.json",
+  "num_episodes": 2,
+  "camera_mode": "head_head_right",
+  "prompt_mode": "task_plus_plan",
+  "mean_l2": 0.07850540243089199,
+  "episodes": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.08547641212741534,
+      "num_steps": 3,
+      "camera_mode": "head_head_right",
+      "prompt_mode": "task_plus_plan"
+    },
+    {
+      "episode_id": "12052353",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07153439273436864,
+      "num_steps": 3,
+      "camera_mode": "head_head_right",
+      "prompt_mode": "task_plus_plan"
+    }
+  ]
+}

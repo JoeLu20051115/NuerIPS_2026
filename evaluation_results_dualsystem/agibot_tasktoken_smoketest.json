@@ -1,0 +1,24 @@
+{
+  "results": [
+    {
+      "episode_id": "12052348",
+      "task": "Clear table in the restaurant",
+      "mean_l2": 0.07189178218444188,
+      "num_steps": 3,
+      "num_step_pass_l2_lt_0_1": 2,
+      "step_alignment_l2_lt_0_1": 0.6666666666666666,
+      "task_progress": 0.7,
+      "rule_success": true,
+      "task_success": true,
+      "judge_reason": "The predicted final frame shows the key objects (the cup and the plate) moved to the target area, indicating that the task goal is satisfied despite some pose offsets.",
+      "generated_video": "checkpoints/real_world_eval_gen_20260317_0/DreamZero-DROID/000783_03_18_12_49_10_n3.mp4"
+    }
+  ],
+  "summary": {
+    "num_episodes": 1,
+    "mean_l2": 0.07189178218444188,
+    "mean_task_progress": 0.7,
+    "success_rate": 1.0,
+    "rate_of_l2_lt_0_1": 0.6666666666666666
+  }
+}

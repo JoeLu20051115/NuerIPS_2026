@@ -1,0 +1,53 @@
+{
+  "success_rate": 0.9,
+  "action_l2_error": 0.0787662563045782,
+  "video_mse": 0.0034381629089981205,
+  "policy_inference_time_per_step": 4.388079018797725,
+  "llm_planning_time": 1.388506781309843,
+  "total_episode_time": 45.2692969692871,
+  "completion_time": 4.388079018797725,
+  "robustness_score": 0.9212337436954218,
+  "num_sub_tasks": 5,
+  "task_description": "Turn off the light switch.",
+  "sub_instructions": [
+    "Move to the light switch.",
+    "Grasp the light switch.",
+    "Push the light switch down.",
+    "Release the light switch.",
+    "Move away from the light switch."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    1,
+    1,
+    2,
+    2,
+    3,
+    3,
+    4,
+    4
+  ],
+  "prompt_mode": "task_token_hybrid",
+  "instruction_validation": {
+    "num_sub_tasks": 5,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.12,
+  "planner_meta": {
+    "planner_mode": "real_api",
+    "api_called": true,
+    "api_success": true,
+    "error": null,
+    "model": "gpt-4o-mini",
+    "raw_response": "Move to the light switch.  \nGrasp the light switch.  \nPush the light switch down.  \nRelease the light switch.  \nMove away from the light switch."
+  },
+  "evaluation_status": "SUCCESS"
+}

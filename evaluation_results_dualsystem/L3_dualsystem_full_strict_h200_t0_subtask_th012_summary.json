@@ -1,0 +1,1112 @@
+{
+  "tier": "L3",
+  "method": "dualsystem_full_strict_h200_t0_subtask_th012",
+  "num_episodes": 20,
+  "num_failed": 0,
+  "success_rate": {
+    "mean": 0.6199999999999999,
+    "std": 0.18867962264113208,
+    "ci_95": [
+      0.5349999999999999,
+      0.7
+    ]
+  },
+  "policy_inference_time_per_step": {
+    "mean": 4.388918407340535,
+    "std": 0.005093451917009662
+  },
+  "llm_planning_time_per_episode": {
+    "mean": 1.7095518904738127,
+    "std": 0.5387305610085494
+  },
+  "total_episode_time": {
+    "mean": 45.59873596387915,
+    "std": 0.549896896911499
+  },
+  "completion_time": {
+    "mean": 4.388918407340535,
+    "std": 0.005093451917009662
+  },
+  "robustness_score": {
+    "mean": 0.8731665360464597,
+    "std": 0.03362329312589164
+  },
+  "evaluation_config": {
+    "error_threshold": 0.12,
+    "eval_steps": 10,
+    "prompt_mode": "task_token_hybrid"
+  },
+  "planner_stats": {
+    "planner_mode_counts": {
+      "real_api": 20,
+      "fallback_mock": 0,
+      "mock": 0
+    },
+    "api_called_count": 20,
+    "api_success_count": 20,
+    "instruction_compliance_pass_count": 20,
+    "avg_num_inference_calls": 10.0
+  },
+  "individual_results": [
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.15122166387864924,
+      "video_mse": 0.0193994990900604,
+      "policy_inference_time_per_step": 4.383495768811554,
+      "llm_planning_time": 2.059466461651027,
+      "total_episode_time": 45.894424149766564,
+      "completion_time": 4.383495768811554,
+      "robustness_score": 0.8487783361213508,
+      "num_sub_tasks": 5,
+      "task_description": "Remove the sachet from the shelf",
+      "sub_instructions": [
+        "move to shelf",
+        "open gripper",
+        "grasp sachet",
+        "move away from shelf",
+        "close gripper"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to shelf  \nopen gripper  \ngrasp sachet  \nmove away from shelf  \nclose gripper  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.16023716482791223,
+      "video_mse": 0.006528229610488601,
+      "policy_inference_time_per_step": 4.392974653095007,
+      "llm_planning_time": 1.423355103470385,
+      "total_episode_time": 45.353101634420455,
+      "completion_time": 4.392974653095007,
+      "robustness_score": 0.8397628351720878,
+      "num_sub_tasks": 5,
+      "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+      "sub_instructions": [
+        "move to the plastic container",
+        "open the container lid",
+        "grasp the clothes from the container",
+        "move to the table",
+        "place the clothes on the table"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the plastic container  \nopen the container lid  \ngrasp the clothes from the container  \nmove to the table  \nplace the clothes on the table  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.9,
+      "action_l2_error": 0.08609683167236129,
+      "video_mse": 0.0013390577498864486,
+      "policy_inference_time_per_step": 4.39429038297385,
+      "llm_planning_time": 1.560714009217918,
+      "total_episode_time": 45.503617838956416,
+      "completion_time": 4.39429038297385,
+      "robustness_score": 0.9139031683276387,
+      "num_sub_tasks": 5,
+      "task_description": "Remove the doll from the bowl",
+      "sub_instructions": [
+        "move to the bowl",
+        "open the gripper",
+        "grasp the doll",
+        "move away from the bowl",
+        "place the doll in a designated location"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the bowl  \nopen the gripper  \ngrasp the doll  \nmove away from the bowl  \nplace the doll in a designated location  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.9,
+      "action_l2_error": 0.0787662563045782,
+      "video_mse": 0.0034381629089981205,
+      "policy_inference_time_per_step": 4.388079018797725,
+      "llm_planning_time": 1.388506781309843,
+      "total_episode_time": 45.2692969692871,
+      "completion_time": 4.388079018797725,
+      "robustness_score": 0.9212337436954218,
+      "num_sub_tasks": 5,
+      "task_description": "Turn off the light switch.",
+      "sub_instructions": [
+        "Move to the light switch.",
+        "Grasp the light switch.",
+        "Push the light switch down.",
+        "Release the light switch.",
+        "Move away from the light switch."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the light switch.  \nGrasp the light switch.  \nPush the light switch down.  \nRelease the light switch.  \nMove away from the light switch."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.10552722345385135,
+      "video_mse": 0.0026788467109355625,
+      "policy_inference_time_per_step": 4.387499430496246,
+      "llm_planning_time": 2.262655371800065,
+      "total_episode_time": 46.13764967676252,
+      "completion_time": 4.387499430496246,
+      "robustness_score": 0.8944727765461487,
+      "num_sub_tasks": 5,
+      "task_description": "Press down on the lid of the flask",
+      "sub_instructions": [
+        "Move the gripper above the lid of the flask.",
+        "Grasp the lid of the flask.",
+        "Press down on the lid of the flask.",
+        "Release the lid of the flask.",
+        "Move the gripper back to the starting position."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move the gripper above the lid of the flask.  \nGrasp the lid of the flask.  \nPress down on the lid of the flask.  \nRelease the lid of the flask.  \nMove the gripper back to the starting position."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.170816626007636,
+      "video_mse": 0.013851373310929366,
+      "policy_inference_time_per_step": 4.3851016134954985,
+      "llm_planning_time": 1.3546241680160165,
+      "total_episode_time": 45.205640302971005,
+      "completion_time": 4.3851016134954985,
+      "robustness_score": 0.829183373992364,
+      "num_sub_tasks": 5,
+      "task_description": "Remove all the objects from the white plastic bag and put them on the table",
+      "sub_instructions": [
+        "open the plastic bag",
+        "grasp the first object inside the bag",
+        "place the object on the table",
+        "repeat grasp and place for each remaining object",
+        "close the plastic bag after all objects are removed"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "open the plastic bag  \ngrasp the first object inside the bag  \nplace the object on the table  \nrepeat grasp and place for each remaining object  \nclose the plastic bag after all objects are removed  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.14236970186675746,
+      "video_mse": 0.005906229119870971,
+      "policy_inference_time_per_step": 4.3936405622400345,
+      "llm_planning_time": 1.4360618935897946,
+      "total_episode_time": 45.37246751599014,
+      "completion_time": 4.3936405622400345,
+      "robustness_score": 0.8576302981332425,
+      "num_sub_tasks": 5,
+      "task_description": "Close the top drawer of the left cabinet",
+      "sub_instructions": [
+        "move to the left cabinet",
+        "grasp the top drawer",
+        "pull the top drawer out slightly",
+        "push the top drawer back in",
+        "close the top drawer"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the left cabinet  \ngrasp the top drawer  \npull the top drawer out slightly  \npush the top drawer back in  \nclose the top drawer"
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.13438022668653332,
+      "video_mse": 0.006835683911437787,
+      "policy_inference_time_per_step": 4.394004401843995,
+      "llm_planning_time": 1.1942900391295552,
+      "total_episode_time": 45.134334057569504,
+      "completion_time": 4.394004401843995,
+      "robustness_score": 0.8656197733134667,
+      "num_sub_tasks": 5,
+      "task_description": "Change the position of the marker to face across the table",
+      "sub_instructions": [
+        "Open the gripper.",
+        "Grasp the marker.",
+        "Lift the marker above the table.",
+        "Rotate the marker to face across the table.",
+        "Place the marker back on the table."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Open the gripper.  \nGrasp the marker.  \nLift the marker above the table.  \nRotate the marker to face across the table.  \nPlace the marker back on the table."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.13520124886726717,
+      "video_mse": 0.004069598538668611,
+      "policy_inference_time_per_step": 4.391537096630782,
+      "llm_planning_time": 1.7114496314898133,
+      "total_episode_time": 45.62682059779763,
+      "completion_time": 4.391537096630782,
+      "robustness_score": 0.8647987511327329,
+      "num_sub_tasks": 5,
+      "task_description": "Put the black pen inside the white mug",
+      "sub_instructions": [
+        "move to the black pen",
+        "grasp the black pen",
+        "move to the white mug",
+        "open the gripper",
+        "place the black pen inside the white mug"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the black pen  \ngrasp the black pen  \nmove to the white mug  \nopen the gripper  \nplace the black pen inside the white mug  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.1202277050205847,
+      "video_mse": 0.005333142769440152,
+      "policy_inference_time_per_step": 4.398652405571193,
+      "llm_planning_time": 3.0013679610565305,
+      "total_episode_time": 46.987892016768456,
+      "completion_time": 4.398652405571193,
+      "robustness_score": 0.8797722949794153,
+      "num_sub_tasks": 5,
+      "task_description": "Put the jersey on the backrest of the chair",
+      "sub_instructions": [
+        "move to the jersey",
+        "grasp the jersey",
+        "move to the chair",
+        "place the jersey on the backrest of the chair",
+        "release the jersey"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the jersey  \ngrasp the jersey  \nmove to the chair  \nplace the jersey on the backrest of the chair  \nrelease the jersey"
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.1197369785505433,
+      "video_mse": 0.00354474014252208,
+      "policy_inference_time_per_step": 4.3903646829538046,
+      "llm_planning_time": 2.9688952825963497,
+      "total_episode_time": 46.8725421121344,
+      "completion_time": 4.3903646829538046,
+      "robustness_score": 0.8802630214494567,
+      "num_sub_tasks": 5,
+      "task_description": "Put the wooden spoon inside the pot on the right side of the stove, remove the lid from the pot on the left side of the stove",
+      "sub_instructions": [
+        "Move to the pot on the right side of the stove.",
+        "Grasp the wooden spoon.",
+        "Place the wooden spoon inside the pot on the right side of the stove.",
+        "Move to the pot on the left side of the stove.",
+        "Open the lid of the pot on the left side of the stove."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the pot on the right side of the stove.  \nGrasp the wooden spoon.  \nPlace the wooden spoon inside the pot on the right side of the stove.  \nMove to the pot on the left side of the stove.  \nOpen the lid of the pot on the left side of the stove.  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.7,
+      "action_l2_error": 0.13307207364780615,
+      "video_mse": 0.006520904747051107,
+      "policy_inference_time_per_step": 4.38774743322283,
+      "llm_planning_time": 2.296552878804505,
+      "total_episode_time": 46.17402721103281,
+      "completion_time": 4.38774743322283,
+      "robustness_score": 0.8669279263521938,
+      "num_sub_tasks": 5,
+      "task_description": "Push the button down on the toaster.",
+      "sub_instructions": [
+        "Move the arm to the toaster.",
+        "Grasp the button on the toaster.",
+        "Push the button down.",
+        "Release the button.",
+        "Move the arm back to the starting position."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move the arm to the toaster.  \nGrasp the button on the toaster.  \nPush the button down.  \nRelease the button.  \nMove the arm back to the starting position."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.8,
+      "action_l2_error": 0.08636416531373217,
+      "video_mse": 0.0030326972564864657,
+      "policy_inference_time_per_step": 4.376752227917313,
+      "llm_planning_time": 1.670499105937779,
+      "total_episode_time": 45.438021385110915,
+      "completion_time": 4.376752227917313,
+      "robustness_score": 0.9136358346862679,
+      "num_sub_tasks": 5,
+      "task_description": "Put one orange block in the green bowl",
+      "sub_instructions": [
+        "move to orange block",
+        "grasp orange block",
+        "move to green bowl",
+        "place orange block in green bowl",
+        "open gripper to release block"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to orange block  \ngrasp orange block  \nmove to green bowl  \nplace orange block in green bowl  \nopen gripper to release block  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.9,
+      "action_l2_error": 0.07717483181316301,
+      "video_mse": 0.0012655739849884765,
+      "policy_inference_time_per_step": 4.389446665067226,
+      "llm_planning_time": 1.070873836055398,
+      "total_episode_time": 44.965340486727655,
+      "completion_time": 4.389446665067226,
+      "robustness_score": 0.922825168186837,
+      "num_sub_tasks": 5,
+      "task_description": "Remove the candy bar from the sink",
+      "sub_instructions": [
+        "move to the sink",
+        "open gripper",
+        "grasp the candy bar",
+        "close gripper",
+        "move to a designated place and place the candy bar"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the sink  \nopen gripper  \ngrasp the candy bar  \nclose gripper  \nmove to a designated place and place the candy bar  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.8,
+      "action_l2_error": 0.0760096198873699,
+      "video_mse": 0.0018442407263164601,
+      "policy_inference_time_per_step": 4.391559274867177,
+      "llm_planning_time": 1.4723262386396527,
+      "total_episode_time": 45.38791898731142,
+      "completion_time": 4.391559274867177,
+      "robustness_score": 0.9239903801126301,
+      "num_sub_tasks": 5,
+      "task_description": "Pick up the bear plush toy from the table and put it in the pot",
+      "sub_instructions": [
+        "move to the table",
+        "open gripper",
+        "grasp the bear plush toy",
+        "move to the pot",
+        "place the bear plush toy in the pot"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the table  \nopen gripper  \ngrasp the bear plush toy  \nmove to the pot  \nplace the bear plush toy in the pot  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.1239820016256421,
+      "video_mse": 0.0020343142263391017,
+      "policy_inference_time_per_step": 4.393053671624512,
+      "llm_planning_time": 1.4479660391807556,
+      "total_episode_time": 45.37850275542587,
+      "completion_time": 4.393053671624512,
+      "robustness_score": 0.8760179983743579,
+      "num_sub_tasks": 5,
+      "task_description": "Move the blue and white doll to the left",
+      "sub_instructions": [
+        "Open the gripper.",
+        "Grasp the blue and white doll.",
+        "Move the doll to the left.",
+        "Place the doll down.",
+        "Close the gripper."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Open the gripper.  \nGrasp the blue and white doll.  \nMove the doll to the left.  \nPlace the doll down.  \nClose the gripper."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.2,
+      "action_l2_error": 0.1954852982252767,
+      "video_mse": 0.007788685260536122,
+      "policy_inference_time_per_step": 4.389167796820402,
+      "llm_planning_time": 1.2032656613737345,
+      "total_episode_time": 45.094943629577756,
+      "completion_time": 4.389167796820402,
+      "robustness_score": 0.8045147017747233,
+      "num_sub_tasks": 5,
+      "task_description": "Lay down the bottle on the table",
+      "sub_instructions": [
+        "move to the bottle",
+        "grasp the bottle",
+        "move to the table",
+        "place the bottle on the table",
+        "open the gripper to release the bottle"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the bottle  \ngrasp the bottle  \nmove to the table  \nplace the bottle on the table  \nopen the gripper to release the bottle  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.4,
+      "action_l2_error": 0.17696541421906647,
+      "video_mse": 0.009559969912852165,
+      "policy_inference_time_per_step": 4.381276011280716,
+      "llm_planning_time": 1.3581163957715034,
+      "total_episode_time": 45.17087650857866,
+      "completion_time": 4.381276011280716,
+      "robustness_score": 0.8230345857809336,
+      "num_sub_tasks": 5,
+      "task_description": "Put the glue stick inside the mug cup",
+      "sub_instructions": [
+        "move to the location of the glue stick",
+        "grasp the glue stick",
+        "move to the location of the mug cup",
+        "place the glue stick inside the mug cup",
+        "release the grip on the glue stick"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the location of the glue stick  \ngrasp the glue stick  \nmove to the location of the mug cup  \nplace the glue stick inside the mug cup  \nrelease the grip on the glue stick  "
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.5,
+      "action_l2_error": 0.13764732281176875,
+      "video_mse": 0.002847870287144999,
+      "policy_inference_time_per_step": 4.382639101985842,
+      "llm_planning_time": 1.3520180489867926,
+      "total_episode_time": 45.17840906884521,
+      "completion_time": 4.382639101985842,
+      "robustness_score": 0.8623526771882313,
+      "num_sub_tasks": 5,
+      "task_description": "Turn on the chandelier",
+      "sub_instructions": [
+        "Move to the chandelier switch.",
+        "Grasp the switch.",
+        "Open the switch.",
+        "Release the switch.",
+        "Move back to the starting position."
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "Move to the chandelier switch.  \nGrasp the switch.  \nOpen the switch.  \nRelease the switch.  \nMove back to the starting position."
+      },
+      "evaluation_status": "SUCCESS"
+    },
+    {
+      "success_rate": 0.6,
+      "action_l2_error": 0.12538692439030905,
+      "video_mse": 0.016785369409874896,
+      "policy_inference_time_per_step": 4.387085947114974,
+      "llm_planning_time": 1.9580329013988376,
+      "total_episode_time": 45.82889237254858,
+      "completion_time": 4.387085947114974,
+      "robustness_score": 0.8746130756096909,
+      "num_sub_tasks": 5,
+      "task_description": "Take the yellow block and put it in the box",
+      "sub_instructions": [
+        "move to the yellow block",
+        "grasp the yellow block",
+        "move to the box",
+        "place the yellow block in the box",
+        "open the gripper to release the block"
+      ],
+      "sub_task_assignments": [
+        0,
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4,
+        4
+      ],
+      "prompt_mode": "task_token_hybrid",
+      "instruction_validation": {
+        "num_sub_tasks": 5,
+        "all_non_empty": true,
+        "within_3_to_5": true,
+        "reasonable_length_all": true,
+        "unique_ratio": 1.0,
+        "has_prohibited_content": false,
+        "compliance_pass": true
+      },
+      "num_eval_steps": 10,
+      "num_inference_calls": 10,
+      "error_threshold": 0.12,
+      "planner_meta": {
+        "planner_mode": "real_api",
+        "api_called": true,
+        "api_success": true,
+        "error": null,
+        "model": "gpt-4o-mini",
+        "raw_response": "move to the yellow block  \ngrasp the yellow block  \nmove to the box  \nplace the yellow block in the box  \nopen the gripper to release the block  "
+      },
+      "evaluation_status": "SUCCESS"
+    }
+  ]
+}

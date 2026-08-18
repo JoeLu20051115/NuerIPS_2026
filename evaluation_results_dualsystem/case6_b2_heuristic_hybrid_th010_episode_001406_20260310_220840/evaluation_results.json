@@ -1,0 +1,52 @@
+{
+  "success_rate": 0.5,
+  "action_l2_error": 0.1300417438105573,
+  "video_mse": 0.0048484860315921845,
+  "policy_inference_time_per_step": 2.1161269123665987,
+  "llm_planning_time": 0.0,
+  "total_episode_time": 21.16126912366599,
+  "completion_time": 2.1161269123665987,
+  "robustness_score": 0.8699582561894427,
+  "num_sub_tasks": 3,
+  "task_description": "Pick up the cloths from the plastic container and put them on the table.",
+  "sub_instructions": [
+    "Pick up the cloths",
+    "from the plastic container and",
+    "put them on the table."
+  ],
+  "sub_task_assignments": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+    2
+  ],
+  "prompt_mode": "hybrid",
+  "planner_mode": "heuristic",
+  "instruction_validation": {
+    "num_sub_tasks": 3,
+    "all_non_empty": true,
+    "within_3_to_5": true,
+    "reasonable_length_all": true,
+    "unique_ratio": 1.0,
+    "has_prohibited_content": false,
+    "compliance_pass": true
+  },
+  "num_eval_steps": 10,
+  "num_inference_calls": 10,
+  "error_threshold": 0.1,
+  "planner_meta": {
+    "planner_mode": "heuristic",
+    "api_called": false,
+    "api_success": false,
+    "error": null,
+    "model": null,
+    "raw_response": "Pick up the cloths\nfrom the plastic container and\nput them on the table."
+  },
+  "evaluation_status": "SUCCESS"
+}
