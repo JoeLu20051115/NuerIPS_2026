@@ -11,11 +11,7 @@ from pi05_libero_repro.logiv.model import GroundAction
 
 
 DEFAULT_PROMPT_PATH = (
-    Path(__file__).resolve().parents[3]
-    / "configs"
-    / "logiv"
-    / "prompts"
-    / "pi05-subtasks-v1.json"
+    Path(__file__).resolve().parents[3] / "configs/logiv/origin/prompts.json"
 )
 
 

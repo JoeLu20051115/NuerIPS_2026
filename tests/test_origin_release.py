@@ -44,3 +44,15 @@ def test_origin_configs_are_resolved() -> None:
     assert paths
     for path in paths:
         assert "extends" not in json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_origin_runtime_defaults_only_reference_origin_configs() -> None:
+    sources = (
+        ROOT / "src/pi05_libero_repro/logiv/prompts.py",
+        ROOT / "src/pi05_libero_repro/logiv/proposal.py",
+        ROOT / "src/pi05_libero_repro/logiv/libero_adapter.py",
+        ROOT / "scripts/eval_logiv_libero.py",
+    )
+    text = "\n".join(path.read_text(encoding="utf-8") for path in sources)
+    assert "configs/logiv/origin/" in text
+    assert "online-v" not in text

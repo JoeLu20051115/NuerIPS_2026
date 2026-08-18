@@ -28,7 +28,7 @@ from pi05_libero_repro.logiv.model import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_FIXTURE = REPOSITORY_ROOT / "configs/logiv/libero10-scripted-proposals.json"
+DEFAULT_FIXTURE = REPOSITORY_ROOT / "configs/logiv/origin/proposals.json"
 
 
 class ProposalError(ValueError):

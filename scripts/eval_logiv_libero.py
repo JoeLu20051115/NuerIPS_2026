@@ -103,10 +103,10 @@ from pi05_libero_repro.protocol import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-COVERAGE_MANIFEST = REPOSITORY_ROOT / "configs/logiv/libero10-coverage.json"
-DOMAIN_PATH = REPOSITORY_ROOT / "configs/logiv/logiv-libero-domain.pddl"
+COVERAGE_MANIFEST = REPOSITORY_ROOT / "configs/logiv/origin/coverage.json"
+DOMAIN_PATH = REPOSITORY_ROOT / "configs/logiv/origin/domain.pddl"
 TASK5_RECOVERY_CAPABILITY = (
-    REPOSITORY_ROOT / "configs/logiv/task5-terminal-pi-recover-v1.json"
+    REPOSITORY_ROOT / "configs/logiv/origin/terminal-recovery.json"
 )
 
 
@@ -2787,7 +2787,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--shadow-monitor-contract",
-        default=REPOSITORY_ROOT / "configs/logiv/r2m-monitor-evidence-v1.json",
+        default=REPOSITORY_ROOT / "configs/logiv/origin/monitor-evidence.json",
         type=Path,
     )
     parser.add_argument("--prompt-locked", action="store_true")
@@ -2852,7 +2852,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--val-binary", default="/val/Validate", type=Path)
     parser.add_argument(
         "--prompt-config",
-        default=REPOSITORY_ROOT / "configs/logiv/prompts/pi05-subtasks-v1.json",
+        default=REPOSITORY_ROOT / "configs/logiv/origin/prompts.json",
         type=Path,
     )
     parser.add_argument(
@@ -2865,7 +2865,7 @@ def _parser() -> argparse.ArgumentParser:
         default=COVERAGE_MANIFEST,
         type=Path,
     )
-    parser.add_argument("--prompt-version", default="pi05-subtasks-v1")
+    parser.add_argument("--prompt-version", default="logiv-origin")
     parser.add_argument("--diagnostic-resume", action="store_true")
     return parser
 
