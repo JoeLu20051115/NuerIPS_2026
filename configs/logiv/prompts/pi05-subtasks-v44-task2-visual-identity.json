@@ -1,7 +1,0 @@
-{
-  "extends": "pi05-subtasks-v43-task2-object-label.json",
-  "prompt_version": "pi05-subtasks-v44-task2-visual-identity",
-  "action_overrides": {
-    "(place-on moka_pot_1 kitchen_table_moka_pot_init_region flat_stove_1_cook_region)": "put the silver moka pot with the black handle on the stove; do not move the frying pan"
-  }
-}

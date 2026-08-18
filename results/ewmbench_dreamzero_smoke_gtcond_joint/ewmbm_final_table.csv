@@ -1,5 +1,0 @@
-task_id,episode_id,trial_id,psnr,scene_consistency
-367,649524000,0,11.47894295173786,0.8299647867679596
-MEAN,,,11.478943,0.829965
-,,,,
-# Diversity is calculated based on the generation results of different trails within the same episode. Only shown in trial_id=1. Others are marked with '-'.,,,,

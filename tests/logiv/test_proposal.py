@@ -15,18 +15,17 @@ from pi05_libero_repro.logiv.proposal import (
 )
 
 
-FIXTURE = Path("configs/logiv/libero10-scripted-proposals.json")
-COVERAGE = Path("configs/logiv/libero10-coverage.json")
+FIXTURE = Path("configs/logiv/origin/proposals.json")
+COVERAGE = Path("configs/logiv/origin/coverage.json")
 
 
-def test_metadata_assisted_task3_has_no_vlm_goal_and_uses_fine_grained_plan() -> None:
+def test_metadata_assisted_task3_has_no_vlm_goal_and_uses_origin_macro() -> None:
     package = ScriptedProposalProvider(FIXTURE).propose(task_id=3, epoch_id=17)
 
     assert package.proposal.goal_mode is GoalMode.METADATA_ASSISTED
     assert package.proposal.grounded_goal is None
     assert [item.action.schema for item in package.proposal.candidate_subtasks] == [
-        "pick",
-        "place-held-in",
+        "place-in",
         "close-access",
     ]
     assert Fact("at", ("akita_black_bowl_1", "white_cabinet_1_bottom_region")) in (
@@ -49,28 +48,12 @@ def test_task8_keeps_two_distinct_unordered_placement_occurrences() -> None:
     assert all(item.rough_rank in {0, 1} for item in candidates)
 
 
-def test_task5_separates_acquisition_from_precise_caddy_placement() -> None:
+def test_task5_origin_macro_keeps_the_official_instruction_atomic() -> None:
     package = ScriptedProposalProvider(FIXTURE).propose(task_id=5, epoch_id=19)
     candidates = package.proposal.candidate_subtasks
 
-    assert [item.action.schema for item in candidates] == ["pick", "place-held-in"]
-    assert candidates[0].action.add_effects == frozenset(
-        {Fact("holding", ("black_book_1",))}
-    )
-    assert Fact("holding", ("black_book_1",)) in candidates[1].action.preconditions
-    assert Fact(
-        "at", ("black_book_1", "desk_caddy_1_back_contain_region")
-    ) in candidates[1].action.add_effects
-
-
-def test_task5_macro_ablation_keeps_the_official_instruction_atomic() -> None:
-    fixture = Path("configs/logiv/libero10-scripted-proposals-v31-task5-macro.json")
-    package = ScriptedProposalProvider(fixture).propose(task_id=5, epoch_id=0)
-
-    assert [item.action.schema for item in package.proposal.candidate_subtasks] == [
-        "place-in"
-    ]
-    assert package.proposal.candidate_subtasks[0].instruction == (
+    assert [item.action.schema for item in candidates] == ["place-in"]
+    assert candidates[0].instruction == (
         "Pick up the black book and place it in the back compartment of the desk caddy."
     )
 
@@ -78,7 +61,7 @@ def test_task5_macro_ablation_keeps_the_official_instruction_atomic() -> None:
 def test_extended_proposal_config_adds_distinct_task0_recovery_location(
     tmp_path: Path,
 ) -> None:
-    source = "living_room_table_recovery_surface"
+    source = "living_room_table_secondary_recovery_surface"
     base = json.loads(FIXTURE.read_text(encoding="utf-8"))
     task = base["tasks"][0]
     task["objects"].append([source, "surface"])

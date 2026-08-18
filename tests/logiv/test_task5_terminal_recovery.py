@@ -32,7 +32,7 @@ from pi05_libero_repro.logiv.val import PlanCertificate, ValWrapper
 
 
 ROOT = Path(__file__).parents[2]
-CONTRACT = ROOT / "configs/logiv/task5-terminal-pi-recover-v1.json"
+CONTRACT = ROOT / "configs/logiv/origin/terminal-recovery.json"
 TARGET = Fact("at", ("black_book_1", "desk_caddy_1_back_contain_region"))
 HOLDING = Fact("holding", ("black_book_1",))
 HANDOFF_GOAL = Fact(

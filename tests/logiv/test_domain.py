@@ -216,6 +216,6 @@ def test_snapshot_rejects_conflicting_true_and_false_evidence() -> None:
 
 
 def test_checked_in_domain_matches_the_python_semantics() -> None:
-    artifact = Path("configs/logiv/logiv-libero-domain.pddl")
+    artifact = Path("configs/logiv/origin/domain.pddl")
 
     assert artifact.read_text(encoding="utf-8") == render_domain_pddl()

@@ -1,7 +1,0 @@
-{
-  "extends": "pi05-subtasks-v44-task2-visual-identity.json",
-  "prompt_version": "pi05-subtasks-v45-task3-full-close",
-  "action_overrides": {
-    "(close-access white_cabinet_1_bottom_access)": "Push the bottom drawer fully closed until its front is flush with the cabinet."
-  }
-}

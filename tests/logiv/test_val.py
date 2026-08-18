@@ -21,6 +21,7 @@ from pi05_libero_repro.logiv.val import (
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+TEST_PROPOSALS = Path(__file__).resolve().parents[1] / "fixtures/controller-proposals.json"
 
 
 def preinstall_context(request_id: str = "request-1") -> ContextEnvelope:
@@ -42,7 +43,9 @@ def preinstall_context(request_id: str = "request-1") -> ContextEnvelope:
 
 
 def package_and_plan(task_id: int = 3):
-    package = ScriptedProposalProvider().propose(task_id=task_id, epoch_id=11)
+    package = ScriptedProposalProvider(TEST_PROPOSALS).propose(
+        task_id=task_id, epoch_id=11
+    )
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     sidecar = json.dumps(
         [

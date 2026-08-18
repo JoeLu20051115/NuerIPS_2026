@@ -32,6 +32,7 @@ from pi05_libero_repro.logiv.val import ValidationStatus, ValWrapper
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+TEST_PROPOSALS = Path(__file__).resolve().parents[1] / "fixtures/controller-proposals.json"
 TASK3_SCHEMAS = frozenset(
     {"pick", "put-down", "open-access", "place-held-in", "close-access"}
 )
@@ -233,7 +234,7 @@ class FixedEvaluator:
 
 
 def installed(task_id: int):
-    package = ScriptedProposalProvider().propose(task_id, epoch_id=70)
+    package = ScriptedProposalProvider(TEST_PROPOSALS).propose(task_id, epoch_id=70)
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     sidecar = json.dumps(
         [

@@ -30,6 +30,7 @@ from pi05_libero_repro.logiv.val import ValidationStatus, ValWrapper
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+TEST_PROPOSALS = Path(__file__).resolve().parents[1] / "fixtures/controller-proposals.json"
 TASK3_SCHEMAS = frozenset(
     {"pick", "put-down", "open-access", "place-held-in", "close-access"}
 )
@@ -40,7 +41,7 @@ def test_repair_operator_is_only_a_compatibility_name_for_pddl_planner() -> None
 
 
 def nominal(task_id: int, fixture: Path | None = None):
-    provider = ScriptedProposalProvider(fixture) if fixture else ScriptedProposalProvider()
+    provider = ScriptedProposalProvider(fixture or TEST_PROPOSALS)
     package = provider.propose(task_id, epoch_id=50)
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
     sidecar = json.dumps(
@@ -207,7 +208,7 @@ def test_task8_repair_rebinds_failed_branch_from_registered_recovery_surface() -
 def test_task0_repair_rebinds_dropped_object_to_observed_table_surface() -> None:
     fixture = (
         Path(__file__).resolve().parents[2]
-        / "configs/logiv/libero10-scripted-proposals-v38-task0-recovery.json"
+        / "configs/logiv/origin/proposals.json"
     )
     package, plan, _, _, certificate, graph = nominal(0, fixture)
     target = "basket_1_contain_region"

@@ -1,9 +1,0 @@
-{
-  "extends": "libero10-coverage-v38-task0-recovery.json",
-  "tasks": [
-    {
-      "task_id": 3,
-      "supported_action_schemas": ["place-in", "close-access"]
-    }
-  ]
-}

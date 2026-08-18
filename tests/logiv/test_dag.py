@@ -26,13 +26,14 @@ from pi05_libero_repro.logiv.val import ValidationStatus, ValWrapper
 
 
 REAL_VAL = Path("/home/xingrui/.local/bin/Validate")
+TEST_PROPOSALS = Path(__file__).resolve().parents[1] / "fixtures/controller-proposals.json"
 
 
 def certified(task_id: int, fixture_path: Path | None = None):
     provider = (
         ScriptedProposalProvider(fixture_path)
         if fixture_path is not None
-        else ScriptedProposalProvider()
+        else ScriptedProposalProvider(TEST_PROPOSALS)
     )
     package = provider.propose(task_id, epoch_id=41)
     plan = tuple(item.action for item in package.proposal.candidate_subtasks)
@@ -96,10 +97,10 @@ def test_task8_dag_has_two_unordered_action_nodes_and_width_two() -> None:
     assert schema_only.certificate_hash != certificate.certificate_hash
 
 
-def test_v53_task6_tie_break_preserves_a_width_two_causal_dag() -> None:
+def test_origin_task6_tie_break_preserves_a_width_two_causal_dag() -> None:
     fixture = (
         Path(__file__).resolve().parents[2]
-        / "configs/logiv/libero10-scripted-proposals-v53-task6-order.json"
+        / "configs/logiv/origin/proposals.json"
     )
     package, plan, sidecar, context, certificate = certified(6, fixture)
 

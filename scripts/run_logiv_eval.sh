@@ -14,7 +14,7 @@ shift 4
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 openpi_dir="$repo_root/external_repos/openpi"
 val_dir="$repo_root/artifacts/tools/val-ubuntu22"
-manifest="$repo_root/configs/logiv/val-libero-build.json"
+manifest="$repo_root/configs/logiv/origin/val-build.json"
 checkpoint_manifest="$repo_root/artifacts/manifests/full-checkpoint.json"
 image=pi05-libero-eval:650c5b0
 

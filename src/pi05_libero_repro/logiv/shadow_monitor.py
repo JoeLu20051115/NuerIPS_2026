@@ -309,7 +309,9 @@ def load_monitor_evidence_contract(path: Path | str, *, task_id: int) -> Monitor
         contract = next(item for item in contracts if item.task_id == task_id)
     except StopIteration as error:
         raise ValueError(f"no monitor evidence contract for task {task_id}") from error
-    coverage_path = Path(__file__).resolve().parents[3] / "configs/logiv/libero10-coverage.json"
+    coverage_path = (
+        Path(__file__).resolve().parents[3] / "configs/logiv/origin/coverage.json"
+    )
     try:
         coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
         task = next(
