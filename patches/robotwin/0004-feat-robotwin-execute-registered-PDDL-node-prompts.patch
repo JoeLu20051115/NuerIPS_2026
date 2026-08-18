@@ -1,0 +1,121 @@
+From 8de0ed9520989f9fd156904291d0895b9a361886 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 13:31:47 +0800
+Subject: [PATCH] feat(robotwin): execute registered PDDL node prompts
+
+---
+ third_party/Robotwin/script/eval_lerobot_torch_pi05.py | 6 +++++-
+ third_party/Robotwin/script/pi05_logiv_options.py      | 5 +++++
+ third_party/Robotwin/tests/test_pi05_logiv_options.py  | 8 ++++++--
+ 3 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index aff859c..82e1e61 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -101,7 +101,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, preserve_original_repair_prompt, policy_replan_steps, repair_cfn_path = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, preserve_original_repair_prompt, use_registered_dag_prompts, policy_replan_steps, repair_cfn_path = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -217,6 +217,7 @@ def main(usr_args):
+         min_base_dispatches=min_base_dispatches,
+         dag_from_start=dag_from_start,
+         preserve_original_repair_prompt=preserve_original_repair_prompt,
++        use_registered_dag_prompts=use_registered_dag_prompts,
+         policy_replan_steps=policy_replan_steps,
+         repair_cfn_path=repair_cfn_path,
+         save_dir=save_dir,
+@@ -299,6 +300,7 @@ def eval_logiv_policy(
+     min_base_dispatches,
+     dag_from_start,
+     preserve_original_repair_prompt,
++    use_registered_dag_prompts,
+     policy_replan_steps,
+     repair_cfn_path,
+     save_dir,
+@@ -393,6 +395,7 @@ def eval_logiv_policy(
+             stage_stall_observations=stage_stall_observations,
+             min_base_dispatches=min_base_dispatches,
+             preserve_original_repair_prompt=preserve_original_repair_prompt,
++            use_registered_dag_prompts=use_registered_dag_prompts,
+         )
+         try:
+             outcome = controller.run(
+@@ -444,6 +447,7 @@ def eval_logiv_policy(
+             "original_instruction": str(instruction),
+             "repair_cfn_path": repair_cfn_path,
+             "preserve_original_repair_prompt": preserve_original_repair_prompt,
++            "use_registered_dag_prompts": use_registered_dag_prompts,
+             "policy_replan_steps": policy_replan_steps,
+             "events": [
+                 {
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index b5f400d..0dae194 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -57,6 +57,10 @@ def resolve_logiv_options(usr_args):
+         if isinstance(raw_preserve_repair_prompt, str)
+         else bool(raw_preserve_repair_prompt)
+     )
++    use_registered_dag_prompts = (
++        str(usr_args.get("use_registered_dag_prompts", False)).strip().lower()
++        == "true"
++    )
+     raw_policy_replan_steps = usr_args.get("policy_replan_steps")
+     policy_replan_steps = (
+         None
+@@ -117,6 +121,7 @@ def resolve_logiv_options(usr_args):
+         min_base_dispatches,
+         dag_from_start,
+         preserve_original_repair_prompt,
++        use_registered_dag_prompts,
+         policy_replan_steps,
+         repair_cfn_path,
+     )
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index c05e3a9..949c49e 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -61,6 +61,7 @@ class LogivOptionsTest(unittest.TestCase):
+                     "min_base_dispatches": 6,
+                     "dag_from_start": True,
+                     "preserve_original_repair_prompt": True,
++                    "use_registered_dag_prompts": True,
+                     "policy_replan_steps": 10,
+                     "accepted_instructions": ["first", "second"],
+                     "repair_cfn_path": __file__,
+@@ -80,6 +81,7 @@ class LogivOptionsTest(unittest.TestCase):
+                 6,
+                 True,
+                 True,
++                True,
+                 10,
+                 __file__,
+             ),
+@@ -97,8 +99,9 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertEqual(resolved[-6], [4, 4, 1])
+-        self.assertEqual(resolved[-5], 0)
++        self.assertEqual(resolved[-7], [4, 4, 1])
++        self.assertEqual(resolved[-6], 0)
++        self.assertFalse(resolved[-5])
+         self.assertFalse(resolved[-4])
+         self.assertFalse(resolved[-3])
+         self.assertIsNone(resolved[-2])
+@@ -116,6 +119,7 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
++        self.assertFalse(resolved[-5])
+         self.assertFalse(resolved[-4])
+         self.assertFalse(resolved[-3])
+         self.assertIsNone(resolved[-2])
+-- 
+2.43.0

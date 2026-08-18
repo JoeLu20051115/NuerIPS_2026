@@ -1,0 +1,560 @@
+from __future__ import annotations
+
+from dataclasses import replace
+import json
+from pathlib import Path
+
+import pytest
+
+from pi05_libero_repro.logiv.model import ContextEnvelope, ContextPhase, GoalMode
+from pi05_libero_repro.logiv.records import (
+    EventJournal,
+    LogivEpisodeRecord,
+    append_episode_record,
+    load_episode_records,
+    paired_task_stratified_bootstrap,
+    validate_event_chain,
+    validate_episode_records,
+)
+from scripts.report_logiv_results import (
+    build_report,
+    load_comparator_records,
+    render_markdown,
+)
+from scripts.report_logiv_online import build_online_report, render_online_markdown
+
+
+def _context() -> ContextEnvelope:
+    return ContextEnvelope(
+        phase=ContextPhase.PRE_DISPATCH_FACTS,
+        goal_mode=GoalMode.METADATA_ASSISTED,
+        request_id="request-1",
+        request_generation=0,
+        episode_id="run/full/METADATA_ASSISTED/8/0",
+        goal_id="goal-8",
+        goal_epoch=0,
+        epoch_id=12,
+        graph_version="graph-abc",
+        occurrence_id="occurrence-1",
+        attempt_id=None,
+        certificate_hash="a" * 64,
+        safety_epoch=None,
+    )
+
+
+def _record(*, arm: str = "FULL_LOGIV", episode_idx: int = 0, success: bool = True):
+    return LogivEpisodeRecord(
+        schema_version=1,
+        run_id="run-1",
+        checkpoint="full",
+        method_arm=arm,
+        goal_mode="METADATA_ASSISTED",
+        deviation_mode="NOMINAL",
+        task_id=8,
+        task_name="put both moka pots on the stove",
+        episode_idx=episode_idx,
+        seed=7,
+        allocated=True,
+        valid=True,
+        success=success,
+        terminal_status="EPISODE_SUCCESS" if success else "EPISODE_FAIL",
+        terminal_cause="EPISODE_SUCCESS" if success else "EPISODE_FAIL",
+        evaluator_status="EPISODE_SUCCESS" if success else "EPISODE_FAIL",
+        init_state_sha256="0" * 64,
+        first_frame_sha256="1" * 64,
+        prompt_version="pi05-subtasks-v1",
+        prompt_config_sha256="2" * 64,
+        proposal_config_sha256="3" * 64,
+        coverage_manifest_sha256="4" * 64,
+        domain_sha256="5" * 64,
+        initial_certificate_hash="6" * 64,
+        initial_graph_hash="7" * 64,
+        initial_graph_width=2,
+        final_graph_hash="8" * 64,
+        physical_attempts=2,
+        repair_rounds=0,
+        total_val_calls=1,
+        graph_installs=1,
+        steps=40,
+        inference_requests=8,
+        wall_seconds=2.0,
+        safety_permits=2,
+        halt_acknowledged=None,
+        receipts_count=2,
+        event_count=2,
+        event_chain_head="9" * 64,
+        artifact_dir="episodes/task08/episode000",
+        video_path="videos/task08-episode000.mp4",
+        exception=None,
+        oracle_grounding=True,
+        development_only=True,
+    )
+
+
+def test_event_journal_has_context_and_verifiable_hash_chain(tmp_path: Path) -> None:
+    path = tmp_path / "events.jsonl"
+    journal = EventJournal(path)
+    first = journal.append("FACTS_GROUNDED", _context(), {"facts": 8})
+    second = journal.append("EXECUTION_AUTHORIZED", _context(), {"safety_epoch": 1})
+
+    assert first.previous_hash == "0" * 64
+    assert second.previous_hash == first.event_hash
+    assert validate_event_chain(path) == (2, second.event_hash)
+    payload = json.loads(path.read_text().splitlines()[0])
+    assert payload["context"]["request_id"] == "request-1"
+
+    lines = path.read_text().splitlines()
+    lines[0] = lines[0].replace('"facts":8', '"facts":9')
+    path.write_text("\n".join(lines) + "\n")
+    with pytest.raises(ValueError, match="event hash mismatch"):
+        validate_event_chain(path)
+
+
+def test_episode_jsonl_round_trip_and_full_comparison_key(tmp_path: Path) -> None:
+    path = tmp_path / "episodes.jsonl"
+    append_episode_record(path, _record())
+    append_episode_record(path, _record(arm="STAGE_ONLY"))
+
+    records = load_episode_records(path)
+    assert records == [_record(), _record(arm="STAGE_ONLY")]
+    assert records[0].key != records[1].key
+    with pytest.raises(ValueError, match="duplicate LOGIV episode"):
+        append_episode_record(path, _record())
+
+
+def test_record_contract_requires_task8_non_chain_width_and_failure_in_denominator() -> None:
+    successful = _record()
+    failed = replace(
+        _record(episode_idx=1, success=False),
+        valid=False,
+        terminal_status="TERMINAL_NO_FURTHER_DISPATCH",
+        terminal_cause="STATE_GROUNDING_FAILURE",
+        evaluator_status="NOT_CALLED",
+    )
+    assert validate_episode_records([successful, failed]) == []
+
+    broken = replace(successful, initial_graph_width=1)
+    assert "task 8 Full LOGIV graph must have width >= 2" in validate_episode_records([broken])
+
+    enriched = replace(
+        successful,
+        schema_version=2,
+        committed_receipts=1,
+        failed_receipts=1,
+        unknown_receipts=0,
+        precondition_gate_rejections=1,
+        effect_gate_rejections=1,
+        final_goal_gate_rejections=0,
+    )
+    assert validate_episode_records([enriched]) == []
+
+
+def _schema3_record(
+    *,
+    arm: str,
+    status: str,
+    requests: int,
+    reason: str | None,
+) -> LogivEpisodeRecord:
+    return replace(
+        _record(arm=arm),
+        schema_version=3,
+        base_policy_requests=8,
+        initial_proposal_requests=requests,
+        initial_proposal_status=status,
+        initial_proposal_reason_code=reason,
+        shadow_vlm_requests=0,
+        recovery_policy_requests=0,
+        shadow_monitor_calls=21 if arm == "SHADOW_LOGIV" else 0,
+        shadow_monitor_errors=0,
+        shadow_monitor_seconds=0.25 if arm == "SHADOW_LOGIV" else 0.0,
+        shadow_parity_valid=True,
+        committed_receipts=2,
+    )
+
+
+@pytest.mark.parametrize(
+    "arm,status,requests,reason",
+    [
+        ("BASE", "NOT_APPLICABLE", 0, None),
+        ("SHADOW_LOGIV", "ACCEPTED", 1, None),
+        ("SHADOW_LOGIV", "REJECTED", 1, "ValueError"),
+        ("SHADOW_LOGIV", "NOT_ATTEMPTED", 0, "INPUT_COPY:RuntimeError"),
+    ],
+)
+def test_schema3_compute_accounting_status_contract(
+    arm: str, status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm=arm, status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record]) == []
+    assert record.inference_requests == record.base_policy_requests
+    assert record.shadow_vlm_requests == 0
+    assert record.recovery_policy_requests == 0
+
+
+@pytest.mark.parametrize(
+    "status,requests,reason",
+    [
+        (status, requests, reason)
+        for status in ("ACCEPTED", "REJECTED", "NOT_ATTEMPTED", "UNKNOWN")
+        for requests in (0, 1, 2)
+        for reason in (None, "ValueError")
+        if (status, requests, reason)
+        not in {
+            ("ACCEPTED", 1, None),
+            ("REJECTED", 1, "ValueError"),
+            ("NOT_ATTEMPTED", 0, "ValueError"),
+        }
+    ],
+)
+def test_schema3_rejects_invalid_shadow_status_request_reason_cross_product(
+    status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm="SHADOW_LOGIV", status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record])
+
+
+def test_schema3_rejects_unstable_shadow_reason_code() -> None:
+    record = _schema3_record(
+        arm="SHADOW_LOGIV",
+        status="NOT_ATTEMPTED",
+        requests=0,
+        reason="INPUT COPY:runtime error",
+    )
+    assert validate_episode_records([record])
+
+
+@pytest.mark.parametrize(
+    "status,requests,reason",
+    [
+        (status, requests, reason)
+        for status in ("NOT_APPLICABLE", "ACCEPTED", "REJECTED", "UNKNOWN")
+        for requests in (0, 1, 2)
+        for reason in (None, "ValueError")
+        if (status, requests, reason) != ("NOT_APPLICABLE", 0, None)
+    ],
+)
+def test_schema3_rejects_every_invalid_base_status_request_reason_cross_product(
+    status: str, requests: int, reason: str | None
+) -> None:
+    record = _schema3_record(
+        arm="BASE", status=status, requests=requests, reason=reason
+    )
+    assert validate_episode_records([record])
+
+
+def test_schema3_rejects_mixed_or_non_phase0_compute_buckets() -> None:
+    accepted = _schema3_record(
+        arm="SHADOW_LOGIV", status="ACCEPTED", requests=1, reason=None
+    )
+    invalid = (
+        replace(accepted, base_policy_requests=7),
+        replace(accepted, shadow_vlm_requests=1),
+        replace(accepted, recovery_policy_requests=1),
+        replace(accepted, shadow_monitor_seconds=float("nan")),
+        replace(accepted, shadow_monitor_errors=-1),
+        replace(accepted, shadow_parity_valid=False, method_arm="BASE", initial_proposal_status="NOT_APPLICABLE", initial_proposal_requests=0),
+    )
+    assert all(validate_episode_records([record]) for record in invalid)
+
+
+def test_task_stratified_paired_bootstrap_uses_equal_task_weight() -> None:
+    full = []
+    comparator = []
+    for task_id in range(2):
+        for episode_idx in range(4):
+            base = replace(_record(episode_idx=episode_idx), task_id=task_id)
+            full.append(replace(base, success=(task_id == 0 or episode_idx < 2)))
+            comparator.append(
+                replace(base, method_arm="BASE", success=(task_id == 0 and episode_idx < 2))
+            )
+    result = paired_task_stratified_bootstrap(full, comparator, samples=2000, seed=19)
+    # task 0: +0.5, task 1: +0.5, hence equal-weight macro difference +0.5.
+    assert result["estimate"] == pytest.approx(0.5)
+    assert result["paired_episodes"] == 8
+    assert len(result["percentile_95"]) == 2
+
+    mismatched = list(comparator)
+    mismatched[0] = replace(mismatched[0], first_frame_sha256="f" * 64)
+    with pytest.raises(ValueError, match="first-frame hash mismatch"):
+        paired_task_stratified_bootstrap(full, mismatched, samples=10, seed=19)
+
+    mismatched = list(comparator)
+    mismatched[0] = replace(mismatched[0], prompt_config_sha256="e" * 64)
+    with pytest.raises(ValueError, match="prompt_config_sha256 mismatch"):
+        paired_task_stratified_bootstrap(full, mismatched, samples=10, seed=19)
+
+
+def test_report_accepts_separate_logiv_base_jsonl_and_reports_both_arms(
+    tmp_path: Path,
+) -> None:
+    full_path = tmp_path / "full.jsonl"
+    base_path = tmp_path / "base.jsonl"
+    append_episode_record(full_path, _record(success=True))
+    append_episode_record(base_path, _record(arm="BASE", success=False))
+
+    full = load_episode_records(full_path)
+    baseline = load_comparator_records(base_path)
+    report = build_report(
+        full,
+        baseline_records=baseline,
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+
+    assert report["errors"] == []
+    assert report["records"] == 2
+    assert {item["method_arm"] for item in report["settings"]} == {
+        "BASE",
+        "FULL_LOGIV",
+    }
+    comparison = report["paired_comparisons"][0]
+    assert comparison["comparator"] == "BASE"
+    assert comparison["estimate"] == pytest.approx(1.0)
+
+
+def test_records_accept_the_non_destructive_logiv_repair_overlay_arm(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "overlay.jsonl"
+    overlay = _record(arm="LOGIV_REPAIR_OVERLAY", success=False)
+
+    append_episode_record(path, overlay)
+
+    assert load_episode_records(path) == [overlay]
+
+
+def test_schema4_records_online_trigger_and_shared_action_accounting() -> None:
+    record = replace(
+        _schema3_record(
+            arm="LOGIV_ONLINE", status="ACCEPTED", requests=1, reason=None
+        ),
+        schema_version=4,
+        steps=520,
+        base_prefix_steps=180,
+        repair_steps=340,
+        combined_actions=520,
+        discarded_pending_actions=0,
+        online_trigger_kind="FRONTIER_STALL",
+        online_trigger_step=180,
+        online_trigger_sha256="a" * 64,
+        shadow_monitor_calls=37,
+        shadow_monitor_seconds=0.4,
+    )
+
+    assert validate_episode_records([record]) == []
+
+    invalid = replace(record, combined_actions=521)
+    assert any(
+        "online action accounting mismatch" in error
+        for error in validate_episode_records([invalid])
+    )
+
+
+def test_report_includes_recovery_and_runtime_cost_metrics() -> None:
+    recovered = replace(
+        _record(episode_idx=0, success=True),
+        schema_version=2,
+        physical_attempts=4,
+        repair_rounds=2,
+        total_val_calls=4,
+        graph_installs=3,
+        steps=100,
+        inference_requests=20,
+        wall_seconds=5.0,
+        committed_receipts=1,
+        failed_receipts=1,
+        effect_gate_rejections=1,
+    )
+    failed = replace(
+        _record(episode_idx=1, success=False),
+        schema_version=2,
+        terminal_status="TERMINAL_NO_FURTHER_DISPATCH",
+        terminal_cause="BUDGET_EXHAUSTED",
+        evaluator_status="NOT_CALLED",
+        physical_attempts=6,
+        repair_rounds=1,
+        total_val_calls=3,
+        graph_installs=2,
+        steps=200,
+        inference_requests=40,
+        wall_seconds=15.0,
+        failed_receipts=2,
+        precondition_gate_rejections=1,
+        final_goal_gate_rejections=1,
+    )
+
+    report = build_report(
+        [recovered, failed],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert report["schema_version"] == 2
+    assert operational == {
+        "episodes_with_repair": 2,
+        "successful_episodes_with_repair": 1,
+        "successful_recovery_episode_rate": 0.5,
+        "instrumented_records": 2,
+        "committed_receipts": 1,
+        "failed_receipts": 3,
+        "unknown_receipts": 0,
+        "precondition_gate_rejections": 1,
+        "effect_gate_rejections": 1,
+        "effect_failure_per_attempt": 0.1,
+        "final_goal_gate_rejections": 1,
+        "mean_physical_attempts": 5.0,
+        "mean_repair_rounds": 1.5,
+        "mean_total_val_calls": 3.5,
+        "mean_graph_installs": 2.5,
+        "mean_steps": 150.0,
+        "mean_inference_requests": 30.0,
+        "mean_wall_seconds": 10.0,
+    }
+
+
+def test_paired_bootstrap_keeps_repeated_episode_indices_from_distinct_seeds() -> None:
+    base_seed7 = _record(arm="BASE", success=False)
+    full_seed7 = _record(arm="LOGIV_ONLINE", success=True)
+    base_seed11 = replace(
+        base_seed7, run_id="base-seed11", seed=11, success=True,
+        terminal_status="EPISODE_SUCCESS", terminal_cause="EPISODE_SUCCESS",
+        evaluator_status="EPISODE_SUCCESS",
+    )
+    full_seed11 = replace(
+        full_seed7, run_id="online-seed11", seed=11, success=True
+    )
+
+    comparison = paired_task_stratified_bootstrap(
+        [full_seed7, full_seed11],
+        [base_seed7, base_seed11],
+        samples=100,
+        seed=3,
+    )
+
+    assert comparison["paired_episodes"] == 2
+    assert comparison["estimate"] == pytest.approx(0.5)
+
+
+def test_online_report_counts_positive_negative_and_net_flips() -> None:
+    base_failed = _record(arm="BASE", episode_idx=0, success=False)
+    online_recovered = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=0, success=True),
+        prompt_version="online-repair-prompt",
+        online_trigger_kind="FRONTIER_STALL",
+        online_trigger_step=180,
+        online_trigger_sha256="a" * 64,
+        base_prefix_steps=20,
+        repair_steps=20,
+        combined_actions=40,
+    )
+    base_succeeded = _record(arm="BASE", episode_idx=1, success=True)
+    online_regressed = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=1, success=False),
+        online_trigger_kind="UNPLANNED_RECOVERY_SURFACE",
+        online_trigger_step=90,
+        online_trigger_sha256="b" * 64,
+    )
+    base_unchanged = _record(arm="BASE", episode_idx=2, success=True)
+    online_unchanged = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=2, success=True),
+        base_prefix_steps=40,
+        combined_actions=40,
+    )
+    base_spurious = _record(arm="BASE", episode_idx=3, success=False)
+    online_spurious = replace(
+        _record(arm="LOGIV_ONLINE", episode_idx=3, success=True),
+        base_prefix_steps=40,
+        combined_actions=40,
+    )
+
+    report = build_online_report(
+        [base_failed, base_succeeded, base_unchanged, base_spurious],
+        [online_recovered, online_regressed, online_unchanged, online_spurious],
+        bootstrap_samples=100,
+        bootstrap_seed=4,
+    )
+
+    assert report["flips"] == {
+        "positive": 2,
+        "negative": 1,
+        "net": 1,
+        "intervention_positive": 1,
+        "no_trigger_positive": 1,
+        "unchanged_success": 1,
+        "unchanged_failure": 0,
+    }
+    assert report["failure_first_feasibility"]["recovered"] == 1
+    assert report["no_trigger_parity"] == {
+        "pairs": 2,
+        "outcome_matches": 1,
+        "step_matches": 2,
+        "inference_request_matches": 2,
+    }
+    assert any("no-trigger outcome mismatch" in error for error in report["errors"])
+    assert "development/tuning evidence" in render_online_markdown(report)
+
+
+def test_report_includes_schema3_compute_buckets_and_parity_rate() -> None:
+    accepted = _schema3_record(
+        arm="SHADOW_LOGIV", status="ACCEPTED", requests=1, reason=None
+    )
+    rejected = replace(
+        _schema3_record(
+            arm="SHADOW_LOGIV",
+            status="REJECTED",
+            requests=1,
+            reason="ValueError",
+        ),
+        episode_idx=1,
+        base_policy_requests=10,
+        inference_requests=10,
+        shadow_monitor_calls=25,
+        shadow_monitor_errors=2,
+        shadow_monitor_seconds=0.75,
+        shadow_parity_valid=False,
+    )
+
+    report = build_report(
+        [accepted, rejected],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert operational["schema3_records"] == 2
+    assert operational["mean_base_policy_requests"] == 9.0
+    assert operational["mean_initial_proposal_requests"] == 1.0
+    assert operational["mean_shadow_vlm_requests"] == 0.0
+    assert operational["mean_recovery_policy_requests"] == 0.0
+    assert operational["mean_shadow_monitor_calls"] == 23.0
+    assert operational["mean_shadow_monitor_errors"] == 1.0
+    assert operational["mean_shadow_monitor_seconds"] == 0.5
+    assert operational["shadow_parity_valid_rate"] == 0.5
+
+
+def test_report_marks_schema1_gate_metrics_as_unavailable() -> None:
+    report = build_report(
+        [_record()],
+        bootstrap_samples=100,
+        bootstrap_seed=5,
+    )
+    operational = report["settings"][0]["operational"]
+
+    assert report["protocol"] == {
+        "development_only_records": 1,
+        "oracle_grounding_records": 1,
+    }
+    assert operational["instrumented_records"] == 0
+    assert operational["committed_receipts"] is None
+    assert operational["effect_gate_rejections"] is None
+    assert operational["effect_failure_per_attempt"] is None
+    markdown = render_markdown(report)
+    assert "Development-only records: **1/1**" in markdown
+    assert "oracle-grounded records: **1/1**" in markdown
+    assert "| FULL_LOGIV | 0 | — | — | — | — | — | — |" in markdown

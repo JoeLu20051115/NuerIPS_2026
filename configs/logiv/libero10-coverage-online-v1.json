@@ -1,0 +1,10 @@
+{
+  "extends": "libero10-coverage-v63-task3-macro.json",
+  "tasks": [
+    {
+      "task_id": 5,
+      "supported_action_schemas": ["place-in"],
+      "recovery_schemas": ["pick", "put-down", "place-held-in"]
+    }
+  ]
+}

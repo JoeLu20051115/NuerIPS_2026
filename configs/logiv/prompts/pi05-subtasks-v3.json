@@ -1,0 +1,55 @@
+{
+  "prompt_version": "pi05-subtasks-v3",
+  "templates": {
+    "pick": "Pick up {object} from {source}, then stop.",
+    "place-on": "Put {object} on {target} and release it, then stop.",
+    "place-in": "Put {object} inside {target} and release it, then stop.",
+    "place-relative": "Put {object} at {target} and release it, then stop.",
+    "open-access": "Open {access}, then stop.",
+    "close-access": "Close {access}, then stop.",
+    "turn-on": "Turn on {device}, then stop.",
+    "turn-off": "Turn off {device}, then stop.",
+    "put-down": "Put down and release the held {object} on {target}, then stop.",
+    "place-held-on": "Put the held {object} on {target} and release it, then stop.",
+    "place-held-in": "Put the held {object} inside {target} and release it, then stop.",
+    "place-held-relative": "Put the held {object} at {target} and release it, then stop."
+  },
+  "suffix": "Complete only this subtask. Do not start another subtask.",
+  "action_overrides": {
+    "(place-held-on moka_pot_1 flat_stove_1_cook_region)": "Put the moka pot you are holding on the stove and release it, then stop.",
+    "(place-held-on moka_pot_2 flat_stove_1_cook_region)": "Put the moka pot you are holding on the stove and release it, then stop."
+  },
+  "action_phase_overrides": {
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot closest to the stove, then hold it securely.",
+      "finish": "Put the moka pot you are holding on the stove and release it, then stop."
+    },
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the remaining moka pot from the table, then hold it securely.",
+      "finish": "Put the moka pot you are holding on the stove and release it, then stop."
+    }
+  },
+  "labels": {
+    "akita_black_bowl_1": "black bowl",
+    "alphabet_soup_1": "alphabet soup can",
+    "basket_1_contain_region": "basket",
+    "black_book_1": "black book",
+    "butter_1": "butter",
+    "chocolate_pudding_1": "chocolate pudding",
+    "cream_cheese_1": "cream cheese box",
+    "desk_caddy_1_back_contain_region": "back compartment of the desk caddy",
+    "flat_stove_1_cook_region": "stove",
+    "flat_stove_1_power": "stove",
+    "kitchen_table_recovery_surface": "kitchen table",
+    "living_room_table_plate_right_region": "right side of the plate",
+    "microwave_1_access": "microwave door",
+    "microwave_1_heating_region": "microwave",
+    "plate_1": "plate",
+    "plate_2": "right plate",
+    "porcelain_mug_1": "white mug",
+    "tomato_sauce_1": "tomato sauce can",
+    "white_cabinet_1_bottom_access": "bottom drawer",
+    "white_cabinet_1_bottom_region": "bottom drawer",
+    "white_yellow_mug_1": "yellow and white mug"
+  }
+}

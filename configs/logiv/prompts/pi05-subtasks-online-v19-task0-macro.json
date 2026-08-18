@@ -1,0 +1,10 @@
+{
+  "extends": "pi05-subtasks-online-v5.json",
+  "prompt_version": "pi05-subtasks-online-v19-task0-macro",
+  "action_overrides": {
+    "(place-in tomato_sauce_1 living_room_table_recovery_surface basket_1_contain_region basket_1_access)": "Put the tomato sauce can in the basket."
+  },
+  "action_phase_overrides": {
+    "(place-in tomato_sauce_1 living_room_table_recovery_surface basket_1_contain_region basket_1_access)": {}
+  }
+}

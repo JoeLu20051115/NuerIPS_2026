@@ -1,0 +1,223 @@
+{
+  "task": "beat_block_hammer",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 28,
+  "instruction_type": "unseen",
+  "rejections": [
+    {
+      "seed": 100001,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100002,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100004,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100006,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100018,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100021,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100024,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100025,
+      "reason": "EXPERT_FAILED"
+    }
+  ],
+  "candidates": [
+    {
+      "task": "beat_block_hammer",
+      "seed": 100000,
+      "instruction": "Grab the hammer with black handle and beat the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100003,
+      "instruction": "Use the right arm to grab the hammer with claw and smooth head then beat block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100005,
+      "instruction": "Use the right arm to pick up the silver hammer head and claw.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100007,
+      "instruction": "Grab the hammer with black handle and beat the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100008,
+      "instruction": "Grab the silver hammer head and claw and hit the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100009,
+      "instruction": "Grab the silver hammer head and claw and hit the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100010,
+      "instruction": "Grab the hammer with black handle and beat the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100011,
+      "instruction": "Use the right arm to pick up the silver hammer head and claw.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100012,
+      "instruction": "Grab the hammer with black handle and beat the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100013,
+      "instruction": "Use the right arm to grab the hammer with claw and smooth head then beat block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100014,
+      "instruction": "Grab the silver hammer head and claw and hit the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100015,
+      "instruction": "Grab the hammer with black handle and strike the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100016,
+      "instruction": "Use the left arm to grab the hammer with black handle then beat block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100017,
+      "instruction": "Grab the hammer with black handle and hit the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100019,
+      "instruction": "Pick the hammer with claw and smooth head up and hit the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100020,
+      "instruction": "Grab the silver hammer head and claw and beat the block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100022,
+      "instruction": "Use the left arm to grab the hammer with black handle then beat block",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100023,
+      "instruction": "Grab the silver hammer head and claw and hit the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100026,
+      "instruction": "Grab the hammer with black handle and beat the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "beat_block_hammer",
+      "seed": 100027,
+      "instruction": "Grab the silver hammer head and claw and beat the block.",
+      "episode_info": {
+        "{A}": "020_hammer/base0",
+        "{a}": "left"
+      }
+    }
+  ]
+}

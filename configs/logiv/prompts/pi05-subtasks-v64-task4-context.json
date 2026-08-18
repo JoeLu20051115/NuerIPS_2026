@@ -1,0 +1,10 @@
+{
+  "extends": "pi05-subtasks-v55-routed-context.json",
+  "prompt_version": "pi05-subtasks-v64-task4-context",
+  "action_overrides": {
+    "(place-on porcelain_mug_1 living_room_table_porcelain_mug_init_region plate_1)": "put the white mug on the left plate and put the yellow and white mug on the right plate"
+  },
+  "action_phase_overrides": {
+    "(place-on porcelain_mug_1 living_room_table_porcelain_mug_init_region plate_1)": {}
+  }
+}

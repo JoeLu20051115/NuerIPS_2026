@@ -1,0 +1,151 @@
+From c5fa45b3b2574103376caafec38e8f23f9e8aaf0 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 00:44:41 +0800
+Subject: [PATCH 3/4] fix(robotwin): replay frozen LOGIV scenes directly
+
+---
+ .../script/eval_lerobot_torch_pi05.py         | 39 ++++++++----------
+ .../Robotwin/script/pi05_logiv_options.py     | 10 +++++
+ .../Robotwin/tests/test_pi05_logiv_options.py | 40 ++++++++++++++++++-
+ 3 files changed, 65 insertions(+), 24 deletions(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index 792eb1b..51b4f92 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -22,7 +22,11 @@ import pdb
+ 
+ from generate_episode_instructions import *
+ from script.pi05_baseline_options import resolve_baseline_options
+-from script.pi05_logiv_options import logiv_python_path, resolve_logiv_options
++from script.pi05_logiv_options import (
++    logiv_python_path,
++    resolve_logiv_options,
++    setup_frozen_episode,
++)
+ 
+ from policy.pi05 import pi05_model_torch
+ 
+@@ -277,34 +281,23 @@ def eval_logiv_policy(
+     event_path = Path(save_dir) / "logiv_events.jsonl"
+ 
+     for now_id, now_seed in enumerate(accepted_seeds):
+-        render_freq = args["render_freq"]
+-        args["render_freq"] = 0
+         try:
+-            TASK_ENV.setup_demo(now_ep_num=now_id, seed=now_seed, is_test=True, **args)
+-            episode_info = TASK_ENV.play_once()
+-            expert_feasible = TASK_ENV.plan_success and TASK_ENV.check_success()
+-            TASK_ENV.close_env()
++            setup_frozen_episode(
++                TASK_ENV,
++                args,
++                episode_index=now_id,
++                seed=now_seed,
++            )
+         except Exception:
+             TASK_ENV.close_env()
+             raise RuntimeError(
+-                f"frozen accepted seed {now_seed} no longer passes expert setup"
++                f"frozen accepted seed {now_seed} no longer passes test setup"
+             ) from None
+-        if not expert_feasible:
+-            raise RuntimeError(
+-                f"frozen accepted seed {now_seed} no longer passes expert feasibility"
++        if accepted_instructions is None:
++            raise ValueError(
++                "accepted_instructions are required for a frozen LOGIV evaluation"
+             )
+-        args["render_freq"] = render_freq
+-
+-        TASK_ENV.setup_demo(now_ep_num=now_id, seed=now_seed, is_test=True, **args)
+-        episode_info_list = [episode_info["info"]]
+-        descriptions = generate_episode_descriptions(
+-            task_name, episode_info_list, len(accepted_seeds)
+-        )
+-        instruction = (
+-            accepted_instructions[now_id]
+-            if accepted_instructions is not None
+-            else np.random.choice(descriptions[0][instruction_type])
+-        )
++        instruction = accepted_instructions[now_id]
+         TASK_ENV.set_instruction(instruction=instruction)
+ 
+         if TASK_ENV.eval_video_path is not None:
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index a3edf8d..50ded9e 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -5,6 +5,16 @@ def logiv_python_path(logiv_root):
+     return os.path.join(str(logiv_root), "src")
+ 
+ 
++def setup_frozen_episode(task_env, args, *, episode_index, seed):
++    """Build exactly the frozen test scene, without replaying the expert policy."""
++    task_env.setup_demo(
++        now_ep_num=episode_index,
++        seed=seed,
++        is_test=True,
++        **args,
++    )
++
++
+ def resolve_logiv_options(usr_args):
+     test_num = int(usr_args.get("test_num", 100))
+     accepted_seeds = [int(seed) for seed in usr_args.get("accepted_seeds", [])]
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 258ba72..4a3bfc4 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -1,9 +1,47 @@
+ import unittest
+ 
+-from script.pi05_logiv_options import logiv_python_path, resolve_logiv_options
++from script.pi05_logiv_options import (
++    logiv_python_path,
++    resolve_logiv_options,
++    setup_frozen_episode,
++)
+ 
+ 
+ class LogivOptionsTest(unittest.TestCase):
++    def test_frozen_episode_setup_never_executes_expert_policy(self):
++        class FakeTaskEnv:
++            def __init__(self):
++                self.calls = []
++
++            def setup_demo(self, **kwargs):
++                self.calls.append(("setup_demo", kwargs))
++
++            def play_once(self):
++                raise AssertionError("frozen protocol must not replay the expert")
++
++        env = FakeTaskEnv()
++        setup_frozen_episode(
++            env,
++            {"task_name": "place_dual_shoes"},
++            episode_index=1,
++            seed=100002,
++        )
++
++        self.assertEqual(
++            env.calls,
++            [
++                (
++                    "setup_demo",
++                    {
++                        "task_name": "place_dual_shoes",
++                        "now_ep_num": 1,
++                        "seed": 100002,
++                        "is_test": True,
++                    },
++                )
++            ],
++        )
++
+     def test_src_layout_package_path_is_explicit(self):
+         self.assertEqual(logiv_python_path("/repo"), "/repo/src")
+ 
+-- 
+2.43.0
+

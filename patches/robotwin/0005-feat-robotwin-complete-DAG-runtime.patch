@@ -1,0 +1,654 @@
+From 7975dd1b474e5c22eda13f212b3ed4b2ced8d7b9 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 03:41:40 +0800
+Subject: [PATCH 1/6] feat(robotwin): use shorter LOGIV repair chunks
+
+---
+ .../Robotwin/script/eval_lerobot_torch_pi05.py  | 17 ++++++++++++++---
+ .../Robotwin/script/pi05_logiv_options.py       | 11 +++++++++++
+ .../Robotwin/tests/test_pi05_logiv_options.py   | 12 ++++++++++++
+ 3 files changed, 37 insertions(+), 3 deletions(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index 7614651..ce90817 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -96,7 +96,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -202,6 +202,7 @@ def main(usr_args):
+         logiv_root=logiv_root,
+         val_binary=val_binary,
+         action_chunk_steps=action_chunk_steps,
++        repair_action_chunk_steps=repair_action_chunk_steps,
+         max_gpt4o_retries=max_gpt4o_retries,
+         base_stall_observations=base_stall_observations,
+         stage_stall_observations=stage_stall_observations,
+@@ -252,6 +253,7 @@ def eval_logiv_policy(
+     logiv_root,
+     val_binary,
+     action_chunk_steps,
++    repair_action_chunk_steps,
+     max_gpt4o_retries,
+     base_stall_observations,
+     stage_stall_observations,
+@@ -323,8 +325,8 @@ def eval_logiv_policy(
+             task,
+             planner,
+             grounder,
+-            max_dispatches=(TASK_ENV.step_lim + action_chunk_steps - 1)
+-            // action_chunk_steps,
++            max_dispatches=(TASK_ENV.step_lim + repair_action_chunk_steps - 1)
++            // repair_action_chunk_steps,
+             base_stall_observations=base_stall_observations,
+             stage_stall_observations=stage_stall_observations,
+             min_base_dispatches=min_base_dispatches,
+@@ -335,6 +337,15 @@ def eval_logiv_policy(
+                 dispatch=lambda prompt: _execute_logiv_chunk(
+                     TASK_ENV, model, TASK_ENV.get_obs(), prompt, action_chunk_steps
+                 ),
++                dispatch_with_mode=lambda prompt, mode: _execute_logiv_chunk(
++                    TASK_ENV,
++                    model,
++                    TASK_ENV.get_obs(),
++                    prompt,
++                    repair_action_chunk_steps
++                    if mode == "REPAIR"
++                    else action_chunk_steps,
++                ),
+                 native_success=lambda: bool(TASK_ENV.eval_success),
+                 budget_exhausted=lambda: TASK_ENV.take_action_cnt >= TASK_ENV.step_lim,
+                 base_prompt=str(instruction),
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index ada29ea..a54ca71 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -35,6 +35,9 @@ def resolve_logiv_options(usr_args):
+     if not logiv_root or not val_binary:
+         raise ValueError("logiv_root and val_binary are required")
+     action_chunk_steps = int(usr_args.get("action_chunk_steps", 50))
++    repair_action_chunk_steps = int(
++        usr_args.get("repair_action_chunk_steps", action_chunk_steps)
++    )
+     max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
+     base_stall_observations = int(usr_args.get("base_stall_observations", 4))
+     min_base_dispatches = int(usr_args.get("min_base_dispatches", 0))
+@@ -48,6 +51,13 @@ def resolve_logiv_options(usr_args):
+     )
+     if action_chunk_steps < 1 or action_chunk_steps > 50:
+         raise ValueError("action_chunk_steps must be in [1, 50]")
++    if (
++        repair_action_chunk_steps < 1
++        or repair_action_chunk_steps > action_chunk_steps
++    ):
++        raise ValueError(
++            "repair_action_chunk_steps must be in [1, action_chunk_steps]"
++        )
+     if max_gpt4o_retries < 0:
+         raise ValueError("max_gpt4o_retries must be nonnegative")
+     if base_stall_observations < 1:
+@@ -65,6 +75,7 @@ def resolve_logiv_options(usr_args):
+         str(logiv_root),
+         str(val_binary),
+         action_chunk_steps,
++        repair_action_chunk_steps,
+         max_gpt4o_retries,
+         base_stall_observations,
+         stage_stall_observations,
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 5cc2335..1375405 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -54,6 +54,7 @@ class LogivOptionsTest(unittest.TestCase):
+                     "logiv_root": "/repo",
+                     "val_binary": "/repo/Validate",
+                     "action_chunk_steps": 25,
++                    "repair_action_chunk_steps": 10,
+                     "max_gpt4o_retries": 3,
+                     "base_stall_observations": 4,
+                     "min_base_dispatches": 6,
+@@ -66,6 +67,7 @@ class LogivOptionsTest(unittest.TestCase):
+                 "/repo",
+                 "/repo/Validate",
+                 25,
++                10,
+                 3,
+                 4,
+                 None,
+@@ -107,6 +109,16 @@ class LogivOptionsTest(unittest.TestCase):
+                     "action_chunk_steps": 0,
+                 }
+             )
++        with self.assertRaisesRegex(ValueError, "repair_action_chunk_steps"):
++            resolve_logiv_options(
++                {
++                    **common,
++                    "accepted_seeds": [100000],
++                    "test_num": 1,
++                    "action_chunk_steps": 25,
++                    "repair_action_chunk_steps": 30,
++                }
++            )
+         with self.assertRaisesRegex(ValueError, "accepted_instructions"):
+             resolve_logiv_options(
+                 {
+-- 
+2.43.0
+
+
+From f60f2f8d12f4ea6dbebbf0ca6d308b4c064e1dcf Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 04:05:25 +0800
+Subject: [PATCH 2/6] tune(robotwin): preserve pi05 repair macros
+
+---
+ .../script/eval_lerobot_torch_pi05.py         | 20 ++++++-
+ .../Robotwin/script/pi05_logiv_execution.py   | 40 +++++++++++++
+ .../tests/test_pi05_logiv_execution.py        | 58 +++++++++++++++++++
+ 3 files changed, 116 insertions(+), 2 deletions(-)
+ create mode 100644 third_party/Robotwin/script/pi05_logiv_execution.py
+ create mode 100644 third_party/Robotwin/tests/test_pi05_logiv_execution.py
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index ce90817..5dcee1c 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -27,6 +27,7 @@ from script.pi05_logiv_options import (
+     resolve_logiv_options,
+     setup_frozen_episode,
+ )
++from script.pi05_logiv_execution import RecedingHorizonMacroExecutor
+ 
+ from policy.pi05 import pi05_model_torch
+ 
+@@ -227,11 +228,15 @@ def main(usr_args):
+     # return task_reward
+ 
+ 
+-def _execute_logiv_chunk(TASK_ENV, model, observation, prompt, action_chunk_steps):
++def _sample_logiv_actions(model, observation, prompt):
+     model.set_language(prompt)
+     input_rgb_arr, input_state = deploy_policy.encode_obs(observation)
+     model.update_observation_window(input_rgb_arr, input_state)
+-    actions = model.get_action()[:action_chunk_steps]
++    return model.get_action()
++
++
++def _execute_logiv_chunk(TASK_ENV, model, observation, prompt, action_chunk_steps):
++    actions = _sample_logiv_actions(model, observation, prompt)[:action_chunk_steps]
+     for action in actions:
+         TASK_ENV.take_action(action)
+         if TASK_ENV.eval_success:
+@@ -321,6 +326,16 @@ def eval_logiv_policy(
+ 
+         deploy_policy.reset_model(model)
+         observation = TASK_ENV.get_obs()
++        macro_executor = RecedingHorizonMacroExecutor(
++            sample_actions=lambda prompt, current_observation: _sample_logiv_actions(
++                model, current_observation, prompt
++            ),
++            take_action=TASK_ENV.take_action,
++            observe=TASK_ENV.get_obs,
++            native_success=lambda: bool(TASK_ENV.eval_success),
++            base_chunk_steps=action_chunk_steps,
++            repair_observation_steps=repair_action_chunk_steps,
++        )
+         controller = RobotwinEpisodeController(
+             task,
+             planner,
+@@ -346,6 +361,7 @@ def eval_logiv_policy(
+                     if mode == "REPAIR"
+                     else action_chunk_steps,
+                 ),
++                dispatch_with_context=macro_executor.dispatch,
+                 native_success=lambda: bool(TASK_ENV.eval_success),
+                 budget_exhausted=lambda: TASK_ENV.take_action_cnt >= TASK_ENV.step_lim,
+                 base_prompt=str(instruction),
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+new file mode 100644
+index 0000000..4546050
+--- /dev/null
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -0,0 +1,40 @@
++class RecedingHorizonMacroExecutor:
++    """Observe repairs frequently without truncating a stable pi0.5 macro."""
++
++    def __init__(
++        self,
++        *,
++        sample_actions,
++        take_action,
++        observe,
++        native_success,
++        base_chunk_steps,
++        repair_observation_steps,
++    ):
++        self.sample_actions = sample_actions
++        self.take_action = take_action
++        self.observe = observe
++        self.native_success = native_success
++        self.base_chunk_steps = int(base_chunk_steps)
++        self.repair_observation_steps = int(repair_observation_steps)
++        self._key = None
++        self._actions = []
++
++    def dispatch(self, prompt, mode, active_frontier):
++        key = (str(prompt), str(mode), active_frontier)
++        if key != self._key or not self._actions:
++            self._key = key
++            self._actions = list(self.sample_actions(prompt, self.observe()))[
++                : self.base_chunk_steps
++            ]
++        steps = (
++            self.base_chunk_steps
++            if mode == "BASE_MONITORED"
++            else self.repair_observation_steps
++        )
++        for _ in range(min(steps, len(self._actions))):
++            self.take_action(self._actions.pop(0))
++            if self.native_success():
++                self._actions.clear()
++                break
++        return self.observe()
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+new file mode 100644
+index 0000000..8ec017d
+--- /dev/null
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -0,0 +1,58 @@
++import unittest
++
++from script.pi05_logiv_execution import RecedingHorizonMacroExecutor
++
++
++class RecedingHorizonMacroExecutorTest(unittest.TestCase):
++    def test_reuses_macro_until_frontier_changes(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            start = len(samples) * 100
++            return list(range(start, start + 50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: len(executed),
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("grasp", "REPAIR", 0)
++        executor.dispatch("grasp", "REPAIR", 0)
++        executor.dispatch("handover", "REPAIR", 1)
++
++        self.assertEqual(len(samples), 2)
++        self.assertEqual(executed[:20], list(range(100, 120)))
++        self.assertEqual(executed[20:], list(range(200, 210)))
++
++    def test_mode_change_starts_a_new_certified_macro(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            return list(range(50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("same prompt", "BASE_MONITORED", 0)
++        executor.dispatch("same prompt", "REPAIR", 0)
++
++        self.assertEqual(len(samples), 2)
++        self.assertEqual(len(executed), 60)
++
++
++if __name__ == "__main__":
++    unittest.main()
+-- 
+2.43.0
+
+
+From 94792d51f55ec6b87718b34d0cc47ec310fbf4c8 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 04:23:43 +0800
+Subject: [PATCH 3/6] feat(robotwin): configure LOGIV image detail
+
+---
+ .../Robotwin/script/eval_lerobot_torch_pi05.py        |  5 ++++-
+ third_party/Robotwin/script/pi05_logiv_options.py     |  4 ++++
+ third_party/Robotwin/tests/test_pi05_logiv_options.py | 11 +++++++++++
+ 3 files changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index 5dcee1c..dbeb195 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -97,7 +97,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -204,6 +204,7 @@ def main(usr_args):
+         val_binary=val_binary,
+         action_chunk_steps=action_chunk_steps,
+         repair_action_chunk_steps=repair_action_chunk_steps,
++        vlm_image_detail=vlm_image_detail,
+         max_gpt4o_retries=max_gpt4o_retries,
+         base_stall_observations=base_stall_observations,
+         stage_stall_observations=stage_stall_observations,
+@@ -259,6 +260,7 @@ def eval_logiv_policy(
+     val_binary,
+     action_chunk_steps,
+     repair_action_chunk_steps,
++    vlm_image_detail,
+     max_gpt4o_retries,
+     base_stall_observations,
+     stage_stall_observations,
+@@ -280,6 +282,7 @@ def eval_logiv_policy(
+ 
+     task = ROBOTWIN_TASKS[task_name]
+     client = Gpt4oClient.from_env(
++        image_detail=vlm_image_detail,
+         timeout_seconds=45.0,
+         max_retries=max_gpt4o_retries,
+     )
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index a54ca71..a2e6ad4 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -38,6 +38,7 @@ def resolve_logiv_options(usr_args):
+     repair_action_chunk_steps = int(
+         usr_args.get("repair_action_chunk_steps", action_chunk_steps)
+     )
++    vlm_image_detail = str(usr_args.get("vlm_image_detail", "low"))
+     max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
+     base_stall_observations = int(usr_args.get("base_stall_observations", 4))
+     min_base_dispatches = int(usr_args.get("min_base_dispatches", 0))
+@@ -58,6 +59,8 @@ def resolve_logiv_options(usr_args):
+         raise ValueError(
+             "repair_action_chunk_steps must be in [1, action_chunk_steps]"
+         )
++    if vlm_image_detail not in {"low", "high"}:
++        raise ValueError("vlm_image_detail must be 'low' or 'high'")
+     if max_gpt4o_retries < 0:
+         raise ValueError("max_gpt4o_retries must be nonnegative")
+     if base_stall_observations < 1:
+@@ -76,6 +79,7 @@ def resolve_logiv_options(usr_args):
+         str(val_binary),
+         action_chunk_steps,
+         repair_action_chunk_steps,
++        vlm_image_detail,
+         max_gpt4o_retries,
+         base_stall_observations,
+         stage_stall_observations,
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 1375405..675e529 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -55,6 +55,7 @@ class LogivOptionsTest(unittest.TestCase):
+                     "val_binary": "/repo/Validate",
+                     "action_chunk_steps": 25,
+                     "repair_action_chunk_steps": 10,
++                    "vlm_image_detail": "high",
+                     "max_gpt4o_retries": 3,
+                     "base_stall_observations": 4,
+                     "min_base_dispatches": 6,
+@@ -68,6 +69,7 @@ class LogivOptionsTest(unittest.TestCase):
+                 "/repo/Validate",
+                 25,
+                 10,
++                "high",
+                 3,
+                 4,
+                 None,
+@@ -119,6 +121,15 @@ class LogivOptionsTest(unittest.TestCase):
+                     "repair_action_chunk_steps": 30,
+                 }
+             )
++        with self.assertRaisesRegex(ValueError, "vlm_image_detail"):
++            resolve_logiv_options(
++                {
++                    **common,
++                    "accepted_seeds": [100000],
++                    "test_num": 1,
++                    "vlm_image_detail": "ultra",
++                }
++            )
+         with self.assertRaisesRegex(ValueError, "accepted_instructions"):
+             resolve_logiv_options(
+                 {
+-- 
+2.43.0
+
+
+From 443c286da367c82f44b6d861ac8e8522f8ddc6b6 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 06:01:04 +0800
+Subject: [PATCH 4/6] feat(robotwin): enable initial DAG execution
+
+---
+ third_party/Robotwin/script/eval_lerobot_torch_pi05.py | 5 ++++-
+ third_party/Robotwin/script/pi05_logiv_options.py      | 2 ++
+ third_party/Robotwin/tests/test_pi05_logiv_options.py  | 7 +++++--
+ 3 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index dbeb195..7032baf 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -97,7 +97,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -209,6 +209,7 @@ def main(usr_args):
+         base_stall_observations=base_stall_observations,
+         stage_stall_observations=stage_stall_observations,
+         min_base_dispatches=min_base_dispatches,
++        dag_from_start=dag_from_start,
+         save_dir=save_dir,
+         video_size=video_size,
+         instruction_type=instruction_type,
+@@ -265,6 +266,7 @@ def eval_logiv_policy(
+     base_stall_observations,
+     stage_stall_observations,
+     min_base_dispatches,
++    dag_from_start,
+     save_dir,
+     video_size=None,
+     instruction_type=None,
+@@ -368,6 +370,7 @@ def eval_logiv_policy(
+                 native_success=lambda: bool(TASK_ENV.eval_success),
+                 budget_exhausted=lambda: TASK_ENV.take_action_cnt >= TASK_ENV.step_lim,
+                 base_prompt=str(instruction),
++                dag_from_start=dag_from_start,
+             )
+         finally:
+             if TASK_ENV.eval_video_path is not None:
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index a2e6ad4..e28b1e9 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -42,6 +42,7 @@ def resolve_logiv_options(usr_args):
+     max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
+     base_stall_observations = int(usr_args.get("base_stall_observations", 4))
+     min_base_dispatches = int(usr_args.get("min_base_dispatches", 0))
++    dag_from_start = bool(usr_args.get("dag_from_start", False))
+     raw_stage_stalls = usr_args.get("stage_stall_observations")
+     if isinstance(raw_stage_stalls, str):
+         raw_stage_stalls = json.loads(raw_stage_stalls)
+@@ -84,4 +85,5 @@ def resolve_logiv_options(usr_args):
+         base_stall_observations,
+         stage_stall_observations,
+         min_base_dispatches,
++        dag_from_start,
+     )
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 675e529..eb68778 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -59,6 +59,7 @@ class LogivOptionsTest(unittest.TestCase):
+                     "max_gpt4o_retries": 3,
+                     "base_stall_observations": 4,
+                     "min_base_dispatches": 6,
++                    "dag_from_start": True,
+                     "accepted_instructions": ["first", "second"],
+                 }
+             ),
+@@ -74,6 +75,7 @@ class LogivOptionsTest(unittest.TestCase):
+                 4,
+                 None,
+                 6,
++                True,
+             ),
+         )
+ 
+@@ -89,8 +91,9 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertEqual(resolved[-2], [4, 4, 1])
+-        self.assertEqual(resolved[-1], 0)
++        self.assertEqual(resolved[-3], [4, 4, 1])
++        self.assertEqual(resolved[-2], 0)
++        self.assertFalse(resolved[-1])
+ 
+     def test_rejects_seed_drift_and_invalid_chunk(self):
+         common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
+-- 
+2.43.0
+
+
+From 6b20ea2a4b75919b5477fb53b99753a871a37934 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 06:01:51 +0800
+Subject: [PATCH 5/6] fix(robotwin): execute complete DAG node macros
+
+---
+ .../Robotwin/script/pi05_logiv_execution.py       |  2 +-
+ .../Robotwin/tests/test_pi05_logiv_execution.py   | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+index 4546050..00962a2 100644
+--- a/third_party/Robotwin/script/pi05_logiv_execution.py
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -29,7 +29,7 @@ class RecedingHorizonMacroExecutor:
+             ]
+         steps = (
+             self.base_chunk_steps
+-            if mode == "BASE_MONITORED"
++            if mode in {"BASE_MONITORED", "DAG_EXECUTION"}
+             else self.repair_observation_steps
+         )
+         for _ in range(min(steps, len(self._actions))):
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+index 8ec017d..0ce9f97 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_execution.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -53,6 +53,21 @@ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
+         self.assertEqual(len(samples), 2)
+         self.assertEqual(len(executed), 60)
+ 
++    def test_dag_node_executes_one_complete_policy_macro_before_gate(self):
++        executed = []
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=lambda prompt, observation: list(range(50)),
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("ready node", "DAG_EXECUTION", 0)
++
++        self.assertEqual(executed, list(range(50)))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+-- 
+2.43.0
+
+
+From ce3dbdffdcefb1908882f40299420c7dbb48bdc1 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 06:02:20 +0800
+Subject: [PATCH 6/6] fix(robotwin): parse DAG mode explicitly
+
+---
+ third_party/Robotwin/script/pi05_logiv_options.py  |  7 ++++++-
+ .../Robotwin/tests/test_pi05_logiv_options.py      | 14 ++++++++++++++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index e28b1e9..8de2acc 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -42,7 +42,12 @@ def resolve_logiv_options(usr_args):
+     max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
+     base_stall_observations = int(usr_args.get("base_stall_observations", 4))
+     min_base_dispatches = int(usr_args.get("min_base_dispatches", 0))
+-    dag_from_start = bool(usr_args.get("dag_from_start", False))
++    raw_dag_from_start = usr_args.get("dag_from_start", False)
++    dag_from_start = (
++        raw_dag_from_start.strip().lower() == "true"
++        if isinstance(raw_dag_from_start, str)
++        else bool(raw_dag_from_start)
++    )
+     raw_stage_stalls = usr_args.get("stage_stall_observations")
+     if isinstance(raw_stage_stalls, str):
+         raw_stage_stalls = json.loads(raw_stage_stalls)
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index eb68778..7568b94 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -95,6 +95,20 @@ class LogivOptionsTest(unittest.TestCase):
+         self.assertEqual(resolved[-2], 0)
+         self.assertFalse(resolved[-1])
+ 
++    def test_cli_false_does_not_enable_initial_dag(self):
++        resolved = resolve_logiv_options(
++            {
++                "accepted_seeds": [100000],
++                "accepted_instructions": ["instruction"],
++                "test_num": 1,
++                "logiv_root": "/repo",
++                "val_binary": "/repo/Validate",
++                "dag_from_start": "False",
++            }
++        )
++
++        self.assertFalse(resolved[-1])
++
+     def test_rejects_seed_drift_and_invalid_chunk(self):
+         common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
+         with self.assertRaisesRegex(ValueError, "accepted_seeds"):
+-- 
+2.43.0
+

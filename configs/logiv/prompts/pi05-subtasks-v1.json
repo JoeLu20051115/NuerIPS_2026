@@ -1,0 +1,41 @@
+{
+  "prompt_version": "pi05-subtasks-v1",
+  "templates": {
+    "pick": "Pick up {object} from {source}. Stop as soon as {object} is securely held.",
+    "place-on": "Pick up {object} from {source} and place it on {target}. Stop as soon as {object} is resting on {target}.",
+    "place-in": "Pick up {object} from {source} and place it inside {target}. Stop as soon as {object} is inside {target}.",
+    "place-relative": "Pick up {object} from {source} and place it at {target}. Stop as soon as {object} reaches {target}.",
+    "open-access": "Open {access}. Stop as soon as {access} is open.",
+    "close-access": "Close {access}. Stop as soon as {access} is closed.",
+    "turn-on": "Turn on {device}. Stop as soon as {device} is on.",
+    "turn-off": "Turn off {device}. Stop as soon as {device} is off.",
+    "put-down": "Put down the held {object} on {target}. Stop as soon as it is released on {target}.",
+    "place-held-on": "Place the held {object} on {target}. Stop as soon as it is released on {target}.",
+    "place-held-in": "Place the held {object} inside {target}. Stop as soon as it is released inside {target}.",
+    "place-held-relative": "Place the held {object} at {target}. Stop as soon as it is released at {target}."
+  },
+  "suffix": "Complete only this atomic subtask. Do not start another subtask.",
+  "labels": {
+    "akita_black_bowl_1": "black bowl",
+    "alphabet_soup_1": "alphabet soup can",
+    "basket_1_contain_region": "basket",
+    "black_book_1": "black book",
+    "butter_1": "butter",
+    "chocolate_pudding_1": "chocolate pudding",
+    "cream_cheese_1": "cream cheese box",
+    "desk_caddy_1_back_contain_region": "back compartment of the desk caddy",
+    "flat_stove_1_cook_region": "flat stove cooking surface",
+    "flat_stove_1_power": "flat stove",
+    "kitchen_table_recovery_surface": "kitchen table",
+    "living_room_table_plate_right_region": "right side of the plate",
+    "microwave_1_access": "microwave door",
+    "microwave_1_heating_region": "microwave",
+    "plate_1": "left plate",
+    "plate_2": "right plate",
+    "porcelain_mug_1": "white mug",
+    "tomato_sauce_1": "tomato sauce can",
+    "white_cabinet_1_bottom_access": "bottom drawer",
+    "white_cabinet_1_bottom_region": "bottom drawer",
+    "white_yellow_mug_1": "yellow and white mug"
+  }
+}

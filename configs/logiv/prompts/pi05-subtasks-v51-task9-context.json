@@ -1,0 +1,10 @@
+{
+  "extends": "pi05-subtasks-v44-task2-visual-identity.json",
+  "prompt_version": "pi05-subtasks-v51-task9-context",
+  "action_overrides": {
+    "(place-in white_yellow_mug_1 kitchen_table_white_yellow_mug_init_region microwave_1_heating_region microwave_1_access)": "Put the yellow and white mug in the microwave and close it."
+  },
+  "action_phase_overrides": {
+    "(place-in white_yellow_mug_1 kitchen_table_white_yellow_mug_init_region microwave_1_heating_region microwave_1_access)": {}
+  }
+}

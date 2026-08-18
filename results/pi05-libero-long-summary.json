@@ -1,0 +1,264 @@
+{
+  "accepted": true,
+  "checkpoints": {
+    "early": {
+      "accepted": true,
+      "maximum": 0.48,
+      "minimum": 0.38,
+      "rate": 0.436,
+      "reference": 0.43,
+      "successes": 218,
+      "trials": 500,
+      "wilson_95": [
+        0.39318560312305606,
+        0.47979031245602277
+      ]
+    },
+    "full": {
+      "accepted": true,
+      "maximum": 0.954,
+      "minimum": 0.894,
+      "rate": 0.92,
+      "reference": 0.924,
+      "successes": 460,
+      "trials": 500,
+      "wilson_95": [
+        0.8928936834221488,
+        0.9407018705901475
+      ]
+    }
+  },
+  "errors": [],
+  "tasks": [
+    {
+      "early": {
+        "rate": 0.72,
+        "successes": 36,
+        "trials": 50,
+        "wilson_95": [
+          0.5833487630404344,
+          0.8252582933408878
+        ]
+      },
+      "early_public_rate": 0.6,
+      "full": {
+        "rate": 1.0,
+        "successes": 50,
+        "trials": 50,
+        "wilson_95": [
+          0.9286524008666414,
+          1.0
+        ]
+      },
+      "task": "Cream cheese + Butter \u2192 Basket",
+      "task_id": 1
+    },
+    {
+      "early": {
+        "rate": 0.4,
+        "successes": 20,
+        "trials": 50,
+        "wilson_95": [
+          0.27608389730256544,
+          0.5381856225241064
+        ]
+      },
+      "early_public_rate": 0.4,
+      "full": {
+        "rate": 0.96,
+        "successes": 48,
+        "trials": 50,
+        "wilson_95": [
+          0.8653990931249297,
+          0.9889611156723802
+        ]
+      },
+      "task": "Black bowl \u2192 Bottom drawer + Close",
+      "task_id": 3
+    },
+    {
+      "early": {
+        "rate": 0.44,
+        "successes": 22,
+        "trials": 50,
+        "wilson_95": [
+          0.3116219921125717,
+          0.5769397197834315
+        ]
+      },
+      "early_public_rate": 0.53,
+      "full": {
+        "rate": 0.92,
+        "successes": 46,
+        "trials": 50,
+        "wilson_95": [
+          0.8116175308165717,
+          0.968450485911407
+        ]
+      },
+      "task": "Turn on stove + Moka pot",
+      "task_id": 2
+    },
+    {
+      "early": {
+        "rate": 0.16,
+        "successes": 8,
+        "trials": 50,
+        "wilson_95": [
+          0.08337420678033404,
+          0.2851421606303499
+        ]
+      },
+      "early_public_rate": 0.07,
+      "full": {
+        "rate": 0.98,
+        "successes": 49,
+        "trials": 50,
+        "wilson_95": [
+          0.8950455641036219,
+          0.9964607407283539
+        ]
+      },
+      "task": "Two mugs \u2192 Left/Right plates",
+      "task_id": 4
+    },
+    {
+      "early": {
+        "rate": 0.1,
+        "successes": 5,
+        "trials": 50,
+        "wilson_95": [
+          0.04347576493189041,
+          0.21360231437479654
+        ]
+      },
+      "early_public_rate": 0.2,
+      "full": {
+        "rate": 0.54,
+        "successes": 27,
+        "trials": 50,
+        "wilson_95": [
+          0.40398871399157477,
+          0.6703034780777566
+        ]
+      },
+      "task": "Both moka pots \u2192 Stove",
+      "task_id": 8
+    },
+    {
+      "early": {
+        "rate": 0.56,
+        "successes": 28,
+        "trials": 50,
+        "wilson_95": [
+          0.4230602802165686,
+          0.6883780078874284
+        ]
+      },
+      "early_public_rate": 0.8,
+      "full": {
+        "rate": 1.0,
+        "successes": 50,
+        "trials": 50,
+        "wilson_95": [
+          0.9286524008666414,
+          1.0
+        ]
+      },
+      "task": "Alphabet soup + Cream cheese \u2192 Basket",
+      "task_id": 7
+    },
+    {
+      "early": {
+        "rate": 0.04,
+        "successes": 2,
+        "trials": 50,
+        "wilson_95": [
+          0.011038884327619805,
+          0.1346009068750702
+        ]
+      },
+      "early_public_rate": 0.13,
+      "full": {
+        "rate": 0.94,
+        "successes": 47,
+        "trials": 50,
+        "wilson_95": [
+          0.8378290831116182,
+          0.979385029651026
+        ]
+      },
+      "task": "Mug \u2192 Microwave + Close",
+      "task_id": 9
+    },
+    {
+      "early": {
+        "rate": 0.54,
+        "successes": 27,
+        "trials": 50,
+        "wilson_95": [
+          0.40398871399157477,
+          0.6703034780777566
+        ]
+      },
+      "early_public_rate": 0.4,
+      "full": {
+        "rate": 0.94,
+        "successes": 47,
+        "trials": 50,
+        "wilson_95": [
+          0.8378290831116182,
+          0.979385029651026
+        ]
+      },
+      "task": "Alphabet soup + Tomato sauce \u2192 Basket",
+      "task_id": 0
+    },
+    {
+      "early": {
+        "rate": 0.76,
+        "successes": 38,
+        "trials": 50,
+        "wilson_95": [
+          0.6258731624205708,
+          0.8570260860300828
+        ]
+      },
+      "early_public_rate": 0.67,
+      "full": {
+        "rate": 0.98,
+        "successes": 49,
+        "trials": 50,
+        "wilson_95": [
+          0.8950455641036219,
+          0.9964607407283539
+        ]
+      },
+      "task": "Book \u2192 Back compartment of caddy",
+      "task_id": 5
+    },
+    {
+      "early": {
+        "rate": 0.64,
+        "successes": 32,
+        "trials": 50,
+        "wilson_95": [
+          0.501410168761127,
+          0.7586125034815325
+        ]
+      },
+      "early_public_rate": 0.53,
+      "full": {
+        "rate": 0.94,
+        "successes": 47,
+        "trials": 50,
+        "wilson_95": [
+          0.8378290831116182,
+          0.979385029651026
+        ]
+      },
+      "task": "Mug \u2192 Plate + Chocolate pudding right of plate",
+      "task_id": 6
+    }
+  ]
+}

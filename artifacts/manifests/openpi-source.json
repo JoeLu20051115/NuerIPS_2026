@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "openpi": {
+    "repository": "https://github.com/Physical-Intelligence/openpi.git",
+    "commit": "650c5b0283a49c42784fb5055a0507da2c6d347d",
+    "tree": "c717d985f60db75f2c22053283d3793590506d1a",
+    "clean": true
+  },
+  "libero": {
+    "repository": "https://github.com/Lifelong-Robot-Learning/LIBERO.git",
+    "commit": "f78abd68ee283de9f9be3c8f7e2a9ad60246e95c",
+    "tree": "e3b3ea82a49092c93faacd347c4d2d950bd4a2e8",
+    "clean": true
+  },
+  "evaluator_dependencies": {
+    "python": "3.8",
+    "mujoco": "3.2.3",
+    "robosuite": "1.4.1"
+  }
+}

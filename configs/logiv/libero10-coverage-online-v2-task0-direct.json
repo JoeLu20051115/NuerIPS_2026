@@ -1,0 +1,9 @@
+{
+  "extends": "libero10-coverage-online-v1.json",
+  "tasks": [
+    {
+      "task_id": 0,
+      "decompose_macro_sources": []
+    }
+  ]
+}

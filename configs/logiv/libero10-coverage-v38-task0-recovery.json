@@ -1,0 +1,30 @@
+{
+  "extends": "libero10-coverage.json",
+  "tasks": [
+    {
+      "task_id": 0,
+      "registered_objects": [
+        "alphabet_soup_1",
+        "tomato_sauce_1",
+        "living_room_table_alphabet_soup_init_region",
+        "living_room_table_tomato_sauce_init_region",
+        "living_room_table_recovery_surface",
+        "basket_1_contain_region",
+        "basket_1_access"
+      ],
+      "symbol_bindings": {
+        "living_room_table_recovery_surface": {
+          "libero_id": "living_room_table",
+          "kind": "support_surface_alias"
+        },
+        "basket_1_access": {
+          "libero_id": "basket_1_contain_region",
+          "kind": "always_open_access"
+        }
+      },
+      "decompose_macro_sources": [
+        "living_room_table_recovery_surface"
+      ]
+    }
+  ]
+}
