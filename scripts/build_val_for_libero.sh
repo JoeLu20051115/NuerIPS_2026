@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
-manifest="$repo_root/configs/logiv/origin/val-build.json"
+manifest="$repo_root/src/pi05_libero_repro/logiv/config/val-build.json"
 image=$(jq -r .builder_image "$manifest")
 revision=$(jq -r .source_revision "$manifest")
 source_repository=$(jq -r .source_repository "$manifest")

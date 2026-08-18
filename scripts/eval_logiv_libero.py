@@ -24,7 +24,10 @@ from pi05_libero_repro.logiv.controller import (
     RuntimeBudgetLimits,
     RuntimeBudgetUsage,
 )
-from pi05_libero_repro.logiv.configuration import resolved_json_sha256
+from pi05_libero_repro.logiv.configuration import (
+    origin_config_path,
+    resolved_json_sha256,
+)
 from pi05_libero_repro.logiv.dag import CausalDagCompiler, CausalGraph, SchemaOnlyCausalDagCompiler
 from pi05_libero_repro.logiv.domain import render_domain_pddl, validate_state
 from pi05_libero_repro.logiv.evaluation import (
@@ -103,11 +106,9 @@ from pi05_libero_repro.protocol import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-COVERAGE_MANIFEST = REPOSITORY_ROOT / "configs/logiv/origin/coverage.json"
-DOMAIN_PATH = REPOSITORY_ROOT / "configs/logiv/origin/domain.pddl"
-TASK5_RECOVERY_CAPABILITY = (
-    REPOSITORY_ROOT / "configs/logiv/origin/terminal-recovery.json"
-)
+COVERAGE_MANIFEST = origin_config_path("coverage.json")
+DOMAIN_PATH = origin_config_path("domain.pddl")
+TASK5_RECOVERY_CAPABILITY = origin_config_path("terminal-recovery.json")
 
 
 def _sha256_bytes(value: bytes) -> str:
@@ -2787,7 +2788,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--shadow-monitor-contract",
-        default=REPOSITORY_ROOT / "configs/logiv/origin/monitor-evidence.json",
+        default=origin_config_path("monitor-evidence.json"),
         type=Path,
     )
     parser.add_argument("--prompt-locked", action="store_true")
@@ -2852,7 +2853,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--val-binary", default="/val/Validate", type=Path)
     parser.add_argument(
         "--prompt-config",
-        default=REPOSITORY_ROOT / "configs/logiv/origin/prompts.json",
+        default=origin_config_path("prompts.json"),
         type=Path,
     )
     parser.add_argument(

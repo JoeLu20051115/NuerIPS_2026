@@ -6,6 +6,20 @@ from pathlib import Path
 from typing import Any
 
 
+ORIGIN_CONFIG_ROOT = Path(__file__).with_name("config")
+
+
+def origin_config_path(name: str) -> Path:
+    """Return one packaged Origin configuration path."""
+
+    if not name or Path(name).name != name:
+        raise ValueError("Origin configuration name must be a single file name")
+    path = ORIGIN_CONFIG_ROOT / name
+    if not path.is_file():
+        raise FileNotFoundError(f"unknown Origin configuration: {name}")
+    return path
+
+
 def load_extended_json(
     path: Path | str,
     *,

@@ -13,7 +13,7 @@ shift 3
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
 openpi_dir="$repo_root/external_repos/openpi"
 val_dir="$repo_root/artifacts/tools/val-ubuntu22"
-manifest="$repo_root/configs/logiv/origin/val-build.json"
+manifest="$repo_root/src/pi05_libero_repro/logiv/config/val-build.json"
 image=pi05-libero-eval:650c5b0
 
 [[ "$gpu" =~ ^[0-9]+$ ]] || { echo "invalid GPU: $gpu" >&2; exit 64; }

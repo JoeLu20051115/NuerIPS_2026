@@ -208,7 +208,7 @@ def test_task8_repair_rebinds_failed_branch_from_registered_recovery_surface() -
 def test_task0_repair_rebinds_dropped_object_to_observed_table_surface() -> None:
     fixture = (
         Path(__file__).resolve().parents[2]
-        / "configs/logiv/origin/proposals.json"
+        / "src/pi05_libero_repro/logiv/config/proposals.json"
     )
     package, plan, _, _, certificate, graph = nominal(0, fixture)
     target = "basket_1_contain_region"

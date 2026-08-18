@@ -12,7 +12,7 @@ from pi05_libero_repro.logiv.domain import (
     render_problem_pddl,
     validate_state,
 )
-from pi05_libero_repro.logiv.configuration import load_extended_json
+from pi05_libero_repro.logiv.configuration import load_extended_json, origin_config_path
 from pi05_libero_repro.logiv.model import (
     CandidateSubtask,
     Fact,
@@ -28,7 +28,7 @@ from pi05_libero_repro.logiv.model import (
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_FIXTURE = REPOSITORY_ROOT / "configs/logiv/origin/proposals.json"
+DEFAULT_FIXTURE = origin_config_path("proposals.json")
 
 
 class ProposalError(ValueError):

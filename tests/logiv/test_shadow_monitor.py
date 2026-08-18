@@ -1358,7 +1358,7 @@ def test_monitor_contract_rejects_hash_drift_bad_windows_and_reserved_rule_ids()
 
 
 def test_origin_config_loads_task_5_and_8_and_rejects_unknown_task() -> None:
-    path = ROOT / "configs/logiv/origin/monitor-evidence.json"
+    path = ROOT / "src/pi05_libero_repro/logiv/config/monitor-evidence.json"
     task5 = load_monitor_evidence_contract(path, task_id=5)
     task8 = load_monitor_evidence_contract(path, task_id=8)
     assert task5.task_id == 5

@@ -100,7 +100,7 @@ def test_task8_dag_has_two_unordered_action_nodes_and_width_two() -> None:
 def test_origin_task6_tie_break_preserves_a_width_two_causal_dag() -> None:
     fixture = (
         Path(__file__).resolve().parents[2]
-        / "configs/logiv/origin/proposals.json"
+        / "src/pi05_libero_repro/logiv/config/proposals.json"
     )
     package, plan, sidecar, context, certificate = certified(6, fixture)
 

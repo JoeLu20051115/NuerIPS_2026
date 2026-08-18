@@ -8,7 +8,7 @@ from pi05_libero_repro.logiv.proposal import ScriptedProposalProvider
 
 
 ROOT = Path(__file__).resolve().parents[2]
-ORIGIN = ROOT / "configs/logiv/origin"
+ORIGIN = ROOT / "src/pi05_libero_repro/logiv/config"
 
 
 def test_origin_task_binding_loads_the_frozen_runtime_contract() -> None:

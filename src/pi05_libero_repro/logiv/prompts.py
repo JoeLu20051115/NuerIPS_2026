@@ -5,14 +5,13 @@ from typing import Mapping
 
 from pi05_libero_repro.logiv.configuration import (
     load_extended_json,
+    origin_config_path,
     resolved_json_sha256,
 )
 from pi05_libero_repro.logiv.model import GroundAction
 
 
-DEFAULT_PROMPT_PATH = (
-    Path(__file__).resolve().parents[3] / "configs/logiv/origin/prompts.json"
-)
+DEFAULT_PROMPT_PATH = origin_config_path("prompts.json")
 
 
 class PromptConfigurationError(ValueError):

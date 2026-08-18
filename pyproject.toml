@@ -3,8 +3,10 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pi05-libero-repro"
+name = "logiv-origin"
 version = "0.1.0"
+description = "Deployable LOGIV closed-loop robot control runtime"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.22,<3"]
 
@@ -19,3 +21,6 @@ norecursedirs = ["external_repos"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"pi05_libero_repro.logiv" = ["config/*.json", "config/*.pddl"]

@@ -19,6 +19,7 @@ from pi05_libero_repro.logiv.dag import (
     SignedLiteral,
     validate_graph,
 )
+from pi05_libero_repro.logiv.configuration import origin_config_path
 from pi05_libero_repro.logiv.domain import _is_subtype
 from pi05_libero_repro.logiv.model import (
     Fact,
@@ -309,9 +310,7 @@ def load_monitor_evidence_contract(path: Path | str, *, task_id: int) -> Monitor
         contract = next(item for item in contracts if item.task_id == task_id)
     except StopIteration as error:
         raise ValueError(f"no monitor evidence contract for task {task_id}") from error
-    coverage_path = (
-        Path(__file__).resolve().parents[3] / "configs/logiv/origin/coverage.json"
-    )
+    coverage_path = origin_config_path("coverage.json")
     try:
         coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
         task = next(

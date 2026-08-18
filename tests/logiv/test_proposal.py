@@ -15,8 +15,8 @@ from pi05_libero_repro.logiv.proposal import (
 )
 
 
-FIXTURE = Path("configs/logiv/origin/proposals.json")
-COVERAGE = Path("configs/logiv/origin/coverage.json")
+FIXTURE = Path("src/pi05_libero_repro/logiv/config/proposals.json")
+COVERAGE = Path("src/pi05_libero_repro/logiv/config/coverage.json")
 
 
 def test_metadata_assisted_task3_has_no_vlm_goal_and_uses_origin_macro() -> None:

@@ -67,7 +67,7 @@ def main() -> int:
     taco = _require_path(args.taco, directory=True)
     robotwin = _require_path(taco / "third_party/Robotwin", directory=True)
     checkpoint = _require_path(args.checkpoint, directory=True)
-    tokenizer = _require_path(args.tokenizer, directory=True)
+    tokenizer = _require_path(args.tokenizer, directory=False)
     val_binary = _require_path(args.val_binary, directory=False)
     python = _require_path(args.python, directory=False)
 

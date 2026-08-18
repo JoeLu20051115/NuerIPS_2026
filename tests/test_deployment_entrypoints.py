@@ -51,3 +51,8 @@ def test_python_deployment_entrypoints_expose_help() -> None:
         )
         assert result.returncode == 0, result.stderr
         assert "usage:" in result.stdout.lower()
+
+
+def test_robotwin_tokenizer_is_validated_as_a_file() -> None:
+    source = (ROOT / "scripts/run_robotwin_logiv.py").read_text(encoding="utf-8")
+    assert "_require_path(args.tokenizer, directory=False)" in source
