@@ -4,10 +4,32 @@ __pycache__/
 .superpowers/
 .worktrees/
 *.py[cod]
-
-artifacts/checkpoints/
-artifacts/datasets/
-artifacts/tools/
-runs/
-external_repos/openpi/.venv/
 *.egg-info/
+
+# Local credentials and editor state
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+
+# Runtime dependencies and generated outputs
+/artifacts/checkpoints
+/artifacts/datasets
+/artifacts/tools
+/evaluation_results/
+/evaluation_results_*/
+/logs/
+/outputs/
+/results/
+/runs/
+/screenshots/
+/videos/
+*.jsonl
+*.log
+*.mp4
+*.webm
+
+# Benchmark/runtime checkouts
+/TACO/
+external_repos/openpi/.venv/
