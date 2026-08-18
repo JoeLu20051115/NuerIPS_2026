@@ -27,10 +27,10 @@ docker run --rm \
   "$image" bash -lc '
     set -euo pipefail
     apt-get update -qq
-    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq cmake flex bison >/out/apt.log 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq cmake flex bison
     cp -a /src /tmp/VAL
     cd /tmp/VAL
-    bash scripts/linux/build_linux64.sh all Release >/out/build.log 2>&1
+    bash scripts/linux/build_linux64.sh all Release
     cp build/linux64/Release/bin/Validate /out/Validate
     cp build/linux64/Release/bin/libVAL.so /out/libVAL.so
   '

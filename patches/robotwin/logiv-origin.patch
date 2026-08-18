@@ -1,0 +1,1060 @@
+diff --git a/third_party/Robotwin/policy/pi05/deploy_policy.yml b/third_party/Robotwin/policy/pi05/deploy_policy.yml
+index 1741ed2614d6ffc6d5d7badd31acff4770ebf9bb..74eba5c3a97cea46606525d50525e64cde4be0e3 100644
+--- a/third_party/Robotwin/policy/pi05/deploy_policy.yml
++++ b/third_party/Robotwin/policy/pi05/deploy_policy.yml
+@@ -5,6 +5,10 @@ task_config: null
+ ckpt_setting: null
+ seed: null
+ instruction_type: unseen
++policy_path: null
++test_num: 100
++tokenizer_path: null
++record_videos: true
+ 
+ # Add Parameters You Need
+ train_config_name: null
+diff --git a/third_party/Robotwin/policy/pi05/pi05_model_torch.py b/third_party/Robotwin/policy/pi05/pi05_model_torch.py
+index 3372386a0148c73c569d1d708ddf2c3f898cd058..ecea918f02458b68eeab2910444e062d527eb7f4 100644
+--- a/third_party/Robotwin/policy/pi05/pi05_model_torch.py
++++ b/third_party/Robotwin/policy/pi05/pi05_model_torch.py
+@@ -9,16 +9,33 @@ import numpy as np
+ import json
+ import numpy as np
+ import torch
++from transformers.models.gemma.tokenization_gemma import GemmaTokenizer
+ 
+ from lerobot.policies.pi05 import PI05Policy
+ 
+ from lerobot.policies.factory import make_pre_post_processors
+ from lerobot.configs.policies import PreTrainedConfig
+ 
+-from cfn.cfn_net import CFN
++
++def _tokenizer_processor_kwargs(tokenizer_path):
++    if tokenizer_path is None:
++        return {}
++    tokenizer = GemmaTokenizer(
++        vocab_file=tokenizer_path,
++        add_bos_token=True,
++        add_eos_token=False,
++    )
++    return {
++        "preprocessor_overrides": {
++            "tokenizer_processor": {
++                "tokenizer_name": None,
++                "tokenizer": tokenizer,
++            }
++        }
++    }
+ 
+ class Lerobot_torch_PI05:
+-    def __init__(self, task_name, pretrained_checkpoint_path):
++    def __init__(self, task_name, pretrained_checkpoint_path, tokenizer_path=None):
+         self.task_name = task_name
+         self.pretrained_checkpoint_path = pretrained_checkpoint_path
+ 
+@@ -35,6 +52,7 @@ class Lerobot_torch_PI05:
+         preprocessor, postprocessor = make_pre_post_processors(
+             policy_cfg=policy_config,
+             pretrained_path=pretrained_checkpoint_path,
++            **_tokenizer_processor_kwargs(tokenizer_path),
+         )
+         self.preprocessor = preprocessor
+         self.postprocessor = postprocessor
+@@ -51,6 +69,8 @@ class Lerobot_torch_PI05:
+ 
+         self.num_result = 1
+         self.pi0_step = 50
++        self.repair_cfn = None
++        self.repair_noise = None
+ 
+         # init norm log
+         self.test_num=1
+@@ -121,6 +141,56 @@ class Lerobot_torch_PI05:
+             
+         return actions_un[0].to(torch.float32).cpu().numpy()
+ 
++    def load_repair_cfn(self, cfn_ckpt_path):
++        """Load the checkpoint-bundled CFN used only for PDDL local repair."""
++        from cfn.cfn_net import CFN
++
++        cfn = CFN(cfn_output_dim=20, cfn_hidden_dim=1536).to(
++            next(self.policy.parameters()).device
++        )
++        state = torch.load(cfn_ckpt_path, map_location="cpu", weights_only=True)
++        cfn.cfn.load_state_dict(state)
++        self.repair_cfn = cfn.cfn.eval()
++        generator = torch.Generator(device="cpu").manual_seed(42)
++        shape = (
++            50,
++            self.policy.model.config.n_action_steps,
++            self.policy.model.config.max_action_dim,
++        )
++        self.repair_noise = torch.randn(shape, generator=generator).to(
++            device=next(self.policy.parameters()).device,
++            dtype=next(self.policy.parameters()).dtype,
++        )
++
++    def get_repair_action(self):
++        """Select one of 50 frozen-pi0.5 samples with the frozen repair CFN."""
++        if self.repair_cfn is None or self.repair_noise is None:
++            raise RuntimeError("repair CFN is not loaded")
++        with torch.no_grad():
++            inputs = {
++                key: value.to(self.policy.config.device)
++                if isinstance(value, torch.Tensor)
++                else value
++                for key, value in self.observation_window.items()
++            }
++            for key in inputs:
++                if key == "task":
++                    inputs[key] = inputs[key] * 50
++                elif len(inputs[key].shape) in {2, 4}:
++                    inputs[key] = inputs[key].repeat(50, *([1] * (len(inputs[key].shape) - 1)))
++                else:
++                    raise ValueError(f"unsupported policy input shape for {key}")
++            inputs = self.preprocessor(inputs)
++            actions, features = self.policy.predict_action_chunk_and_get_feature(
++                inputs, self.repair_noise.clone()
++            )
++            actions = self.postprocessor(actions)
++            scores = self.repair_cfn(
++                features.to(next(self.repair_cfn.parameters()).dtype)
++            ).norm(dim=1)
++            selected = int(torch.argmin(scores).item())
++        return actions[selected].to(torch.float32).cpu().numpy()
++
+     def reset_obsrvationwindows(self):
+         self.instruction = None
+         self.observation_window = None
+@@ -140,6 +210,8 @@ class Lerobot_torch_PI05_taco:
+         pretrained_checkpoint_path, 
+         cfn_ckpt_path,
+     ):
++        from cfn.cfn_net import CFN
++
+         self.task_name = task_name
+         self.pretrained_checkpoint_path = pretrained_checkpoint_path
+ 
+@@ -298,4 +370,3 @@ class Lerobot_torch_PI05_taco:
+                 "is_suc": -1,
+             }
+         print("successfully unset obs and language intruction")
+-
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index fd6d1689aa441d8d011f7fe476aae1783130ca33..e1b50d54a160d3c7b23121537a46563bad0b8ad6 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -1,6 +1,7 @@
+ import sys
+ import os
+ import subprocess
++import json
+ 
+ sys.path.append("./")
+ sys.path.append(f"./policy")
+@@ -20,6 +21,17 @@ import argparse
+ import pdb
+ 
+ from generate_episode_instructions import *
++from script.pi05_logiv_options import (
++    logiv_python_path,
++    resolve_logiv_options,
++    setup_episode,
++)
++from script.pi05_logiv_execution import (
++    RecedingHorizonMacroExecutor,
++    attach_observer_view,
++    collect_fresh_evidence,
++    relativize_vlm_audit_records,
++)
+ 
+ from policy.pi05 import pi05_model_torch
+ 
+@@ -88,6 +100,17 @@ def main(usr_args):
+     with open(f"./task_config/{task_config}.yml", "r", encoding="utf-8") as f:
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
++    policy_path = str(usr_args["policy_path"])
++    test_num = int(usr_args.get("test_num", 1))
++    tokenizer_path = usr_args.get("tokenizer_path")
++    record_videos = bool(usr_args.get("record_videos", False))
++    if test_num < 1:
++        raise ValueError("test_num must be positive")
++    logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, preserve_original_repair_prompt, use_registered_dag_prompts, policy_replan_steps, repair_cfn_path = (
++        resolve_logiv_options(usr_args)
++    )
++    args["eval_video_log"] = record_videos
++
+     args['task_name'] = task_name
+     args["task_config"] = task_config
+     args["ckpt_setting"] = ckpt_setting
+@@ -167,28 +190,44 @@ def main(usr_args):
+ 
+     seed = usr_args["seed"]
+ 
+-    st_seed = 100000 * (1 + seed)
+     suc_nums = []
+-    test_num = 100
+     topk = 1
+ 
+-    ckpt_dir = ""
+-
+     model = pi05_model_torch.Lerobot_torch_PI05(
+-        task_name, 
+-        ckpt_dir,
++        task_name,
++        policy_path,
++        tokenizer_path,
+     )
+ 
+     torch.manual_seed(42)
+-
+-    st_seed, suc_num = eval_policy(task_name,
+-                                   TASK_ENV,
+-                                   args,
+-                                   model,
+-                                   st_seed,
+-                                   test_num=test_num,
+-                                   video_size=video_size,
+-                                   instruction_type=instruction_type)
++    if repair_cfn_path is not None:
++        model.load_repair_cfn(repair_cfn_path)
++
++    _, suc_num = eval_logiv_policy(
++        task_name,
++        TASK_ENV,
++        args,
++        model,
++        start_seed=int(seed),
++        test_num=test_num,
++        logiv_root=logiv_root,
++        val_binary=val_binary,
++        action_chunk_steps=action_chunk_steps,
++        repair_action_chunk_steps=repair_action_chunk_steps,
++        vlm_image_detail=vlm_image_detail,
++        max_gpt4o_retries=max_gpt4o_retries,
++        base_stall_observations=base_stall_observations,
++        stage_stall_observations=stage_stall_observations,
++        min_base_dispatches=min_base_dispatches,
++        dag_from_start=dag_from_start,
++        preserve_original_repair_prompt=preserve_original_repair_prompt,
++        use_registered_dag_prompts=use_registered_dag_prompts,
++        policy_replan_steps=policy_replan_steps,
++        repair_cfn_path=repair_cfn_path,
++        save_dir=save_dir,
++        video_size=video_size,
++        instruction_type=instruction_type,
++    )
+     suc_nums.append(suc_num)
+ 
+     topk_success_rate = sorted(suc_nums, reverse=True)[:topk]
+@@ -197,6 +236,7 @@ def main(usr_args):
+     with open(file_path, "w") as file:
+         file.write(f"Timestamp: {current_time}\n\n")
+         file.write(f"Instruction Type: {instruction_type}\n\n")
++        file.write("Method: LOGIV_PDDL_GPT4O_FACTS\n\n")
+         # file.write(str(task_reward) + '\n')
+         file.write("\n".join(map(str, np.array(suc_nums) / test_num)))
+ 
+@@ -204,6 +244,255 @@ def main(usr_args):
+     # return task_reward
+ 
+ 
++def _sample_logiv_actions(model, observation, prompt):
++    model.set_language(prompt)
++    input_rgb_arr, input_state = deploy_policy.encode_obs(observation)
++    model.update_observation_window(input_rgb_arr, input_state)
++    return model.get_action()
++
++
++def _sample_logiv_repair_actions(model, observation, prompt):
++    model.set_language(prompt)
++    input_rgb_arr, input_state = deploy_policy.encode_obs(observation)
++    model.update_observation_window(input_rgb_arr, input_state)
++    return model.get_repair_action()
++
++
++def _execute_logiv_chunk(TASK_ENV, model, observation, prompt, action_chunk_steps):
++    actions = _sample_logiv_actions(model, observation, prompt)[:action_chunk_steps]
++    for action in actions:
++        TASK_ENV.take_action(action)
++        if TASK_ENV.eval_success:
++            break
++        observation = TASK_ENV.get_obs()
++        input_rgb_arr, input_state = deploy_policy.encode_obs(observation)
++        model.update_observation_window(input_rgb_arr, input_state)
++    return TASK_ENV.get_obs()
++
++
++def _collect_fresh_logiv_evidence(TASK_ENV):
++    observation = collect_fresh_evidence(
++        advance_time=TASK_ENV.scene.step,
++        observe=TASK_ENV.get_obs,
++    )
++    return _attach_logiv_observer_view(TASK_ENV, observation)
++
++
++def _attach_logiv_observer_view(TASK_ENV, observation):
++    return attach_observer_view(
++        observation,
++        observe_world=TASK_ENV.cameras.get_observer_rgb,
++    )
++
++
++def eval_logiv_policy(
++    task_name,
++    TASK_ENV,
++    args,
++    model,
++    *,
++    start_seed,
++    test_num,
++    logiv_root,
++    val_binary,
++    action_chunk_steps,
++    repair_action_chunk_steps,
++    vlm_image_detail,
++    max_gpt4o_retries,
++    base_stall_observations,
++    stage_stall_observations,
++    min_base_dispatches,
++    dag_from_start,
++    preserve_original_repair_prompt,
++    use_registered_dag_prompts,
++    policy_replan_steps,
++    repair_cfn_path,
++    save_dir,
++    video_size=None,
++    instruction_type=None,
++):
++    logiv_src = logiv_python_path(logiv_root)
++    if logiv_src not in sys.path:
++        sys.path.insert(0, logiv_src)
++    from pi05_libero_repro.logiv.gpt4o import Gpt4oClient
++    from pi05_libero_repro.logiv.robotwin import (
++        CANONICAL_POLICY_PROMPTS,
++        ROBOTWIN_TASKS,
++        RobotwinEpisodeController,
++        RobotwinFactGrounder,
++        RobotwinPddlPlanner,
++    )
++
++    task = ROBOTWIN_TASKS[task_name]
++    client = Gpt4oClient.from_env(
++        image_detail=vlm_image_detail,
++        timeout_seconds=45.0,
++        max_retries=max_gpt4o_retries,
++    )
++    planner = RobotwinPddlPlanner(val_binary, timeout_seconds=5.0)
++    TASK_ENV.suc = 0
++    TASK_ENV.test_num = 0
++    args["eval_mode"] = True
++    clear_cache_freq = args["clear_cache_freq"]
++    event_path = Path(save_dir) / "logiv_events.jsonl"
++
++    instruction = CANONICAL_POLICY_PROMPTS[task_name]
++    for now_id in range(test_num):
++        now_seed = start_seed + now_id
++        try:
++            setup_episode(
++                TASK_ENV,
++                args,
++                episode_index=now_id,
++                seed=now_seed,
++            )
++        except Exception:
++            TASK_ENV.close_env()
++            raise RuntimeError(
++                f"RoboTwin could not build requested seed {now_seed}"
++            ) from None
++        TASK_ENV.set_instruction(instruction=instruction)
++        grounder = RobotwinFactGrounder(
++            client,
++            audit_dir=Path(save_dir) / "vlm_audit",
++            episode_id=f"{task_name}-seed{now_seed}",
++        )
++
++        if TASK_ENV.eval_video_path is not None:
++            ffmpeg = subprocess.Popen(
++                [
++                    "ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
++                    "-pixel_format", "rgb24", "-video_size", video_size,
++                    "-framerate", "10", "-i", "-", "-pix_fmt", "yuv420p",
++                    "-vcodec", "libx264", "-crf", "23",
++                    f"{TASK_ENV.eval_video_path}/episode{TASK_ENV.test_num}.mp4",
++                ],
++                stdin=subprocess.PIPE,
++            )
++            TASK_ENV._set_eval_video_ffmpeg(ffmpeg)
++
++        deploy_policy.reset_model(model)
++        observation = TASK_ENV.get_obs()
++        macro_executor = RecedingHorizonMacroExecutor(
++            sample_actions=lambda prompt, current_observation: _sample_logiv_actions(
++                model, current_observation, prompt
++            ),
++            sample_repair_actions=(
++                None
++                if repair_cfn_path is None
++                else lambda prompt, current_observation: _sample_logiv_repair_actions(
++                    model, current_observation, prompt
++                )
++            ),
++            take_action=TASK_ENV.take_action,
++            observe=TASK_ENV.get_obs,
++            native_success=lambda: bool(TASK_ENV.eval_success),
++            base_chunk_steps=action_chunk_steps,
++            repair_observation_steps=repair_action_chunk_steps,
++            policy_replan_steps=policy_replan_steps,
++        )
++        controller = RobotwinEpisodeController(
++            task,
++            planner,
++            grounder,
++            max_dispatches=(TASK_ENV.step_lim + repair_action_chunk_steps - 1)
++            // repair_action_chunk_steps,
++            base_stall_observations=base_stall_observations,
++            stage_stall_observations=stage_stall_observations,
++            min_base_dispatches=min_base_dispatches,
++            preserve_original_repair_prompt=preserve_original_repair_prompt,
++            use_registered_dag_prompts=use_registered_dag_prompts,
++        )
++        try:
++            outcome = controller.run(
++                initial_observation=_attach_logiv_observer_view(
++                    TASK_ENV, observation
++                ),
++                dispatch=lambda prompt: _attach_logiv_observer_view(
++                    TASK_ENV,
++                    _execute_logiv_chunk(
++                        TASK_ENV, model, TASK_ENV.get_obs(), prompt, action_chunk_steps
++                    ),
++                ),
++                collect_evidence=lambda: _collect_fresh_logiv_evidence(TASK_ENV),
++                dispatch_with_mode=lambda prompt, mode: _attach_logiv_observer_view(
++                    TASK_ENV,
++                    _execute_logiv_chunk(
++                        TASK_ENV,
++                        model,
++                        TASK_ENV.get_obs(),
++                        prompt,
++                        repair_action_chunk_steps
++                        if mode == "REPAIR"
++                        else action_chunk_steps,
++                    ),
++                ),
++                dispatch_with_context=lambda prompt, mode, active: (
++                    _attach_logiv_observer_view(
++                        TASK_ENV,
++                        macro_executor.dispatch(prompt, mode, active),
++                    )
++                ),
++                native_success=lambda: bool(TASK_ENV.eval_success),
++                budget_exhausted=lambda: TASK_ENV.take_action_cnt >= TASK_ENV.step_lim,
++                base_prompt=str(instruction),
++                dag_from_start=dag_from_start,
++            )
++        finally:
++            if TASK_ENV.eval_video_path is not None:
++                TASK_ENV._del_eval_video_ffmpeg()
++
++        record = {
++            "task": task_name,
++            "seed": now_seed,
++            "success": outcome.success,
++            "reason": outcome.reason,
++            "actions": TASK_ENV.take_action_cnt,
++            "dispatches": outcome.dispatches,
++            "gpt4o_requests": len(outcome.events),
++            "original_instruction": str(instruction),
++            "repair_cfn_path": repair_cfn_path,
++            "preserve_original_repair_prompt": preserve_original_repair_prompt,
++            "use_registered_dag_prompts": use_registered_dag_prompts,
++            "policy_replan_steps": policy_replan_steps,
++            "vlm_audit": relativize_vlm_audit_records(
++                grounder.audit_records,
++                save_dir,
++            ),
++            "events": [
++                {
++                    "epoch": event.epoch,
++                    "active_stage_index": event.active_stage_index,
++                    "facts": {name: value.value for name, value in event.facts.items()},
++                    "certificate_sha256": event.plan.certificate_sha256,
++                    "val_valid": event.plan.valid,
++                    "control_mode": event.control_mode,
++                }
++                for event in outcome.events
++            ],
++        }
++        with event_path.open("a", encoding="utf-8") as stream:
++            stream.write(json.dumps(record, sort_keys=True) + "\n")
++
++        if outcome.success:
++            TASK_ENV.suc += 1
++            print("\033[92mSuccess!\033[0m")
++        else:
++            print(f"\033[91mFail! {outcome.reason}\033[0m")
++        TASK_ENV.close_env(
++            clear_cache=((now_id + 1) % clear_cache_freq == 0)
++        )
++        if TASK_ENV.render_freq:
++            TASK_ENV.viewer.close()
++        TASK_ENV.test_num += 1
++        print(
++            f"LOGIV {task_name} | {TASK_ENV.suc}/{TASK_ENV.test_num} | "
++            f"seed={now_seed} | actions={record['actions']} | "
++            f"gpt4o={record['gpt4o_requests']}"
++        )
++    return start_seed + test_num, TASK_ENV.suc
++
++
+ def eval_policy(task_name,
+                 TASK_ENV,
+                 args,
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..87908d6a0fe486e4e965e945d5c9bc5eb26e7d69
+--- /dev/null
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -0,0 +1,103 @@
++from copy import deepcopy
++from pathlib import Path
++
++
++def relativize_vlm_audit_records(records, save_dir):
++    """Serialize audit paths without allowing an episode to escape its output."""
++    root = Path(save_dir).resolve()
++    serialized = []
++    for record in records:
++        value = dict(record)
++        try:
++            relative = Path(value["path"]).resolve().relative_to(root)
++        except (KeyError, ValueError):
++            raise ValueError("VLM audit path is outside save_dir") from None
++        value["path"] = relative.as_posix()
++        serialized.append(value)
++    return serialized
++
++
++def attach_observer_view(observation, *, observe_world):
++    """Add an independent RGB view to VLM evidence without changing policy input."""
++    evidence = deepcopy(observation)
++    evidence["observation"]["observer_camera"] = {"rgb": observe_world()}
++    return evidence
++
++
++def collect_fresh_evidence(*, advance_time, observe):
++    """Advance the simulator safely so an UNKNOWN retry uses a new frame."""
++    advance_time()
++    return observe()
++
++
++class RecedingHorizonMacroExecutor:
++    """Observe repairs frequently without truncating a stable pi0.5 macro."""
++
++    def __init__(
++        self,
++        *,
++        sample_actions,
++        sample_repair_actions=None,
++        take_action,
++        observe,
++        native_success,
++        base_chunk_steps,
++        repair_observation_steps,
++        policy_replan_steps=None,
++    ):
++        self.sample_actions = sample_actions
++        self.sample_repair_actions = sample_repair_actions
++        self.take_action = take_action
++        self.observe = observe
++        self.native_success = native_success
++        self.base_chunk_steps = int(base_chunk_steps)
++        self.repair_observation_steps = int(repair_observation_steps)
++        self.policy_replan_steps = (
++            None if policy_replan_steps is None else int(policy_replan_steps)
++        )
++        if self.policy_replan_steps is not None and self.policy_replan_steps < 1:
++            raise ValueError("policy_replan_steps must be positive")
++        self._key = None
++        self._actions = []
++
++    def dispatch(self, prompt, mode, active_frontier):
++        key = (str(prompt), str(mode), active_frontier)
++        sampler = (
++            self.sample_repair_actions
++            if mode in {"DAG_EXECUTION", "REPAIR"}
++            and self.sample_repair_actions is not None
++            else self.sample_actions
++        )
++        steps = (
++            self.base_chunk_steps
++            if mode in {"BASE_MONITORED", "DAG_EXECUTION"}
++            else self.repair_observation_steps
++        )
++        if self.policy_replan_steps is not None:
++            remaining = steps
++            while remaining > 0 and not self.native_success():
++                actions = list(sampler(prompt, self.observe()))
++                count = min(self.policy_replan_steps, remaining, len(actions))
++                for action in actions[:count]:
++                    self.take_action(action)
++                    if self.native_success():
++                        break
++                remaining -= count
++                if count == 0:
++                    break
++            return self.observe()
++        # A repair dispatch is a receding-horizon local edit: after each
++        # observation boundary, sample a fresh short action prefix from the
++        # current image.  Replaying the unexecuted tail of the old 50-step
++        # macro ignores the very evidence that triggered local replanning.
++        if mode == "REPAIR" or key != self._key or not self._actions:
++            self._key = key
++            self._actions = list(sampler(prompt, self.observe()))[
++                : self.base_chunk_steps
++            ]
++        for _ in range(min(steps, len(self._actions))):
++            self.take_action(self._actions.pop(0))
++            if self.native_success():
++                self._actions.clear()
++                break
++        return self.observe()
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..7db9f8c2b8fae61fde95475091c72e3d59e43b3c
+--- /dev/null
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -0,0 +1,112 @@
++import json
++import os
++from pathlib import Path
++
++
++def logiv_python_path(logiv_root):
++    return os.path.join(str(logiv_root), "src")
++
++
++def setup_episode(task_env, args, *, episode_index, seed):
++    """Build the requested test scene without selecting or substituting it."""
++    task_env.setup_demo(
++        now_ep_num=episode_index,
++        seed=seed,
++        is_test=True,
++        **args,
++    )
++
++
++def resolve_logiv_options(usr_args):
++    logiv_root = usr_args.get("logiv_root")
++    val_binary = usr_args.get("val_binary")
++    if not logiv_root or not val_binary:
++        raise ValueError("logiv_root and val_binary are required")
++    action_chunk_steps = int(usr_args.get("action_chunk_steps", 50))
++    repair_action_chunk_steps = int(
++        usr_args.get("repair_action_chunk_steps", action_chunk_steps)
++    )
++    vlm_image_detail = str(usr_args.get("vlm_image_detail", "low"))
++    max_gpt4o_retries = int(usr_args.get("max_gpt4o_retries", 2))
++    base_stall_observations = int(usr_args.get("base_stall_observations", 4))
++    min_base_dispatches = int(usr_args.get("min_base_dispatches", 0))
++    raw_dag_from_start = usr_args.get("dag_from_start", False)
++    dag_from_start = (
++        raw_dag_from_start.strip().lower() == "true"
++        if isinstance(raw_dag_from_start, str)
++        else bool(raw_dag_from_start)
++    )
++    raw_preserve_repair_prompt = usr_args.get(
++        "preserve_original_repair_prompt", False
++    )
++    preserve_original_repair_prompt = (
++        raw_preserve_repair_prompt.strip().lower() == "true"
++        if isinstance(raw_preserve_repair_prompt, str)
++        else bool(raw_preserve_repair_prompt)
++    )
++    use_registered_dag_prompts = (
++        str(usr_args.get("use_registered_dag_prompts", False)).strip().lower()
++        == "true"
++    )
++    raw_policy_replan_steps = usr_args.get("policy_replan_steps")
++    policy_replan_steps = (
++        None
++        if raw_policy_replan_steps in {None, ""}
++        else int(raw_policy_replan_steps)
++    )
++    raw_repair_cfn_path = usr_args.get("repair_cfn_path")
++    repair_cfn_path = (
++        None if raw_repair_cfn_path in {None, ""} else str(raw_repair_cfn_path)
++    )
++    raw_stage_stalls = usr_args.get("stage_stall_observations")
++    if isinstance(raw_stage_stalls, str):
++        raw_stage_stalls = json.loads(raw_stage_stalls)
++    stage_stall_observations = (
++        None
++        if raw_stage_stalls is None
++        else [int(value) for value in raw_stage_stalls]
++    )
++    if action_chunk_steps < 1 or action_chunk_steps > 50:
++        raise ValueError("action_chunk_steps must be in [1, 50]")
++    if (
++        repair_action_chunk_steps < 1
++        or repair_action_chunk_steps > action_chunk_steps
++    ):
++        raise ValueError(
++            "repair_action_chunk_steps must be in [1, action_chunk_steps]"
++        )
++    if vlm_image_detail not in {"low", "high"}:
++        raise ValueError("vlm_image_detail must be 'low' or 'high'")
++    if max_gpt4o_retries < 0:
++        raise ValueError("max_gpt4o_retries must be nonnegative")
++    if base_stall_observations < 1:
++        raise ValueError("base_stall_observations must be positive")
++    if min_base_dispatches < 0:
++        raise ValueError("min_base_dispatches must be nonnegative")
++    if policy_replan_steps is not None and (
++        policy_replan_steps < 1 or policy_replan_steps > action_chunk_steps
++    ):
++        raise ValueError("policy_replan_steps must be in [1, action_chunk_steps]")
++    if stage_stall_observations is not None and (
++        not stage_stall_observations
++        or any(value < 1 for value in stage_stall_observations)
++    ):
++        raise ValueError("stage_stall_observations must contain positive values")
++    if repair_cfn_path is not None and not Path(repair_cfn_path).is_file():
++        raise ValueError("repair_cfn_path must name an existing file")
++    return (
++        str(logiv_root),
++        str(val_binary),
++        action_chunk_steps,
++        repair_action_chunk_steps,
++        vlm_image_detail,
++        max_gpt4o_retries,
++        base_stall_observations,
++        stage_stall_observations,
++        min_base_dispatches,
++        dag_from_start,
++        preserve_original_repair_prompt,
++        use_registered_dag_prompts,
++        policy_replan_steps,
++        repair_cfn_path,
++    )
+diff --git a/third_party/Robotwin/tests/__init__.py b/third_party/Robotwin/tests/__init__.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc
+--- /dev/null
++++ b/third_party/Robotwin/tests/__init__.py
+@@ -0,0 +1 @@
++
+diff --git a/third_party/Robotwin/tests/test_logiv_origin_options.py b/third_party/Robotwin/tests/test_logiv_origin_options.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..95d176afb8032aa2e7952b15bd9285ff6788d6e7
+--- /dev/null
++++ b/third_party/Robotwin/tests/test_logiv_origin_options.py
+@@ -0,0 +1,105 @@
++import inspect
++import unittest
++
++from script import pi05_logiv_options
++
++
++class LogivOriginOptionsTest(unittest.TestCase):
++    def test_runtime_options_expose_no_episode_selector(self):
++        source = inspect.getsource(pi05_logiv_options)
++        forbidden = (
++            "accepted_" + "seeds",
++            "accepted_" + "instructions",
++            "frozen_" + "episode",
++        )
++        self.assertFalse(any(value in source for value in forbidden))
++
++    def test_episode_setup_uses_the_requested_seed_once(self):
++        class FakeTaskEnv:
++            def __init__(self):
++                self.calls = []
++
++            def setup_demo(self, **kwargs):
++                self.calls.append(kwargs)
++
++        env = FakeTaskEnv()
++        self.assertTrue(hasattr(pi05_logiv_options, "setup_episode"))
++        pi05_logiv_options.setup_episode(
++            env,
++            {"task_name": "turn_switch"},
++            episode_index=2,
++            seed=14,
++        )
++        self.assertEqual(
++            env.calls,
++            [
++                {
++                    "task_name": "turn_switch",
++                    "now_ep_num": 2,
++                    "seed": 14,
++                    "is_test": True,
++                }
++            ],
++        )
++
++    def test_resolves_monitor_and_repair_options(self):
++        resolved = pi05_logiv_options.resolve_logiv_options(
++            {
++                "logiv_root": "/repo",
++                "val_binary": "/repo/Validate",
++                "action_chunk_steps": 25,
++                "repair_action_chunk_steps": 10,
++                "vlm_image_detail": "high",
++                "max_gpt4o_retries": 3,
++                "base_stall_observations": 4,
++                "stage_stall_observations": "[4, 4, 1]",
++                "min_base_dispatches": 6,
++                "dag_from_start": True,
++                "preserve_original_repair_prompt": True,
++                "use_registered_dag_prompts": True,
++                "policy_replan_steps": 10,
++                "repair_cfn_path": __file__,
++            }
++        )
++        self.assertEqual(
++            resolved,
++            (
++                "/repo",
++                "/repo/Validate",
++                25,
++                10,
++                "high",
++                3,
++                4,
++                [4, 4, 1],
++                6,
++                True,
++                True,
++                True,
++                10,
++                __file__,
++            ),
++        )
++
++    def test_rejects_invalid_runtime_bounds(self):
++        common = {"logiv_root": "/repo", "val_binary": "/repo/Validate"}
++        with self.assertRaisesRegex(ValueError, "action_chunk_steps"):
++            pi05_logiv_options.resolve_logiv_options(
++                {**common, "action_chunk_steps": 0}
++            )
++        with self.assertRaisesRegex(ValueError, "repair_action_chunk_steps"):
++            pi05_logiv_options.resolve_logiv_options(
++                {
++                    **common,
++                    "action_chunk_steps": 25,
++                    "repair_action_chunk_steps": 30,
++                }
++            )
++        with self.assertRaisesRegex(ValueError, "vlm_image_detail"):
++            pi05_logiv_options.resolve_logiv_options(
++                {**common, "vlm_image_detail": "ultra"}
++            )
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..a1f2865b85c0d003754d1ad5f64a702e42dedc89
+--- /dev/null
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -0,0 +1,194 @@
++import unittest
++from pathlib import Path
++import tempfile
++
++from script.pi05_logiv_execution import (
++    RecedingHorizonMacroExecutor,
++    attach_observer_view,
++    collect_fresh_evidence,
++    relativize_vlm_audit_records,
++)
++
++
++class RecedingHorizonMacroExecutorTest(unittest.TestCase):
++    def test_vlm_audit_records_are_confined_to_the_episode_output(self):
++        with tempfile.TemporaryDirectory() as directory:
++            root = Path(directory).resolve()
++            image = root / "vlm_audit" / "task-seed-epoch-000.png"
++            records = (
++                {
++                    "epoch": 0,
++                    "path": str(image),
++                    "camera_order": ["current/head_camera"],
++                    "sha256": "a" * 64,
++                },
++            )
++
++            relative = relativize_vlm_audit_records(records, root)
++
++            self.assertEqual(
++                relative[0]["path"],
++                "vlm_audit/task-seed-epoch-000.png",
++            )
++            with self.assertRaisesRegex(ValueError, "outside save_dir"):
++                relativize_vlm_audit_records(
++                    ({**records[0], "path": str(root.parent / "escape.png")},),
++                    root,
++                )
++
++    def test_observer_view_is_attached_only_to_vlm_evidence(self):
++        policy_observation = {
++            "observation": {"head_camera": {"rgb": "head"}}
++        }
++
++        evidence = attach_observer_view(
++            policy_observation,
++            observe_world=lambda: "independent-world-view",
++        )
++
++        self.assertIsNot(evidence, policy_observation)
++        self.assertNotIn("observer_camera", policy_observation["observation"])
++        self.assertEqual(
++            evidence["observation"]["observer_camera"]["rgb"],
++            "independent-world-view",
++        )
++
++    def test_unknown_retry_advances_simulation_before_observing(self):
++        calls = []
++
++        observation = collect_fresh_evidence(
++            advance_time=lambda: calls.append("advance"),
++            observe=lambda: calls.append("observe") or {"frame": 2},
++        )
++
++        self.assertEqual(calls, ["advance", "observe"])
++        self.assertEqual(observation, {"frame": 2})
++
++    def test_repair_resamples_after_each_observation_boundary(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            start = len(samples) * 100
++            return list(range(start, start + 50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: len(executed),
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("grasp", "REPAIR", 0)
++        executor.dispatch("grasp", "REPAIR", 0)
++        executor.dispatch("handover", "REPAIR", 1)
++
++        self.assertEqual(len(samples), 3)
++        self.assertEqual(executed[:10], list(range(100, 110)))
++        self.assertEqual(executed[10:20], list(range(200, 210)))
++        self.assertEqual(executed[20:], list(range(300, 310)))
++
++    def test_mode_change_starts_a_new_certified_macro(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            return list(range(50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("same prompt", "BASE_MONITORED", 0)
++        executor.dispatch("same prompt", "REPAIR", 0)
++
++        self.assertEqual(len(samples), 2)
++        self.assertEqual(len(executed), 60)
++
++    def test_dag_node_executes_one_complete_policy_macro_before_gate(self):
++        executed = []
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=lambda prompt, observation: list(range(50)),
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("ready node", "DAG_EXECUTION", 0)
++
++        self.assertEqual(executed, list(range(50)))
++
++    def test_node_can_replan_policy_internally_without_extra_vlm_gate(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            start = len(samples) * 100
++            return list(range(start, start + 50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: len(executed),
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=50,
++            policy_replan_steps=10,
++        )
++
++        final_observation = executor.dispatch("task", "DAG_EXECUTION", 0)
++
++        self.assertEqual(len(samples), 5)
++        self.assertEqual([observation for _, observation in samples], [0, 10, 20, 30, 40])
++        self.assertEqual(len(executed), 50)
++        self.assertEqual(executed[:10], list(range(100, 110)))
++        self.assertEqual(executed[-10:], list(range(500, 510)))
++        self.assertEqual(final_observation, 50)
++
++    def test_cfn_sampler_is_used_for_every_pddl_controlled_node(self):
++        samplers = []
++        executed = []
++
++        def base_sample(prompt, observation):
++            samplers.append(("pi05", prompt))
++            return list(range(50))
++
++        def repair_sample(prompt, observation):
++            samplers.append(("cfn", prompt))
++            return list(range(100, 150))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=base_sample,
++            sample_repair_actions=repair_sample,
++            take_action=executed.append,
++            observe=lambda: None,
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=10,
++        )
++
++        executor.dispatch("ready node", "DAG_EXECUTION", 0)
++        executor.dispatch("local repair", "REPAIR", 0)
++
++        self.assertEqual(
++            samplers,
++            [("cfn", "ready node"), ("cfn", "local repair")],
++        )
++        self.assertEqual(executed[:50], list(range(100, 150)))
++        self.assertEqual(executed[50:], list(range(100, 110)))
++
++
++if __name__ == "__main__":
++    unittest.main()

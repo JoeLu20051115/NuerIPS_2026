@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serve OpenPI with an auditable, episode-local JAX RNG reset protocol."""
+"""Serve the OpenPI policy with an episode-local reproducibility protocol."""
 
 from __future__ import annotations
 
@@ -79,7 +79,11 @@ def main(args: Args) -> None:
     metadata = dict(trained.metadata)
     metadata["logiv_episode_rng_protocol"] = PROTOCOL_VERSION
     hostname = socket.gethostname()
-    logging.info("Creating episode-seeded server (host: %s, seed protocol: v%d)", hostname, PROTOCOL_VERSION)
+    logging.info(
+        "Creating LOGIV policy server (host: %s, RNG protocol: v%d)",
+        hostname,
+        PROTOCOL_VERSION,
+    )
     websocket_policy_server.WebsocketPolicyServer(
         policy=EpisodeSeededPolicy(trained),
         host="0.0.0.0",
