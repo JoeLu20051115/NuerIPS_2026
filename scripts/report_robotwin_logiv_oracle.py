@@ -225,7 +225,10 @@ def revalidate_embedded_report(
         for event in selection.get("record", {}).get("events", []):
             event_occurrences += 1
             raw_facts = event.get("facts", {})
-            facts = {str(name): str(value) for name, value in raw_facts.items()}
+            facts = {
+                str(name): "UNRESOLVED" if str(value) == "UNKNOWN" else str(value)
+                for name, value in raw_facts.items()
+            }
             state_id = _canonical_sha256({"task": task_name, "facts": facts})
             if state_id not in states:
                 task = RobotwinTask(
