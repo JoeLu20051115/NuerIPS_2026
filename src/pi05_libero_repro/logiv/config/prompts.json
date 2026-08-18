@@ -1,0 +1,150 @@
+{
+  "action_overrides": {
+    "(close-access microwave_1_access)": "Put the yellow and white mug in the microwave and close it.",
+    "(close-access white_cabinet_1_bottom_access)": "Close bottom drawer. Complete only this subtask, then stop. Do not start another subtask.",
+    "(pick akita_black_bowl_1 kitchen_table_akita_black_bowl_init_region)": "Pick up black bowl from kitchen table akita black bowl init region. Complete only this subtask, then stop. Do not start another subtask.",
+    "(pick black_book_1 study_table_black_book_init_region)": "Pick up the black book from the study table and keep holding it.",
+    "(pick black_book_1 study_table_recovery_surface)": "Pick up the black book from the study table and keep holding it.",
+    "(place-held-in akita_black_bowl_1 white_cabinet_1_bottom_region white_cabinet_1_bottom_access)": "Put the black bowl in the bottom drawer of the cabinet.",
+    "(place-held-in black_book_1 desk_caddy_1_back_contain_region desk_caddy_1_access)": "Put the black book you are holding fully inside the back compartment of the desk caddy, release it, and move the gripper away.",
+    "(place-held-in white_yellow_mug_1 microwave_1_heating_region microwave_1_access)": "Put the mug you are holding in the microwave and release it.",
+    "(place-held-on moka_pot_1 flat_stove_1_cook_region)": "place the moka pot you are holding beside the other moka pot on the stove and release it without touching the other moka pot",
+    "(place-held-on moka_pot_2 flat_stove_1_cook_region)": "place the moka pot you are holding beside the other moka pot on the stove and release it without touching the other moka pot",
+    "(place-held-relative chocolate_pudding_1 living_room_table_plate_right_region)": "Put the chocolate pudding to the right of the plate.",
+    "(place-in alphabet_soup_1 living_room_table_alphabet_soup_init_region basket_1_contain_region basket_1_access)": "Put the alphabet soup can in the basket.",
+    "(place-in black_book_1 desk_caddy_1_front_contain_region desk_caddy_1_back_contain_region desk_caddy_1_access)": "Pick up the book and place it in the back compartment of the caddy.",
+    "(place-in black_book_1 desk_caddy_1_left_contain_region desk_caddy_1_back_contain_region desk_caddy_1_access)": "Pick up the book and place it in the back compartment of the caddy.",
+    "(place-in black_book_1 desk_caddy_1_right_contain_region desk_caddy_1_back_contain_region desk_caddy_1_access)": "Pick up the book and place it in the back compartment of the caddy.",
+    "(place-in black_book_1 study_table_black_book_init_region desk_caddy_1_back_contain_region desk_caddy_1_access)": "pick up the book and place it in the back compartment of the caddy",
+    "(place-in black_book_1 study_table_recovery_surface desk_caddy_1_back_contain_region desk_caddy_1_access)": "Pick up the book and place it in the back compartment of the caddy.",
+    "(place-in butter_1 living_room_table_butter_init_region basket_1_contain_region basket_1_access)": "put both the cream cheese box and the butter in the basket",
+    "(place-in cream_cheese_1 living_room_table_cream_cheese_init_region basket_1_contain_region basket_1_access)": "Put the cream cheese box in the basket.",
+    "(place-in white_yellow_mug_1 kitchen_table_recovery_surface microwave_1_heating_region microwave_1_access)": "Put the yellow and white mug in the microwave.",
+    "(place-in white_yellow_mug_1 kitchen_table_white_yellow_mug_init_region microwave_1_heating_region microwave_1_access)": "Put the yellow and white mug in the microwave and close it.",
+    "(place-on moka_pot_1 kitchen_table_moka_pot_init_region flat_stove_1_cook_region)": "put the silver moka pot with the black handle on the stove; do not move the frying pan",
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": "Put the right moka pot on the stove.",
+    "(place-on moka_pot_1 kitchen_table_recovery_surface flat_stove_1_cook_region)": "Put both moka pots on the stove.",
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": "Put the left moka pot on the stove.",
+    "(place-on moka_pot_2 kitchen_table_recovery_surface flat_stove_1_cook_region)": "Put both moka pots on the stove.",
+    "(place-on porcelain_mug_1 living_room_table_porcelain_mug_init_region plate_1)": "Put the solid white mug on the left plate.",
+    "(place-on porcelain_mug_1 living_room_table_recovery_surface plate_1)": "Put the fallen white mug upright on the plate without moving the chocolate pudding.",
+    "(place-relative chocolate_pudding_1 living_room_table_chocolate_pudding_init_region living_room_table_plate_right_region)": "Put the chocolate pudding to the right of the plate.",
+    "(place-relative chocolate_pudding_1 living_room_table_recovery_surface living_room_table_plate_right_region)": "Put the chocolate pudding to the right of the plate.",
+    "(turn-on flat_stove_1_power)": "turn on the stove and put the moka pot on it"
+  },
+  "action_phase_overrides": {
+    "(close-access white_cabinet_1_bottom_access)": {},
+    "(pick akita_black_bowl_1 kitchen_table_akita_black_bowl_init_region)": {},
+    "(place-held-in akita_black_bowl_1 white_cabinet_1_bottom_region white_cabinet_1_bottom_access)": {},
+    "(place-held-relative chocolate_pudding_1 living_room_table_plate_right_region)": {},
+    "(place-in alphabet_soup_1 living_room_table_alphabet_soup_init_region basket_1_contain_region basket_1_access)": {},
+    "(place-in black_book_1 study_table_black_book_init_region desk_caddy_1_back_contain_region desk_caddy_1_access)": {},
+    "(place-in butter_1 living_room_table_butter_init_region basket_1_contain_region basket_1_access)": {},
+    "(place-in cream_cheese_1 living_room_table_cream_cheese_init_region basket_1_contain_region basket_1_access)": {},
+    "(place-in tomato_sauce_1 living_room_table_tomato_sauce_init_region basket_1_contain_region basket_1_access)": {
+      "acquire": "Pick up the tomato sauce can.",
+      "finish": "Put the tomato sauce can you are holding in the basket and release it."
+    },
+    "(place-in white_yellow_mug_1 kitchen_table_recovery_surface microwave_1_heating_region microwave_1_access)": {
+      "acquire": "Pick up the yellow and white mug.",
+      "finish": "Put the mug you are holding in the microwave and release it."
+    },
+    "(place-in white_yellow_mug_1 kitchen_table_white_yellow_mug_init_region microwave_1_heating_region microwave_1_access)": {},
+    "(place-on moka_pot_1 kitchen_table_moka_pot_init_region flat_stove_1_cook_region)": {},
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot on the right side of the table and hold it.",
+      "finish": "Place the moka pot you are holding on the stove and release it."
+    },
+    "(place-on moka_pot_1 kitchen_table_recovery_surface flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot on the right side of the table and hold it.",
+      "finish": "Place the moka pot you are holding on the stove and release it."
+    },
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot on the left side of the table and hold it.",
+      "finish": "Place the moka pot you are holding on the stove and release it."
+    },
+    "(place-on moka_pot_2 kitchen_table_recovery_surface flat_stove_1_cook_region)": {
+      "acquire": "Pick up the moka pot on the left side of the table and hold it.",
+      "finish": "Place the moka pot you are holding on the stove and release it."
+    },
+    "(place-on porcelain_mug_1 living_room_table_porcelain_mug_init_region plate_1)": {},
+    "(place-relative chocolate_pudding_1 living_room_table_chocolate_pudding_init_region living_room_table_plate_right_region)": {},
+    "(place-relative chocolate_pudding_1 living_room_table_recovery_surface living_room_table_plate_right_region)": {},
+    "(turn-on flat_stove_1_power)": {}
+  },
+  "frontier_action_overrides": {
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": "put the moka pot closest to the stove on the stove",
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": "put the moka pot closest to the stove on the stove"
+  },
+  "frontier_completion_overrides": {
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": "put the remaining moka pot on the stove beside the other moka pot without moving the other moka pot",
+    "(place-on moka_pot_1 kitchen_table_recovery_surface flat_stove_1_cook_region)": "put the remaining moka pot beside the other moka pot on the stove without moving the other moka pot",
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": "put the remaining moka pot on the stove beside the other moka pot without moving the other moka pot",
+    "(place-on moka_pot_2 kitchen_table_recovery_surface flat_stove_1_cook_region)": "put the remaining moka pot beside the other moka pot on the stove without moving the other moka pot"
+  },
+  "frontier_fallback_overrides": {
+    "(pick akita_black_bowl_1 kitchen_table_akita_black_bowl_init_region)": "Pick up the black bowl.",
+    "(place-on moka_pot_1 kitchen_table_moka_pot_init_region flat_stove_1_cook_region)": "The stove is already on. Put the moka pot on it.",
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": "put both moka pots on the stove",
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": "put both moka pots on the stove"
+  },
+  "labels": {
+    "akita_black_bowl_1": "black bowl",
+    "alphabet_soup_1": "alphabet soup can",
+    "basket_1_contain_region": "basket",
+    "black_book_1": "black book",
+    "butter_1": "butter",
+    "chocolate_pudding_1": "chocolate pudding",
+    "cream_cheese_1": "cream cheese box",
+    "desk_caddy_1_access": "opening of the desk caddy",
+    "desk_caddy_1_back_contain_region": "back compartment of the desk caddy",
+    "desk_caddy_1_front_contain_region": "front compartment of the desk caddy",
+    "desk_caddy_1_left_contain_region": "left compartment of the desk caddy",
+    "desk_caddy_1_right_contain_region": "right compartment of the desk caddy",
+    "flat_stove_1_cook_region": "stove",
+    "flat_stove_1_power": "stove",
+    "kitchen_table_moka_pot_left_init_region": "left place on the table",
+    "kitchen_table_moka_pot_right_init_region": "right place on the table",
+    "kitchen_table_recovery_surface": "kitchen table",
+    "kitchen_table_white_yellow_mug_init_region": "kitchen table",
+    "living_room_table_plate_right_region": "right side of the plate",
+    "living_room_table_recovery_surface": "living room table",
+    "microwave_1_access": "microwave door",
+    "microwave_1_heating_region": "microwave",
+    "moka_pot_1": "right moka pot",
+    "moka_pot_2": "left moka pot",
+    "plate_1": "left plate",
+    "plate_2": "right plate",
+    "porcelain_mug_1": "white mug",
+    "study_table_black_book_init_region": "study table",
+    "study_table_recovery_surface": "study table",
+    "tomato_sauce_1": "tomato sauce can",
+    "white_cabinet_1_bottom_access": "bottom drawer",
+    "white_cabinet_1_bottom_region": "bottom drawer",
+    "white_yellow_mug_1": "yellow and white mug"
+  },
+  "prompt_version": "logiv-origin",
+  "recovery_frontier_overrides": {
+    "(place-in alphabet_soup_1 living_room_table_alphabet_soup_init_region basket_1_contain_region basket_1_access)": "put both the alphabet soup and the tomato sauce in the basket",
+    "(place-in tomato_sauce_1 living_room_table_tomato_sauce_init_region basket_1_contain_region basket_1_access)": "put both the alphabet soup and the tomato sauce in the basket",
+    "(place-on moka_pot_1 kitchen_table_moka_pot_right_init_region flat_stove_1_cook_region)": "put both moka pots on the stove",
+    "(place-on moka_pot_1 kitchen_table_recovery_surface flat_stove_1_cook_region)": "put both moka pots on the stove",
+    "(place-on moka_pot_2 kitchen_table_moka_pot_left_init_region flat_stove_1_cook_region)": "put both moka pots on the stove",
+    "(place-on moka_pot_2 kitchen_table_recovery_surface flat_stove_1_cook_region)": "put both moka pots on the stove"
+  },
+  "suffix": "Complete only this subtask, then stop. Do not start another subtask.",
+  "templates": {
+    "close-access": "Close {access}.",
+    "open-access": "Open {access}.",
+    "pick": "Pick up {object} from {source}.",
+    "place-held-in": "Put the held {object} in {target} through {access}.",
+    "place-held-on": "Put the held {object} on {target}.",
+    "place-held-relative": "Put the held {object} at {target}.",
+    "place-in": "Put {object} from {source} in {target} through {access}.",
+    "place-on": "Put {object} from {source} on {target}.",
+    "place-relative": "Put {object} from {source} at {target}.",
+    "put-down": "Put down {object} on {target}.",
+    "turn-off": "Turn off {device}.",
+    "turn-on": "Turn on {device}."
+  }
+}

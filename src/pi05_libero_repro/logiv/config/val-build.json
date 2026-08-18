@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "source_repository": "https://github.com/KCL-Planning/VAL.git",
+  "source_revision": "3c7a1f330bdab0ba28a4762bb45c3f06c27fb6d4",
+  "builder_image": "pi05-libero-eval:650c5b0",
+  "validate_sha256": "24bd37a5cc125923483183359264a69a14358afd1fccdded3aa55289f03ed7dd",
+  "libval_sha256": "84a84f9cdb7cb031866c0d0ddc11f030ff60cb2dec4992cca3266bbaaee0cdfe",
+  "val_version": "Version 4: Validates continuous effects, events and processes."
+}

@@ -1,0 +1,399 @@
+{
+  "domain": {
+    "action_schema_count": 12,
+    "pddl": "configs/logiv/logiv-libero-domain.pddl",
+    "predicate_count": 8
+  },
+  "frozen": true,
+  "goal_mode": "METADATA_ASSISTED",
+  "grounding_mode": "packaged-task-contract",
+  "manifest_version": 2,
+  "prompt_version": null,
+  "suite": "libero_10",
+  "task_order_index": 0,
+  "tasks": [
+    {
+      "bddl_file": "LIVING_ROOM_SCENE2_put_both_the_alphabet_soup_and_the_tomato_sauce_in_the_basket.bddl",
+      "bddl_sha256": "2e661058917f683a25bce480015197f0a2c1911bcbc2b9dd9d947199069c9618",
+      "decompose_macro_sources": [
+        "living_room_table_recovery_surface"
+      ],
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-in"
+      ],
+      "registered_objects": [
+        "alphabet_soup_1",
+        "tomato_sauce_1",
+        "living_room_table_alphabet_soup_init_region",
+        "living_room_table_tomato_sauce_init_region",
+        "living_room_table_recovery_surface",
+        "basket_1_contain_region",
+        "basket_1_access"
+      ],
+      "supported_action_schemas": [
+        "place-in"
+      ],
+      "symbol_bindings": {
+        "basket_1_access": {
+          "kind": "always_open_access",
+          "libero_id": "basket_1_contain_region"
+        },
+        "living_room_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "living_room_table"
+        }
+      },
+      "task_id": 0,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "LIVING_ROOM_SCENE2_put_both_the_cream_cheese_box_and_the_butter_in_the_basket.bddl",
+      "bddl_sha256": "3f552805c7ab34c44debcf38a48b8131d6fee3011dd86c039650b84e0f77d058",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-in"
+      ],
+      "registered_objects": [
+        "cream_cheese_1",
+        "butter_1",
+        "living_room_table_cream_cheese_init_region",
+        "living_room_table_butter_init_region",
+        "basket_1_contain_region",
+        "basket_1_access"
+      ],
+      "supported_action_schemas": [
+        "place-in"
+      ],
+      "symbol_bindings": {
+        "basket_1_access": {
+          "kind": "always_open_access",
+          "libero_id": "basket_1_contain_region"
+        }
+      },
+      "task_id": 1,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "KITCHEN_SCENE3_turn_on_the_stove_and_put_the_moka_pot_on_it.bddl",
+      "bddl_sha256": "491835cc2eb6956f7ce3d1ee4e266377116168fe453e6529fe105e3b0333635d",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "powered-on",
+        "powered-off"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-on",
+        "turn-off",
+        "turn-on"
+      ],
+      "registered_objects": [
+        "moka_pot_1",
+        "kitchen_table_moka_pot_init_region",
+        "flat_stove_1_cook_region",
+        "flat_stove_1_power"
+      ],
+      "supported_action_schemas": [
+        "turn-on",
+        "place-on"
+      ],
+      "symbol_bindings": {
+        "flat_stove_1_power": {
+          "kind": "switchable_alias",
+          "libero_id": "flat_stove_1"
+        }
+      },
+      "task_id": 2,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "KITCHEN_SCENE4_put_the_black_bowl_in_the_bottom_drawer_of_the_cabinet_and_close_it.bddl",
+      "bddl_sha256": "5255fe54d7f25fad4dee8fa30a30033d8cb908f1708d953c91ab609264fb4fb8",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "open-access",
+        "put-down",
+        "pick",
+        "place-held-in",
+        "close-access"
+      ],
+      "registered_objects": [
+        "akita_black_bowl_1",
+        "kitchen_table_akita_black_bowl_init_region",
+        "kitchen_table_recovery_surface",
+        "white_cabinet_1_bottom_region",
+        "white_cabinet_1_bottom_access"
+      ],
+      "supported_action_schemas": [
+        "place-in",
+        "close-access"
+      ],
+      "symbol_bindings": {
+        "kitchen_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "kitchen_table"
+        },
+        "white_cabinet_1_bottom_access": {
+          "kind": "articulation_alias",
+          "libero_id": "white_cabinet_1_bottom_region"
+        }
+      },
+      "task_id": 3,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "LIVING_ROOM_SCENE5_put_the_white_mug_on_the_left_plate_and_put_the_yellow_and_white_mug_on_the_right_plate.bddl",
+      "bddl_sha256": "0c6749b920bff1e1efe47ffb0e0b801a3e6959a650e710f376dd2b812c74e865",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-on"
+      ],
+      "registered_objects": [
+        "porcelain_mug_1",
+        "white_yellow_mug_1",
+        "living_room_table_porcelain_mug_init_region",
+        "living_room_table_white_yellow_mug_init_region",
+        "plate_1",
+        "plate_2"
+      ],
+      "supported_action_schemas": [
+        "place-on"
+      ],
+      "symbol_bindings": {},
+      "task_id": 4,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "STUDY_SCENE1_pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy.bddl",
+      "bddl_sha256": "07ca32c940d70c065e870452ef9c63e6dfa1d8506e6a86cf9b3763f652ba2d9f",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-in"
+      ],
+      "registered_objects": [
+        "black_book_1",
+        "study_table_black_book_init_region",
+        "study_table_recovery_surface",
+        "desk_caddy_1_back_contain_region",
+        "desk_caddy_1_front_contain_region",
+        "desk_caddy_1_left_contain_region",
+        "desk_caddy_1_right_contain_region",
+        "desk_caddy_1_access"
+      ],
+      "supported_action_schemas": [
+        "place-in"
+      ],
+      "symbol_bindings": {
+        "desk_caddy_1_access": {
+          "kind": "always_open_access",
+          "libero_id": "desk_caddy_1_back_contain_region"
+        },
+        "study_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "study_table"
+        }
+      },
+      "task_id": 5,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "LIVING_ROOM_SCENE6_put_the_white_mug_on_the_plate_and_put_the_chocolate_pudding_to_the_right_of_the_plate.bddl",
+      "bddl_sha256": "dbc9464b424cdc9b771b92d0b8a8c185b1b539f6a4133b323dc858bcf8f6a9c2",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-on",
+        "place-held-relative"
+      ],
+      "registered_objects": [
+        "porcelain_mug_1",
+        "chocolate_pudding_1",
+        "living_room_table_porcelain_mug_init_region",
+        "living_room_table_chocolate_pudding_init_region",
+        "living_room_table_recovery_surface",
+        "plate_1",
+        "living_room_table_plate_right_region"
+      ],
+      "supported_action_schemas": [
+        "place-on",
+        "place-relative"
+      ],
+      "symbol_bindings": {
+        "living_room_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "living_room_table"
+        }
+      },
+      "task_id": 6,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "LIVING_ROOM_SCENE1_put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket.bddl",
+      "bddl_sha256": "e27ab37f512fe42e35771d6130f531e6a9656929e7b4c60b348b81360cf5675d",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-in"
+      ],
+      "registered_objects": [
+        "alphabet_soup_1",
+        "cream_cheese_1",
+        "living_room_table_alphabet_soup_init_region",
+        "living_room_table_cream_cheese_init_region",
+        "basket_1_contain_region",
+        "basket_1_access"
+      ],
+      "supported_action_schemas": [
+        "place-in"
+      ],
+      "symbol_bindings": {
+        "basket_1_access": {
+          "kind": "always_open_access",
+          "libero_id": "basket_1_contain_region"
+        }
+      },
+      "task_id": 7,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "KITCHEN_SCENE8_put_both_moka_pots_on_the_stove.bddl",
+      "bddl_sha256": "ae1299a707d3e810096ad648948c517de40474bcdacca93a15e17d191e34454a",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "powered-on",
+        "powered-off"
+      ],
+      "recovery_schemas": [
+        "pick",
+        "put-down",
+        "place-held-on",
+        "turn-on"
+      ],
+      "registered_objects": [
+        "moka_pot_1",
+        "moka_pot_2",
+        "kitchen_table_moka_pot_right_init_region",
+        "kitchen_table_moka_pot_left_init_region",
+        "kitchen_table_recovery_surface",
+        "flat_stove_1_cook_region",
+        "flat_stove_1_power"
+      ],
+      "supported_action_schemas": [
+        "place-on"
+      ],
+      "symbol_bindings": {
+        "flat_stove_1_power": {
+          "kind": "switchable_alias",
+          "libero_id": "flat_stove_1"
+        },
+        "kitchen_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "kitchen_table"
+        }
+      },
+      "task_id": 8,
+      "unsupported_cases": []
+    },
+    {
+      "bddl_file": "KITCHEN_SCENE6_put_the_yellow_and_white_mug_in_the_microwave_and_close_it.bddl",
+      "bddl_sha256": "456d145f92be049f445fc77673dc583d9d17ea7afe92f6ffcb2fd1fa5565d420",
+      "predicates": [
+        "at",
+        "holding",
+        "handempty",
+        "accessible",
+        "open",
+        "closed"
+      ],
+      "recovery_schemas": [
+        "open-access",
+        "pick",
+        "put-down",
+        "place-held-in",
+        "close-access"
+      ],
+      "registered_objects": [
+        "white_yellow_mug_1",
+        "kitchen_table_white_yellow_mug_init_region",
+        "kitchen_table_recovery_surface",
+        "microwave_1_heating_region",
+        "microwave_1_access"
+      ],
+      "supported_action_schemas": [
+        "place-in",
+        "close-access"
+      ],
+      "symbol_bindings": {
+        "kitchen_table_recovery_surface": {
+          "kind": "support_surface_alias",
+          "libero_id": "kitchen_table"
+        },
+        "microwave_1_access": {
+          "kind": "articulation_alias",
+          "libero_id": "microwave_1"
+        }
+      },
+      "task_id": 9,
+      "unsupported_cases": []
+    }
+  ]
+}
