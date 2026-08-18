@@ -1,0 +1,210 @@
+{
+  "task": "move_can_pot",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 20,
+  "instruction_type": "unseen",
+  "rejections": [],
+  "candidates": [
+    {
+      "task": "move_can_pot",
+      "seed": 100000,
+      "instruction": "Pick up the sauce can with smooth surface and move it near the rounded cooking pot with two handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base4",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100001,
+      "instruction": "Use the right arm to grab the sauce can and place it by the round pot with blue top",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base1",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100002,
+      "instruction": "Grab the smooth sauce can and place it near the medium kitchenpot with black handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100003,
+      "instruction": "Use the right arm to pick up the brown sauce can with top lid and move it beside the shiny black kitchenpot",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base4",
+        "{B}": "105_sauce-can/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100004,
+      "instruction": "Use the left arm to grab the sauce can and place it by the blue pot with cylindrical body and lid",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base3",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100005,
+      "instruction": "Grab the metal body sauce can and set it beside the medium kitchenpot",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base6",
+        "{B}": "105_sauce-can/base4",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100006,
+      "instruction": "Grab the smooth cylindrical sauce can and place it beside the medium kitchenpot with black handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base5",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100007,
+      "instruction": "Pick up the hand-sized sauce can and move it near the kitchenpot with smooth matte body",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base1",
+        "{B}": "105_sauce-can/base4",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100008,
+      "instruction": "Grab the yellow label on sauce can and place it near the shiny black kitchenpot",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base4",
+        "{B}": "105_sauce-can/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100009,
+      "instruction": "Use the left arm to grab the sauce can with red lid and place it by the rounded cooking pot with two handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base5",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100010,
+      "instruction": "Pick up the medium-size cylindrical sauce can and move it near the blue kitchenpot",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base3",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100011,
+      "instruction": "Grab the sauce can and set it beside the medium kitchenpot with black handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100012,
+      "instruction": "Pick up the medium sauce can with white label and set it beside the gray kitchenpot with rounded edges",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base0",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100013,
+      "instruction": "Use the left arm to pick up the smooth sauce can and move it beside the metal pot with curved handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base5",
+        "{B}": "105_sauce-can/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100014,
+      "instruction": "Grab the medium-size cylindrical sauce can and place it near the shiny black kitchenpot",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base4",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100015,
+      "instruction": "Grab the brown sauce can with top lid and place it beside the rounded cooking pot with two handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base0",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100016,
+      "instruction": "Use the right arm to pick up the red can with white text and move it beside the blue pot with cylindrical body and lid",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base3",
+        "{B}": "105_sauce-can/base6",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100017,
+      "instruction": "Use the left arm to grab the metal body sauce can and place it by the metal pot with curved handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base5",
+        "{B}": "105_sauce-can/base4",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100018,
+      "instruction": "Use the right arm to grab the sauce can with round ridged lid and place it by the metal pot with curved handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base5",
+        "{B}": "105_sauce-can/base6",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "move_can_pot",
+      "seed": 100019,
+      "instruction": "Use the left arm to pick up the sauce can, move it near the medium kitchenpot with black handles",
+      "episode_info": {
+        "{A}": "060_kitchenpot/base2",
+        "{B}": "105_sauce-can/base2",
+        "{a}": "left"
+      }
+    }
+  ]
+}

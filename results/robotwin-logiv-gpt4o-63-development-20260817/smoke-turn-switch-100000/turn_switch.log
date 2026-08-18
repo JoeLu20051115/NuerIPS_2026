@@ -1,0 +1,328 @@
+/mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/tools/robotwin-eval-venv/lib/python3.10/site-packages/torch/cuda/__init__.py:58: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+2026-08-17 11:40:00.771145: I tensorflow/core/util/port.cc:113] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2026-08-17 11:40:00.860546: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2026-08-17 11:40:00.860592: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2026-08-17 11:40:00.870396: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2026-08-17 11:40:00.899271: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2026-08-17 11:40:01.632937: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+/mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/tools/robotwin-eval-venv/lib/python3.10/site-packages/torch/cuda/__init__.py:58: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+WARNING:root:Vision embedding key might need handling: model.paligemma_with_expert.paligemma.model.vision_tower.vision_model.embeddings.patch_embedding.bias
+WARNING:root:Vision embedding key might need handling: model.paligemma_with_expert.paligemma.model.vision_tower.vision_model.embeddings.patch_embedding.weight
+AUTOTUNE convolution(1x3x224x224, 1152x3x14x14)
+  convolution 0.0715 ms 100.0%
+  triton_convolution_4 0.1587 ms 45.1%
+  triton_convolution_3 0.2257 ms 31.7%
+  triton_convolution_5 0.2462 ms 29.1%
+  triton_convolution_6 0.2770 ms 25.8%
+  triton_convolution_2 0.6011 ms 11.9%
+  triton_convolution_1 0.8650 ms 8.3%
+  triton_convolution_0 1.8868 ms 3.8%
+SingleProcess AUTOTUNE benchmarking takes 1.0426 seconds and 0.3935 seconds precompiling
+AUTOTUNE addmm(256x1152, 256x1152, 1152x1152)
+  triton_mm_15 0.0101 ms 100.0%
+  triton_mm_19 0.0117 ms 86.3%
+  bias_addmm 0.0130 ms 77.6%
+  triton_mm_11 0.0131 ms 77.5%
+  triton_mm_25 0.0143 ms 70.9%
+  triton_mm_14 0.0143 ms 70.7%
+  triton_mm_18 0.0149 ms 68.0%
+  triton_mm_8 0.0150 ms 67.3%
+  triton_mm_10 0.0161 ms 62.9%
+  triton_mm_24 0.0165 ms 61.2%
+SingleProcess AUTOTUNE benchmarking takes 2.3813 seconds and 60.2974 seconds precompiling
+AUTOTUNE mm(256x1152, 1152x4304)
+  triton_mm_101 0.0146 ms 100.0%
+  triton_mm_94 0.0163 ms 89.8%
+  mm 0.0165 ms 88.2%
+  triton_mm_90 0.0166 ms 87.7%
+  triton_mm_100 0.0170 ms 85.9%
+  triton_mm_95 0.0173 ms 84.4%
+  triton_mm_91 0.0189 ms 77.3%
+  triton_mm_97 0.0189 ms 77.0%
+  triton_mm_93 0.0190 ms 76.6%
+  triton_mm_92 0.0231 ms 63.2%
+SingleProcess AUTOTUNE benchmarking takes 2.2660 seconds and 55.3562 seconds precompiling
+AUTOTUNE mm(256x4304, 4304x1152)
+  mm 0.0182 ms 100.0%
+  triton_mm_110 0.0192 ms 95.0%
+  triton_mm_114 0.0241 ms 75.8%
+  triton_mm_106 0.0273 ms 66.8%
+  triton_mm_120 0.0330 ms 55.2%
+  triton_mm_109 0.0381 ms 47.8%
+  triton_mm_103 0.0391 ms 46.7%
+  triton_mm_113 0.0395 ms 46.2%
+  triton_mm_119 0.0426 ms 42.8%
+  triton_mm_105 0.0428 ms 42.6%
+SingleProcess AUTOTUNE benchmarking takes 2.2357 seconds and 0.0014 seconds precompiling
+AUTOTUNE addmm(256x2048, 256x1152, 1152x2048)
+  triton_mm_3093 0.0107 ms 100.0%
+  triton_mm_3097 0.0126 ms 84.8%
+  bias_addmm 0.0128 ms 83.7%
+  triton_mm_3089 0.0140 ms 76.7%
+  triton_mm_3103 0.0145 ms 73.8%
+  triton_mm_3092 0.0149 ms 72.0%
+  triton_mm_3096 0.0154 ms 69.5%
+  triton_mm_3088 0.0165 ms 65.0%
+  triton_mm_3086 0.0166 ms 64.7%
+  triton_mm_3102 0.0168 ms 63.7%
+SingleProcess AUTOTUNE benchmarking takes 2.3098 seconds and 61.5229 seconds precompiling
+AUTOTUNE mm(968x2048, 2048x16384)
+  mm 0.1137 ms 100.0%
+  triton_mm_3270 0.1192 ms 95.4%
+  triton_mm_3271 0.1260 ms 90.2%
+  triton_mm_3269 0.1402 ms 81.1%
+  triton_mm_3264 0.1567 ms 72.6%
+  triton_mm_3265 0.1605 ms 70.9%
+  triton_mm_3266 0.1894 ms 60.0%
+  triton_mm_3267 0.1915 ms 59.4%
+  triton_mm_3262 0.1919 ms 59.3%
+  triton_mm_3263 0.2011 ms 56.5%
+SingleProcess AUTOTUNE benchmarking takes 2.4525 seconds and 47.0109 seconds precompiling
+AUTOTUNE mm(968x2048, 2048x2048)
+  triton_mm_3122 0.0197 ms 100.0%
+  mm 0.0221 ms 89.4%
+  triton_mm_3116 0.0238 ms 82.8%
+  triton_mm_3115 0.0247 ms 80.0%
+  triton_mm_3121 0.0250 ms 79.1%
+  triton_mm_3111 0.0268 ms 73.5%
+  triton_mm_3118 0.0293 ms 67.4%
+  triton_mm_3114 0.0300 ms 65.8%
+  triton_mm_3112 0.0328 ms 60.2%
+  triton_mm_3117 0.0366 ms 53.9%
+SingleProcess AUTOTUNE benchmarking takes 2.2602 seconds and 0.0015 seconds precompiling
+AUTOTUNE bmm(1x128x1, 1x1x968)
+  triton_bmm_3124 0.0057 ms 100.0%
+  triton_bmm_3123 0.0057 ms 99.4%
+  triton_bmm_3125 0.0058 ms 98.3%
+  triton_bmm_3126 0.0058 ms 97.8%
+  triton_bmm_3127 0.0061 ms 93.7%
+  triton_bmm_3129 0.0061 ms 92.7%
+  triton_bmm_3130 0.0061 ms 92.7%
+  triton_bmm_3128 0.0062 ms 92.2%
+  triton_bmm_3134 0.0070 ms 81.3%
+  triton_bmm_3131 0.0070 ms 80.9%
+SingleProcess AUTOTUNE benchmarking takes 1.8610 seconds and 0.0015 seconds precompiling
+AUTOTUNE mm(968x2048, 2048x256)
+  triton_mm_3143 0.0113 ms 100.0%
+  triton_mm_3147 0.0115 ms 98.1%
+  triton_mm_3151 0.0131 ms 86.1%
+  mm 0.0133 ms 84.4%
+  triton_mm_3157 0.0178 ms 63.2%
+  triton_mm_3142 0.0187 ms 60.4%
+  triton_mm_3146 0.0190 ms 59.4%
+  triton_mm_3141 0.0195 ms 57.7%
+  triton_mm_3140 0.0200 ms 56.3%
+  triton_mm_3150 0.0203 ms 55.5%
+SingleProcess AUTOTUNE benchmarking takes 2.2095 seconds and 0.0021 seconds precompiling
+AUTOTUNE bmm(8x968x256, 8x256x968)
+  triton_bmm_3175 0.0192 ms 100.0%
+  triton_bmm_3174 0.0201 ms 95.2%
+  bmm 0.0212 ms 90.5%
+  triton_bmm_3169 0.0215 ms 89.0%
+  triton_bmm_3168 0.0232 ms 82.7%
+  triton_bmm_3171 0.0232 ms 82.7%
+  triton_bmm_3176 0.0232 ms 82.7%
+  triton_bmm_3172 0.0233 ms 82.2%
+  triton_bmm_3167 0.0235 ms 81.5%
+  triton_bmm_3173 0.0247 ms 77.5%
+SingleProcess AUTOTUNE benchmarking takes 2.2558 seconds and 0.0018 seconds precompiling
+AUTOTUNE bmm(8x968x968, 8x968x256)
+  triton_bmm_3214 0.0174 ms 100.0%
+  triton_bmm_3207 0.0189 ms 92.4%
+  triton_bmm_3213 0.0194 ms 89.8%
+  triton_bmm_3206 0.0207 ms 84.2%
+  triton_bmm_3208 0.0211 ms 82.6%
+  bmm 0.0223 ms 78.2%
+  triton_bmm_3205 0.0230 ms 75.8%
+  triton_bmm_3210 0.0240 ms 72.8%
+  triton_bmm_3203 0.0242 ms 72.2%
+  triton_bmm_3212 0.0244 ms 71.5%
+SingleProcess AUTOTUNE benchmarking takes 2.2372 seconds and 0.0019 seconds precompiling
+AUTOTUNE mm(968x16384, 16384x2048)
+  triton_mm_3290 0.1170 ms 100.0%
+  mm 0.1172 ms 99.9%
+  triton_mm_3284 0.1405 ms 83.2%
+  triton_mm_3289 0.1430 ms 81.8%
+  triton_mm_3283 0.1435 ms 81.5%
+  triton_mm_3282 0.1885 ms 62.1%
+  triton_mm_3286 0.1899 ms 61.6%
+  triton_mm_3280 0.1915 ms 61.1%
+  triton_mm_3279 0.2279 ms 51.3%
+  triton_mm_3285 0.2388 ms 49.0%
+SingleProcess AUTOTUNE benchmarking takes 2.4592 seconds and 0.0016 seconds precompiling
+AUTOTUNE mm(1x1024, 1024x1024)
+  mm 0.0084 ms 100.0%
+  triton_mm_6085 0.0099 ms 84.8%
+  triton_mm_6089 0.0111 ms 75.7%
+  triton_mm_6084 0.0129 ms 64.9%
+  triton_mm_6083 0.0131 ms 64.1%
+  triton_mm_6093 0.0140 ms 60.1%
+  triton_mm_6088 0.0141 ms 59.3%
+  triton_mm_6082 0.0144 ms 58.2%
+  triton_mm_6097 0.0150 ms 56.0%
+  triton_mm_6095 0.0150 ms 55.7%
+SingleProcess AUTOTUNE benchmarking takes 1.9780 seconds and 0.0009 seconds precompiling
+AUTOTUNE addmm(50x1024, 50x32, 32x1024)
+  triton_mm_6066 0.0060 ms 100.0%
+  triton_mm_6068 0.0060 ms 99.5%
+  triton_mm_6069 0.0061 ms 97.4%
+  triton_mm_6067 0.0062 ms 96.4%
+  triton_mm_6071 0.0063 ms 94.4%
+  triton_mm_6073 0.0063 ms 94.4%
+  triton_mm_6077 0.0063 ms 94.4%
+  triton_mm_6072 0.0063 ms 93.9%
+  triton_mm_6078 0.0063 ms 93.9%
+  triton_mm_6065 0.0069 ms 86.1%
+SingleProcess AUTOTUNE benchmarking takes 1.9728 seconds and 0.0011 seconds precompiling
+AUTOTUNE mm(50x1024, 1024x4096)
+  triton_mm_6882 0.0101 ms 100.0%
+  triton_mm_6886 0.0104 ms 97.2%
+  triton_mm_6890 0.0113 ms 89.0%
+  mm 0.0126 ms 80.2%
+  triton_mm_6894 0.0127 ms 79.3%
+  triton_mm_6885 0.0138 ms 72.9%
+  triton_mm_6889 0.0142 ms 71.1%
+  triton_mm_6881 0.0142 ms 70.8%
+  triton_mm_6880 0.0144 ms 70.0%
+  triton_mm_6879 0.0146 ms 69.2%
+SingleProcess AUTOTUNE benchmarking takes 1.9708 seconds and 0.0011 seconds precompiling
+AUTOTUNE mm(1x1024, 1024x3072)
+  triton_mm_6119 0.0126 ms 100.0%
+  triton_mm_6123 0.0126 ms 100.0%
+  mm 0.0127 ms 99.5%
+  triton_mm_6127 0.0147 ms 86.1%
+  triton_mm_6117 0.0152 ms 83.0%
+  triton_mm_6131 0.0156 ms 80.8%
+  triton_mm_6122 0.0159 ms 79.5%
+  triton_mm_6126 0.0166 ms 76.1%
+  triton_mm_6129 0.0169 ms 75.0%
+  triton_mm_6116 0.0179 ms 70.5%
+SingleProcess AUTOTUNE benchmarking takes 1.9879 seconds and 0.0011 seconds precompiling
+AUTOTUNE mm(50x1024, 1024x2048)
+  triton_mm_6748 0.0091 ms 100.0%
+  triton_mm_6752 0.0094 ms 96.6%
+  triton_mm_6756 0.0103 ms 87.9%
+  triton_mm_6760 0.0111 ms 82.1%
+  mm 0.0127 ms 71.4%
+  triton_mm_6747 0.0129 ms 70.5%
+  triton_mm_6751 0.0130 ms 69.8%
+  triton_mm_6746 0.0133 ms 68.3%
+  triton_mm_6745 0.0134 ms 67.9%
+  triton_mm_6755 0.0134 ms 67.9%
+SingleProcess AUTOTUNE benchmarking takes 1.9746 seconds and 0.0011 seconds precompiling
+AUTOTUNE bmm(1x128x1, 1x1x50)
+  triton_bmm_6762 0.0054 ms 100.0%
+  triton_bmm_6761 0.0055 ms 98.3%
+  triton_bmm_6763 0.0056 ms 97.1%
+  triton_bmm_6764 0.0057 ms 94.4%
+  triton_bmm_6765 0.0057 ms 94.4%
+  triton_bmm_6766 0.0060 ms 90.9%
+  triton_bmm_6768 0.0060 ms 90.9%
+  triton_bmm_6769 0.0060 ms 90.9%
+  triton_bmm_6771 0.0060 ms 90.9%
+  triton_bmm_6767 0.0060 ms 90.4%
+SingleProcess AUTOTUNE benchmarking takes 1.7527 seconds and 0.0010 seconds precompiling
+AUTOTUNE mm(50x1024, 1024x256)
+  triton_mm_6780 0.0079 ms 100.0%
+  triton_mm_6784 0.0084 ms 94.3%
+  triton_mm_6788 0.0094 ms 83.7%
+  triton_mm_6792 0.0101 ms 78.1%
+  mm 0.0107 ms 73.7%
+  triton_mm_6779 0.0125 ms 62.8%
+  triton_mm_6777 0.0126 ms 62.6%
+  triton_mm_6783 0.0126 ms 62.4%
+  triton_mm_6787 0.0126 ms 62.4%
+  triton_mm_6778 0.0126 ms 62.3%
+SingleProcess AUTOTUNE benchmarking takes 1.9779 seconds and 0.0012 seconds precompiling
+AUTOTUNE bmm(8x50x256, 8x256x1018)
+  triton_bmm_6801 0.0076 ms 100.0%
+  triton_bmm_6800 0.0079 ms 96.7%
+  triton_bmm_6804 0.0079 ms 96.0%
+  triton_bmm_6807 0.0082 ms 93.3%
+  triton_bmm_6809 0.0082 ms 92.6%
+  triton_bmm_6805 0.0083 ms 92.2%
+  triton_bmm_6803 0.0085 ms 89.1%
+  triton_bmm_6806 0.0086 ms 88.1%
+  triton_bmm_6796 0.0087 ms 87.2%
+  triton_bmm_6794 0.0089 ms 85.9%
+SingleProcess AUTOTUNE benchmarking takes 1.9743 seconds and 0.0014 seconds precompiling
+AUTOTUNE bmm(8x50x1018, 8x1018x256)
+  triton_bmm_6831 0.0111 ms 100.0%
+  triton_bmm_6835 0.0117 ms 95.1%
+  triton_bmm_6829 0.0127 ms 87.4%
+  triton_bmm_6839 0.0130 ms 85.3%
+  triton_bmm_6834 0.0133 ms 83.2%
+  triton_bmm_6828 0.0135 ms 82.4%
+  triton_bmm_6830 0.0137 ms 80.9%
+  triton_bmm_6838 0.0140 ms 79.6%
+  triton_bmm_6843 0.0142 ms 78.2%
+  triton_bmm_6841 0.0145 ms 76.4%
+SingleProcess AUTOTUNE benchmarking takes 1.9893 seconds and 0.0013 seconds precompiling
+AUTOTUNE mm(50x2048, 2048x1024)
+  triton_mm_6848 0.0106 ms 100.0%
+  triton_mm_6852 0.0110 ms 96.2%
+  mm 0.0129 ms 82.6%
+  triton_mm_6856 0.0131 ms 81.0%
+  triton_mm_6860 0.0143 ms 74.1%
+  triton_mm_6847 0.0185 ms 57.3%
+  triton_mm_6851 0.0192 ms 55.4%
+  triton_mm_6846 0.0196 ms 54.2%
+  triton_mm_6845 0.0201 ms 53.0%
+  triton_mm_6855 0.0204 ms 52.1%
+SingleProcess AUTOTUNE benchmarking takes 1.9838 seconds and 0.0013 seconds precompiling
+AUTOTUNE mm(50x4096, 4096x1024)
+  mm 0.0148 ms 100.0%
+  triton_mm_6899 0.0151 ms 98.1%
+  triton_mm_6903 0.0167 ms 88.9%
+  triton_mm_6907 0.0200 ms 74.2%
+  triton_mm_6911 0.0263 ms 56.3%
+  triton_mm_6898 0.0330 ms 45.0%
+  triton_mm_6897 0.0339 ms 43.7%
+  triton_mm_6896 0.0345 ms 42.9%
+  triton_mm_6902 0.0345 ms 42.9%
+  triton_mm_6906 0.0349 ms 42.5%
+SingleProcess AUTOTUNE benchmarking takes 1.9981 seconds and 0.0018 seconds precompiling
+W0817 11:49:30.239000 128635967522624 torch/_inductor/select_algorithm.py:1469] [30/0] out of resource: shared memory, Required: 245760, Hardware limit: 232448. Reducing block sizes or `num_stages` may help.
+AUTOTUNE addmm(50x32, 50x1024, 1024x32)
+  triton_mm_9524 0.0101 ms 100.0%
+  triton_mm_9526 0.0110 ms 92.1%
+  bias_addmm 0.0116 ms 87.5%
+  triton_mm_9515 0.0126 ms 80.2%
+  triton_mm_9516 0.0126 ms 80.2%
+  triton_mm_9523 0.0129 ms 78.6%
+  addmm 0.0133 ms 76.1%
+  triton_mm_9520 0.0136 ms 74.4%
+  triton_mm_9522 0.0145 ms 69.9%
+  triton_mm_9514 0.0150 ms 67.5%
+SingleProcess AUTOTUNE benchmarking takes 1.6526 seconds and 0.0015 seconds precompiling
+[32mRender Well[0m
+============= Config =============
+
+[95mMessy Table:[0m False
+[95mRandom Background:[0m False
+[95mRandom Light:[0m False
+[95mRandom Table Height:[0m 0
+[95mRandom Head Camera Distance:[0m 0
+[94mHead Camera Config:[0m D435, True
+[94mWrist Camera Config:[0m D435, True
+[94mEmbodiment Config:[0m aloha-agilex
+
+==================================
+missing pytorch3d
+The PI05 model is a direct port of the OpenPI implementation. 
+This implementation follows the original OpenPI structure for compatibility. 
+Original implementation: https://github.com/Physical-Intelligence/openpi
+Loading model from: /mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/checkpoints/pi05_TACO_robotwin2_finetuned
+✓ Loaded state dict from model.safetensors
+Warning: Could not remap state dict keys: Error(s) in loading state_dict for PI05Policy:
+	Missing key(s) in state_dict: "model.paligemma_with_expert.paligemma.model.language_model.embed_tokens.weight". 
+successfully unset obs and language intruction
+successfully set instruction:Use the nearest arm to press and fully activate the switch, then withdraw the arm.
+step: [92m1 / 400[0mstep: [92m2 / 400[0mstep: [92m3 / 400[0mstep: [92m4 / 400[0mstep: [92m5 / 400[0mstep: [92m6 / 400[0mstep: [92m7 / 400[0mstep: [92m8 / 400[0mstep: [92m9 / 400[0mstep: [92m10 / 400[0mstep: [92m11 / 400[0mstep: [92m12 / 400[0mstep: [92m13 / 400[0mstep: [92m14 / 400[0mstep: [92m15 / 400[0mstep: [92m16 / 400[0mstep: [92m17 / 400[0mstep: [92m18 / 400[0mstep: [92m19 / 400[0mstep: [92m20 / 400[0mstep: [92m21 / 400[0mstep: [92m22 / 400[0mstep: [92m23 / 400[0mstep: [92m24 / 400[0mstep: [92m25 / 400[0mstep: [92m26 / 400[0mstep: [92m27 / 400[0mstep: [92m28 / 400[0mstep: [92m29 / 400[0mstep: [92m30 / 400[0mstep: [92m31 / 400[0mstep: [92m32 / 400[0mstep: [92m33 / 400[0mstep: [92m34 / 400[0mstep: [92m35 / 400[0mstep: [92m36 / 400[0mstep: [92m37 / 400[0mstep: [92m38 / 400[0mstep: [92m39 / 400[0mstep: [92m40 / 400[0mstep: [92m41 / 400[0mstep: [92m42 / 400[0mstep: [92m43 / 400[0mstep: [92m44 / 400[0mstep: [92m45 / 400[0mstep: [92m46 / 400[0mstep: [92m47 / 400[0mstep: [92m48 / 400[0mstep: [92m49 / 400[0mstep: [92m50 / 400[0msuccessfully set instruction:Use the nearest arm to press and fully activate the switch, then withdraw the arm.
+step: [92m51 / 400[0mstep: [92m52 / 400[0mstep: [92m53 / 400[0mstep: [92m54 / 400[0mstep: [92m55 / 400[0mstep: [92m56 / 400[0mstep: [92m57 / 400[0mstep: [92m58 / 400[0mstep: [92m59 / 400[0mstep: [92m60 / 400[0mstep: [92m61 / 400[0mstep: [92m62 / 400[0mstep: [92m63 / 400[0mstep: [92m64 / 400[0mstep: [92m65 / 400[0mstep: [92m66 / 400[0mstep: [92m67 / 400[0mstep: [92m68 / 400[0mstep: [92m69 / 400[0mstep: [92m70 / 400[0mstep: [92m71 / 400[0mstep: [92m72 / 400[0mstep: [92m73 / 400[0mstep: [92m74 / 400[0mstep: [92m75 / 400[0mstep: [92m76 / 400[0mstep: [92m77 / 400[0mstep: [92m78 / 400[0mstep: [92m79 / 400[0mstep: [92m80 / 400[0mstep: [92m81 / 400[0mstep: [92m82 / 400[0mstep: [92m83 / 400[0mstep: [92m84 / 400[0mstep: [92m85 / 400[0mstep: [92m86 / 400[0mstep: [92m87 / 400[0mstep: [92m88 / 400[0mstep: [92m89 / 400[0mstep: [92m90 / 400[0mstep: [92m91 / 400[0mstep: [92m92 / 400[0mstep: [92m93 / 400[0mstep: [92m94 / 400[0mstep: [92m95 / 400[0mstep: [92m96 / 400[0mstep: [92m97 / 400[0mstep: [92m98 / 400[0mstep: [92m99 / 400[0mstep: [92m100 / 400[0msuccessfully set instruction:Use the nearest arm to press and fully activate the switch, then withdraw the arm.
+step: [92m101 / 400[0mstep: [92m102 / 400[0mstep: [92m103 / 400[0mstep: [92m104 / 400[0mstep: [92m105 / 400[0m[92mSuccess![0m
+LOGIV turn_switch | 1/1 | seed=100000 | actions=105 | gpt4o=5
+Data has been saved to eval_result/logiv-gpt4o-audit-smoke-20260817/turn_switch/pi05/demo_clean/unified_50tasks/2026-08-17 11:40:03/_result.txt
