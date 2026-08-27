@@ -1,0 +1,64 @@
+{
+  "evidence_label": "development/seed-scan",
+  "expected": 200,
+  "completed": 200,
+  "strict_protocol_complete": true,
+  "successes": 85,
+  "success_rate": 0.425,
+  "baseline_successes": null,
+  "positive_flips": null,
+  "negative_flips": null,
+  "per_task": {
+    "beat_block_hammer": {
+      "completed": 20,
+      "successes": 17,
+      "baseline_successes": 0
+    },
+    "blocks_ranking_size": {
+      "completed": 20,
+      "successes": 9,
+      "baseline_successes": 0
+    },
+    "handover_block": {
+      "completed": 20,
+      "successes": 7,
+      "baseline_successes": 0
+    },
+    "move_can_pot": {
+      "completed": 20,
+      "successes": 11,
+      "baseline_successes": 0
+    },
+    "open_microwave": {
+      "completed": 20,
+      "successes": 3,
+      "baseline_successes": 0
+    },
+    "place_dual_shoes": {
+      "completed": 20,
+      "successes": 5,
+      "baseline_successes": 0
+    },
+    "stack_blocks_three": {
+      "completed": 20,
+      "successes": 4,
+      "baseline_successes": 0
+    },
+    "stack_bowls_three": {
+      "completed": 20,
+      "successes": 15,
+      "baseline_successes": 0
+    },
+    "stamp_seal": {
+      "completed": 20,
+      "successes": 5,
+      "baseline_successes": 0
+    },
+    "turn_switch": {
+      "completed": 20,
+      "successes": 9,
+      "baseline_successes": 0
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,276 @@
+From 0743cc324925c4cfee256785c1e4b279be7eab98 Mon Sep 17 00:00:00 2001
+From: Du Hangyu <770240437@qq.com>
+Date: Thu, 13 Aug 2026 12:12:54 +0800
+Subject: [PATCH 3/3] feat(robotwin): support frozen-prompt node replanning
+
+---
+ .../script/eval_lerobot_torch_pi05.py         | 10 ++++-
+ .../Robotwin/script/pi05_logiv_execution.py   | 41 ++++++++++++++-----
+ .../Robotwin/script/pi05_logiv_options.py     | 20 +++++++++
+ .../tests/test_pi05_logiv_execution.py        | 28 +++++++++++++
+ .../Robotwin/tests/test_pi05_logiv_options.py | 16 ++++++--
+ 5 files changed, 99 insertions(+), 16 deletions(-)
+
+diff --git a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+index feb3b5e..aff859c 100644
+--- a/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
++++ b/third_party/Robotwin/script/eval_lerobot_torch_pi05.py
+@@ -101,7 +101,7 @@ def main(usr_args):
+         args = yaml.load(f.read(), Loader=yaml.FullLoader)
+ 
+     policy_path, test_num, tokenizer_path, record_videos = resolve_baseline_options(usr_args)
+-    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, repair_cfn_path = (
++    accepted_seeds, accepted_instructions, logiv_root, val_binary, action_chunk_steps, repair_action_chunk_steps, vlm_image_detail, max_gpt4o_retries, base_stall_observations, stage_stall_observations, min_base_dispatches, dag_from_start, preserve_original_repair_prompt, policy_replan_steps, repair_cfn_path = (
+         resolve_logiv_options(usr_args)
+     )
+     args["eval_video_log"] = record_videos
+@@ -216,6 +216,8 @@ def main(usr_args):
+         stage_stall_observations=stage_stall_observations,
+         min_base_dispatches=min_base_dispatches,
+         dag_from_start=dag_from_start,
++        preserve_original_repair_prompt=preserve_original_repair_prompt,
++        policy_replan_steps=policy_replan_steps,
+         repair_cfn_path=repair_cfn_path,
+         save_dir=save_dir,
+         video_size=video_size,
+@@ -296,6 +298,8 @@ def eval_logiv_policy(
+     stage_stall_observations,
+     min_base_dispatches,
+     dag_from_start,
++    preserve_original_repair_prompt,
++    policy_replan_steps,
+     repair_cfn_path,
+     save_dir,
+     video_size=None,
+@@ -377,6 +381,7 @@ def eval_logiv_policy(
+             native_success=lambda: bool(TASK_ENV.eval_success),
+             base_chunk_steps=action_chunk_steps,
+             repair_observation_steps=repair_action_chunk_steps,
++            policy_replan_steps=policy_replan_steps,
+         )
+         controller = RobotwinEpisodeController(
+             task,
+@@ -387,6 +392,7 @@ def eval_logiv_policy(
+             base_stall_observations=base_stall_observations,
+             stage_stall_observations=stage_stall_observations,
+             min_base_dispatches=min_base_dispatches,
++            preserve_original_repair_prompt=preserve_original_repair_prompt,
+         )
+         try:
+             outcome = controller.run(
+@@ -437,6 +443,8 @@ def eval_logiv_policy(
+             "gpt4o_requests": len(outcome.events),
+             "original_instruction": str(instruction),
+             "repair_cfn_path": repair_cfn_path,
++            "preserve_original_repair_prompt": preserve_original_repair_prompt,
++            "policy_replan_steps": policy_replan_steps,
+             "events": [
+                 {
+                     "epoch": event.epoch,
+diff --git a/third_party/Robotwin/script/pi05_logiv_execution.py b/third_party/Robotwin/script/pi05_logiv_execution.py
+index 6c8a261..aee0201 100644
+--- a/third_party/Robotwin/script/pi05_logiv_execution.py
++++ b/third_party/Robotwin/script/pi05_logiv_execution.py
+@@ -27,6 +27,7 @@ class RecedingHorizonMacroExecutor:
+         native_success,
+         base_chunk_steps,
+         repair_observation_steps,
++        policy_replan_steps=None,
+     ):
+         self.sample_actions = sample_actions
+         self.sample_repair_actions = sample_repair_actions
+@@ -35,31 +36,49 @@ class RecedingHorizonMacroExecutor:
+         self.native_success = native_success
+         self.base_chunk_steps = int(base_chunk_steps)
+         self.repair_observation_steps = int(repair_observation_steps)
++        self.policy_replan_steps = (
++            None if policy_replan_steps is None else int(policy_replan_steps)
++        )
++        if self.policy_replan_steps is not None and self.policy_replan_steps < 1:
++            raise ValueError("policy_replan_steps must be positive")
+         self._key = None
+         self._actions = []
+ 
+     def dispatch(self, prompt, mode, active_frontier):
+         key = (str(prompt), str(mode), active_frontier)
++        sampler = (
++            self.sample_repair_actions
++            if mode in {"DAG_EXECUTION", "REPAIR"}
++            and self.sample_repair_actions is not None
++            else self.sample_actions
++        )
++        steps = (
++            self.base_chunk_steps
++            if mode in {"BASE_MONITORED", "DAG_EXECUTION"}
++            else self.repair_observation_steps
++        )
++        if self.policy_replan_steps is not None:
++            remaining = steps
++            while remaining > 0 and not self.native_success():
++                actions = list(sampler(prompt, self.observe()))
++                count = min(self.policy_replan_steps, remaining, len(actions))
++                for action in actions[:count]:
++                    self.take_action(action)
++                    if self.native_success():
++                        break
++                remaining -= count
++                if count == 0:
++                    break
++            return self.observe()
+         # A repair dispatch is a receding-horizon local edit: after each
+         # observation boundary, sample a fresh short action prefix from the
+         # current image.  Replaying the unexecuted tail of the old 50-step
+         # macro ignores the very evidence that triggered local replanning.
+         if mode == "REPAIR" or key != self._key or not self._actions:
+             self._key = key
+-            sampler = (
+-                self.sample_repair_actions
+-                if mode in {"DAG_EXECUTION", "REPAIR"}
+-                and self.sample_repair_actions is not None
+-                else self.sample_actions
+-            )
+             self._actions = list(sampler(prompt, self.observe()))[
+                 : self.base_chunk_steps
+             ]
+-        steps = (
+-            self.base_chunk_steps
+-            if mode in {"BASE_MONITORED", "DAG_EXECUTION"}
+-            else self.repair_observation_steps
+-        )
+         for _ in range(min(steps, len(self._actions))):
+             self.take_action(self._actions.pop(0))
+             if self.native_success():
+diff --git a/third_party/Robotwin/script/pi05_logiv_options.py b/third_party/Robotwin/script/pi05_logiv_options.py
+index 575e096..b5f400d 100644
+--- a/third_party/Robotwin/script/pi05_logiv_options.py
++++ b/third_party/Robotwin/script/pi05_logiv_options.py
+@@ -49,6 +49,20 @@ def resolve_logiv_options(usr_args):
+         if isinstance(raw_dag_from_start, str)
+         else bool(raw_dag_from_start)
+     )
++    raw_preserve_repair_prompt = usr_args.get(
++        "preserve_original_repair_prompt", False
++    )
++    preserve_original_repair_prompt = (
++        raw_preserve_repair_prompt.strip().lower() == "true"
++        if isinstance(raw_preserve_repair_prompt, str)
++        else bool(raw_preserve_repair_prompt)
++    )
++    raw_policy_replan_steps = usr_args.get("policy_replan_steps")
++    policy_replan_steps = (
++        None
++        if raw_policy_replan_steps in {None, ""}
++        else int(raw_policy_replan_steps)
++    )
+     raw_repair_cfn_path = usr_args.get("repair_cfn_path")
+     repair_cfn_path = (
+         None if raw_repair_cfn_path in {None, ""} else str(raw_repair_cfn_path)
+@@ -78,6 +92,10 @@ def resolve_logiv_options(usr_args):
+         raise ValueError("base_stall_observations must be positive")
+     if min_base_dispatches < 0:
+         raise ValueError("min_base_dispatches must be nonnegative")
++    if policy_replan_steps is not None and (
++        policy_replan_steps < 1 or policy_replan_steps > action_chunk_steps
++    ):
++        raise ValueError("policy_replan_steps must be in [1, action_chunk_steps]")
+     if stage_stall_observations is not None and (
+         not stage_stall_observations
+         or any(value < 1 for value in stage_stall_observations)
+@@ -98,5 +116,7 @@ def resolve_logiv_options(usr_args):
+         stage_stall_observations,
+         min_base_dispatches,
+         dag_from_start,
++        preserve_original_repair_prompt,
++        policy_replan_steps,
+         repair_cfn_path,
+     )
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_execution.py b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+index 37ce41c..80c4010 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_execution.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_execution.py
+@@ -101,6 +101,34 @@ class RecedingHorizonMacroExecutorTest(unittest.TestCase):
+ 
+         self.assertEqual(executed, list(range(50)))
+ 
++    def test_node_can_replan_policy_internally_without_extra_vlm_gate(self):
++        samples = []
++        executed = []
++
++        def sample(prompt, observation):
++            samples.append((prompt, observation))
++            start = len(samples) * 100
++            return list(range(start, start + 50))
++
++        executor = RecedingHorizonMacroExecutor(
++            sample_actions=sample,
++            take_action=executed.append,
++            observe=lambda: len(executed),
++            native_success=lambda: False,
++            base_chunk_steps=50,
++            repair_observation_steps=50,
++            policy_replan_steps=10,
++        )
++
++        final_observation = executor.dispatch("task", "DAG_EXECUTION", 0)
++
++        self.assertEqual(len(samples), 5)
++        self.assertEqual([observation for _, observation in samples], [0, 10, 20, 30, 40])
++        self.assertEqual(len(executed), 50)
++        self.assertEqual(executed[:10], list(range(100, 110)))
++        self.assertEqual(executed[-10:], list(range(500, 510)))
++        self.assertEqual(final_observation, 50)
++
+     def test_cfn_sampler_is_used_for_every_pddl_controlled_node(self):
+         samplers = []
+         executed = []
+diff --git a/third_party/Robotwin/tests/test_pi05_logiv_options.py b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+index 4e61ca5..c05e3a9 100644
+--- a/third_party/Robotwin/tests/test_pi05_logiv_options.py
++++ b/third_party/Robotwin/tests/test_pi05_logiv_options.py
+@@ -60,6 +60,8 @@ class LogivOptionsTest(unittest.TestCase):
+                     "base_stall_observations": 4,
+                     "min_base_dispatches": 6,
+                     "dag_from_start": True,
++                    "preserve_original_repair_prompt": True,
++                    "policy_replan_steps": 10,
+                     "accepted_instructions": ["first", "second"],
+                     "repair_cfn_path": __file__,
+                 }
+@@ -77,6 +79,8 @@ class LogivOptionsTest(unittest.TestCase):
+                 None,
+                 6,
+                 True,
++                True,
++                10,
+                 __file__,
+             ),
+         )
+@@ -93,9 +97,11 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertEqual(resolved[-4], [4, 4, 1])
+-        self.assertEqual(resolved[-3], 0)
+-        self.assertFalse(resolved[-2])
++        self.assertEqual(resolved[-6], [4, 4, 1])
++        self.assertEqual(resolved[-5], 0)
++        self.assertFalse(resolved[-4])
++        self.assertFalse(resolved[-3])
++        self.assertIsNone(resolved[-2])
+         self.assertIsNone(resolved[-1])
+ 
+     def test_cli_false_does_not_enable_initial_dag(self):
+@@ -110,7 +116,9 @@ class LogivOptionsTest(unittest.TestCase):
+             }
+         )
+ 
+-        self.assertFalse(resolved[-2])
++        self.assertFalse(resolved[-4])
++        self.assertFalse(resolved[-3])
++        self.assertIsNone(resolved[-2])
+         self.assertIsNone(resolved[-1])
+ 
+     def test_repair_cfn_path_must_exist_when_configured(self):
+-- 
+2.43.0
+

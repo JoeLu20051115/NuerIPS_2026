@@ -1,0 +1,129 @@
+{
+  "task": "handover_block",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 24,
+  "instruction_type": "unseen",
+  "candidates": [
+    {
+      "task": "handover_block",
+      "seed": 100000,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100002,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100003,
+      "instruction": "Pick up the red block and switch arms.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100004,
+      "instruction": "Pass the red block to the right arm and set it down.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100006,
+      "instruction": "Grab the red block with the left arm, switch to the right arm, and set it on the blue pad.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100007,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100008,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100009,
+      "instruction": "Pass the red block to the right arm and set it down.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100010,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100011,
+      "instruction": "Use the left arm to pick up the red block.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100012,
+      "instruction": "Grab the red block with the left arm, switch to the right, and place it on the blue pad.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100013,
+      "instruction": "Pick up the red block and switch arms.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100014,
+      "instruction": "Grab the red block with the left arm.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100015,
+      "instruction": "Grab the red block with the left arm, switch to the right arm, and set it on the blue pad.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100016,
+      "instruction": "Pick up the red block and switch arms.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100017,
+      "instruction": "Pass the red block to the right arm and set it down.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100019,
+      "instruction": "Pick up the red block with the left arm, transfer it to the right, and place it on the blue pad.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100020,
+      "instruction": "Grab the red block with the left arm, switch to the right, and place it on the blue pad.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100022,
+      "instruction": "Pick up the red block and switch arms.",
+      "episode_info": {}
+    },
+    {
+      "task": "handover_block",
+      "seed": 100023,
+      "instruction": "Pass the red block to the right arm and set it down.",
+      "episode_info": {}
+    }
+  ]
+}

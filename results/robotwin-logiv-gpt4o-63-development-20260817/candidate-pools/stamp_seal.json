@@ -1,0 +1,251 @@
+{
+  "task": "stamp_seal",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 30,
+  "instruction_type": "unseen",
+  "rejections": [
+    {
+      "seed": 100002,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100003,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100005,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100012,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100014,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100019,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100021,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100022,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100023,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100025,
+      "reason": "EXPERT_FAILED"
+    }
+  ],
+  "candidates": [
+    {
+      "task": "stamp_seal",
+      "seed": 100000,
+      "instruction": "Grab the small carved seal, press onto Brown",
+      "episode_info": {
+        "{A}": "100_seal/base4",
+        "{B}": "Brown",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100001,
+      "instruction": "Use the right arm to grab the round base seal, stamp Navy.",
+      "episode_info": {
+        "{A}": "100_seal/base6",
+        "{B}": "Navy",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100004,
+      "instruction": "Use the left arm to grab the reddish rectangular seal, stamp Navy.",
+      "episode_info": {
+        "{A}": "100_seal/base2",
+        "{B}": "Navy",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100006,
+      "instruction": "Grab the seal used for pressing stamps and stamp Beige",
+      "episode_info": {
+        "{A}": "100_seal/base6",
+        "{B}": "Beige",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100007,
+      "instruction": "Grab the solid brown seal, press onto Beige",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Beige",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100008,
+      "instruction": "Grab the seal with smooth texture using the left arm and stamp Coral",
+      "episode_info": {
+        "{A}": "100_seal/base0",
+        "{B}": "Coral",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100009,
+      "instruction": "Use the right arm to grab the smooth stone seal with writing, stamp Teal.",
+      "episode_info": {
+        "{A}": "100_seal/base2",
+        "{B}": "Teal",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100010,
+      "instruction": "Grab the solid brown seal, press onto Coral",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Coral",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100011,
+      "instruction": "Pick the stamp with beige handle and stamp on Turquoise",
+      "episode_info": {
+        "{A}": "100_seal/base6",
+        "{B}": "Turquoise",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100013,
+      "instruction": "Pick the block-shaped seal with angled edges to stamp Silver",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Silver",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100015,
+      "instruction": "Grab the solid brown seal and stamp Indigo",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Indigo",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100016,
+      "instruction": "Pick the solid brown seal to stamp Silver",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Silver",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100017,
+      "instruction": "Use the right arm to grab the seal with black base, stamp Pink.",
+      "episode_info": {
+        "{A}": "100_seal/base0",
+        "{B}": "Pink",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100018,
+      "instruction": "Use the left arm to grab the brown seal with leaf carvings, stamp Magenta.",
+      "episode_info": {
+        "{A}": "100_seal/base4",
+        "{B}": "Magenta",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100020,
+      "instruction": "Pick the small slanted-edged brown seal and stamp Blue",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Blue",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100024,
+      "instruction": "Pick the block-shaped seal with angled edges and press on Cyan.",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Cyan",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100026,
+      "instruction": "Grab the reddish rectangular seal, press onto Orange",
+      "episode_info": {
+        "{A}": "100_seal/base2",
+        "{B}": "Orange",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100027,
+      "instruction": "Grab the brown seal with leaf carvings, press onto Gray",
+      "episode_info": {
+        "{A}": "100_seal/base4",
+        "{B}": "Gray",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100028,
+      "instruction": "Pick the block-shaped seal with angled edges and stamp Gray",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Gray",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "stamp_seal",
+      "seed": 100029,
+      "instruction": "Pick the small slanted-edged brown seal and stamp on Olive",
+      "episode_info": {
+        "{A}": "100_seal/base3",
+        "{B}": "Olive",
+        "{a}": "left"
+      }
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "task": "turn_switch",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 26,
+  "instruction_type": "unseen",
+  "candidates": [
+    {
+      "task": "turn_switch",
+      "seed": 100000,
+      "instruction": "Click the small flat switch tan top with the left arm.",
+      "episode_info": {
+        "{A}": "056_switch/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100001,
+      "instruction": "Activate the switch at the beige switch with darker brown top",
+      "episode_info": {
+        "{A}": "056_switch/base1",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100002,
+      "instruction": "Click the lightweight plastic switch angled edges with the right arm",
+      "episode_info": {
+        "{A}": "056_switch/base2",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100004,
+      "instruction": "Activate the switch at the smooth black switch",
+      "episode_info": {
+        "{A}": "056_switch/base3",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100005,
+      "instruction": "Use the right arm to press the smooth gray base switch.",
+      "episode_info": {
+        "{A}": "056_switch/base6",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100006,
+      "instruction": "Move and click the the switch with circular black buttons",
+      "episode_info": {
+        "{A}": "056_switch/base7",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100007,
+      "instruction": "Click the beige switch with darker brown top with the right arm.",
+      "episode_info": {
+        "{A}": "056_switch/base1",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100008,
+      "instruction": "Click the curved toggle switch with the left arm",
+      "episode_info": {
+        "{A}": "056_switch/base4",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100009,
+      "instruction": "Activate the switch at the switch flat tan top brown rectangle",
+      "episode_info": {
+        "{A}": "056_switch/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100010,
+      "instruction": "Click the gray switch with the left arm.",
+      "episode_info": {
+        "{A}": "056_switch/base7",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100012,
+      "instruction": "Direct the left arm to click the simple toggle switch",
+      "episode_info": {
+        "{A}": "056_switch/base0",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100013,
+      "instruction": "Press the gray switch with slanted sides using the right arm",
+      "episode_info": {
+        "{A}": "056_switch/base5",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100014,
+      "instruction": "Click the curved toggle switch with the right arm",
+      "episode_info": {
+        "{A}": "056_switch/base4",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100015,
+      "instruction": "Move and click the the gray switch",
+      "episode_info": {
+        "{A}": "056_switch/base7",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100016,
+      "instruction": "Press the smooth black switch using the left arm",
+      "episode_info": {
+        "{A}": "056_switch/base3",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100020,
+      "instruction": "Direct the right arm to click the smooth gray base switch",
+      "episode_info": {
+        "{A}": "056_switch/base6",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100022,
+      "instruction": "Press the red toggle switch using the left arm",
+      "episode_info": {
+        "{A}": "056_switch/base4",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100023,
+      "instruction": "Activate the switch at the switch flat tan top brown rectangle",
+      "episode_info": {
+        "{A}": "056_switch/base2",
+        "{a}": "left"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100024,
+      "instruction": "Click the lightweight plastic switch angled edges using the right arm",
+      "episode_info": {
+        "{A}": "056_switch/base2",
+        "{a}": "right"
+      }
+    },
+    {
+      "task": "turn_switch",
+      "seed": 100025,
+      "instruction": "Direct the right arm to click the switch with angled edges",
+      "episode_info": {
+        "{A}": "056_switch/base5",
+        "{a}": "right"
+      }
+    }
+  ]
+}

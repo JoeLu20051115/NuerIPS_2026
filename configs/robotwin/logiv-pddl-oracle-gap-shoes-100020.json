@@ -1,0 +1,26 @@
+{
+  "method": "LOGIV_PDDL_GPT4O_FACTS_ORACLE_GAP",
+  "checkpoint": "/mnt/data3/data_xingrui/lueq/NuerIPS_2026/artifacts/checkpoints/pi05_TACO_robotwin2_finetuned",
+  "task_config": "demo_clean",
+  "instruction_type": "unseen",
+  "action_chunk_steps": 50,
+  "repair_action_chunk_steps": 50,
+  "dag_from_start": true,
+  "preserve_original_repair_prompt": true,
+  "vlm_image_detail": "low",
+  "min_base_steps_by_task": {
+    "place_dual_shoes": 250
+  },
+  "base_stall_observations": 3,
+  "stage_stall_observations_by_task": {
+    "place_dual_shoes": [3, 2]
+  },
+  "tasks": {
+    "place_dual_shoes": [100020]
+  },
+  "instructions": {
+    "place_dual_shoes": [
+      "Pick up two the white shoe, tips left, into the orange box for keeping shoes."
+    ]
+  }
+}

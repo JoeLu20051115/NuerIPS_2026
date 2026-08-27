@@ -1,0 +1,189 @@
+{
+  "task": "place_dual_shoes",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 32,
+  "instruction_type": "unseen",
+  "candidates": [
+    {
+      "task": "place_dual_shoes",
+      "seed": 100001,
+      "instruction": "Use both arms to move two the medium adult shoe to the medium cardboard shoe-box, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base1",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100002,
+      "instruction": "Pick up two the shoe with striped design, tips left, into the medium cardboard shoe-box.",
+      "episode_info": {
+        "{A}": "041_shoe/base2",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100004,
+      "instruction": "Use both arms to move two the shoe with black stripe design to the medium cardboard shoe-box, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base3",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100007,
+      "instruction": "Lift two the smooth white shoe with laces, tips pointing left, into the medium cardboard shoe-box.",
+      "episode_info": {
+        "{A}": "041_shoe/base9",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100008,
+      "instruction": "Grab a pair of the shoe model with ribbed sole, place left tips in the orange box for keeping shoes.",
+      "episode_info": {
+        "{A}": "041_shoe/base7",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100009,
+      "instruction": "Use both arms to move two the brown shoe with green red stripes to the orange box for keeping shoes, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base7",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100011,
+      "instruction": "Grab two the shoe with striped design, point tips left, place in the medium cardboard shoe-box.",
+      "episode_info": {
+        "{A}": "041_shoe/base2",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100012,
+      "instruction": "Grab two the shoe with padded collar and tongue and set them in the orange box for keeping shoes, tips left.",
+      "episode_info": {
+        "{A}": "041_shoe/base0",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100013,
+      "instruction": "Place two the smooth plastic shoe into the medium cardboard shoe-box, tips left.",
+      "episode_info": {
+        "{A}": "041_shoe/base7",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100015,
+      "instruction": "Pick up two the white leather shoe with gum sole, tips left, into the rectangular Nike box for shoes.",
+      "episode_info": {
+        "{A}": "041_shoe/base2",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100016,
+      "instruction": "Place two the beige-soled walking sneaker into the orange box for keeping shoes, tips left.",
+      "episode_info": {
+        "{A}": "041_shoe/base4",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100019,
+      "instruction": "Grab a pair of the brown shoe with sturdy sole, place left tips in the medium cardboard shoe-box.",
+      "episode_info": {
+        "{A}": "041_shoe/base5",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100023,
+      "instruction": "Use both arms to move two the shoe with padded collar and tongue to the medium cardboard shoe-box, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base0",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100025,
+      "instruction": "Grab two the brown shoe with sturdy sole and set them in the orange box for keeping shoes, tips left.",
+      "episode_info": {
+        "{A}": "041_shoe/base5",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100026,
+      "instruction": "Lift two the running shoe with laces, tips pointing left, into the rectangular Nike box for shoes.",
+      "episode_info": {
+        "{A}": "041_shoe/base4",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100027,
+      "instruction": "Lift two the shoe with black stripes, tips pointing left, into the medium cardboard shoe-box.",
+      "episode_info": {
+        "{A}": "041_shoe/base2",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100028,
+      "instruction": "Grab two the white shoe with tongue logo and set them in the rectangular Nike box for shoes, tips left.",
+      "episode_info": {
+        "{A}": "041_shoe/base6",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100029,
+      "instruction": "Grab two the red shoe, point tips left, place in the orange box for keeping shoes.",
+      "episode_info": {
+        "{A}": "041_shoe/base8",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100030,
+      "instruction": "Use both arms to move two the shoe with black stripe design to the rectangular Nike box for shoes, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base3",
+        "{B}": "007_shoe-box/base0"
+      }
+    },
+    {
+      "task": "place_dual_shoes",
+      "seed": 100031,
+      "instruction": "Use both arms to move two the casual brown shoe to the rectangular Nike box for shoes, tips pointing left.",
+      "episode_info": {
+        "{A}": "041_shoe/base5",
+        "{B}": "007_shoe-box/base0"
+      }
+    }
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "task": "stack_blocks_three",
+  "start_seed": 100000,
+  "candidate_count": 20,
+  "raw_seed_count": 22,
+  "instruction_type": "unseen",
+  "rejections": [
+    {
+      "seed": 100007,
+      "reason": "EXPERT_FAILED"
+    },
+    {
+      "seed": 100013,
+      "reason": "EXPERT_FAILED"
+    }
+  ],
+  "candidates": [
+    {
+      "task": "stack_blocks_three",
+      "seed": 100000,
+      "instruction": "Move red block, green block, and blue block to the table's center and stack them.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100001,
+      "instruction": "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100002,
+      "instruction": "Move red block, green block, and blue block to the center of the table, then stack blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100003,
+      "instruction": "Bring red block, green block, and blue block to the center, stacking blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100004,
+      "instruction": "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100005,
+      "instruction": "Transfer red block, green block, and blue block to the middle, then stack blue block over green block and green block over red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100006,
+      "instruction": "Bring red block, green block, and blue block to the table's center. Stack green block on red block and blue block on green block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100008,
+      "instruction": "Move red block, green block, and blue block to the center of the table, then stack blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100009,
+      "instruction": "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100010,
+      "instruction": "Move red block, green block, and blue block to the table's center and stack them.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100011,
+      "instruction": "Transfer red block, green block, and blue block to the middle, then stack blue block over green block and green block over red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100012,
+      "instruction": "Place red block, green block, and blue block at the table's center, then stack blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100014,
+      "instruction": "Move red block, green block, and blue block to the center of the table, then stack blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100015,
+      "instruction": "Bring red block, green block, and blue block to the table's center. Stack green block on red block and blue block on green block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100016,
+      "instruction": "Bring red block, green block, and blue block to the center, stacking blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100017,
+      "instruction": "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100018,
+      "instruction": "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100019,
+      "instruction": "Move red block, green block, and blue block to the center, then stack green block over red block and blue block over green block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "right",
+        "{b}": "left",
+        "{c}": "left"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100020,
+      "instruction": "Place red block, green block, and blue block at the table's center, then stack blue block on green block and green block on red block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "right",
+        "{c}": "right"
+      }
+    },
+    {
+      "task": "stack_blocks_three",
+      "seed": 100021,
+      "instruction": "Bring red block, green block, and blue block to the table's center. Stack green block on red block and blue block on green block.",
+      "episode_info": {
+        "{A}": "red block",
+        "{B}": "green block",
+        "{C}": "blue block",
+        "{a}": "left",
+        "{b}": "left",
+        "{c}": "right"
+      }
+    }
+  ]
+}

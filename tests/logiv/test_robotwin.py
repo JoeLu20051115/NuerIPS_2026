@@ -212,7 +212,7 @@ def test_grounder_persists_the_exact_multicamera_request_as_png_audit(
     grounder = RobotwinFactGrounder(
         client,
         audit_dir=tmp_path,
-        episode_id="open_microwave-run0002",
+        episode_id="open_microwave-seed100002",
     )
 
     grounder.observe(task, obs, epoch=0)
