@@ -17,7 +17,7 @@ class TruthValue(str, Enum):
     TRUE = "TRUE"
     FALSE = "FALSE"
     UNRESOLVED = "UNRESOLVED"
-    # Backward-compatible internal spelling for historical experiment code.
+    # Internal alias retained for integration compatibility.
     # Enum iteration and all serialized/VLM-facing values use UNRESOLVED.
     UNKNOWN = "UNRESOLVED"
 
