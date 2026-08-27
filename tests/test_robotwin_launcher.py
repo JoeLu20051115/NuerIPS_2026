@@ -200,7 +200,7 @@ def test_explicit_gpu_allows_tasks_independent_of_worker_group(
             "--worker",
             "0",
             "--gpu",
-            "1",
+            "4",
             "--protocol",
             str(tmp_path / "protocol.json"),
             "--output",
@@ -228,5 +228,5 @@ def test_explicit_gpu_allows_tasks_independent_of_worker_group(
     assert LAUNCHER.main() == 0
     assert len(calls) == 1
     gpu, tasks, _args = calls[0]
-    assert gpu == 1
+    assert gpu == 4
     assert tasks == ("place_dual_shoes", "turn_switch")

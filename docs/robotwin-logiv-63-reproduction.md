@@ -8,11 +8,17 @@ LOGIV and 56/100 for pi0.5.
 ## Requirements
 
 - Python 3.11 or newer with this repository installed (`uv sync --dev`).
-- A TACO checkout containing RoboTwin 2.0 with the control patches listed in
-  [`patches/robotwin/README.md`](../patches/robotwin/README.md).
-- The `pi05_TACO_robotwin2_finetuned` checkpoint, including the three CFNs for
+- A TACO checkout at `ee9e06dcf01d8b1a606b18841cb52b1ec88a423b`
+  with the ordered control patches listed in
+  [`patches/robotwin/README.md`](../patches/robotwin/README.md). The resulting
+  control-runtime tree is the one recorded at
+  `8de0ed9520989f9fd156904291d0895b9a361886`.
+- The Hugging Face checkpoint
+  `rhodes-team-teleai/pi05_TACO_robotwin2_finetuned` at revision
+  `0f000e2748bd1fcb43027d8790f81fcccaa04670`, including the three CFNs for
   `handover_block`, `move_can_pot`, and `beat_block_hammer`.
-- The PaliGemma tokenizer used by the pi0.5 checkpoint.
+- The PaliGemma tokenizer at
+  `gs://big_vision/paligemma_tokenizer.model`, used by the pi0.5 checkpoint.
 - An executable VAL `Validate` binary for LOGIV's online PDDL planner.
 - Three CUDA GPUs and the Python executable for the RoboTwin environment.
 - `OPENAI_API_KEY` exported in the environment. The launcher never prints or

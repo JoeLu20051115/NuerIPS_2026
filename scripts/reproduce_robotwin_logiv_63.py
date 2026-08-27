@@ -186,7 +186,8 @@ def _preflight(
 def _run_phase(commands: list[list[str]]) -> int:
     processes: list[subprocess.Popen] = []
     try:
-        processes = [subprocess.Popen(command) for command in commands]
+        for command in commands:
+            processes.append(subprocess.Popen(command))
     except OSError as error:
         for process in processes:
             process.terminate()

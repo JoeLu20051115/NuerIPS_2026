@@ -186,7 +186,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--worker", type=int, choices=range(3), required=True)
-    parser.add_argument("--gpu", type=int, choices=range(3))
+    parser.add_argument("--gpu", type=int)
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tag", required=True)

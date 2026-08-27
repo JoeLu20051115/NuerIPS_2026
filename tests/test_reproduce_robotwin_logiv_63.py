@@ -87,6 +87,39 @@ def test_expectations_reject_incomplete_protocol() -> None:
     assert errors == ["frozen protocol is incomplete"]
 
 
+def test_run_phase_stops_started_workers_when_a_later_start_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    assert DRIVER is not None
+
+    class Process:
+        terminated = False
+        waited = False
+
+        def terminate(self) -> None:
+            self.terminated = True
+
+        def wait(self) -> int:
+            self.waited = True
+            return 0
+
+    started = Process()
+    calls = 0
+
+    def popen(_command: list[str]) -> Process:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("worker unavailable")
+        return started
+
+    monkeypatch.setattr(DRIVER.subprocess, "Popen", popen)
+
+    assert DRIVER._run_phase([["worker-1"], ["worker-2"]]) == 1
+    assert started.terminated
+    assert started.waited
+
+
 def test_compaction_removes_only_raw_and_current_tag_directories(
     tmp_path: Path,
 ) -> None:
