@@ -1,7 +1,6 @@
 # RoboTwin LOGIV 63/100 Reproduction Cleanup Design
 
-**Status:** Approach A selected by the user on 2026-08-27. Implementation is
-pending review of this written specification.
+**Status:** Approved by the user on 2026-08-27.
 
 ## Goal
 
