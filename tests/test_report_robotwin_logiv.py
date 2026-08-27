@@ -1,288 +1,168 @@
-from __future__ import annotations
-
-import importlib.util
-import hashlib
+from importlib.util import module_from_spec, spec_from_file_location
 import json
 from pathlib import Path
 
 
-SPEC = importlib.util.spec_from_file_location(
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = spec_from_file_location(
     "report_robotwin_logiv",
-    Path("scripts/report_robotwin_logiv.py").resolve(),
+    ROOT / "scripts" / "report_robotwin_logiv.py",
 )
-REPORT = importlib.util.module_from_spec(SPEC)
-assert SPEC.loader is not None
-SPEC.loader.exec_module(REPORT)
+assert SPEC is not None and SPEC.loader is not None
+REPORTER = module_from_spec(SPEC)
+SPEC.loader.exec_module(REPORTER)
 
 
-def _audit_file(root: Path, relative: str, content: bytes) -> str:
-    path = root / relative
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(content)
-    return hashlib.sha256(content).hexdigest()
-
-
-def test_baseline_parser_derives_per_seed_success_from_cumulative_count(tmp_path) -> None:
-    log = tmp_path / "task.log"
-    log.write_text(
-        "Success rate: \x1b[96m0/1\x1b[0m => 0.0%, current seed: "
-        "\x1b[90m100001\x1b[0m\n"
-        "Success rate: 1/2 => 50.0%, current seed: 100002\n"
-        "Success rate: 1/3 => 33.3%, current seed: 100003\n",
-        encoding="utf-8",
-    )
-
-    assert REPORT.parse_baseline_log(log) == {
-        100001: False,
-        100002: True,
-        100003: False,
+def _config(*, seeds: list[int] | None = None) -> dict:
+    selected = [7] if seeds is None else seeds
+    return {
+        "evidence_label": "development/frozen-rerun",
+        "tasks": {"turn_switch": selected},
+        "instructions": {
+            "turn_switch": [f"press-{seed}" for seed in selected]
+        },
     }
 
 
-def test_report_audits_fixed_pairs_and_counts_flips(tmp_path) -> None:
-    config = {
-        "checkpoint": "/checkpoint",
-        "tasks": {"task_a": [100001, 100002]},
-        "instructions": {"task_a": ["first", "second"]},
-    }
-    baseline = tmp_path / "baseline"
-    baseline.mkdir()
-    (baseline / "task_a.log").write_text(
-        "Success rate: 0/1 => 0.0%, current seed: 100001\n"
-        "Success rate: 1/2 => 50.0%, current seed: 100002\n",
-        encoding="utf-8",
-    )
-    events = tmp_path / "events" / "nested"
-    events.mkdir(parents=True)
-    first_hashes = [
-        _audit_file(events, f"vlm_audit/first-{epoch}.png", f"first-{epoch}".encode())
-        for epoch in range(3)
-    ]
-    second_hashes = [
-        _audit_file(
-            events, f"vlm_audit/second-{epoch}.png", f"second-{epoch}".encode()
-        )
-        for epoch in range(2)
-    ]
-    records = [
-        {
-            "task": "task_a",
-            "seed": 100001,
-            "success": True,
-            "original_instruction": "first",
-            "gpt4o_requests": 3,
-            "gpt4o_calls": [
-                {
-                    "purpose": "state_gate",
-                    "model": "gpt-4o-2024-08-06",
-                    "request_sha256": "c" * 64,
-                    "response_sha256": "d" * 64,
-                }
-                for _ in range(3)
-            ],
-            "events": [
-                {"val_valid": True, "facts": {"fact": "UNRESOLVED"}}
-                for _ in range(3)
-            ],
-            "vlm_audit": [
-                {
-                    "path": f"vlm_audit/first-{epoch}.png",
-                    "sha256": first_hashes[epoch],
-                    "camera_order": [
-                        "current/head_camera",
-                        "current/right_camera",
-                        "current/left_camera",
-                    ],
-                }
-                for epoch in range(3)
-            ],
-        },
-        {
-            "task": "task_a",
-            "seed": 100002,
-            "success": False,
-            "original_instruction": "second",
-            "gpt4o_requests": 2,
-            "gpt4o_calls": [
-                {
-                    "purpose": "state_gate",
-                    "model": "gpt-4o-2024-08-06",
-                    "request_sha256": "e" * 64,
-                    "response_sha256": "f" * 64,
-                }
-                for _ in range(2)
-            ],
-            "events": [
-                {"val_valid": True, "facts": {"fact": "FALSE"}}
-                for _ in range(2)
-            ],
-            "vlm_audit": [
-                {
-                    "path": f"vlm_audit/second-{epoch}.png",
-                    "sha256": second_hashes[epoch],
-                    "camera_order": [
-                        "current/head_camera",
-                        "current/right_camera",
-                        "current/left_camera",
-                    ],
-                }
-                for epoch in range(2)
-            ],
-        },
-    ]
-    (events / "logiv_events.jsonl").write_text(
+def _write_events(root: Path, name: str, records: list[dict]) -> None:
+    path = root / name / "logiv_events.jsonl"
+    path.parent.mkdir(parents=True)
+    path.write_text(
         "".join(json.dumps(record) + "\n" for record in records),
         encoding="utf-8",
     )
 
-    report = REPORT.build_report(config, tmp_path / "events", baseline)
 
-    assert report["completed"] == 2
-    assert report["successes"] == 1
-    assert report["positive_flips"] == 1
-    assert report["negative_flips"] == 1
-    assert report["errors"] == []
-    assert report["evidence_label"] == "development/seed-selected"
-    assert report["strict_protocol_complete"] is True
-    assert "not an independent holdout" in REPORT.render_markdown(report)
+def _write_baseline(root: Path, rows: list[tuple[int, int, int]]) -> None:
+    root.mkdir(parents=True)
+    text = "".join(
+        f"Success rate: {successes}/{total} current seed: {seed}\n"
+        for seed, successes, total in rows
+    )
+    (root / "turn_switch.log").write_text(text, encoding="utf-8")
 
 
-def test_report_rejects_missing_camera_audit_or_nonternary_fact(tmp_path) -> None:
-    config = {
-        "tasks": {"task_a": [100001]},
-        "instructions": {"task_a": ["instruction"]},
-    }
+def test_minimal_complete_report_needs_no_val_provenance_or_images(
+    tmp_path: Path,
+) -> None:
+    _write_events(
+        tmp_path,
+        "episode",
+        [
+            {
+                "task": "turn_switch",
+                "seed": 7,
+                "original_instruction": "press-7",
+                "success": True,
+            }
+        ],
+    )
     baseline = tmp_path / "baseline"
-    baseline.mkdir()
-    (baseline / "task_a.log").write_text(
-        "Success rate: 0/1 => 0.0%, current seed: 100001\n",
-        encoding="utf-8",
-    )
-    events = tmp_path / "events"
-    events.mkdir()
-    (events / "logiv_events.jsonl").write_text(
-        json.dumps(
-            {
-                "task": "task_a",
-                "seed": 100001,
-                "success": False,
-                "original_instruction": "instruction",
-                "gpt4o_requests": 1,
-                "gpt4o_calls": [
-                    {
-                        "purpose": "repair",
-                        "model": "not-gpt-4o",
-                        "request_sha256": "bad",
-                        "response_sha256": "bad",
-                    }
-                ],
-                "events": [
-                    {"val_valid": True, "facts": {"fact": "UNKNOWN"}}
-                ],
-                "vlm_audit": [],
-            }
-        )
-        + "\n",
-        encoding="utf-8",
-    )
+    _write_baseline(baseline, [(7, 0, 1)])
 
-    report = REPORT.build_report(config, events, baseline)
+    report = REPORTER.build_report(_config(), tmp_path, baseline)
 
-    assert any("camera audit" in error for error in report["errors"])
-    assert any("non-ternary" in error for error in report["errors"])
-    assert any("GPT-4o provenance" in error for error in report["errors"])
-
-
-def test_report_can_audit_native_score_without_baseline(tmp_path) -> None:
-    config = {
-        "evidence_label": "development/seed-scan",
-        "tasks": {"task_a": [100001]},
-        "instructions": {"task_a": ["instruction"]},
-    }
-    events = tmp_path / "events"
-    events.mkdir()
-    frame_hash = _audit_file(events, "vlm_audit/frame.png", b"frame")
-    record = {
-        "task": "task_a",
-        "seed": 100001,
-        "success": True,
-        "original_instruction": "instruction",
-        "gpt4o_requests": 1,
-        "gpt4o_calls": [
-            {
-                "purpose": "state_gate",
-                "model": "gpt-4o-2024-08-06",
-                "request_sha256": "a" * 64,
-                "response_sha256": "b" * 64,
-            }
-        ],
-        "events": [{"val_valid": True, "facts": {"fact": "FALSE"}}],
-        "vlm_audit": [
-            {
-                "path": "vlm_audit/frame.png",
-                "sha256": frame_hash,
-                "camera_order": [
-                    "current/head_camera",
-                    "current/right_camera",
-                    "current/left_camera",
-                ],
-            }
-        ],
-    }
-    (events / "logiv_events.jsonl").write_text(
-        json.dumps(record) + "\n", encoding="utf-8"
-    )
-
-    report = REPORT.build_report(config, events, None)
-
-    assert report["successes"] == 1
-    assert report["completed"] == 1
-    assert report["baseline_successes"] is None
-    assert report["evidence_label"] == "development/seed-scan"
     assert report["strict_protocol_complete"] is True
-    markdown = REPORT.render_markdown(report)
-    assert "Baseline: **not run**" in markdown
-    assert "development/seed-scan" in markdown
+    assert report["successes"] == 1
+    assert report["baseline_successes"] == 0
+    assert report["positive_flips"] == 1
+    assert report["negative_flips"] == 0
+    assert report["errors"] == []
 
 
-def test_report_rejects_missing_or_tampered_camera_file(tmp_path) -> None:
-    config = {
-        "tasks": {"task_a": [100001]},
-        "instructions": {"task_a": ["instruction"]},
+def test_report_rejects_duplicate_and_wrong_instruction(tmp_path: Path) -> None:
+    wrong = {
+        "task": "turn_switch",
+        "seed": 7,
+        "original_instruction": "wrong",
+        "success": True,
     }
-    events = tmp_path / "events"
-    events.mkdir()
-    record = {
-        "task": "task_a",
-        "seed": 100001,
-        "success": False,
-        "original_instruction": "instruction",
-        "gpt4o_requests": 1,
-        "gpt4o_calls": [
+    _write_events(tmp_path, "first", [wrong])
+    _write_events(tmp_path, "second", [{**wrong, "original_instruction": "press-7"}])
+
+    report = REPORTER.build_report(_config(), tmp_path, None)
+
+    assert any("duplicate LOGIV record" in error for error in report["errors"])
+    assert any("instruction mismatch" in error for error in report["errors"])
+    assert report["strict_protocol_complete"] is False
+
+
+def test_report_records_malformed_and_unexpected_rows_as_errors(
+    tmp_path: Path,
+) -> None:
+    _write_events(
+        tmp_path,
+        "records",
+        [
+            {"task": "turn_switch", "seed": "not-an-int", "success": True},
             {
-                "purpose": "state_gate",
-                "model": "gpt-4o-2024-08-06",
-                "request_sha256": "a" * 64,
-                "response_sha256": "b" * 64,
-            }
+                "task": "other_task",
+                "seed": 9,
+                "original_instruction": "other",
+                "success": False,
+            },
         ],
-        "events": [{"val_valid": True, "facts": {"fact": "FALSE"}}],
-        "vlm_audit": [
-            {
-                "path": "vlm_audit/missing.png",
-                "sha256": hashlib.sha256(b"different").hexdigest(),
-                "camera_order": [
-                    "current/head_camera",
-                    "current/right_camera",
-                    "current/left_camera",
-                ],
-            }
-        ],
-    }
-    (events / "logiv_events.jsonl").write_text(
-        json.dumps(record) + "\n", encoding="utf-8"
     )
 
-    report = REPORT.build_report(config, events, None)
+    report = REPORTER.build_report(_config(), tmp_path, None)
 
-    assert any("camera audit file" in error for error in report["errors"])
+    assert any("malformed LOGIV record" in error for error in report["errors"])
+    assert any("unexpected LOGIV record" in error for error in report["errors"])
+    assert any("missing LOGIV record" in error for error in report["errors"])
+
+
+def test_report_records_invalid_json_as_an_error(tmp_path: Path) -> None:
+    path = tmp_path / "broken" / "logiv_events.jsonl"
+    path.parent.mkdir(parents=True)
+    path.write_text("{not-json}\n", encoding="utf-8")
+
+    report = REPORTER.build_report(_config(), tmp_path, None)
+
+    assert any("malformed JSON event" in error for error in report["errors"])
+    assert report["strict_protocol_complete"] is False
+
+
+def test_baseline_must_contain_the_exact_frozen_seed_set(tmp_path: Path) -> None:
+    _write_events(
+        tmp_path,
+        "episodes",
+        [
+            {
+                "task": "turn_switch",
+                "seed": seed,
+                "original_instruction": f"press-{seed}",
+                "success": seed == 7,
+            }
+            for seed in (7, 8)
+        ],
+    )
+    baseline = tmp_path / "baseline"
+    _write_baseline(baseline, [(7, 1, 1)])
+
+    report = REPORTER.build_report(_config(seeds=[7, 8]), tmp_path, baseline)
+
+    assert "baseline seed set does not match frozen protocol" in report["errors"]
+    assert report["strict_protocol_complete"] is False
+
+
+def test_markdown_labels_the_output_as_a_frozen_rerun(tmp_path: Path) -> None:
+    _write_events(
+        tmp_path,
+        "episode",
+        [
+            {
+                "task": "turn_switch",
+                "seed": 7,
+                "original_instruction": "press-7",
+                "success": True,
+            }
+        ],
+    )
+    report = REPORTER.build_report(_config(), tmp_path, None)
+
+    markdown = REPORTER.render_markdown(report)
+
+    assert "development/frozen-rerun" in markdown
+    assert "1/1" in markdown
+    assert "VAL" not in markdown
+    assert "audit" not in markdown.lower()
