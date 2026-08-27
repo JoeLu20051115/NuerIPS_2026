@@ -1,0 +1,360 @@
+{
+  "evidence_label": "development/frozen-rerun",
+  "method": "LOGIV_PDDL_GPT4O_FACTS",
+  "task_config": "demo_clean",
+  "instruction_type": "unseen",
+  "action_chunk_steps": 50,
+  "repair_action_chunk_steps": 50,
+  "repair_action_chunk_steps_by_task": {
+    "handover_block": 50,
+    "open_microwave": 50,
+    "place_dual_shoes": 50,
+    "stamp_seal": 50,
+    "blocks_ranking_size": 50,
+    "move_can_pot": 50,
+    "turn_switch": 50,
+    "stack_blocks_three": 50,
+    "stack_bowls_three": 50,
+    "beat_block_hammer": 50
+  },
+  "vlm_image_detail": "low",
+  "dag_from_start": true,
+  "use_registered_dag_prompts": false,
+  "use_registered_dag_prompts_by_task": {
+    "turn_switch": true
+  },
+  "preserve_original_repair_prompt": false,
+  "preserve_original_repair_prompt_by_task": {
+    "open_microwave": true,
+    "place_dual_shoes": true,
+    "stamp_seal": true,
+    "blocks_ranking_size": true,
+    "stack_blocks_three": true
+  },
+  "policy_replan_steps_by_task": {
+    "open_microwave": 10,
+    "stack_blocks_three": 10
+  },
+  "repair_cfn_tasks": [
+    "handover_block",
+    "move_can_pot",
+    "beat_block_hammer"
+  ],
+  "min_base_steps_by_task": {
+    "handover_block": 0,
+    "open_microwave": 400,
+    "place_dual_shoes": 250,
+    "stamp_seal": 150,
+    "blocks_ranking_size": 700,
+    "move_can_pot": 0,
+    "turn_switch": 0,
+    "stack_blocks_three": 650,
+    "stack_bowls_three": 500,
+    "beat_block_hammer": 0
+  },
+  "base_stall_observations": 4,
+  "base_stall_observations_by_task": {
+    "handover_block": 4,
+    "open_microwave": 4,
+    "place_dual_shoes": 3,
+    "stamp_seal": 4,
+    "blocks_ranking_size": 4,
+    "move_can_pot": 4,
+    "turn_switch": 4,
+    "stack_blocks_three": 4,
+    "stack_bowls_three": 4,
+    "beat_block_hammer": 4
+  },
+  "stage_stall_observations_by_task": {
+    "handover_block": [
+      4,
+      4,
+      2
+    ],
+    "open_microwave": [
+      4,
+      3
+    ],
+    "place_dual_shoes": [
+      3,
+      2
+    ],
+    "stamp_seal": [
+      3,
+      2
+    ],
+    "blocks_ranking_size": [
+      4,
+      3,
+      2
+    ],
+    "move_can_pot": [
+      4
+    ],
+    "turn_switch": [
+      4
+    ],
+    "stack_blocks_three": [
+      4,
+      3,
+      2
+    ],
+    "stack_bowls_three": [
+      4,
+      3,
+      2
+    ],
+    "beat_block_hammer": [
+      4,
+      2
+    ]
+  },
+  "tasks": {
+    "handover_block": [
+      100012,
+      100020,
+      100013,
+      100000,
+      100008,
+      100015,
+      100019,
+      100002,
+      100003,
+      100004
+    ],
+    "open_microwave": [
+      100019,
+      100014,
+      100032,
+      100000,
+      100022,
+      100039,
+      100003,
+      100028,
+      100009,
+      100033
+    ],
+    "place_dual_shoes": [
+      100004,
+      100028,
+      100002,
+      100027,
+      100025,
+      100001,
+      100007,
+      100008,
+      100009,
+      100011
+    ],
+    "stamp_seal": [
+      100024,
+      100015,
+      100000,
+      100006,
+      100028,
+      100001,
+      100004,
+      100007,
+      100008,
+      100009
+    ],
+    "blocks_ranking_size": [
+      100001,
+      100010,
+      100002,
+      100012,
+      100008,
+      100000,
+      100014,
+      100019,
+      100021,
+      100003
+    ],
+    "move_can_pot": [
+      100005,
+      100014,
+      100015,
+      100001,
+      100018,
+      100016,
+      100006,
+      100009,
+      100007,
+      100002
+    ],
+    "turn_switch": [
+      100008,
+      100016,
+      100001,
+      100015,
+      100002,
+      100000,
+      100006,
+      100007,
+      100012,
+      100025
+    ],
+    "stack_blocks_three": [
+      100021,
+      100005,
+      100004,
+      100002,
+      100001,
+      100003,
+      100006,
+      100008,
+      100009,
+      100010
+    ],
+    "stack_bowls_three": [
+      100023,
+      100028,
+      100001,
+      100017,
+      100002,
+      100029,
+      100026,
+      100032,
+      100008,
+      100030
+    ],
+    "beat_block_hammer": [
+      100013,
+      100019,
+      100009,
+      100007,
+      100010,
+      100017,
+      100008,
+      100023,
+      100015,
+      100016
+    ]
+  },
+  "instructions": {
+    "handover_block": [
+      "Grab the red block with the left arm, switch to the right, and place it on the blue pad.",
+      "Grab the red block with the left arm, switch to the right, and place it on the blue pad.",
+      "Pick up the red block and switch arms.",
+      "Grab the red block with the left arm.",
+      "Grab the red block with the left arm.",
+      "Grab the red block with the left arm, switch to the right arm, and set it on the blue pad.",
+      "Pick up the red block with the left arm, transfer it to the right, and place it on the blue pad.",
+      "Grab the red block with the left arm.",
+      "Pick up the red block and switch arms.",
+      "Pass the red block to the right arm and set it down."
+    ],
+    "open_microwave": [
+      "Use the left arm to pull the handle of the medium-sized rectangular microwave with textured top.",
+      "Move the left arm and open the gray and yellow rectangular microwave.",
+      "Use the left arm to open the gray and yellow rectangular microwave.",
+      "Locate the medium gray microwave with top vents and open it using the left arm.",
+      "Locate the medium gray microwave with top vents and open it using the left arm.",
+      "Open the medium gray microwave with top vents using the left arm.",
+      "Move the left arm and open the medium-sized rectangular microwave with textured top.",
+      "Use the left arm to open the medium-sized rectangular microwave with textured top.",
+      "Open the gray and yellow rectangular microwave using the left arm.",
+      "Use the left arm to pull the handle of the kitchen microwave with slanted shape."
+    ],
+    "place_dual_shoes": [
+      "Use both arms to move two the shoe with black stripe design to the medium cardboard shoe-box, tips pointing left.",
+      "Grab two the white shoe with tongue logo and set them in the rectangular Nike box for shoes, tips left.",
+      "Pick up two the shoe with striped design, tips left, into the medium cardboard shoe-box.",
+      "Lift two the shoe with black stripes, tips pointing left, into the medium cardboard shoe-box.",
+      "Grab two the brown shoe with sturdy sole and set them in the orange box for keeping shoes, tips left.",
+      "Use both arms to move two the medium adult shoe to the medium cardboard shoe-box, tips pointing left.",
+      "Lift two the smooth white shoe with laces, tips pointing left, into the medium cardboard shoe-box.",
+      "Grab a pair of the shoe model with ribbed sole, place left tips in the orange box for keeping shoes.",
+      "Use both arms to move two the brown shoe with green red stripes to the orange box for keeping shoes, tips pointing left.",
+      "Grab two the shoe with striped design, point tips left, place in the medium cardboard shoe-box."
+    ],
+    "stamp_seal": [
+      "Pick the block-shaped seal with angled edges and press on Cyan.",
+      "Grab the solid brown seal and stamp Indigo",
+      "Grab the small carved seal, press onto Brown",
+      "Grab the seal used for pressing stamps and stamp Beige",
+      "Pick the block-shaped seal with angled edges and stamp Gray",
+      "Use the right arm to grab the round base seal, stamp Navy.",
+      "Use the left arm to grab the reddish rectangular seal, stamp Navy.",
+      "Grab the solid brown seal, press onto Beige",
+      "Grab the seal with smooth texture using the left arm and stamp Coral",
+      "Use the right arm to grab the smooth stone seal with writing, stamp Teal."
+    ],
+    "blocks_ranking_size": [
+      "Move large block, medium block, and small block to the center, arrange left to right.",
+      "Place large block, medium block, and small block at the table center.",
+      "Place large block, medium block, and small block at the table center, largest to smallest.",
+      "Move large block, medium block, and small block to the table center.",
+      "Place large block, medium block, and small block at the table center, largest to smallest.",
+      "Place large block, medium block, and small block at the table center.",
+      "Place large block, medium block, and small block at the table center, largest to smallest.",
+      "Move large block, medium block, and small block to the center table.",
+      "Place large block, medium block, and small block in order at the center.",
+      "Move large block, medium block, and small block to the center, ordering largest to smallest."
+    ],
+    "move_can_pot": [
+      "Grab the metal body sauce can and set it beside the medium kitchenpot",
+      "Grab the medium-size cylindrical sauce can and place it near the shiny black kitchenpot",
+      "Grab the brown sauce can with top lid and place it beside the rounded cooking pot with two handles",
+      "Use the right arm to grab the sauce can and place it by the round pot with blue top",
+      "Use the right arm to grab the sauce can with round ridged lid and place it by the metal pot with curved handles",
+      "Use the right arm to pick up the red can with white text and move it beside the blue pot with cylindrical body and lid",
+      "Grab the smooth cylindrical sauce can and place it beside the medium kitchenpot with black handles",
+      "Use the left arm to grab the sauce can with red lid and place it by the rounded cooking pot with two handles",
+      "Pick up the hand-sized sauce can and move it near the kitchenpot with smooth matte body",
+      "Grab the smooth sauce can and place it near the medium kitchenpot with black handles"
+    ],
+    "turn_switch": [
+      "Click the curved toggle switch with the left arm",
+      "Press the smooth black switch using the left arm",
+      "Activate the switch at the beige switch with darker brown top",
+      "Move and click the the gray switch",
+      "Click the lightweight plastic switch angled edges with the right arm",
+      "Click the small flat switch tan top with the left arm.",
+      "Move and click the the switch with circular black buttons",
+      "Click the beige switch with darker brown top with the right arm.",
+      "Direct the left arm to click the simple toggle switch",
+      "Direct the right arm to click the switch with angled edges"
+    ],
+    "stack_blocks_three": [
+      "Bring red block, green block, and blue block to the table's center. Stack green block on red block and blue block on green block.",
+      "Transfer red block, green block, and blue block to the middle, then stack blue block over green block and green block over red block.",
+      "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "Move red block, green block, and blue block to the center of the table, then stack blue block on green block and green block on red block.",
+      "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "Bring red block, green block, and blue block to the center, stacking blue block on green block and green block on red block.",
+      "Bring red block, green block, and blue block to the table's center. Stack green block on red block and blue block on green block.",
+      "Move red block, green block, and blue block to the center of the table, then stack blue block on green block and green block on red block.",
+      "Bring red block, green block, blue block to the table's center and stack them: blue block on green block, green block on red block.",
+      "Move red block, green block, and blue block to the table's center and stack them."
+    ],
+    "stack_bowls_three": [
+      "Start stacking the small smooth brown-rimmed bowl from the bottom to the top.",
+      "Stack the three the light blue bowl with darkened rim one above the other.",
+      "Start stacking the smooth bowl with glossy finish from the bottom to the top.",
+      "Start stacking the smooth bowl with glossy finish from the bottom to the top.",
+      "Grab the light blue bowl with darkened rim, stack them one by one.",
+      "Put the small smooth brown-rimmed bowl in a pile, largest to smallest.",
+      "Stack the smooth bowl with glossy finish by placing smallest on top.",
+      "Stack the three the small smooth brown-rimmed bowl one above the other.",
+      "Grab the small smooth brown-rimmed bowl, stack them one by one.",
+      "Start stacking the light blue bowl with darkened rim from the bottom to the top."
+    ],
+    "beat_block_hammer": [
+      "Use the right arm to grab the hammer with claw and smooth head then beat block",
+      "Pick the hammer with claw and smooth head up and hit the block",
+      "Grab the silver hammer head and claw and hit the block.",
+      "Grab the hammer with black handle and beat the block.",
+      "Grab the hammer with black handle and beat the block.",
+      "Grab the hammer with black handle and hit the block.",
+      "Grab the silver hammer head and claw and hit the block",
+      "Grab the silver hammer head and claw and hit the block.",
+      "Grab the hammer with black handle and strike the block",
+      "Use the left arm to grab the hammer with black handle then beat block"
+    ]
+  },
+  "expected_successes": {
+    "logiv": 63,
+    "baseline": 56
+  }
+}
