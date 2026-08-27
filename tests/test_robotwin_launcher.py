@@ -1,6 +1,8 @@
 from importlib.util import module_from_spec, spec_from_file_location
+import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +13,25 @@ SPEC = spec_from_file_location(
 assert SPEC is not None and SPEC.loader is not None
 LAUNCHER = module_from_spec(SPEC)
 SPEC.loader.exec_module(LAUNCHER)
+
+
+def test_task_command_uses_the_explicit_checkpoint(tmp_path: Path) -> None:
+    config = json.loads(
+        (ROOT / "configs/robotwin/logiv-gpt4o-63-vs-pi05-56.json").read_text()
+    )
+    args = SimpleNamespace(
+        python=tmp_path / "python",
+        checkpoint=tmp_path / "checkpoint",
+        tokenizer=tmp_path / "tokenizer.model",
+        val_binary=tmp_path / "Validate",
+        logiv_root=tmp_path / "logiv",
+        tag="test-logiv",
+    )
+
+    command = LAUNCHER._task_command(config, "turn_switch", args)
+
+    assert command[command.index("--policy_path") + 1] == str(args.checkpoint)
+    assert str(args.checkpoint) not in config.values()
 
 
 def test_task_specific_stall_observations_override_global_default() -> None:
@@ -190,6 +211,8 @@ def test_explicit_gpu_allows_tasks_independent_of_worker_group(
             str(tmp_path / "taco"),
             "--logiv-root",
             str(tmp_path / "logiv"),
+            "--checkpoint",
+            str(tmp_path / "checkpoint"),
             "--python",
             sys.executable,
             "--tokenizer",

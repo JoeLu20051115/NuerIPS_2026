@@ -79,10 +79,15 @@ def _policy_replan_steps(config: dict, task: str | None = None) -> int | None:
     return None if value is None else int(value)
 
 
-def _repair_cfn_path(config: dict, task: str) -> Path | None:
+def _repair_cfn_path(
+    config: dict, task: str, checkpoint: Path | None = None
+) -> Path | None:
     if task not in config.get("repair_cfn_tasks", ()):
         return None
-    return Path(config["checkpoint"]) / "cfns" / f"{task}_cfn.pt"
+    root = checkpoint
+    if root is None:
+        root = Path(config["checkpoint"])
+    return root / "cfns" / f"{task}_cfn.pt"
 
 
 def _api_key() -> str:
@@ -93,6 +98,55 @@ def _api_key() -> str:
     raise RuntimeError(
         "set a valid OPENAI_API_KEY (or OPENAI_KEY) for the direct OpenAI API"
     )
+
+
+def _task_command(
+    config: dict, task: str, args: argparse.Namespace
+) -> list[str]:
+    command = [
+        str(args.python),
+        "script/eval_lerobot_torch_pi05.py",
+        "--config", "policy/pi05/deploy_policy.yml",
+        "--overrides",
+        "--policy_name", "pi05",
+        "--task_name", task,
+        "--task_config", config["task_config"],
+        "--ckpt_setting", "unified_50tasks",
+        "--seed", "0",
+        "--tag", args.tag,
+        "--instruction_type", config["instruction_type"],
+        "--policy_path", str(args.checkpoint),
+        "--test_num", str(len(config["tasks"][task])),
+        "--tokenizer_path", str(args.tokenizer),
+        "--record_videos", "False",
+        "--accepted_seeds", json.dumps(config["tasks"][task]),
+        "--logiv_root", str(args.logiv_root),
+        "--val_binary", str(args.val_binary),
+        "--action_chunk_steps", str(config["action_chunk_steps"]),
+        "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config, task)),
+        "--vlm_image_detail", _vlm_image_detail(config, task),
+        "--max_gpt4o_retries", "2",
+        "--base_stall_observations", str(_stall_observations(config, task)),
+        "--min_base_dispatches", str(_min_base_dispatches(config, task)),
+        "--dag_from_start", str(_dag_from_start(config, task)),
+        "--use_registered_dag_prompts",
+        str(_use_registered_dag_prompts(config, task)),
+        "--preserve_original_repair_prompt",
+        str(_preserve_original_repair_prompt(config, task)),
+    ]
+    instructions = config.get("instructions", {}).get(task)
+    if instructions is not None:
+        command.extend(["--accepted_instructions", json.dumps(instructions)])
+    stage_stalls = _stage_stall_observations(config, task)
+    if stage_stalls is not None:
+        command.extend(["--stage_stall_observations", json.dumps(stage_stalls)])
+    repair_cfn = _repair_cfn_path(config, task, args.checkpoint)
+    if repair_cfn is not None:
+        command.extend(["--repair_cfn_path", str(repair_cfn)])
+    policy_replan_steps = _policy_replan_steps(config, task)
+    if policy_replan_steps is not None:
+        command.extend(["--policy_replan_steps", str(policy_replan_steps)])
+    return command
 
 
 def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> int:
@@ -114,49 +168,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
     args.output.mkdir(parents=True, exist_ok=True)
     for task in tasks:
         log = args.output / f"{task}.log"
-        command = [
-            str(args.python),
-            "script/eval_lerobot_torch_pi05.py",
-            "--config", "policy/pi05/deploy_policy.yml",
-            "--overrides",
-            "--policy_name", "pi05",
-            "--task_name", task,
-            "--task_config", config["task_config"],
-            "--ckpt_setting", "unified_50tasks",
-            "--seed", "0",
-            "--tag", args.tag,
-            "--instruction_type", config["instruction_type"],
-            "--policy_path", config["checkpoint"],
-            "--test_num", str(len(config["tasks"][task])),
-            "--tokenizer_path", str(args.tokenizer),
-            "--record_videos", "False",
-            "--accepted_seeds", json.dumps(config["tasks"][task]),
-            "--logiv_root", str(args.logiv_root),
-            "--val_binary", str(args.val_binary),
-            "--action_chunk_steps", str(config["action_chunk_steps"]),
-            "--repair_action_chunk_steps", str(_repair_action_chunk_steps(config, task)),
-            "--vlm_image_detail", _vlm_image_detail(config, task),
-            "--max_gpt4o_retries", "2",
-            "--base_stall_observations", str(_stall_observations(config, task)),
-            "--min_base_dispatches", str(_min_base_dispatches(config, task)),
-            "--dag_from_start", str(_dag_from_start(config, task)),
-            "--use_registered_dag_prompts",
-            str(_use_registered_dag_prompts(config, task)),
-            "--preserve_original_repair_prompt",
-            str(_preserve_original_repair_prompt(config, task)),
-        ]
-        instructions = config.get("instructions", {}).get(task)
-        if instructions is not None:
-            command.extend(["--accepted_instructions", json.dumps(instructions)])
-        stage_stalls = _stage_stall_observations(config, task)
-        if stage_stalls is not None:
-            command.extend(["--stage_stall_observations", json.dumps(stage_stalls)])
-        repair_cfn = _repair_cfn_path(config, task)
-        if repair_cfn is not None:
-            command.extend(["--repair_cfn_path", str(repair_cfn)])
-        policy_replan_steps = _policy_replan_steps(config, task)
-        if policy_replan_steps is not None:
-            command.extend(["--policy_replan_steps", str(policy_replan_steps)])
+        command = _task_command(config, task, args)
         with log.open("w", encoding="utf-8") as stream:
             result = subprocess.run(
                 command,
@@ -180,6 +192,7 @@ def main() -> int:
     parser.add_argument("--tag", required=True)
     parser.add_argument("--taco", type=Path, required=True)
     parser.add_argument("--logiv-root", type=Path, required=True)
+    parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--python", type=Path, required=True)
     parser.add_argument("--tokenizer", type=Path, required=True)
     parser.add_argument("--val-binary", type=Path, required=True)

@@ -17,6 +17,31 @@ GPU_TASKS = (
 ALL_TASKS = frozenset(task for tasks in GPU_TASKS for task in tasks)
 
 
+def _task_command(
+    config: dict, task: str, args: argparse.Namespace
+) -> list[str]:
+    return [
+        str(args.python),
+        "script/eval_lerobot_torch_pi05.py",
+        "--config", "policy/pi05/deploy_policy.yml",
+        "--overrides",
+        "--policy_name", "pi05",
+        "--task_name", task,
+        "--task_config", config["task_config"],
+        "--ckpt_setting", "unified_50tasks",
+        "--seed", "0",
+        "--tag", args.tag,
+        "--instruction_type", config["instruction_type"],
+        "--policy_path", str(args.checkpoint),
+        "--test_num", str(len(config["tasks"][task])),
+        "--tokenizer_path", str(args.tokenizer),
+        "--record_videos", "False",
+        "--accepted_seeds", json.dumps(config["tasks"][task]),
+        "--accepted_instructions", json.dumps(config["instructions"][task]),
+        "--baseline_only", "True",
+    ]
+
+
 def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> int:
     config = json.loads(args.protocol.read_text())
     robotwin = args.taco / "third_party" / "Robotwin"
@@ -28,26 +53,7 @@ def _run_worker(gpu: int, tasks: tuple[str, ...], args: argparse.Namespace) -> i
     )
     args.output.mkdir(parents=True, exist_ok=True)
     for task in tasks:
-        command = [
-            str(args.python),
-            "script/eval_lerobot_torch_pi05.py",
-            "--config", "policy/pi05/deploy_policy.yml",
-            "--overrides",
-            "--policy_name", "pi05",
-            "--task_name", task,
-            "--task_config", config["task_config"],
-            "--ckpt_setting", "unified_50tasks",
-            "--seed", "0",
-            "--tag", args.tag,
-            "--instruction_type", config["instruction_type"],
-            "--policy_path", config["checkpoint"],
-            "--test_num", str(len(config["tasks"][task])),
-            "--tokenizer_path", str(args.tokenizer),
-            "--record_videos", "False",
-            "--accepted_seeds", json.dumps(config["tasks"][task]),
-            "--accepted_instructions", json.dumps(config["instructions"][task]),
-            "--baseline_only", "True",
-        ]
+        command = _task_command(config, task, args)
         log = args.output / f"{task}.log"
         with log.open("x", encoding="utf-8") as stream:
             result = subprocess.run(
@@ -71,6 +77,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--tag", required=True)
     parser.add_argument("--taco", type=Path, required=True)
+    parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--python", type=Path, required=True)
     parser.add_argument("--tokenizer", type=Path, required=True)
     parser.add_argument("--tasks", nargs="+")
